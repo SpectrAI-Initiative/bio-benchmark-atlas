@@ -1,0 +1,53 @@
+entity_type: evaluation_run
+id: bixbench-v1-5-zero-shot-mcq-no-refusal
+work_id: bixbench-v1-5-release
+benchmark_id: bixbench
+benchmark_version: v1.5
+model_ids: [bixbench-gpt-4o-unversioned, bixbench-claude-3-5-sonnet-unversioned]
+scope: {type: full, n: 205, subset_id: null, filter: 'All v1.5 rows, randomized substantive choices without a refusal option, no capsule files.', reporting_status: reported}
+protocol:
+  shots: {value: zero-shot, reporting_status: reported, notes: No demonstrations.}
+  turns: {value: single-turn model call, reporting_status: reported, notes: One forced-choice generation per question.}
+  system_prompt_public: {value: true, reporting_status: reported, notes: Public MCQ-without-refusal prompt template.}
+  reasoning: {value: default model behavior, reporting_status: reported, notes: No explicit reasoning-effort parameter.}
+  tools:
+    browser: {value: false, reporting_status: reported, notes: No browser.}
+    internet: {value: false, reporting_status: reported, notes: No internet tool.}
+    databases: {value: false, reporting_status: reported, notes: No database tool.}
+    code_execution: {value: false, reporting_status: reported, notes: No code execution.}
+    container: {value: false, reporting_status: reported, notes: Direct model calls.}
+    external_tools: {value: false, reporting_status: reported, notes: No capsule files or tools.}
+  token_budget: {value: null, reporting_status: not_reported, notes: Not reported.}
+  time_budget: {value: null, reporting_status: not_reported, notes: Not reported.}
+  temperature: {value: 1.0, reporting_status: reported, notes: 'Script default, not overridden.'}
+  seed: {value: null, reporting_status: not_reported, notes: Choice randomization seed is not reported.}
+  repeats: {value: 1, reporting_status: reported, notes: One prediction per model and question.}
+  grader: {type: exact normalized selected-option match, model: null, human_review: false, reporting_status: reported}
+  statistical: {value: 'accuracy, precision, and coverage over 205 forced-choice questions', reporting_status: reported, notes: Precision equals accuracy and coverage is 100% in this no-refusal condition.}
+  contamination: {value: public benchmark canary, reporting_status: reported, notes: No model-specific decontamination analysis.}
+metrics:
+- {metric_id: accuracy, source_label: accuracy, unit: percent, range: [0, 100], higher_is_better: true, aggregation: correct over all questions, pass_threshold: null, tolerance: exact normalized option}
+- {metric_id: precision, source_label: precision, unit: percent, range: [0, 100], higher_is_better: true, aggregation: correct over sure answers, pass_threshold: null, tolerance: exact normalized option}
+- {metric_id: coverage, source_label: coverage, unit: percent, range: [0, 100], higher_is_better: true, aggregation: sure answers over all questions, pass_threshold: null, tolerance: null}
+results:
+- {model_id: bixbench-gpt-4o-unversioned, metric_id: accuracy, value: 36.0975609756, ci_low: null, ci_high: null, n: 205, notes: 74 correct of 205., status: verified, confidence: high, evidence_ids: [bixbench-evidence-v1-5-mcq-no-refusal-results]}
+- {model_id: bixbench-gpt-4o-unversioned, metric_id: precision, value: 36.0975609756, ci_low: null, ci_high: null, n: 205, notes: 74 correct among 205 sure answers., status: verified, confidence: high, evidence_ids: [bixbench-evidence-v1-5-mcq-no-refusal-results]}
+- {model_id: bixbench-gpt-4o-unversioned, metric_id: coverage, value: 100.0, ci_low: null, ci_high: null, n: 205, notes: 205 sure answers of 205., status: verified, confidence: high, evidence_ids: [bixbench-evidence-v1-5-mcq-no-refusal-results]}
+- {model_id: bixbench-claude-3-5-sonnet-unversioned, metric_id: accuracy, value: 34.1463414634, ci_low: null, ci_high: null, n: 205, notes: 70 correct of 205., status: verified, confidence: high, evidence_ids: [bixbench-evidence-v1-5-mcq-no-refusal-results]}
+- {model_id: bixbench-claude-3-5-sonnet-unversioned, metric_id: precision, value: 34.1463414634, ci_low: null, ci_high: null, n: 205, notes: 70 correct among 205 sure answers., status: verified, confidence: high, evidence_ids: [bixbench-evidence-v1-5-mcq-no-refusal-results]}
+- {model_id: bixbench-claude-3-5-sonnet-unversioned, metric_id: coverage, value: 100.0, ci_low: null, ci_high: null, n: 205, notes: 205 sure answers of 205., status: verified, confidence: high, evidence_ids: [bixbench-evidence-v1-5-mcq-no-refusal-results]}
+comparability_group: bixbench-v1-5-zero-shot-mcq-no-refusal-temperature-one
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Exact counts, values, no-refusal prompt, and deterministic grader verified.'}
+evidence:
+- id: bixbench-evidence-v1-5-mcq-no-refusal-protocol
+  source_type: resource
+  source_id: bixbench-repository-resource
+  accessed_date: '2026-07-21'
+  locator: {type: repository-path, value: 'scripts/run_zeroshot.sh, generate_zeroshot_evals.py, bixbench/zero_shot.py, and grade_outputs.py at commit 49311180bdacb324c596f2e07596c126f2004008', note: 'Defines full-set zero-shot forced-choice calls, randomized options, temperature 1.0, and exact option grading.'}
+  supports: [/benchmark_version, /scope, /protocol, /metrics]
+- id: bixbench-evidence-v1-5-mcq-no-refusal-results
+  source_type: resource
+  source_id: bixbench-v1-5-results-resource
+  accessed_date: '2026-07-21'
+  locator: {type: repository-path, value: 'bixbench-v1.5_results/zero_shot_baselines.json at commit 28909d842bc492ecd99bab303279afb29e3cb353', note: 'Exact accuracy, precision, coverage, n_total, n_correct, and n_sure for both forced-choice baselines.'}
+  supports: [/results]

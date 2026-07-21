@@ -1,0 +1,13 @@
+entity_type: work
+id: bixbench-v1-5-release
+title: BixBench v1.5 dataset and evaluation release
+authors: [FutureHouse BixBench maintainers]
+organizations: [FutureHouse, ScienceMachine]
+work_type: official-release
+source_class: benchmark_creator
+publication_date: '2025-09-26'
+canonical_url: https://github.com/Future-House/BixBench/tree/28909d842bc492ecd99bab303279afb29e3cb353
+doi: null
+arxiv: null
+status: published
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Creator repository commit adds v1.5 evaluation results; the related v1.5 dataset-card update is dated 2025-09-23 and its tag commit is dated 2025-09-29.'}

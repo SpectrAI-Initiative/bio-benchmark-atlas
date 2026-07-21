@@ -253,6 +253,33 @@ test('CompBioBench separates access, agents, repeats, and hardest subset setting
   await expect(page.locator('.chart-card')).toHaveCount(17);
 });
 
+test('BixBench separates versions, artifact units, and creator evaluation modes', async ({ page }) => {
+  await page.goto('/bio-benchmark-atlas/benchmarks/bixbench/');
+  await expect(page.getByText(/original v1.0 paper evaluated 296 questions from 53 capsules/)).toBeVisible();
+  await expect(page.getByText(/current v1.5 has 205 questions/)).toBeVisible();
+  await expect(page.getByText(/reference 59 capsule UUIDs/)).toBeVisible();
+  await expect(page.getByText(/stores 64 archives/)).toBeVisible();
+  await expect(page.getByRole('cell', { name: 'LLM-verifier questions' })).toBeVisible();
+  await expect(page.getByRole('cell', { name: '83', exact: true })).toBeVisible();
+
+  const paper = page.locator('#bixbench-creator-paper');
+  await expect(paper).toContainText('full · n=296');
+  await expect(paper.getByText('Repeats', { exact: true }).locator('..')).toContainText('10');
+  await expect(paper).toContainText('17');
+  await expect(paper).toContainText('9');
+
+  const zero = page.locator('#bixbench-v1-5-zero-shot-mcq-no-refusal');
+  await expect(zero).toContainText('full · n=205');
+  await expect(zero).toContainText('36.0975609756');
+  await expect(zero).toContainText('34.1463414634');
+
+  const agentic = page.locator('#bixbench-v1-5-agentic-open-images');
+  await expect(agentic).toContainText('SimpleAgent with at most 20 steps');
+  await expect(agentic.getByText('Repeats', { exact: true }).locator('..')).toContainText('5');
+  await expect(page.locator('.run-card')).toHaveCount(11);
+  await expect(page.locator('.chart-card')).toHaveCount(10);
+});
+
 test('work, domain, archive, and Chinese guide routes render', async ({ page }) => {
   for (const [path, heading] of [
     ['/bio-benchmark-atlas/works/lifescibench-preprint/', 'LifeSciBench'],

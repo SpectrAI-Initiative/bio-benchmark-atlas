@@ -1,0 +1,9 @@
+entity_type: model
+id: bixbench-claude-3-5-sonnet-20241022
+name: Claude 3.5 Sonnet 20241022
+provider: Anthropic
+release_date: '2024-10-22'
+version_string: anthropic/claude-3-5-sonnet-20241022
+version_status: reported
+aliases: []
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Exact endpoint string in both official v1.5 agent configuration files; not substituted for the unversioned/latest label in other BixBench evaluations.'}

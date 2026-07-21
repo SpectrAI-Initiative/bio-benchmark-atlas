@@ -782,6 +782,113 @@ def test_compbiobench_counts_access_and_creator_protocols() -> None:
     assert {result["confidence"] for result in all_results} == {"high"}
 
 
+def test_bixbench_versions_units_and_creator_protocols() -> None:
+    entities = load_entities()
+    benchmark = next(item for item in entities["benchmark"] if item["id"] == "bixbench")
+    works = {item["id"]: item for item in entities["work"]}
+    models = {item["id"]: item for item in entities["model"]}
+    runs = {
+        item["id"]: item
+        for item in entities["evaluation_run"]
+        if item["benchmark_id"] == "bixbench"
+    }
+    subsets = {item["id"]: item["count"] for item in benchmark["task_counts"]["subsets"]}
+
+    assert benchmark["audit"]["status"] == "audited-with-caveats"
+    assert benchmark["latest_version"] == "v1.5"
+    assert benchmark["task_counts"]["total"] == 205
+    assert benchmark["versions"][0]["label"] == "v1.0"
+    assert benchmark["versions"][0]["task_counts"]["total"] == 296
+    assert benchmark["versions"][0]["task_counts"]["subsets"][0]["count"] == 53
+    assert benchmark["versions"][1]["task_counts"] == benchmark["task_counts"]
+    assert subsets["bixbench-v1-5-referenced-capsules"] == 59
+    assert subsets["bixbench-v1-5-readme-notebooks"] == 60
+    assert subsets["bixbench-v1-5-release-archives"] == 64
+    assert [subsets[key] for key in (
+        "bixbench-v1-5-llm-verifier",
+        "bixbench-v1-5-string-verifier",
+        "bixbench-v1-5-range-verifier",
+    )] == [83, 61, 61]
+    assert {item["path"] for item in benchmark["field_status"]} == {
+        "/task_counts/subsets/1/count",
+        "/versions/1/task_counts/subsets/1/count",
+    }
+    assert {item["status"] for item in benchmark["field_status"]} == {"conflicted"}
+    coverage = {item["tag"]: item for item in benchmark["coverage_notes"]}
+    assert {tag: coverage[tag]["count"] for tag in (
+        "genomics", "transcriptomics", "epigenomics", "single-cell", "proteomics", "multiomics",
+    )} == {
+        "genomics": 74, "transcriptomics": 69, "epigenomics": 12,
+        "single-cell": 2, "proteomics": 4, "multiomics": 2,
+    }
+    assert all(
+        coverage[tag]["count"] is None and coverage[tag]["reporting_status"] == "not_reported"
+        for tag in ("protein-protein-binding", "protein-ligand-binding")
+    )
+    assert benchmark["access"]["level"] == "fully-open"
+    assert {resource["license"] for resource in benchmark["resources"]} == {None, "Apache-2.0"}
+    assert works["bixbench-paper"]["publication_date"] == "2025-02-28"
+    assert works["bixbench-v1-5-release"]["work_type"] == "official-release"
+
+    assert set(runs) == {
+        "bixbench-creator-paper",
+        "bixbench-paper-mcq-refusal",
+        "bixbench-paper-mcq-no-refusal",
+        "bixbench-paper-mcq-no-images",
+        "bixbench-v1-5-zero-shot-open",
+        "bixbench-v1-5-zero-shot-mcq-refusal",
+        "bixbench-v1-5-zero-shot-mcq-no-refusal",
+        "bixbench-v1-5-agentic-open-images",
+        "bixbench-v1-5-agentic-mcq-refusal-images",
+        "bixbench-v1-5-agentic-mcq-no-refusal-images",
+        "bixbench-v1-5-agentic-mcq-refusal-no-images",
+    }
+    paper = runs["bixbench-creator-paper"]
+    assert paper["benchmark_version"] == "v1.0"
+    assert paper["scope"]["type"] == "full" and paper["scope"]["n"] == 296
+    assert paper["protocol"]["repeats"]["value"] == 10
+    assert paper["protocol"]["tools"]["code_execution"]["value"] is True
+    assert paper["protocol"]["tools"]["container"]["value"] is True
+    assert {item["model_id"]: item["value"] for item in paper["results"]} == {
+        "bixbench-gpt-4o-unversioned": 9.0,
+        "bixbench-claude-3-5-sonnet-unversioned": 17.0,
+    }
+    for run_id in (
+        "bixbench-paper-mcq-refusal",
+        "bixbench-paper-mcq-no-refusal",
+        "bixbench-paper-mcq-no-images",
+    ):
+        assert runs[run_id]["results"] == []
+        assert runs[run_id]["protocol"]["repeats"]["value"] == 10
+
+    zero_open = runs["bixbench-v1-5-zero-shot-open"]
+    assert zero_open["scope"]["type"] == "full" and zero_open["scope"]["n"] == 205
+    assert zero_open["protocol"]["repeats"]["value"] == 1
+    assert all(setting["value"] is False for setting in zero_open["protocol"]["tools"].values())
+    assert {
+        (item["model_id"], item["metric_id"]): item["value"] for item in zero_open["results"]
+    }[("bixbench-gpt-4o-unversioned", "accuracy")] == 2.9268292683
+    zero_forced = runs["bixbench-v1-5-zero-shot-mcq-no-refusal"]
+    assert {
+        item["model_id"]: item["value"]
+        for item in zero_forced["results"] if item["metric_id"] == "accuracy"
+    } == {
+        "bixbench-gpt-4o-unversioned": 36.0975609756,
+        "bixbench-claude-3-5-sonnet-unversioned": 34.1463414634,
+    }
+    agentic = [run for run_id, run in runs.items() if "v1-5-agentic" in run_id]
+    assert all(run["scope"]["n"] == 205 for run in agentic)
+    assert all(run["protocol"]["repeats"]["value"] == 5 for run in agentic)
+    assert all(run["protocol"]["reasoning"]["value"].startswith("SimpleAgent") for run in agentic)
+    assert all(run["results"] == [] for run in agentic)
+    assert models["bixbench-gpt-4o-unversioned"]["version_status"] == "not_reported"
+    assert models["bixbench-claude-3-5-sonnet-unversioned"]["version_status"] == "not_reported"
+    assert models["bixbench-claude-3-5-sonnet-20241022"]["version_string"].endswith("20241022")
+    all_results = [result for run in runs.values() for result in run["results"]]
+    assert {result["status"] for result in all_results} == {"verified"}
+    assert {result["confidence"] for result in all_results} == {"high"}
+
+
 def test_public_registry_contains_no_local_absolute_paths() -> None:
     for path in ROOT.glob("registry/**/*.yaml"):
         text = path.read_text(encoding="utf-8")

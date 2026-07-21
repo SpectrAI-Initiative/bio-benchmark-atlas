@@ -1,7 +1,7 @@
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
-  site: 'https://wang422003.github.io',
+  site: 'https://spectrai-initiative.github.io',
   base: '/bio-benchmark-atlas',
   output: 'static',
   trailingSlash: 'always',

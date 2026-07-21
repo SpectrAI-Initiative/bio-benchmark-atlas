@@ -2,7 +2,7 @@
 
 BioBench Atlas is a source-grounded registry of benchmarks for protein science, omics, bioinformatics, and applied life-science research. It separates benchmark definitions from the works that evaluate them and records whether an evaluation used the full benchmark, which metrics it reported, and what tools, graders, repetitions, and subsets were used.
 
-The website is published at **https://wang422003.github.io/bio-benchmark-atlas/**.
+The website is published at **https://spectrai-initiative.github.io/bio-benchmark-atlas/**.
 
 ## Principles
 

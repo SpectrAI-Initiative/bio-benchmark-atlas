@@ -1,10 +1,9 @@
 name: BioBench Atlas
 version: 1.0.0
 release_date: '2026-07-21'
-canonical_repository: https://github.com/wang422003/bio-benchmark-atlas
-canonical_site: https://wang422003.github.io/bio-benchmark-atlas/
+canonical_repository: https://github.com/SpectrAI-Initiative/bio-benchmark-atlas
+canonical_site: https://spectrai-initiative.github.io/bio-benchmark-atlas/
 maintainer: wang422003
 published_source_classes:
   - benchmark_creator
   - official_model_provider
-

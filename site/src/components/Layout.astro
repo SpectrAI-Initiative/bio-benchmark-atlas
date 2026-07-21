@@ -1,0 +1,81 @@
+---
+import '../styles/global.css';
+import { withBase } from '../lib/data';
+
+interface Props {
+  title?: string;
+  description?: string;
+  canonicalPath?: string;
+  lang?: string;
+}
+
+const {
+  title = 'BioBench Atlas',
+  description = 'A source-grounded registry of protein, omics, and life-science benchmarks and their evaluation settings.',
+  canonicalPath = '/',
+  lang = 'en',
+} = Astro.props;
+const fullTitle = title === 'BioBench Atlas' ? title : `${title} · BioBench Atlas`;
+const canonical = new URL(withBase(canonicalPath), 'https://wang422003.github.io').toString();
+---
+
+<!doctype html>
+<html lang={lang} data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#102a43" />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={new URL(withBase('/og-card.png'), 'https://wang422003.github.io').toString()} />
+    <title>{fullTitle}</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <a class="brand" href={withBase('/')} aria-label="BioBench Atlas home">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>BioBench <b>Atlas</b></span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a href={withBase('/benchmarks/')}>Explorer</a>
+        <a href={withBase('/methodology/')}>Methodology</a>
+        <a href={withBase('/taxonomy/')}>Taxonomy</a>
+        <a href={withBase('/archive/')}>Archive</a>
+        <a href={withBase('/zh/')}>中文</a>
+      </nav>
+      <button class="theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle color theme">
+        <span aria-hidden="true">◐</span>
+      </button>
+    </header>
+    <main id="main"><slot /></main>
+    <footer>
+      <div>
+        <a class="brand footer-brand" href={withBase('/')}><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span>BioBench Atlas</span></a>
+        <p>Source-grounded benchmark metadata. No global life-science leaderboard.</p>
+      </div>
+      <div class="footer-links">
+        <a href={withBase('/contribute/')}>Contribute</a>
+        <a href={withBase('/data/registry.json')}>Registry JSON</a>
+        <a href="https://github.com/wang422003/bio-benchmark-atlas">GitHub</a>
+        <span>Code Apache-2.0 · Metadata CC BY 4.0</span>
+      </div>
+    </footer>
+    <script is:inline>
+      const root = document.documentElement;
+      const saved = localStorage.getItem('biobench-theme');
+      const initial = saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      root.dataset.theme = initial;
+      document.querySelector('.theme-toggle')?.addEventListener('click', () => {
+        const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+        root.dataset.theme = next;
+        localStorage.setItem('biobench-theme', next);
+      });
+    </script>
+  </body>
+</html>

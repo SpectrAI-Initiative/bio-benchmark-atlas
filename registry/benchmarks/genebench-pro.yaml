@@ -1,0 +1,40 @@
+entity_type: benchmark
+id: genebench-pro
+name: GeneBench-Pro
+aliases: [Gene Bench Pro]
+summary: Research-level computational-biology tasks testing multistage analysis, ambiguity handling, and decision-relevant statistical judgment.
+kind: agentic-eval
+parent_id: null
+organizations: [OpenAI]
+release_date: '2026-06-30'
+latest_version: '1.0'
+domains: [genomics, transcriptomics, epigenomics, spatial-omics, proteomics, microbiome, clinical-translational, bioinformatics]
+capabilities: [data-analysis, coding, tool-use, scientific-reasoning]
+modalities: [text, table, raw-omics, code]
+task_formats: [workspace-based data analysis, exact JSON response]
+task_counts:
+  total: 129
+  basis: evaluations
+  reporting_status: reported
+  subsets:
+    - {id: public-representative, label: Public representative tasks, count: 10, basis: evaluations, exclusive: false, exhaustive: false, reporting_status: reported, notes: Fully open-sourced examples.}
+    - {id: third-party-heldout, label: Planned third-party held-out subset, count: 50, basis: evaluations, exclusive: false, exhaustive: false, reporting_status: reported, notes: Announced for Artificial Analysis.}
+coverage_notes:
+  - {tag: proteomics, coverage: observed, count: 7, reporting_status: reported, notes: Proteomics and biomarkers domain.}
+access:
+  level: partially-open
+  tasks: Ten representative tasks are public; most tasks are held out.
+  artifacts: Public examples include their attached synthetic data.
+  grader: Deterministic targets are described; the full grader is not public.
+  license: null
+  biosafety_notes: No restricted biological materials are mirrored.
+resources:
+  - {type: paper, url: 'https://cdn.openai.com/pdf/21938268-21af-442f-af93-3b2249afb241/genebench-pro.pdf', license: null, access_notes: Official report.}
+  - {type: website, url: 'https://openai.com/index/introducing-genebench-pro/', license: null, access_notes: Official interactive overview.}
+implementations:
+  - {framework: official isolated workspace, status: not-available, url: null, commit: null, notes: Full evaluation harness is not public.}
+verification: {status: verified, last_verified: '2026-07-21', notes: Official OpenAI sources only.}
+evidence:
+  - work_id: genebench-pro-report
+    locator: 'Abstract; Domain Atlas; Evaluation and grading; Results'
+    supports: [summary, task_counts, domains, capabilities, access]

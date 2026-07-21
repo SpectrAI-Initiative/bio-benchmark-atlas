@@ -1,0 +1,9 @@
+---
+import { termMaps, withBase } from '../lib/data';
+interface Props { id: string; axis?: string; linked?: boolean; accent?: boolean; }
+const { id, axis = 'domains', linked = false, accent = false } = Astro.props;
+const term = termMaps[axis]?.get(id);
+const label = term?.label ?? id;
+const href = axis === 'domains' ? withBase(`/domains/${id}/`) : undefined;
+---
+{linked && href ? <a class:list={['tag', { accent }]} href={href}>{label}</a> : <span class:list={['tag', { accent }]}>{label}</span>}

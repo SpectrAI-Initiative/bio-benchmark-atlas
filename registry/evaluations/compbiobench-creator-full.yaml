@@ -1,0 +1,35 @@
+entity_type: evaluation_run
+id: compbiobench-creator-full
+work_id: compbiobench-preprint
+benchmark_id: compbiobench
+benchmark_version: '1.0'
+scope: {type: full, n: 100, subset_id: null, filter: All benchmark tasks., reporting_status: reported}
+protocol:
+  shots: &nr {value: null, reporting_status: not_reported, notes: Not reported as a shot count.}
+  turns: {value: multi-turn, reporting_status: reported, notes: End-to-end agentic tasks.}
+  system_prompt_public: *nr
+  reasoning: *nr
+  tools:
+    browser: {value: true, reporting_status: reported, notes: Agents fetch external resources as needed.}
+    internet: {value: true, reporting_status: reported, notes: Bare environment permits fetching data and tools.}
+    databases: {value: true, reporting_status: reported, notes: Real-world external resources may be used.}
+    code_execution: {value: true, reporting_status: reported, notes: Bespoke code is required.}
+    container: {value: true, reporting_status: reported, notes: Runner provisions a bare-minimum environment.}
+    external_tools: {value: true, reporting_status: reported, notes: Agents install or retrieve required tools.}
+  token_budget: *nr
+  time_budget: *nr
+  temperature: *nr
+  seed: *nr
+  repeats: *nr
+  grader: {type: objective task-specific answer checker, model: null, human_review: false, reporting_status: reported}
+  statistical: {value: problem-weighted accuracy, reporting_status: reported, notes: null}
+  contamination: {value: synthetic or augmented data with metadata scrambling and scrubbing, reporting_status: reported, notes: Construction reduces lookup shortcuts.}
+metrics:
+  - {metric_id: accuracy, source_label: Accuracy, unit: percent, range: [0, 100], higher_is_better: true, aggregation: problem-weighted mean, pass_threshold: null, tolerance: task-specific}
+results:
+  - {model_id: codex-cli-gpt-5-4, metric_id: accuracy, value: 83.0, ci_low: null, ci_high: null, n: 100, notes: End-to-end system result.}
+  - {model_id: claude-code-opus-4-6, metric_id: accuracy, value: 81.0, ci_low: null, ci_high: null, n: 100, notes: End-to-end system result.}
+comparability_group: compbiobench-v1-full-bare-environment
+verification: {status: verified, last_verified: '2026-07-21', notes: Headline full-set values from the creator preprint.}
+evidence:
+  - {work_id: compbiobench-preprint, locator: 'Abstract; benchmark construction and experimental setup', supports: [scope, protocol.tools, protocol.grader, protocol.contamination, metrics, results]}

@@ -1,0 +1,9 @@
+entity_type: model
+id: gpt-5-6-sol
+name: GPT-5.6 Sol
+provider: OpenAI
+release_date: null
+version_string: GPT-5.6 Sol
+version_status: reported
+aliases: []
+verification: {status: verified, last_verified: '2026-07-21', notes: Exact report label; API snapshot not reported.}

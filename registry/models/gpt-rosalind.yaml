@@ -1,0 +1,9 @@
+entity_type: model
+id: gpt-rosalind
+name: GPT-Rosalind
+provider: OpenAI
+release_date: '2026-06-17'
+version_string: GPT-Rosalind
+version_status: reported
+aliases: []
+verification: {status: verified, last_verified: '2026-07-21', notes: Exact label used in the LifeSciBench report.}

@@ -1,0 +1,39 @@
+entity_type: benchmark
+id: casp
+name: CASP
+aliases: [Critical Assessment of Structure Prediction]
+summary: Biennial blind community experiment assessing protein and biomolecular structure-prediction methods on unreleased experimental targets.
+kind: competition
+parent_id: null
+organizations: [Prediction Center]
+release_date: '1994-05-01'
+latest_version: CASP16
+domains: [protein-structure, protein-protein-binding, protein-ligand-binding]
+capabilities: [prediction]
+modalities: [protein-sequence, dna-rna-sequence, structure-3d]
+task_formats: [blind structure prediction competition]
+task_counts:
+  total: null
+  basis: targets and categories vary by CASP round
+  reporting_status: not_reported
+  subsets: []
+coverage_notes:
+  - {tag: protein-protein-binding, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: Multimeric and assembly tracks vary by round.}
+  - {tag: protein-ligand-binding, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: Protein-ligand categories are round-specific.}
+access:
+  level: partially-open
+  tasks: Targets, predictions, and results are published after each blind round.
+  artifacts: Download tables and structural targets are public after release.
+  grader: Official assessors and category-specific scoring pipelines.
+  license: null
+  biosafety_notes: No benchmark target files are mirrored by this registry.
+resources:
+  - {type: website, url: 'https://predictioncenter.org/', license: null, access_notes: Official competition site.}
+  - {type: leaderboard, url: 'https://predictioncenter.org/download_area/CASP16/results/tables/', license: null, access_notes: Official CASP16 result tables.}
+implementations:
+  - {framework: official CASP assessment pipelines, status: not-available, url: null, commit: null, notes: Category-specific downloads exist; no single pinned public harness is asserted.}
+verification: {status: verified, last_verified: '2026-07-21', notes: Treated as a living competition; counts must be attached to a specific round and track.}
+evidence:
+  - work_id: casp-official
+    locator: 'Official Prediction Center overview and CASP16 download tables'
+    supports: [summary, latest_version, domains, task_counts, access]

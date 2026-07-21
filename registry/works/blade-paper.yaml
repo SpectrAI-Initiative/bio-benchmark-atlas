@@ -1,0 +1,13 @@
+entity_type: work
+id: blade-paper
+title: 'BLADE: Benchmarking Language Model Agents for Data-Driven Science'
+authors: [Ken Gu, Ruoxi Shang, Ruien Jiang, Keying Kuang, Richard-John Lin, Donghe Lyu, Yue Mao, Youran Pan, Teng Wu, Jiaqian Yu, Yikun Zhang, Tianmai M. Zhang, Lanyi Zhu, Mike A. Merrill, Jeffrey Heer, Tim Althoff]
+organizations: [University of Washington]
+work_type: paper
+source_class: benchmark_creator
+publication_date: '2024-11-16'
+canonical_url: 'https://aclanthology.org/2024.findings-emnlp.815/'
+doi: '10.18653/v1/2024.findings-emnlp.815'
+arxiv: '2408.09667'
+status: published
+verification: {status: verified, last_verified: '2026-07-21', notes: Peer-reviewed creator paper.}

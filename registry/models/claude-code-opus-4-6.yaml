@@ -1,0 +1,9 @@
+entity_type: model
+id: claude-code-opus-4-6
+name: Claude Code (Opus 4.6)
+provider: Anthropic
+release_date: null
+version_string: Claude Code (Opus 4.6)
+version_status: reported
+aliases: []
+verification: {status: verified, last_verified: '2026-07-21', notes: Agent-and-model label reported by the CompBioBench creators.}

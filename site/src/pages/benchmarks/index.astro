@@ -1,0 +1,60 @@
+---
+import Layout from '../../components/Layout.astro';
+import Tag from '../../components/Tag.astro';
+import { data, termMaps, withBase } from '../../lib/data';
+const domains = data.taxonomies.domains.filter((term) => data.benchmarks.some((b) => b.domains.includes(term.id)));
+const access = data.taxonomies.access_levels;
+const kinds = [...new Set(data.benchmarks.map((b) => b.kind))].sort();
+---
+<Layout title="Benchmark Explorer" canonicalPath="/benchmarks/">
+  <header class="page-head shell"><p class="eyebrow">Registry explorer</p><h1>Benchmarks, with the evaluation context attached.</h1><p class="lede">Search the scientific scope, filter access and task type, then inspect every work and run behind an entry. Filters persist in the URL.</p></header>
+  <div class="shell section-tight">
+    <form class="explorer-controls" id="explorer-controls" role="search">
+      <div class="field"><label for="q">Search</label><input id="q" name="q" type="search" placeholder="protein design, single-cell, binding…" /></div>
+      <div class="field"><label for="domain">Domain</label><select id="domain" name="domain"><option value="">All domains</option>{domains.map((term) => <option value={term.id}>{term.label}</option>)}</select></div>
+      <div class="field"><label for="access">Access</label><select id="access" name="access"><option value="">All access</option>{access.map((term) => <option value={term.id}>{term.label}</option>)}</select></div>
+      <div class="field"><label for="kind">Kind</label><select id="kind" name="kind"><option value="">All kinds</option>{kinds.map((kind) => <option value={kind}>{kind}</option>)}</select></div>
+    </form>
+    <p class="small muted"><strong id="visible-count">{data.benchmarks.length}</strong> records · <a href={withBase('/data/benchmarks.csv')} download>Download filtered source CSV</a></p>
+    <div class="table-wrap">
+      <table id="benchmark-table">
+        <thead><tr><th>Benchmark</th><th>Kind / release</th><th>Domain</th><th>Access</th><th>Runs</th></tr></thead>
+        <tbody>{data.benchmarks.map((benchmark) => <tr data-search={`${benchmark.name} ${benchmark.aliases.join(' ')} ${benchmark.summary} ${benchmark.domains.map((id) => termMaps.domains.get(id)?.label).join(' ')}`.toLowerCase()} data-domains={benchmark.domains.join(' ')} data-access={benchmark.access.level} data-kind={benchmark.kind}>
+          <td><a href={withBase(`/benchmarks/${benchmark.id}/`)}>{benchmark.name}</a><br/><span class="muted small">{benchmark.summary}</span></td>
+          <td>{benchmark.kind}<br/><span class="muted">{benchmark.release_date}</span></td>
+          <td><div class="tag-list">{benchmark.domains.slice(0, 3).map((id) => <Tag id={id} />)}{benchmark.domains.length > 3 && <span class="tag">+{benchmark.domains.length - 3}</span>}</div></td>
+          <td><span class:list={['tag', {'accent': benchmark.access.level === 'fully-open', 'warn': benchmark.access.level === 'private-internal'}]}>{termMaps.access_levels.get(benchmark.access.level)?.label ?? benchmark.access.level}</span></td>
+          <td>{benchmark.evaluation_run_ids.length}</td>
+        </tr>)}</tbody>
+      </table>
+    </div>
+    <p id="no-results" class="callout" hidden>No benchmark matches this combination. The URL still preserves your filters.</p>
+  </div>
+  <script>
+    const form = document.querySelector<HTMLFormElement>('#explorer-controls')!;
+    const rows = [...document.querySelectorAll<HTMLTableRowElement>('#benchmark-table tbody tr')];
+    const count = document.querySelector<HTMLElement>('#visible-count')!;
+    const empty = document.querySelector<HTMLElement>('#no-results')!;
+    const params = new URLSearchParams(location.search);
+    for (const name of ['q', 'domain', 'access', 'kind']) {
+      const control = form.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement;
+      control.value = params.get(name) ?? '';
+    }
+    function update() {
+      const values = Object.fromEntries(new FormData(form)) as Record<string, string>;
+      let visible = 0;
+      rows.forEach((row) => {
+        const match = (!values.q || row.dataset.search?.includes(values.q.toLowerCase())) && (!values.domain || row.dataset.domains?.split(' ').includes(values.domain)) && (!values.access || row.dataset.access === values.access) && (!values.kind || row.dataset.kind === values.kind);
+        row.hidden = !match;
+        if (match) visible += 1;
+      });
+      count.textContent = String(visible);
+      empty.hidden = visible !== 0;
+      const next = new URLSearchParams();
+      Object.entries(values).forEach(([key, value]) => value && next.set(key, value));
+      history.replaceState(null, '', `${location.pathname}${next.size ? `?${next}` : ''}`);
+    }
+    form.addEventListener('input', update);
+    update();
+  </script>
+</Layout>

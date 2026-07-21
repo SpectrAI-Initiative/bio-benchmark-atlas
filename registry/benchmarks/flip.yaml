@@ -1,0 +1,40 @@
+entity_type: benchmark
+id: flip
+name: FLIP
+aliases: [Fitness Landscape Inference for Proteins]
+summary: Protein sequence-to-fitness prediction tasks with splits designed to probe generalization regimes relevant to protein engineering.
+kind: suite
+parent_id: null
+organizations: [VantAI, Salesforce Research]
+release_date: '2021-10-11'
+latest_version: original-2021
+domains: [protein-sequence, protein-design, protein-protein-binding]
+capabilities: [prediction, regression, design, optimization]
+modalities: [protein-sequence, table]
+task_formats: [fitness regression]
+task_counts:
+  total: 15
+  basis: dataset-and-split benchmark tasks
+  reporting_status: reported
+  subsets:
+    - {id: source-landscapes, label: Source fitness landscapes, count: 3, basis: 'AAV, GB1, and Meltome landscapes', exclusive: false, exhaustive: false, reporting_status: reported, notes: Each landscape has multiple generalization splits.}
+coverage_notes:
+  - {tag: protein-protein-binding, coverage: observed, count: null, reporting_status: not_reported, notes: GB1 includes immunoglobulin binding; task-level binding count is not separately reported here.}
+access:
+  level: fully-open
+  tasks: Benchmark data and split definitions are public.
+  artifacts: Sequence and fitness tables are public subject to dataset-specific attribution.
+  grader: Standard regression metrics and public baseline scripts.
+  license: mixed
+  biosafety_notes: Individual landscape licenses and citations must be checked upstream.
+resources:
+  - {type: paper, url: 'https://datasets-benchmarks-proceedings.neurips.cc/paper_files/paper/2021/hash/2b44928ae11fb9384c4cf38708677c48-Abstract-round2.html', license: null, access_notes: Peer-reviewed creator paper.}
+  - {type: website, url: 'https://flip.protein.properties/', license: null, access_notes: 'Official project site, now also describing FLIP2.'}
+  - {type: dataset, url: 'http://data.bioembeddings.com/public/FLIP/', license: mixed, access_notes: Original public benchmark files.}
+implementations:
+  - {framework: FLIP reference baselines, status: official, url: 'https://flip.protein.properties/', commit: null, notes: Project site links the maintained code; no immutable original commit was confirmed.}
+verification: {status: verified, last_verified: '2026-07-21', notes: 'This record describes original FLIP, not FLIP2.'}
+evidence:
+  - work_id: flip-paper
+    locator: 'Abstract; benchmark datasets and split descriptions'
+    supports: [summary, task_counts, domains, capabilities, access]

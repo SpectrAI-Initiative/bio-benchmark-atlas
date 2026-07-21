@@ -1,0 +1,9 @@
+entity_type: model
+id: gpt-5-4
+name: GPT-5.4
+provider: OpenAI
+release_date: null
+version_string: GPT-5.4
+version_status: reported
+aliases: []
+verification: {status: verified, last_verified: '2026-07-21', notes: Exact public report label; snapshot date not stated.}

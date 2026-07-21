@@ -1,0 +1,33 @@
+entity_type: evaluation_run
+id: bioinstructions-creator-full
+work_id: bioinstructions-paper
+benchmark_id: bioinstruction
+benchmark_version: '1.0'
+scope: {type: full, n: 21, subset_id: null, filter: All reported evaluation tasks., reporting_status: reported}
+protocol:
+  shots: {value: 0, reporting_status: reported, notes: Direct task instruction at evaluation time.}
+  turns: {value: single-turn, reporting_status: reported, notes: Sequence-conditioned response.}
+  system_prompt_public: {value: true, reporting_status: reported, notes: Task templates are available in the public code.}
+  reasoning: &nr {value: null, reporting_status: not_reported, notes: Not reported.}
+  tools:
+    browser: {value: false, reporting_status: reported, notes: No agent tools.}
+    internet: {value: false, reporting_status: reported, notes: No agent tools.}
+    databases: {value: false, reporting_status: reported, notes: No agent tools.}
+    code_execution: {value: false, reporting_status: reported, notes: Model inference only.}
+    container: *nr
+    external_tools: {value: false, reporting_status: reported, notes: No agent tools.}
+  token_budget: *nr
+  time_budget: *nr
+  temperature: *nr
+  seed: *nr
+  repeats: *nr
+  grader: {type: task-specific deterministic evaluator, model: null, human_review: false, reporting_status: reported}
+  statistical: {value: per-task metrics; no cross-benchmark total score, reporting_status: reported, notes: Task metrics should not be collapsed into a universal leaderboard.}
+  contamination: *nr
+metrics:
+  - {metric_id: task-specific-score, source_label: Task-specific score, unit: mixed, range: null, higher_is_better: true, aggregation: reported per task, pass_threshold: null, tolerance: task-specific}
+results: []
+comparability_group: bioinstructions-v1-full-task-specific
+verification: {status: verified, last_verified: '2026-07-21', notes: Heterogeneous task metrics are deliberately not averaged here.}
+evidence:
+  - {work_id: bioinstructions-paper, locator: 'Evaluation task tables and experimental setup', supports: [scope, protocol, metrics]}

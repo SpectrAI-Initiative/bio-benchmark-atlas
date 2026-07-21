@@ -1,0 +1,33 @@
+entity_type: evaluation_run
+id: virbench-official-run
+work_id: virbench-official
+benchmark_id: virbench
+benchmark_version: '1.0'
+scope: {type: full, n: 120, subset_id: null, filter: 120 manually verified questions across 40 pathogens., reporting_status: reported}
+protocol:
+  shots: &nr {value: null, reporting_status: not_reported, notes: Not reported.}
+  turns: {value: multi-turn, reporting_status: reported, notes: Scientific agents iteratively query and analyze retrieved records.}
+  system_prompt_public: *nr
+  reasoning: *nr
+  tools:
+    browser: {value: true, reporting_status: reported, notes: Agent uses a retrieval interface.}
+    internet: {value: true, reporting_status: reported, notes: NCBI Virus is accessed live.}
+    databases: {value: [NCBI Virus], reporting_status: reported, notes: Primary retrieval source.}
+    code_execution: *nr
+    container: *nr
+    external_tools: {value: scientific-agent retrieval tools, reporting_status: reported, notes: Exact implementation is not public.}
+  token_budget: *nr
+  time_budget: *nr
+  temperature: *nr
+  seed: *nr
+  repeats: *nr
+  grader: {type: manual verified-answer comparison, model: null, human_review: true, reporting_status: reported}
+  statistical: {value: mean accuracy, reporting_status: reported, notes: The report gives a system range but not a complete machine-readable result table.}
+  contamination: *nr
+metrics:
+  - {metric_id: accuracy, source_label: Mean accuracy, unit: percent, range: [0, 100], higher_is_better: true, aggregation: problem-weighted mean, pass_threshold: null, tolerance: null}
+results: []
+comparability_group: virbench-v1-full-ncbi-virus
+verification: {status: verified, last_verified: '2026-07-21', notes: No model rows are published until exact system labels and values can be source-located.}
+evidence:
+  - {work_id: virbench-official, locator: 'VirBench methods and results', supports: [scope, protocol.tools, protocol.grader, metrics]}

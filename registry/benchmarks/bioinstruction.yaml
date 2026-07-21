@@ -1,0 +1,39 @@
+entity_type: benchmark
+id: bioinstruction
+name: Biology-Instructions Evaluation
+aliases: [Biology Instructions]
+summary: Multi-omics biological sequence benchmark spanning DNA, RNA, protein, and cross-molecule prediction tasks for language models.
+kind: suite
+parent_id: null
+organizations: [Shanghai AI Laboratory, Chinese University of Hong Kong]
+release_date: '2024-12-26'
+latest_version: '1.0'
+domains: [genomics, transcriptomics, protein-sequence, protein-design, protein-protein-binding, multiomics]
+capabilities: [prediction, classification, regression, scientific-reasoning]
+modalities: [text, dna-rna-sequence, protein-sequence]
+task_formats: [sequence-conditioned instruction response]
+task_counts:
+  total: 21
+  basis: evaluation tasks
+  reporting_status: reported
+  subsets: []
+coverage_notes:
+  - {tag: protein-design, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: Protein property and engineering tasks are included; canonical paper does not report this atlas-specific count.}
+  - {tag: protein-protein-binding, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: Antibody-antigen and RNA-protein interaction tasks are included; no single binding count is asserted.}
+access:
+  level: fully-open
+  tasks: Evaluation and instruction data are public in the creator repository.
+  artifacts: Sequence-based task files are public subject to upstream licenses.
+  grader: Task-specific evaluation code is included by the creators.
+  license: Apache-2.0
+  biosafety_notes: Do not use or redistribute upstream sequence data outside its stated terms.
+resources:
+  - {type: paper, url: 'https://aclanthology.org/2025.findings-emnlp.978/', license: CC-BY-4.0, access_notes: Peer-reviewed creator paper.}
+  - {type: repository, url: 'https://github.com/hhnqqq/Biology-Instructions', license: Apache-2.0, access_notes: Official code and data links.}
+implementations:
+  - {framework: Biology-Instructions evaluation code, status: official, url: 'https://github.com/hhnqqq/Biology-Instructions/tree/600acaa08c0302e8f5ce86de0fe041f21c13b53e', commit: 600acaa08c0302e8f5ce86de0fe041f21c13b53e, notes: Commit captured at verification time.}
+verification: {status: verified, last_verified: '2026-07-21', notes: Canonical name retained; BioInstruction is an alias used by some evaluation frameworks.}
+evidence:
+  - work_id: bioinstructions-paper
+    locator: 'Abstract; dataset statistics; evaluation task tables; official repository'
+    supports: [summary, task_counts, domains, modalities, access, implementations]

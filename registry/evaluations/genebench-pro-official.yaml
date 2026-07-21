@@ -1,0 +1,37 @@
+entity_type: evaluation_run
+id: genebench-pro-official
+work_id: genebench-pro-report
+benchmark_id: genebench-pro
+benchmark_version: '1.0'
+scope: {type: full, n: 129, subset_id: null, filter: null, reporting_status: reported}
+protocol:
+  shots: &nr {value: null, reporting_status: not_reported, notes: Not specified in the public report.}
+  turns: {value: multi-turn, reporting_status: reported, notes: Agents iteratively inspect and analyze workspace data.}
+  system_prompt_public: *nr
+  reasoning: {value: highest available reasoning setting, reporting_status: reported, notes: Pro mode is split into a separate run.}
+  tools:
+    browser: {value: false, reporting_status: reported, notes: Isolated workspace evaluation.}
+    internet: {value: false, reporting_status: reported, notes: Isolated workspace evaluation.}
+    databases: *nr
+    code_execution: {value: true, reporting_status: reported, notes: Python and bioinformatics software are provided.}
+    container: {value: true, reporting_status: reported, notes: Isolated workspace.}
+    external_tools: {value: [PLINK 2.0, Python scientific stack], reporting_status: reported, notes: Problems do not necessarily require domain-specific tools.}
+  token_budget: *nr
+  time_budget: *nr
+  temperature: *nr
+  seed: *nr
+  repeats: *nr
+  grader: {type: deterministic target checker, model: null, human_review: false, reporting_status: reported}
+  statistical: {value: task pass rate, reporting_status: reported, notes: Deterministic grading against known synthetic targets.}
+  contamination: {value: 10 tasks public and remaining tasks held out, reporting_status: reported, notes: Synthetic construction and held-out tasks reduce shortcut risk.}
+metrics:
+  - {metric_id: pass-rate, source_label: Pass rate, unit: percent, range: [0, 100], higher_is_better: true, aggregation: problem-weighted mean, pass_threshold: null, tolerance: task-specific numerical tolerance}
+results:
+  - {model_id: gpt-5-6-sol, metric_id: pass-rate, value: 28.7, ci_low: null, ci_high: null, n: 129, notes: Highest reasoning setting.}
+  - {model_id: gpt-5-5, metric_id: pass-rate, value: 12.0, ci_low: null, ci_high: null, n: 129, notes: null}
+  - {model_id: gpt-5-4, metric_id: pass-rate, value: 8.9, ci_low: null, ci_high: null, n: 129, notes: null}
+  - {model_id: claude-opus-4-8, metric_id: pass-rate, value: 16.0, ci_low: null, ci_high: null, n: 129, notes: null}
+comparability_group: genebench-pro-v1-full-high-reasoning
+verification: {status: verified, last_verified: '2026-07-21', notes: Only values explicitly available in the official report are included.}
+evidence:
+  - {work_id: genebench-pro-report, locator: 'Evaluation and grading; Results; main model comparison figure', supports: [scope, protocol, metrics, results]}

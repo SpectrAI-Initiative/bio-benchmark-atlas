@@ -1,0 +1,12 @@
+---
+import Layout from '../components/Layout.astro';
+import PlotCard from '../components/PlotCard.astro';
+import { data, withBase } from '../lib/data';
+const entries = data.changelog;
+const recent = entries.reduce((acc, entry) => { const key = entry.date.slice(0,7); acc.set(key, (acc.get(key) ?? 0) + 1); return acc; }, new Map<string,number>());
+const chart = [...recent].map(([label,value]) => ({label,value}));
+---
+<Layout title="Archive" canonicalPath="/archive/">
+  <header class="page-head shell"><p class="eyebrow">Versioned change log</p><h1>The registry remembers what changed.</h1><p class="lede">Additions, corrections, deprecations, version changes, and source failures are retained rather than silently overwritten.</p></header>
+  <div class="shell section grid two"><section><h2>Monthly archive</h2>{entries.map((entry) => <article class="card" style="margin-bottom:1rem"><div class="meta"><span>{entry.type}</span><time>{entry.date}</time></div><p>{entry.summary}</p><div class="tag-list">{entry.entity_ids.map((id) => <a class="tag" href={withBase(`/benchmarks/${id}/`)}>{id}</a>)}</div></article>)}</section><aside><PlotCard title="Recent registry changes" description="Verified change events grouped by month." kind="bar" values={chart} tableColumns={[{key:'label',label:'Month'},{key:'value',label:'Changes'}]} /><div class="callout info">Weekly source checks open issues but never rewrite the registry automatically. Three consecutive failures are required before a stale-source issue is marked.</div></aside></div>
+</Layout>

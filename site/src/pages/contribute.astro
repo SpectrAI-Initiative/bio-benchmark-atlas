@@ -1,0 +1,11 @@
+---
+import Layout from '../components/Layout.astro';
+---
+<Layout title="Contribute" canonicalPath="/contribute/">
+  <header class="page-head narrow"><p class="eyebrow">Contribute evidence</p><h1>A registry entry begins with a primary source.</h1><p class="lede">Propose a benchmark, add an official evaluation, correct a result, or report a broken source through structured GitHub forms.</p></header>
+  <article class="narrow section prose">
+    <div class="grid two"><a class="card" href="https://github.com/wang422003/bio-benchmark-atlas/issues/new?template=add-benchmark.yml"><h3>Add benchmark →</h3><p>Creator source, access, counts, taxonomy, and runnable status.</p></a><a class="card" href="https://github.com/wang422003/bio-benchmark-atlas/issues/new?template=add-evaluation.yml"><h3>Add official evaluation →</h3><p>Work, exact model, scope, metrics, tools, grader, and locators.</p></a><a class="card" href="https://github.com/wang422003/bio-benchmark-atlas/issues/new?template=correct-metadata.yml"><h3>Correct metadata →</h3><p>Show the current field, proposed value, and primary evidence.</p></a><a class="card" href="https://github.com/wang422003/bio-benchmark-atlas/issues/new?template=broken-source.yml"><h3>Broken source →</h3><p>Report moved, unavailable, or materially changed canonical sources.</p></a></div>
+    <h2>Pull request checklist</h2><ul><li>Describe what changed and cite a primary or official source.</li><li>Say whether the evaluation is full, subset, track, or unknown—and include realized <code>n</code> when reported.</li><li>Record metrics, aggregation, tools, repeats, grader, and every remaining unreported field.</li><li>Do not copy benchmark questions, restricted attachments, or third-party papers into this repository.</li><li>Run <code>pnpm registry:validate</code> and <code>pnpm registry:build</code>.</li></ul>
+    <h2>Review policy</h2><p>All changes use pull requests. Registry, schema, and taxonomy changes require owner review. Only <code>verification_status: verified</code> entities enter production exports; drafts remain visible in preview builds.</p>
+  </article>
+</Layout>

@@ -1,0 +1,28 @@
+name: Add benchmark
+description: Propose a benchmark from a creator paper or formal technical report.
+title: "[Benchmark]: "
+labels: [registry, benchmark]
+body:
+  - type: input
+    id: name
+    attributes: {label: Benchmark name, placeholder: LifeSciBench}
+    validations: {required: true}
+  - type: input
+    id: source
+    attributes: {label: Primary creator source, description: Canonical paper or formal creator report URL.}
+    validations: {required: true}
+  - type: textarea
+    id: scope
+    attributes: {label: Scientific scope and task counts, description: Include basis, version, tracks, and any unknown counts.}
+    validations: {required: true}
+  - type: textarea
+    id: access
+    attributes: {label: Access, license, grader, and runnable implementation}
+    validations: {required: true}
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Source boundary
+      options:
+        - label: I am not attaching or copying restricted benchmark content.
+          required: true

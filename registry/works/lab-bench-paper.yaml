@@ -1,0 +1,13 @@
+entity_type: work
+id: lab-bench-paper
+title: The Language Agent Biology Benchmark
+authors: [Jon M. Laurent, Janis Janowski, Michael Q. Li, Ilan N. A. D. Greenblatt, Benjamin Tenmann, Samuel G. Rodriques]
+organizations: [FutureHouse]
+work_type: paper
+source_class: benchmark_creator
+publication_date: '2024-07-14'
+canonical_url: 'https://arxiv.org/abs/2407.10362'
+doi: null
+arxiv: '2407.10362'
+status: published
+verification: {status: verified, last_verified: '2026-07-21', notes: Creator paper and official repository.}

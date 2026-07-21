@@ -1,0 +1,13 @@
+entity_type: work
+id: bixbench-paper
+title: 'BixBench: A Comprehensive Benchmark for LLM-based Agents in Computational Biology'
+authors: [Ludovico Mitchener, Jon M. Laurent, Benjamin Tenmann, Siddharth Narayanan, Geemi P. Wellawatte, Andrew White, Lorenzo Sani, Samuel G. Rodriques]
+organizations: [FutureHouse, ScienceMachine]
+work_type: preprint
+source_class: benchmark_creator
+publication_date: '2025-02-28'
+canonical_url: 'https://arxiv.org/abs/2503.00096'
+doi: null
+arxiv: '2503.00096'
+status: preprint
+verification: {status: verified, last_verified: '2026-07-21', notes: Creator preprint; registry count follows newer official dataset v1.5 where stated.}

@@ -1,0 +1,13 @@
+entity_type: work
+id: lifescibench-preprint
+title: LifeSciBench
+authors: [OpenAI]
+organizations: [OpenAI]
+work_type: technical-report
+source_class: benchmark_creator
+publication_date: '2026-06-17'
+canonical_url: 'https://cdn.openai.com/pdf/b4299379-0a97-4ffa-8b9b-c3fbb299caa9/lifescibench_preprint.pdf'
+doi: null
+arxiv: null
+status: published
+verification: {status: verified, last_verified: '2026-07-21', notes: Official OpenAI report.}

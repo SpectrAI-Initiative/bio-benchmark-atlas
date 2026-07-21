@@ -1,0 +1,24 @@
+entity_type: benchmark
+id: lab-bench-dbqa
+name: LAB-Bench DbQA
+aliases: [DbQA]
+summary: LAB-Bench track evaluating retrieval and interpretation of records from biological databases.
+kind: track
+parent_id: lab-bench
+organizations: [FutureHouse]
+release_date: '2024-07-14'
+latest_version: repository-main
+domains: [bioinformatics, genomics, protein-science]
+capabilities: [retrieval, knowledge, scientific-reasoning]
+modalities: [text, database]
+task_formats: [multiple choice]
+task_counts: {total: null, basis: questions, reporting_status: not_reported, subsets: []}
+coverage_notes: []
+access: {level: partially-open, tasks: Approximately 80% of LAB-Bench is public., artifacts: Released questions reference public databases., grader: Open-source exact-choice evaluator., license: CC-BY-SA-4.0, biosafety_notes: null}
+resources:
+  - {type: repository, url: 'https://github.com/Future-House/LAB-Bench/tree/998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838/DbQA', license: CC-BY-SA-4.0, access_notes: Commit-pinned track directory.}
+implementations:
+  - {framework: labbench Python evaluator, status: official, url: 'https://github.com/Future-House/LAB-Bench/tree/998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838', commit: 998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838, notes: null}
+verification: {status: verified, last_verified: '2026-07-21', notes: Canonical suite track.}
+evidence:
+  - {work_id: lab-bench-paper, locator: 'Official repository DbQA directory and README', supports: [name, parent_id, capabilities, modalities, access]}

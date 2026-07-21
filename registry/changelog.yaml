@@ -1,0 +1,12 @@
+- date: '2026-07-21'
+  type: release
+  entity_ids: [lifescibench, genebench-pro, biomysterybench, virbench, lab-bench, bixbench, scigym, blade, compbiobench, proteingym, casp, cameo, flip, proteinlmbench, bioinstruction]
+  summary: Initial v1.0 registry with fifteen benchmark families, normalized official evaluations, schemas, exports, and the public atlas.
+- date: '2026-07-21'
+  type: verification
+  entity_ids: [lifescibench]
+  summary: Recorded 136 protein-primary-domain tasks, 62 protein design/optimization tasks, and explicit Not reported status for binding counts.
+- date: '2026-07-21'
+  type: verification
+  entity_ids: [biomysterybench]
+  summary: Recorded the 99-question total, 76/23 human split, five-episode protocol, and accuracy/consistency metrics.

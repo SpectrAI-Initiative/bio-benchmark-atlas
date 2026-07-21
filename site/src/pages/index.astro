@@ -1,0 +1,89 @@
+---
+import Layout from '../components/Layout.astro';
+import PlotCard from '../components/PlotCard.astro';
+import Tag from '../components/Tag.astro';
+import { data, familyBenchmarks, termMaps, withBase } from '../lib/data';
+
+const families = familyBenchmarks();
+const openCount = families.filter((b) => b.access.level === 'fully-open').length;
+const officialWorkCount = data.works.filter((work) => work.source_class === 'official_model_provider').length;
+const resultCount = data.evaluation_runs.reduce((sum, run) => sum + run.results.length, 0);
+const focusDomains = ['protein-sequence', 'protein-structure', 'protein-design', 'protein-protein-binding', 'protein-ligand-binding', 'genomics', 'transcriptomics', 'single-cell', 'proteomics', 'multiomics'];
+const focusCapabilities = ['prediction', 'design', 'data-analysis', 'coding', 'tool-use', 'experiment-planning', 'scientific-reasoning'];
+const heatmap = focusDomains.flatMap((domain) => focusCapabilities.map((capability) => ({
+  y: termMaps.domains.get(domain)?.label ?? domain,
+  x: termMaps.capabilities.get(capability)?.label ?? capability,
+  value: families.filter((b) => b.domains.includes(domain) && b.capabilities.includes(capability)).length,
+})));
+const coverage = focusDomains.map((domain) => ({
+  label: termMaps.domains.get(domain)?.label ?? domain,
+  value: families.filter((b) => b.domains.includes(domain)).length,
+}));
+const timeline = families.map((b) => ({ label: b.name, date: new Date(`${b.release_date}T00:00:00Z`), group: b.kind }));
+const featured = ['lifescibench', 'genebench-pro', 'biomysterybench', 'proteingym', 'compbiobench', 'lab-bench'].map((id) => data.benchmarks.find((b) => b.id === id)!);
+---
+<Layout>
+  <div class="shell">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Evidence before ranking</p>
+        <h1>Map the benchmark. <em>Audit the eval.</em></h1>
+        <p class="lede">A maintained registry of protein, omics, and life-science benchmarks—plus the works, exact models, scopes, tools, graders, and metrics behind every verified evaluation.</p>
+        <div class="hero-actions">
+          <a class="button" href={withBase('/benchmarks/')}>Explore the registry →</a>
+          <a class="button secondary" href={withBase('/contribute/')}>Add a source</a>
+        </div>
+      </div>
+      <aside class="hero-card">
+        <p class="eyebrow">Our rule</p>
+        <h3>“Full benchmark” is a claim, not a default.</h3>
+        <p class="muted">If a source does not report the realized scope, prompt, budget, or grader, the atlas says <strong>Not reported</strong>. It never fills the gap with an inference.</p>
+        <a href={withBase('/methodology/')}>Read the methodology →</a>
+      </aside>
+    </section>
+
+    <div class="stat-grid" aria-label="Registry summary">
+      <div class="stat"><strong>{families.length}</strong><span>benchmark families</span></div>
+      <div class="stat"><strong>{data.evaluation_runs.length}</strong><span>normalized evaluation runs</span></div>
+      <div class="stat"><strong>{resultCount}</strong><span>source-located result rows</span></div>
+      <div class="stat"><strong>{openCount}/{families.length}</strong><span>fully open families</span></div>
+    </div>
+
+    <section class="section">
+      <p class="eyebrow">Start with a family</p>
+      <div class="grid three">
+        {featured.map((benchmark) => <article class="card">
+          <div class="meta"><span>{benchmark.kind}</span><span>{benchmark.release_date.slice(0, 4)}</span></div>
+          <h3><a class="stretched" href={withBase(`/benchmarks/${benchmark.id}/`)}>{benchmark.name}</a></h3>
+          <p>{benchmark.summary}</p>
+          <div class="tag-list">{benchmark.domains.slice(0, 3).map((id) => <Tag id={id} linked />)}</div>
+        </article>)}
+      </div>
+    </section>
+  </div>
+
+  <section class="band">
+    <div class="shell">
+      <div class="grid two">
+        <div><p class="eyebrow">Coverage, not a leaderboard</p><h2>See where evidence clusters—and where it doesn’t.</h2><p class="muted">The same taxonomy powers the explorer, domain pages, and exports. Counts describe registry coverage, not scientific importance.</p></div>
+        <div class="callout info"><strong>{officialWorkCount} official model-provider works in v1.</strong><br />Creator papers and official provider reports are publishable. Independent reproductions already have a schema slot but remain out of the production export for v1.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="shell">
+    <section class="section grid two">
+      <PlotCard title="Domain × capability" description="Number of benchmark families tagged on both axes." kind="heatmap" values={heatmap} tableColumns={[{key:'y',label:'Domain'},{key:'x',label:'Capability'},{key:'value',label:'Families'}]} options={{height: 390}} />
+      <PlotCard title="Protein and omics coverage" description="Registry family count by selected scientific domain." kind="bar" values={coverage} csv="/data/benchmarks.csv" tableColumns={[{key:'label',label:'Domain'},{key:'value',label:'Families'}]} options={{height: 390}} />
+    </section>
+    <section class="section-tight">
+      <PlotCard title="Benchmark release timeline" description="Initial public release date for each v1 benchmark family." kind="timeline" values={timeline} tableColumns={[{key:'label',label:'Benchmark'},{key:'date',label:'Release date'},{key:'group',label:'Kind'}]} options={{height: 510}} />
+    </section>
+    <section class="section">
+      <div class="grid two">
+        <div><p class="eyebrow">Machine-readable by default</p><h2>One normalized object, every public surface.</h2><p class="lede">The website, JSON, and CSV exports are built from the same verified YAML records. Draft entries appear in previews, never in production exports.</p></div>
+        <div class="card"><h3>Public interfaces</h3><ul><li><a href={withBase('/data/registry.json')}>Complete registry JSON</a></li><li><a href={withBase('/data/benchmarks.csv')}>Benchmark CSV</a></li><li><a href={withBase('/data/evaluation-results.csv')}>Evaluation results CSV</a></li><li><a href={withBase('/schema/registry.schema.json')}>JSON Schema</a></li></ul></div>
+      </div>
+    </section>
+  </div>
+</Layout>

@@ -1,0 +1,13 @@
+entity_type: work
+id: anthropic-life-sciences
+title: Claude for Life Sciences
+authors: [Anthropic]
+organizations: [Anthropic]
+work_type: official-release
+source_class: official_model_provider
+publication_date: '2025-10-20'
+canonical_url: 'https://www.anthropic.com/news/claude-for-life-sciences'
+doi: null
+arxiv: null
+status: published
+verification: {status: verified, last_verified: '2026-07-21', notes: Official model-provider release with ProtocolQA evaluation details.}

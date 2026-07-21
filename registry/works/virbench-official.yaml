@@ -1,0 +1,13 @@
+entity_type: work
+id: virbench-official
+title: Paving the way for AI agents in biology
+authors: [Anthropic]
+organizations: [Anthropic]
+work_type: official-release
+source_class: benchmark_creator
+publication_date: '2025-05-20'
+canonical_url: 'https://www.anthropic.com/research/agents-in-biology'
+doi: null
+arxiv: null
+status: published
+verification: {status: verified, last_verified: '2026-07-21', notes: Official Anthropic research page introducing VirBench.}

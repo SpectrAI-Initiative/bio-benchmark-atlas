@@ -1,0 +1,33 @@
+entity_type: evaluation_run
+id: blade-creator-paper
+work_id: blade-paper
+benchmark_id: blade
+benchmark_version: '1.0'
+scope: {type: full, n: 12, subset_id: null, filter: All paired research questions and datasets., reporting_status: reported}
+protocol:
+  shots: &nr {value: null, reporting_status: not_reported, notes: Setting varies across evaluated agents.}
+  turns: {value: multi-turn, reporting_status: reported, notes: Agents plan and execute analyses.}
+  system_prompt_public: *nr
+  reasoning: *nr
+  tools:
+    browser: *nr
+    internet: *nr
+    databases: *nr
+    code_execution: {value: true, reporting_status: reported, notes: Tool-augmented agents interact with data through code.}
+    container: *nr
+    external_tools: *nr
+  token_budget: *nr
+  time_budget: *nr
+  temperature: *nr
+  seed: *nr
+  repeats: *nr
+  grader: {type: automated matching to expert analysis decisions, model: null, human_review: true, reporting_status: reported}
+  statistical: {value: decision and analysis coverage summaries, reporting_status: reported, notes: null}
+  contamination: *nr
+metrics:
+  - {metric_id: analysis-decision-coverage, source_label: Analysis decision coverage, unit: proportion, range: [0, 1], higher_is_better: true, aggregation: macro across research questions, pass_threshold: null, tolerance: semantic and structural matching}
+results: []
+comparability_group: blade-v1-full-tool-agent
+verification: {status: verified, last_verified: '2026-07-21', notes: Model-specific rows are deferred until prompt and agent variants are separated.}
+evidence:
+  - {work_id: blade-paper, locator: 'Sections 3–5 and evaluation appendix', supports: [scope, protocol.turns, protocol.tools.code_execution, protocol.grader, metrics]}

@@ -1,0 +1,36 @@
+entity_type: evaluation_run
+id: lab-bench-figqa-no-tools
+work_id: anthropic-sonnet-4-6-system-card
+benchmark_id: lab-bench-figqa
+benchmark_version: repository-main
+scope: {type: track, n: null, subset_id: null, filter: FigQA track; realized item count not stated in the system card., reporting_status: not_reported}
+protocol:
+  shots: &nr {value: null, reporting_status: not_reported, notes: Not reported.}
+  turns: {value: single-turn, reporting_status: reported, notes: Multiple-choice figure question.}
+  system_prompt_public: *nr
+  reasoning: *nr
+  tools:
+    browser: {value: false, reporting_status: reported, notes: No-tool condition.}
+    internet: {value: false, reporting_status: reported, notes: No-tool condition.}
+    databases: {value: false, reporting_status: reported, notes: No-tool condition.}
+    code_execution: {value: false, reporting_status: reported, notes: No-tool condition.}
+    container: {value: false, reporting_status: reported, notes: No-tool condition.}
+    external_tools: {value: false, reporting_status: reported, notes: No-tool condition.}
+  token_budget: *nr
+  time_budget: *nr
+  temperature: *nr
+  seed: *nr
+  repeats: {value: 5, reporting_status: reported, notes: Five evaluation runs.}
+  grader: {type: exact multiple-choice match, model: null, human_review: false, reporting_status: reported}
+  statistical: {value: mean across five runs, reporting_status: reported, notes: null}
+  contamination: *nr
+metrics:
+  - {metric_id: accuracy, source_label: FigQA accuracy, unit: percent, range: [0, 100], higher_is_better: true, aggregation: mean over five runs, pass_threshold: null, tolerance: exact choice}
+results:
+  - {model_id: claude-sonnet-4-6, metric_id: accuracy, value: 58.8, ci_low: null, ci_high: null, n: null, notes: null}
+  - {model_id: claude-sonnet-4-5, metric_id: accuracy, value: 53.4, ci_low: null, ci_high: null, n: null, notes: null}
+  - {model_id: claude-opus-4-6, metric_id: accuracy, value: 58.0, ci_low: null, ci_high: null, n: null, notes: null}
+comparability_group: lab-bench-figqa-no-tools-five-runs
+verification: {status: verified, last_verified: '2026-07-21', notes: Tool condition kept separate from crop-tool results.}
+evidence:
+  - {work_id: anthropic-sonnet-4-6-system-card, locator: 'LAB-Bench FigQA figure and caption', supports: [scope, protocol.tools, protocol.repeats, metrics, results]}

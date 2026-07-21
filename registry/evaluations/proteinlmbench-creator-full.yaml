@@ -1,0 +1,33 @@
+entity_type: evaluation_run
+id: proteinlmbench-creator-full
+work_id: proteinlmbench-paper
+benchmark_id: proteinlmbench
+benchmark_version: '1.0'
+scope: {type: full, n: 944, subset_id: null, filter: All manually verified questions., reporting_status: reported}
+protocol:
+  shots: {value: 0, reporting_status: reported, notes: Zero-shot evaluation described by the creator benchmark.}
+  turns: {value: single-turn, reporting_status: reported, notes: Multiple-choice answer.}
+  system_prompt_public: &nr {value: null, reporting_status: not_reported, notes: Exact shared prompt not normalized.}
+  reasoning: *nr
+  tools:
+    browser: {value: false, reporting_status: reported, notes: No tool use reported.}
+    internet: {value: false, reporting_status: reported, notes: No tool use reported.}
+    databases: {value: false, reporting_status: reported, notes: No tool use reported.}
+    code_execution: {value: false, reporting_status: reported, notes: Model answers questions directly.}
+    container: {value: false, reporting_status: reported, notes: No agent container.}
+    external_tools: {value: false, reporting_status: reported, notes: No tools.}
+  token_budget: *nr
+  time_budget: *nr
+  temperature: *nr
+  seed: *nr
+  repeats: *nr
+  grader: {type: exact multiple-choice match, model: null, human_review: false, reporting_status: reported}
+  statistical: {value: accuracy, reporting_status: reported, notes: null}
+  contamination: *nr
+metrics:
+  - {metric_id: accuracy, source_label: Accuracy, unit: percent, range: [0, 100], higher_is_better: true, aggregation: problem-weighted mean, pass_threshold: null, tolerance: exact choice}
+results: []
+comparability_group: proteinlmbench-v1-full-zero-shot
+verification: {status: verified, last_verified: '2026-07-21', notes: Creator-paper baseline rows await detailed extraction.}
+evidence:
+  - {work_id: proteinlmbench-paper, locator: 'Benchmark construction and evaluation sections', supports: [scope, protocol, metrics]}

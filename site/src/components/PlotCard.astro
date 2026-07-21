@@ -1,0 +1,61 @@
+---
+import { withBase } from '../lib/data';
+interface Props {
+  title: string;
+  description: string;
+  kind: 'bar' | 'heatmap' | 'timeline' | 'dot';
+  values: Record<string, unknown>[];
+  csv?: string;
+  tableColumns?: { key: string; label: string }[];
+  options?: Record<string, unknown>;
+}
+const { title, description, kind, values, csv, tableColumns = [], options = {} } = Astro.props;
+const id = `plot-${Math.random().toString(36).slice(2)}`;
+---
+<section class="chart-card" aria-labelledby={`${id}-title`}>
+  <header>
+    <div><h3 id={`${id}-title`}>{title}</h3><p>{description}</p></div>
+    {csv && <a class="tag" href={withBase(csv)} download>CSV ↓</a>}
+  </header>
+  <div class="chart plot-host" id={id} data-kind={kind} data-values={JSON.stringify(values)} data-options={JSON.stringify(options)} aria-hidden="true"></div>
+  {tableColumns.length > 0 && (
+    <details class="small">
+      <summary>Accessible data table</summary>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>{tableColumns.map((column) => <th>{column.label}</th>)}</tr></thead>
+          <tbody>{values.map((row) => <tr>{tableColumns.map((column) => <td>{String(row[column.key] ?? '')}</td>)}</tr>)}</tbody>
+        </table>
+      </div>
+    </details>
+  )}
+</section>
+
+<script>
+  import * as Plot from '@observablehq/plot';
+
+  const css = getComputedStyle(document.documentElement);
+  const ink = css.getPropertyValue('--ink').trim();
+  const coral = css.getPropertyValue('--coral').trim();
+  const mint = css.getPropertyValue('--mint').trim();
+  const line = css.getPropertyValue('--line').trim();
+
+  document.querySelectorAll<HTMLElement>('.plot-host:not([data-ready])').forEach((host) => {
+    host.dataset.ready = 'true';
+    const values = JSON.parse(host.dataset.values ?? '[]');
+    const options = JSON.parse(host.dataset.options ?? '{}');
+    const width = Math.max(320, Math.min(760, host.clientWidth || 620));
+    const shared = { width, style: { background: 'transparent', color: ink, fontSize: '12px' }, marginLeft: options.marginLeft ?? 100 };
+    let plot;
+    if (host.dataset.kind === 'heatmap') {
+      plot = Plot.plot({ ...shared, height: options.height ?? 330, marginLeft: 120, x: { label: null }, y: { label: null }, color: { scheme: 'ylgnbu', legend: true }, marks: [Plot.cell(values, { x: 'x', y: 'y', fill: 'value', title: (d) => `${d.y} × ${d.x}: ${d.value}` }), Plot.text(values, { x: 'x', y: 'y', text: 'value', fill: (d) => d.value > 5 ? 'white' : ink, fontSize: 10 })] });
+    } else if (host.dataset.kind === 'timeline') {
+      plot = Plot.plot({ ...shared, height: options.height ?? 280, marginLeft: 115, x: { type: 'utc', label: 'Release date', grid: true }, y: { label: null }, color: { legend: true }, marks: [Plot.ruleY(values, { y: 'label', stroke: line }), Plot.dot(values, { x: 'date', y: 'label', fill: 'group', r: 6, tip: true })] });
+    } else if (host.dataset.kind === 'dot') {
+      plot = Plot.plot({ ...shared, height: options.height ?? Math.max(220, values.length * 34), x: { label: options.xLabel ?? 'Value', grid: true }, y: { label: null }, color: { legend: true }, marks: [Plot.ruleX([0]), Plot.dot(values, { x: 'value', y: 'label', fill: 'group', r: 7, tip: true }), Plot.text(values, { x: 'value', y: 'label', text: (d) => `${d.value}`, dx: 12, textAnchor: 'start', fill: ink })] });
+    } else {
+      plot = Plot.plot({ ...shared, height: options.height ?? Math.max(230, values.length * 31), x: { label: options.xLabel ?? 'Count', grid: true }, y: { label: null }, marks: [Plot.barX(values, { x: 'value', y: 'label', fill: (_d, i) => i % 2 ? mint : coral, sort: { y: '-x' }, tip: true }), Plot.text(values, { x: 'value', y: 'label', text: 'value', dx: 5, textAnchor: 'start', fill: ink })] });
+    }
+    host.replaceChildren(plot);
+  });
+</script>

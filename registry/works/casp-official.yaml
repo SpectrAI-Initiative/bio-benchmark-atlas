@@ -1,0 +1,13 @@
+entity_type: work
+id: casp-official
+title: CASP16 official competition and results archive
+authors: [Prediction Center]
+organizations: [Prediction Center]
+work_type: competition-site
+source_class: benchmark_creator
+publication_date: '2024-05-01'
+canonical_url: 'https://predictioncenter.org/casp16/'
+doi: null
+arxiv: null
+status: archived
+verification: {status: verified, last_verified: '2026-07-21', notes: Official competition archive; exact track-specific evals should use dedicated run records.}

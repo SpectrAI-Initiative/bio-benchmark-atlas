@@ -1,0 +1,172 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wang422003.github.io/bio-benchmark-atlas/schema/registry.schema.json",
+  "title": "BioBench Atlas Registry Entity",
+  "oneOf": [
+    {"$ref": "#/$defs/Benchmark"},
+    {"$ref": "#/$defs/Work"},
+    {"$ref": "#/$defs/Model"},
+    {"$ref": "#/$defs/EvaluationRun"}
+  ],
+  "$defs": {
+    "Id": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
+    "Verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "last_verified"],
+      "properties": {
+        "status": {"enum": ["draft", "verified", "deprecated"]},
+        "last_verified": {"type": "string", "format": "date"},
+        "notes": {"type": ["string", "null"]}
+      }
+    },
+    "Evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["work_id", "locator", "supports"],
+      "properties": {
+        "work_id": {"$ref": "#/$defs/Id"},
+        "locator": {"type": "string", "minLength": 1},
+        "supports": {"type": "array", "minItems": 1, "items": {"type": "string"}}
+      }
+    },
+    "Resource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "url"],
+      "properties": {
+        "type": {"enum": ["paper", "website", "repository", "dataset", "grader", "leaderboard", "documentation"]},
+        "url": {"type": "string", "format": "uri"},
+        "license": {"type": ["string", "null"]},
+        "access_notes": {"type": ["string", "null"]}
+      }
+    },
+    "ReportedValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "reporting_status"],
+      "properties": {
+        "value": {},
+        "reporting_status": {"enum": ["reported", "not_reported", "not_applicable"]},
+        "notes": {"type": ["string", "null"]}
+      }
+    },
+    "Benchmark": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "id", "name", "aliases", "summary", "kind", "parent_id", "organizations", "release_date", "latest_version", "domains", "capabilities", "modalities", "task_formats", "task_counts", "coverage_notes", "access", "resources", "implementations", "verification", "evidence"],
+      "properties": {
+        "entity_type": {"const": "benchmark"},
+        "id": {"$ref": "#/$defs/Id"},
+        "name": {"type": "string", "minLength": 1},
+        "aliases": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+        "summary": {"type": "string", "minLength": 20},
+        "kind": {"enum": ["suite", "track", "dataset", "competition", "agentic-eval"]},
+        "parent_id": {"anyOf": [{"$ref": "#/$defs/Id"}, {"type": "null"}]},
+        "organizations": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+        "release_date": {"type": "string", "format": "date"},
+        "latest_version": {"type": "string"},
+        "domains": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/Id"}},
+        "capabilities": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/Id"}},
+        "modalities": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/Id"}},
+        "task_formats": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
+        "task_counts": {
+          "type": "object", "additionalProperties": false, "required": ["total", "basis", "subsets"],
+          "properties": {
+            "total": {"type": ["integer", "null"], "minimum": 0},
+            "basis": {"type": "string"},
+            "reporting_status": {"enum": ["reported", "not_reported"]},
+            "subsets": {"type": "array", "items": {
+              "type": "object", "additionalProperties": false, "required": ["id", "label", "count", "basis", "exclusive", "exhaustive", "reporting_status"],
+              "properties": {
+                "id": {"$ref": "#/$defs/Id"}, "label": {"type": "string"}, "count": {"type": ["integer", "null"], "minimum": 0},
+                "basis": {"type": "string"}, "exclusive": {"type": "boolean"}, "exhaustive": {"type": "boolean"},
+                "reporting_status": {"enum": ["reported", "not_reported"]}, "notes": {"type": ["string", "null"]}
+              }
+            }}
+          }
+        },
+        "coverage_notes": {"type": "array", "items": {
+          "type": "object", "additionalProperties": false, "required": ["tag", "coverage", "count", "reporting_status", "notes"],
+          "properties": {
+            "tag": {"$ref": "#/$defs/Id"}, "coverage": {"enum": ["explicitly-in-scope", "observed", "not-in-scope", "unknown"]},
+            "count": {"type": ["integer", "null"], "minimum": 0}, "reporting_status": {"enum": ["reported", "not_reported"]}, "notes": {"type": ["string", "null"]}
+          }
+        }},
+        "access": {
+          "type": "object", "additionalProperties": false, "required": ["level", "tasks", "artifacts", "grader", "license", "biosafety_notes"],
+          "properties": {
+            "level": {"$ref": "#/$defs/Id"}, "tasks": {"type": "string"}, "artifacts": {"type": "string"},
+            "grader": {"type": "string"}, "license": {"type": ["string", "null"]}, "biosafety_notes": {"type": ["string", "null"]}
+          }
+        },
+        "resources": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/Resource"}},
+        "implementations": {"type": "array", "items": {
+          "type": "object", "additionalProperties": false, "required": ["framework", "status", "url", "commit"],
+          "properties": {"framework": {"type": "string"}, "status": {"enum": ["official", "community", "local-only", "not-available"]}, "url": {"type": ["string", "null"], "format": "uri"}, "commit": {"type": ["string", "null"]}, "notes": {"type": ["string", "null"]}}
+        }},
+        "verification": {"$ref": "#/$defs/Verification"},
+        "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/Evidence"}}
+      }
+    },
+    "Work": {
+      "type": "object", "additionalProperties": false,
+      "required": ["entity_type", "id", "title", "authors", "organizations", "work_type", "source_class", "publication_date", "canonical_url", "doi", "arxiv", "status", "verification"],
+      "properties": {
+        "entity_type": {"const": "work"}, "id": {"$ref": "#/$defs/Id"}, "title": {"type": "string"},
+        "authors": {"type": "array", "items": {"type": "string"}}, "organizations": {"type": "array", "items": {"type": "string"}},
+        "work_type": {"enum": ["paper", "preprint", "system-card", "official-release", "technical-report", "competition-site"]},
+        "source_class": {"enum": ["benchmark_creator", "official_model_provider", "independent_reproduction"]},
+        "publication_date": {"type": "string", "format": "date"}, "canonical_url": {"type": "string", "format": "uri"},
+        "doi": {"type": ["string", "null"]}, "arxiv": {"type": ["string", "null"]}, "status": {"enum": ["published", "preprint", "living", "archived"]},
+        "verification": {"$ref": "#/$defs/Verification"}
+      }
+    },
+    "Model": {
+      "type": "object", "additionalProperties": false,
+      "required": ["entity_type", "id", "name", "provider", "release_date", "version_string", "version_status", "aliases", "verification"],
+      "properties": {
+        "entity_type": {"const": "model"}, "id": {"$ref": "#/$defs/Id"}, "name": {"type": "string"}, "provider": {"type": "string"},
+        "release_date": {"type": ["string", "null"], "format": "date"}, "version_string": {"type": ["string", "null"]},
+        "version_status": {"enum": ["reported", "not_reported"]}, "aliases": {"type": "array", "items": {"type": "string"}},
+        "verification": {"$ref": "#/$defs/Verification"}
+      }
+    },
+    "EvaluationRun": {
+      "type": "object", "additionalProperties": false,
+      "required": ["entity_type", "id", "work_id", "benchmark_id", "benchmark_version", "scope", "protocol", "metrics", "results", "comparability_group", "verification", "evidence"],
+      "properties": {
+        "entity_type": {"const": "evaluation_run"}, "id": {"$ref": "#/$defs/Id"}, "work_id": {"$ref": "#/$defs/Id"}, "benchmark_id": {"$ref": "#/$defs/Id"},
+        "benchmark_version": {"type": ["string", "null"]},
+        "scope": {
+          "type": "object", "additionalProperties": false, "required": ["type", "n", "subset_id", "filter", "reporting_status"],
+          "properties": {"type": {"enum": ["full", "subset", "track", "unknown"]}, "n": {"type": ["integer", "null"], "minimum": 0}, "subset_id": {"anyOf": [{"$ref": "#/$defs/Id"}, {"type": "null"}]}, "filter": {"type": ["string", "null"]}, "reporting_status": {"enum": ["reported", "not_reported"]}}
+        },
+        "protocol": {
+          "type": "object", "additionalProperties": false, "required": ["shots", "turns", "system_prompt_public", "reasoning", "tools", "token_budget", "time_budget", "temperature", "seed", "repeats", "grader", "statistical", "contamination"],
+          "properties": {
+            "shots": {"$ref": "#/$defs/ReportedValue"}, "turns": {"$ref": "#/$defs/ReportedValue"}, "system_prompt_public": {"$ref": "#/$defs/ReportedValue"}, "reasoning": {"$ref": "#/$defs/ReportedValue"},
+            "tools": {
+              "type": "object", "additionalProperties": false, "required": ["browser", "internet", "databases", "code_execution", "container", "external_tools"],
+              "properties": {"browser": {"$ref": "#/$defs/ReportedValue"}, "internet": {"$ref": "#/$defs/ReportedValue"}, "databases": {"$ref": "#/$defs/ReportedValue"}, "code_execution": {"$ref": "#/$defs/ReportedValue"}, "container": {"$ref": "#/$defs/ReportedValue"}, "external_tools": {"$ref": "#/$defs/ReportedValue"}}
+            },
+            "token_budget": {"$ref": "#/$defs/ReportedValue"}, "time_budget": {"$ref": "#/$defs/ReportedValue"}, "temperature": {"$ref": "#/$defs/ReportedValue"}, "seed": {"$ref": "#/$defs/ReportedValue"}, "repeats": {"$ref": "#/$defs/ReportedValue"},
+            "grader": {"type": "object", "additionalProperties": false, "required": ["type", "model", "human_review", "reporting_status"], "properties": {"type": {"type": ["string", "null"]}, "model": {"type": ["string", "null"]}, "human_review": {"type": ["boolean", "null"]}, "reporting_status": {"enum": ["reported", "not_reported"]}}},
+            "statistical": {"$ref": "#/$defs/ReportedValue"}, "contamination": {"$ref": "#/$defs/ReportedValue"}
+          }
+        },
+        "metrics": {"type": "array", "minItems": 1, "items": {
+          "type": "object", "additionalProperties": false, "required": ["metric_id", "source_label", "unit", "range", "higher_is_better", "aggregation", "pass_threshold", "tolerance"],
+          "properties": {"metric_id": {"$ref": "#/$defs/Id"}, "source_label": {"type": "string"}, "unit": {"type": "string"}, "range": {"type": ["array", "null"], "minItems": 2, "maxItems": 2, "items": {"type": "number"}}, "higher_is_better": {"type": "boolean"}, "aggregation": {"type": ["string", "null"]}, "pass_threshold": {"type": ["number", "null"]}, "tolerance": {"type": ["string", "null"]}}
+        }},
+        "results": {"type": "array", "items": {
+          "type": "object", "additionalProperties": false, "required": ["model_id", "metric_id", "value", "ci_low", "ci_high", "n", "notes"],
+          "properties": {"model_id": {"$ref": "#/$defs/Id"}, "metric_id": {"$ref": "#/$defs/Id"}, "value": {"type": "number"}, "ci_low": {"type": ["number", "null"]}, "ci_high": {"type": ["number", "null"]}, "n": {"type": ["integer", "null"], "minimum": 0}, "notes": {"type": ["string", "null"]}}
+        }},
+        "comparability_group": {"$ref": "#/$defs/Id"}, "verification": {"$ref": "#/$defs/Verification"},
+        "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/Evidence"}}
+      }
+    }
+  }
+}
+

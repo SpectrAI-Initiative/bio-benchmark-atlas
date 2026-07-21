@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use BioBench Atlas, please cite the repository release you consulted."
+title: "BioBench Atlas"
+type: dataset
+version: 1.0.0
+date-released: 2026-07-21
+authors:
+  - family-names: Wang
+    given-names: Aaron
+repository-code: https://github.com/wang422003/bio-benchmark-atlas
+url: https://wang422003.github.io/bio-benchmark-atlas/
+license: CC-BY-4.0
+

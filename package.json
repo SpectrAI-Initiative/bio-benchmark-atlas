@@ -1,0 +1,16 @@
+{
+  "name": "bio-benchmark-atlas",
+  "private": true,
+  "version": "1.0.0",
+  "packageManager": "pnpm@10.12.1",
+  "scripts": {
+    "registry:validate": "python3 scripts/validate_registry.py",
+    "registry:build": "python3 scripts/build_registry.py",
+    "test:data": "python3 -m pytest",
+    "site:build": "pnpm --dir site build",
+    "site:dev": "pnpm --dir site dev",
+    "site:test": "pnpm --dir site test",
+    "build": "pnpm registry:validate && pnpm registry:build && pnpm site:build",
+    "test": "pnpm test:data && pnpm build"
+  }
+}

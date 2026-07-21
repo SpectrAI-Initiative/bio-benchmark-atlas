@@ -1,0 +1,5 @@
+---
+import Layout from '../components/Layout.astro';
+import { withBase } from '../lib/data';
+---
+<Layout title="Not found"><div class="narrow section"><p class="eyebrow">404</p><h1>This coordinate is not in the atlas.</h1><p class="lede">The ID may be misspelled, deprecated, or not yet registered.</p><p><a class="button" href={withBase('/benchmarks/')}>Open the Explorer</a></p></div></Layout>

@@ -1,0 +1,9 @@
+entity_type: model
+id: codex-cli-gpt-5-4
+name: Codex CLI (GPT-5.4)
+provider: OpenAI
+release_date: null
+version_string: Codex CLI (GPT-5.4)
+version_status: reported
+aliases: []
+verification: {status: verified, last_verified: '2026-07-21', notes: Agent-and-model label reported by the CompBioBench creators.}

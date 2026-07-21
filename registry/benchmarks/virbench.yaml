@@ -1,0 +1,37 @@
+entity_type: benchmark
+id: virbench
+name: VirBench
+aliases: [Viral Sequence Benchmark]
+summary: Retrieval benchmark that tests whether scientific agents can answer verified viral-sequence questions by querying NCBI Virus.
+kind: agentic-eval
+parent_id: null
+organizations: [Anthropic]
+release_date: '2025-05-20'
+latest_version: '1.0'
+domains: [virology, genomics, bioinformatics]
+capabilities: [retrieval, tool-use, data-analysis]
+modalities: [text, dna-rna-sequence, database, web]
+task_formats: [database retrieval query]
+task_counts:
+  total: 120
+  basis: manually verified queries
+  reporting_status: reported
+  subsets:
+    - {id: pathogen-set, label: Pathogens represented, count: 40, basis: pathogens, exclusive: false, exhaustive: false, reporting_status: reported, notes: Count is not a task partition.}
+coverage_notes: []
+access:
+  level: metadata-only
+  tasks: Query construction and aggregate statistics are public; a runnable task package was not identified.
+  artifacts: NCBI Virus is publicly accessible subject to its terms.
+  grader: Manual verification is described; grader implementation is not public.
+  license: null
+  biosafety_notes: Sequence retrieval may involve pathogens; this registry does not reproduce sequences or queries.
+resources:
+  - {type: website, url: 'https://www.anthropic.com/research/agents-in-biology', license: null, access_notes: Official Anthropic report.}
+implementations:
+  - {framework: scientific agent with NCBI Virus tool, status: not-available, url: null, commit: null, notes: Public description only.}
+verification: {status: verified, last_verified: '2026-07-21', notes: Aggregate design verified from the official research page.}
+evidence:
+  - work_id: virbench-official
+    locator: 'VirBench methodology and results sections'
+    supports: [summary, task_counts, domains, capabilities, modalities, access]

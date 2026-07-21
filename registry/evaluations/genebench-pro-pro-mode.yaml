@@ -1,0 +1,34 @@
+entity_type: evaluation_run
+id: genebench-pro-pro-mode
+work_id: genebench-pro-report
+benchmark_id: genebench-pro
+benchmark_version: '1.0'
+scope: {type: full, n: 129, subset_id: null, filter: null, reporting_status: reported}
+protocol:
+  shots: &nr {value: null, reporting_status: not_reported, notes: Not specified in the public report.}
+  turns: {value: multi-turn, reporting_status: reported, notes: Agentic workspace analysis.}
+  system_prompt_public: *nr
+  reasoning: {value: Pro mode, reporting_status: reported, notes: Kept separate from standard highest-reasoning evaluation.}
+  tools:
+    browser: {value: false, reporting_status: reported, notes: Isolated workspace evaluation.}
+    internet: {value: false, reporting_status: reported, notes: Isolated workspace evaluation.}
+    databases: *nr
+    code_execution: {value: true, reporting_status: reported, notes: Python and bioinformatics stack.}
+    container: {value: true, reporting_status: reported, notes: Isolated workspace.}
+    external_tools: {value: [PLINK 2.0, Python scientific stack], reporting_status: reported, notes: null}
+  token_budget: *nr
+  time_budget: *nr
+  temperature: *nr
+  seed: *nr
+  repeats: *nr
+  grader: {type: deterministic target checker, model: null, human_review: false, reporting_status: reported}
+  statistical: {value: task pass rate, reporting_status: reported, notes: null}
+  contamination: {value: 10 tasks public and remaining tasks held out, reporting_status: reported, notes: null}
+metrics:
+  - {metric_id: pass-rate, source_label: Pass rate, unit: percent, range: [0, 100], higher_is_better: true, aggregation: problem-weighted mean, pass_threshold: null, tolerance: task-specific numerical tolerance}
+results:
+  - {model_id: gpt-5-6-pro, metric_id: pass-rate, value: 31.5, ci_low: null, ci_high: null, n: 129, notes: Pro mode.}
+comparability_group: genebench-pro-v1-full-pro-mode
+verification: {status: verified, last_verified: '2026-07-21', notes: Separate run because reasoning mode differs.}
+evidence:
+  - {work_id: genebench-pro-report, locator: 'Results; GPT-5.6 Sol Pro-mode result', supports: [scope, protocol.reasoning, metrics, results]}

@@ -1,0 +1,64 @@
+domains:
+  - {id: life-science, label: Life science, label_zh: 生命科学, parent_id: null, definition: Broad applied and foundational life-science research., deprecated_aliases: []}
+  - {id: protein-science, label: Protein science, label_zh: 蛋白质科学, parent_id: life-science, definition: Protein sequence, structure, function, interaction, and engineering., deprecated_aliases: []}
+  - {id: protein-sequence, label: Protein sequence, label_zh: 蛋白质序列, parent_id: protein-science, definition: Amino-acid sequence understanding and modeling., deprecated_aliases: []}
+  - {id: protein-structure, label: Protein structure, label_zh: 蛋白质结构, parent_id: protein-science, definition: Protein folding, coordinates, complexes, and structural interpretation., deprecated_aliases: []}
+  - {id: protein-design, label: Protein design, label_zh: 蛋白质设计, parent_id: protein-science, definition: Designing or optimizing protein sequences, structures, constructs, or functions., deprecated_aliases: []}
+  - {id: protein-protein-binding, label: Protein-protein binding, label_zh: 蛋白-蛋白结合, parent_id: protein-science, definition: Protein-protein interaction, complex formation, or binding prediction., deprecated_aliases: []}
+  - {id: protein-ligand-binding, label: Protein-ligand binding, label_zh: 蛋白-配体结合, parent_id: protein-science, definition: Binding between proteins and small molecules or other ligands., deprecated_aliases: []}
+  - {id: antibody-antigen, label: Antibody-antigen, label_zh: 抗体-抗原, parent_id: protein-protein-binding, definition: Antibody specificity, affinity, epitope, or antigen interaction., deprecated_aliases: []}
+  - {id: genomics, label: Genomics, label_zh: 基因组学, parent_id: life-science, definition: Genome variation, sequencing, regulation, and genetic mechanisms., deprecated_aliases: []}
+  - {id: transcriptomics, label: Transcriptomics, label_zh: 转录组学, parent_id: life-science, definition: Bulk and other transcriptome-level measurements and analyses., deprecated_aliases: []}
+  - {id: epigenomics, label: Epigenomics, label_zh: 表观组学, parent_id: life-science, definition: DNA methylation, chromatin, histone marks, and related assays., deprecated_aliases: []}
+  - {id: single-cell, label: Single-cell, label_zh: 单细胞组学, parent_id: life-science, definition: Single-cell molecular measurements and analyses., deprecated_aliases: []}
+  - {id: spatial-omics, label: Spatial omics, label_zh: 空间组学, parent_id: life-science, definition: Spatially resolved molecular measurements and analyses., deprecated_aliases: []}
+  - {id: proteomics, label: Proteomics, label_zh: 蛋白质组学, parent_id: life-science, definition: Proteome-scale measurement and analysis., deprecated_aliases: []}
+  - {id: metabolomics, label: Metabolomics, label_zh: 代谢组学, parent_id: life-science, definition: Metabolite-scale measurement and analysis., deprecated_aliases: []}
+  - {id: microbiome, label: Microbiome, label_zh: 微生物组, parent_id: life-science, definition: Microbial community composition and function., deprecated_aliases: []}
+  - {id: multiomics, label: Multi-omics, label_zh: 多组学, parent_id: life-science, definition: Integrated analysis across two or more omics modalities., deprecated_aliases: [multi-omics]}
+  - {id: molecular-cell-biology, label: Molecular and cell biology, label_zh: 分子与细胞生物学, parent_id: life-science, definition: Cellular mechanisms, pathways, perturbations, and molecular experiments., deprecated_aliases: []}
+  - {id: assay-screening, label: Assays and screening, label_zh: 实验与筛选, parent_id: life-science, definition: Assay design, screening, controls, validation, and troubleshooting., deprecated_aliases: []}
+  - {id: bioinformatics, label: Bioinformatics, label_zh: 生物信息学, parent_id: life-science, definition: Computational analysis of biological data and databases., deprecated_aliases: []}
+  - {id: medchem, label: Medicinal chemistry, label_zh: 药物化学, parent_id: life-science, definition: Small molecules, structure-activity relationships, ADME, and optimization., deprecated_aliases: []}
+  - {id: clinical-translational, label: Clinical and translational, label_zh: 临床与转化, parent_id: life-science, definition: Preclinical-to-clinical reasoning, biomarkers, trials, safety, and patient impact., deprecated_aliases: []}
+  - {id: virology, label: Virology, label_zh: 病毒学, parent_id: life-science, definition: Viral sequences, evolution, surveillance, diagnostics, and therapeutics., deprecated_aliases: []}
+
+capabilities:
+  - {id: knowledge, label: Knowledge, label_zh: 知识, parent_id: null, definition: Recall and apply scientific knowledge., deprecated_aliases: []}
+  - {id: evidence-synthesis, label: Evidence synthesis, label_zh: 证据综合, parent_id: null, definition: Interpret and reconcile papers, figures, tables, and records., deprecated_aliases: []}
+  - {id: retrieval, label: Retrieval, label_zh: 检索, parent_id: null, definition: Retrieve scientific records, sequences, or evidence., deprecated_aliases: []}
+  - {id: prediction, label: Prediction, label_zh: 预测, parent_id: null, definition: Predict scientific properties or outcomes., deprecated_aliases: []}
+  - {id: classification, label: Classification, label_zh: 分类, parent_id: prediction, definition: Assign discrete biological labels., deprecated_aliases: []}
+  - {id: regression, label: Regression, label_zh: 回归, parent_id: prediction, definition: Predict quantitative biological values., deprecated_aliases: []}
+  - {id: design, label: Design, label_zh: 设计, parent_id: null, definition: Design molecules, constructs, assays, experiments, or protocols., deprecated_aliases: []}
+  - {id: generation, label: Generation, label_zh: 生成, parent_id: design, definition: Generate sequences, structures, constructs, or plans., deprecated_aliases: []}
+  - {id: optimization, label: Optimization, label_zh: 优化, parent_id: design, definition: Improve a scientific object or process under constraints., deprecated_aliases: []}
+  - {id: data-analysis, label: Data analysis, label_zh: 数据分析, parent_id: null, definition: Analyze quantitative, statistical, or experimental data., deprecated_aliases: []}
+  - {id: coding, label: Coding, label_zh: 编程, parent_id: data-analysis, definition: Write and execute analysis code., deprecated_aliases: []}
+  - {id: tool-use, label: Tool use, label_zh: 工具使用, parent_id: null, definition: Use scientific software, databases, browsers, or lab interfaces., deprecated_aliases: []}
+  - {id: experiment-planning, label: Experiment planning, label_zh: 实验规划, parent_id: design, definition: Plan experiments, controls, and follow-up studies., deprecated_aliases: []}
+  - {id: troubleshooting, label: Troubleshooting, label_zh: 故障排查, parent_id: null, definition: Diagnose experimental or analytical failures., deprecated_aliases: []}
+  - {id: scientific-reasoning, label: Scientific reasoning, label_zh: 科学推理, parent_id: null, definition: Explain mechanisms, test hypotheses, and reason under uncertainty., deprecated_aliases: []}
+  - {id: scientific-communication, label: Scientific communication, label_zh: 科学交流, parent_id: null, definition: Produce expert-useful scientific explanations and reports., deprecated_aliases: []}
+
+modalities:
+  - {id: text, label: Text, label_zh: 文本, parent_id: null, definition: Natural-language task context., deprecated_aliases: []}
+  - {id: paper, label: Paper or document, label_zh: 论文或文档, parent_id: text, definition: Scientific papers, reports, protocols, or regulatory documents., deprecated_aliases: []}
+  - {id: table, label: Table, label_zh: 表格, parent_id: null, definition: Tabular or spreadsheet data., deprecated_aliases: []}
+  - {id: figure, label: Figure, label_zh: 科研图表, parent_id: null, definition: Plots, gels, microscopy, or other scientific images., deprecated_aliases: []}
+  - {id: dna-rna-sequence, label: DNA or RNA sequence, label_zh: DNA/RNA序列, parent_id: null, definition: Nucleotide sequences or sequence files., deprecated_aliases: []}
+  - {id: protein-sequence, label: Protein sequence, label_zh: 蛋白质序列, parent_id: null, definition: Amino-acid sequences or sequence files., deprecated_aliases: []}
+  - {id: structure-3d, label: 3D structure, label_zh: 三维结构, parent_id: null, definition: Molecular coordinates, complexes, or structure files., deprecated_aliases: []}
+  - {id: raw-omics, label: Raw omics, label_zh: 原始组学数据, parent_id: null, definition: Raw or minimally processed omics data., deprecated_aliases: []}
+  - {id: image, label: Image, label_zh: 图像, parent_id: null, definition: General scientific image input., deprecated_aliases: []}
+  - {id: database, label: Database, label_zh: 数据库, parent_id: null, definition: Structured external scientific databases., deprecated_aliases: []}
+  - {id: web, label: Web, label_zh: 网页, parent_id: null, definition: Browser or URL-provided evidence., deprecated_aliases: []}
+  - {id: code, label: Code, label_zh: 代码, parent_id: null, definition: Source code, notebooks, or executable analyses., deprecated_aliases: []}
+  - {id: wet-lab-output, label: Wet-lab output, label_zh: 湿实验输出, parent_id: null, definition: Instrument output or laboratory measurements., deprecated_aliases: []}
+
+access_levels:
+  - {id: fully-open, label: Fully open, label_zh: 完全公开, parent_id: null, definition: Tasks and required evaluation materials are publicly accessible., deprecated_aliases: []}
+  - {id: partially-open, label: Partially open, label_zh: 部分公开, parent_id: null, definition: Some tasks, artifacts, labels, or graders are restricted., deprecated_aliases: []}
+  - {id: metadata-only, label: Metadata only, label_zh: 仅元数据, parent_id: null, definition: Public descriptions exist but runnable evaluation materials are unavailable., deprecated_aliases: []}
+  - {id: private-internal, label: Private or internal, label_zh: 私有或内部, parent_id: null, definition: The benchmark is reported but not publicly released., deprecated_aliases: [internal]}
+

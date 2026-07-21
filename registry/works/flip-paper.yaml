@@ -1,0 +1,13 @@
+entity_type: work
+id: flip-paper
+title: 'FLIP: Benchmark tasks in fitness landscape inference for proteins'
+authors: [Christian Dallago, Jody Mou, Kadina E. Johnston, Bruce J. Wittmann, Nicholas Bhattacharya, Samuel Goldman, Ali Madani, Kevin K. Yang]
+organizations: [VantAI, Salesforce Research]
+work_type: paper
+source_class: benchmark_creator
+publication_date: '2021-10-11'
+canonical_url: 'https://openreview.net/forum?id=p2dMLEwL8tF'
+doi: null
+arxiv: null
+status: published
+verification: {status: verified, last_verified: '2026-07-21', notes: NeurIPS 2021 Datasets and Benchmarks paper.}

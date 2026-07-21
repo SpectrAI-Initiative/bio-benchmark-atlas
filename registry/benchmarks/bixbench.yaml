@@ -1,0 +1,39 @@
+entity_type: benchmark
+id: bixbench
+name: BixBench
+aliases: [Bioinformatics Benchmark]
+summary: Real-world bioinformatics analysis scenarios derived from published notebooks and datasets, requiring code execution and open-ended interpretation.
+kind: agentic-eval
+parent_id: null
+organizations: [FutureHouse, ScienceMachine]
+release_date: '2025-02-28'
+latest_version: '1.5'
+domains: [bioinformatics, genomics, transcriptomics, single-cell, proteomics]
+capabilities: [data-analysis, coding, tool-use, scientific-reasoning]
+modalities: [text, table, raw-omics, code]
+task_formats: [open answer, multiple choice]
+task_counts:
+  total: 205
+  basis: questions in public v1.5 dataset
+  reporting_status: reported
+  subsets:
+    - {id: analysis-capsules, label: Source analysis capsules, count: 60, basis: published notebooks and related data capsules, exclusive: false, exhaustive: false, reporting_status: reported, notes: Not a task partition.}
+coverage_notes: []
+access:
+  level: fully-open
+  tasks: Public on Hugging Face.
+  artifacts: Source datasets and analysis capsules are linked by the upstream project.
+  grader: Public range and LLM verifiers are included with the benchmark tooling.
+  license: CC-BY-NC-4.0
+  biosafety_notes: Upstream benchmark data must not be copied into training corpora; this registry stores metadata only.
+resources:
+  - {type: paper, url: 'https://arxiv.org/abs/2503.00096', license: null, access_notes: Creator preprint.}
+  - {type: repository, url: 'https://github.com/Future-House/BixBench', license: CC-BY-NC-4.0, access_notes: Official code.}
+  - {type: dataset, url: 'https://huggingface.co/datasets/futurehouse/BixBench', license: CC-BY-NC-4.0, access_notes: Versioned public dataset.}
+implementations:
+  - {framework: BixBench agent harness, status: official, url: 'https://github.com/Future-House/BixBench/tree/49311180bdacb324c596f2e07596c126f2004008', commit: 49311180bdacb324c596f2e07596c126f2004008, notes: Commit captured at verification time.}
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Current task count follows dataset v1.5; the original paper describes an earlier, larger draft.'}
+evidence:
+  - work_id: bixbench-paper
+    locator: 'Abstract; official repository README and v1.5 dataset card'
+    supports: [summary, task_counts, domains, capabilities, modalities, access, implementations]

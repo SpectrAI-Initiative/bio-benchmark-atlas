@@ -1,0 +1,40 @@
+entity_type: benchmark
+id: cameo
+name: CAMEO
+aliases: [Continuous Automated Model EvaluatiOn]
+summary: Weekly blind and automated evaluation of registered macromolecular structure-prediction servers against newly released PDB structures.
+kind: competition
+parent_id: null
+organizations: [SIB Swiss Institute of Bioinformatics]
+release_date: '2014-01-01'
+latest_version: living
+domains: [protein-structure, protein-protein-binding, protein-ligand-binding]
+capabilities: [prediction]
+modalities: [protein-sequence, dna-rna-sequence, structure-3d]
+task_formats: [continuous blind server evaluation]
+task_counts:
+  total: null
+  basis: rolling weekly targets
+  reporting_status: not_reported
+  subsets: []
+coverage_notes:
+  - {tag: protein-protein-binding, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: Current complex targets may include protein assemblies.}
+  - {tag: protein-ligand-binding, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: Current target definition can include free ligands.}
+access:
+  level: partially-open
+  tasks: Results and released targets are public; participation requires server registration.
+  artifacts: Predictions, reference structures, and scores are available after evaluation.
+  grader: Community-established structural quality metrics are applied by the platform.
+  license: null
+  biosafety_notes: No upstream structures are redistributed here.
+resources:
+  - {type: website, url: 'https://cameo3d.org/', license: null, access_notes: Current official platform.}
+  - {type: documentation, url: 'https://cameo3d.org/help', license: null, access_notes: Current categories and scoring help.}
+  - {type: paper, url: 'https://doi.org/10.1002/prot.70056', license: null, access_notes: Creator update on macromolecular complexes.}
+implementations:
+  - {framework: CAMEO service, status: not-available, url: null, commit: null, notes: Hosted evaluation service; no public pinned harness asserted.}
+verification: {status: verified, last_verified: '2026-07-21', notes: Historical single-chain categories are not conflated with the current complex benchmark.}
+evidence:
+  - work_id: cameo-paper
+    locator: 'Abstract; Sections 1 and 2.1; official Help page'
+    supports: [summary, domains, task_counts, access, latest_version]

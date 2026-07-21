@@ -1,0 +1,40 @@
+entity_type: benchmark
+id: scigym
+name: SciGym
+aliases: [SciGym SBML]
+summary: Interactive dry-lab benchmark in which agents design experiments and recover hidden biological mechanisms from simulated SBML systems.
+kind: agentic-eval
+parent_id: null
+organizations: [University of Toronto, SickKids, Vector Institute]
+release_date: '2025-07-02'
+latest_version: '1.0'
+domains: [molecular-cell-biology, bioinformatics]
+capabilities: [experiment-planning, data-analysis, coding, tool-use, scientific-reasoning]
+modalities: [text, table, code, wet-lab-output]
+task_formats: [interactive simulated experiment]
+task_counts:
+  total: 350
+  basis: SBML biological systems
+  reporting_status: reported
+  subsets:
+    - {id: small, label: Small systems, count: 137, basis: systems with fewer than 10 reactions, exclusive: true, exhaustive: true, reporting_status: reported, notes: Paper evaluation split.}
+    - {id: large, label: Large systems, count: 213, basis: systems with up to 400 reactions, exclusive: true, exhaustive: true, reporting_status: reported, notes: Released but not evaluated in the paper.}
+coverage_notes: []
+access:
+  level: fully-open
+  tasks: Both small and large splits are public.
+  artifacts: SBML models and evaluation data are public on Hugging Face.
+  grader: Public topology, reaction-recovery, and simulation-error evaluators.
+  license: MIT
+  biosafety_notes: The benchmark uses simulations rather than live biological materials.
+resources:
+  - {type: paper, url: 'https://arxiv.org/abs/2507.02083', license: null, access_notes: Creator preprint.}
+  - {type: repository, url: 'https://github.com/h4duan/SciGym', license: MIT, access_notes: Official code.}
+  - {type: dataset, url: 'https://huggingface.co/datasets/h4duan/scigym-sbml', license: null, access_notes: Official data.}
+implementations:
+  - {framework: SciGym Python agent environment, status: official, url: 'https://github.com/h4duan/SciGym/tree/88a7b93609e35b6ecb4eb343d816d6ff09256c6a', commit: 88a7b93609e35b6ecb4eb343d816d6ff09256c6a, notes: Commit captured at verification time.}
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Split sizes, tasks, metrics, and code checked against the paper and repository.'}
+evidence:
+  - work_id: scigym-paper
+    locator: 'Sections 1, 3 and 5; official repository README'
+    supports: [summary, task_counts, capabilities, modalities, access, implementations]

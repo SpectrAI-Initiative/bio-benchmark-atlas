@@ -1,0 +1,34 @@
+entity_type: evaluation_run
+id: flip-creator-full
+work_id: flip-paper
+benchmark_id: flip
+benchmark_version: original-2021
+scope: {type: full, n: 15, subset_id: null, filter: All original dataset-and-split tasks., reporting_status: reported}
+protocol:
+  shots: &na {value: null, reporting_status: not_applicable, notes: Supervised representation-learning benchmark.}
+  turns: {value: not-applicable, reporting_status: not_applicable, notes: Batch supervised learning.}
+  system_prompt_public: *na
+  reasoning: *na
+  tools:
+    browser: *na
+    internet: *na
+    databases: *na
+    code_execution: {value: true, reporting_status: reported, notes: Models are trained and scored with code.}
+    container: {value: null, reporting_status: not_reported, notes: Not standardized.}
+    external_tools: {value: model-specific, reporting_status: reported, notes: null}
+  token_budget: *na
+  time_budget: {value: null, reporting_status: not_reported, notes: Not standardized.}
+  temperature: *na
+  seed: {value: null, reporting_status: not_reported, notes: Baseline-specific.}
+  repeats: {value: null, reporting_status: not_reported, notes: Baseline-specific.}
+  grader: {type: deterministic regression scorer, model: null, human_review: false, reporting_status: reported}
+  statistical: {value: split-specific regression metrics, reporting_status: reported, notes: Metrics are summarized per landscape and generalization split.}
+  contamination: {value: split design controls sequence and fitness generalization regimes, reporting_status: reported, notes: null}
+metrics:
+  - {metric_id: spearman-correlation, source_label: Spearman rho, unit: correlation, range: [-1, 1], higher_is_better: true, aggregation: task-specific, pass_threshold: null, tolerance: null}
+  - {metric_id: mean-squared-error, source_label: MSE, unit: squared fitness units, range: null, higher_is_better: false, aggregation: sample-weighted within task, pass_threshold: null, tolerance: null}
+results: []
+comparability_group: flip-original-all-tasks
+verification: {status: verified, last_verified: '2026-07-21', notes: Baseline result rows deferred; original FLIP is not mixed with FLIP2.}
+evidence:
+  - {work_id: flip-paper, locator: 'Dataset, splits, and evaluation sections', supports: [scope, protocol, metrics]}

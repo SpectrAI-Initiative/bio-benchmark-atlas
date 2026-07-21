@@ -1,0 +1,13 @@
+entity_type: work
+id: scigym-paper
+title: Measuring Scientific Capabilities of Language Models with a Systems Biology Dry Lab
+authors: [Haonan Duan, Stephen Zhewen Lu, Caitlin Fiona Harrigan, Nishkrit Desai, Jiarui Lu, Michał Koziarski, Leonardo Cotta, Chris J. Maddison]
+organizations: [University of Toronto, SickKids, Vector Institute]
+work_type: preprint
+source_class: benchmark_creator
+publication_date: '2025-07-02'
+canonical_url: 'https://arxiv.org/abs/2507.02083'
+doi: null
+arxiv: '2507.02083'
+status: preprint
+verification: {status: verified, last_verified: '2026-07-21', notes: Creator preprint and official repository.}

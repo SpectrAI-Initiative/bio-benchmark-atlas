@@ -1,0 +1,35 @@
+entity_type: evaluation_run
+id: scigym-small-creator-paper
+work_id: scigym-paper
+benchmark_id: scigym
+benchmark_version: '1.0'
+scope: {type: subset, n: 137, subset_id: small, filter: Systems with fewer than 10 reactions., reporting_status: reported}
+protocol:
+  shots: &nr {value: null, reporting_status: not_reported, notes: Not reported as a shot count.}
+  turns: {value: multi-turn, reporting_status: reported, notes: Iterative experimental loop.}
+  system_prompt_public: {value: true, reporting_status: reported, notes: Prompt is reproduced in the appendix.}
+  reasoning: *nr
+  tools:
+    browser: {value: false, reporting_status: reported, notes: Simulated environment.}
+    internet: {value: false, reporting_status: reported, notes: Simulated environment.}
+    databases: {value: false, reporting_status: reported, notes: No live database access.}
+    code_execution: {value: true, reporting_status: reported, notes: Python shell analysis.}
+    container: {value: true, reporting_status: reported, notes: SciGym environment.}
+    external_tools: {value: [SBML simulator, experiment API], reporting_status: reported, notes: Dry-lab tools.}
+  token_budget: *nr
+  time_budget: *nr
+  temperature: *nr
+  seed: *nr
+  repeats: *nr
+  grader: {type: deterministic topology and simulation comparison, model: null, human_review: false, reporting_status: reported}
+  statistical: {value: means across systems with per-system details, reporting_status: reported, notes: null}
+  contamination: {value: SBMLs are de-identified, reporting_status: reported, notes: Curation removes identifying labels.}
+metrics:
+  - {metric_id: network-topology-score, source_label: NTS, unit: score, range: [0, 1], higher_is_better: true, aggregation: macro across systems, pass_threshold: null, tolerance: null}
+  - {metric_id: reaction-matching-score, source_label: RMS, unit: score, range: [0, 1], higher_is_better: true, aggregation: macro across systems, pass_threshold: null, tolerance: null}
+  - {metric_id: simulation-trajectory-error, source_label: STE, unit: error, range: null, higher_is_better: false, aggregation: macro across systems, pass_threshold: null, tolerance: SMAPE-based}
+results: []
+comparability_group: scigym-v1-small-agent
+verification: {status: verified, last_verified: '2026-07-21', notes: Exact result rows await extraction from the primary table.}
+evidence:
+  - {work_id: scigym-paper, locator: 'Sections 3 and 5; Appendix A.1 and B', supports: [scope, protocol, metrics]}

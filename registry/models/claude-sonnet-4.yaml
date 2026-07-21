@@ -1,0 +1,9 @@
+entity_type: model
+id: claude-sonnet-4
+name: Claude Sonnet 4
+provider: Anthropic
+release_date: '2025-05-22'
+version_string: Claude Sonnet 4
+version_status: reported
+aliases: []
+verification: {status: verified, last_verified: '2026-07-21', notes: Official release label; dated API snapshot not specified in the cited evaluation.}

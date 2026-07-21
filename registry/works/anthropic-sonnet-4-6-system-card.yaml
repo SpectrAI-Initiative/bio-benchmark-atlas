@@ -1,0 +1,13 @@
+entity_type: work
+id: anthropic-sonnet-4-6-system-card
+title: Claude Sonnet 4.6 System Card
+authors: [Anthropic]
+organizations: [Anthropic]
+work_type: system-card
+source_class: official_model_provider
+publication_date: '2026-02-17'
+canonical_url: 'https://www.anthropic.com/claude-sonnet-4-6-system-card'
+doi: null
+arxiv: null
+status: published
+verification: {status: verified, last_verified: '2026-07-21', notes: Official model-provider system card with FigQA tool/no-tool results.}

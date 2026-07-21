@@ -1,0 +1,33 @@
+entity_type: evaluation_run
+id: bixbench-creator-paper
+work_id: bixbench-paper
+benchmark_id: bixbench
+benchmark_version: paper-2025
+scope: {type: unknown, n: null, subset_id: null, filter: The paper predates public dataset v1.5 and its evaluated task count is not mapped here to the current 205-question release., reporting_status: not_reported}
+protocol:
+  shots: &nr {value: null, reporting_status: not_reported, notes: Not normalized from the paper.}
+  turns: {value: multi-turn, reporting_status: reported, notes: Agents execute long analysis trajectories.}
+  system_prompt_public: *nr
+  reasoning: *nr
+  tools:
+    browser: *nr
+    internet: *nr
+    databases: *nr
+    code_execution: {value: true, reporting_status: reported, notes: 'Python, R, and Bash analysis.'}
+    container: {value: true, reporting_status: reported, notes: Data-analysis capsules.}
+    external_tools: *nr
+  token_budget: *nr
+  time_budget: *nr
+  temperature: *nr
+  seed: *nr
+  repeats: *nr
+  grader: {type: range and LLM verifiers, model: null, human_review: null, reporting_status: reported}
+  statistical: {value: accuracy, reporting_status: reported, notes: Open-answer and multiple-choice conditions are reported separately upstream.}
+  contamination: {value: public canary and no-training warning, reporting_status: reported, notes: Current public dataset includes a canary.}
+metrics:
+  - {metric_id: accuracy, source_label: Accuracy, unit: percent, range: [0, 100], higher_is_better: true, aggregation: problem-weighted mean, pass_threshold: null, tolerance: verifier-specific}
+results: []
+comparability_group: bixbench-paper-2025-unknown-scope
+verification: {status: verified, last_verified: '2026-07-21', notes: Results omitted rather than mixing the paper release with v1.5.}
+evidence:
+  - {work_id: bixbench-paper, locator: 'Abstract; benchmark and agent framework sections', supports: [scope, protocol.turns, protocol.tools.code_execution, protocol.grader, metrics]}

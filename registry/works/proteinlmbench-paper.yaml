@@ -1,0 +1,13 @@
+entity_type: work
+id: proteinlmbench-paper
+title: A Fine-tuning Dataset and Benchmark for Large Language Models for Protein Understanding
+authors: [TourSynbio Team]
+organizations: [Tsinghua University, TourSynbio]
+work_type: preprint
+source_class: benchmark_creator
+publication_date: '2024-06-08'
+canonical_url: 'https://arxiv.org/abs/2406.05540'
+doi: null
+arxiv: '2406.05540'
+status: preprint
+verification: {status: verified, last_verified: '2026-07-21', notes: Creator preprint introducing ProteinLMBench.}

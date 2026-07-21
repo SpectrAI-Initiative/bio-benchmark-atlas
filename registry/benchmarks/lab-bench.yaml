@@ -1,0 +1,41 @@
+entity_type: benchmark
+id: lab-bench
+name: LAB-Bench
+aliases: [Language Agent Biology Benchmark]
+summary: Multiple-choice suite covering literature, figures, tables, protocols, databases, sequences, supplements, and cloning workflows in biology.
+kind: suite
+parent_id: null
+organizations: [FutureHouse]
+release_date: '2024-07-14'
+latest_version: repository-main
+domains: [life-science, molecular-cell-biology, assay-screening, bioinformatics, protein-sequence, genomics]
+capabilities: [knowledge, evidence-synthesis, retrieval, troubleshooting, scientific-reasoning]
+modalities: [text, paper, table, figure, dna-rna-sequence, protein-sequence, database]
+task_formats: [multiple choice]
+task_counts:
+  total: null
+  basis: questions across 30 subtasks
+  reporting_status: not_reported
+  subsets:
+    - {id: broad-categories, label: Broad categories, count: 8, basis: categories, exclusive: false, exhaustive: false, reporting_status: reported, notes: Not a task count.}
+    - {id: narrower-subtasks, label: Narrower subtasks, count: 30, basis: subtasks, exclusive: false, exhaustive: false, reporting_status: reported, notes: Not a question count.}
+coverage_notes:
+  - {tag: protein-sequence, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: SeqQA includes biological sequence manipulation; exact protein-only count is not reported.}
+access:
+  level: partially-open
+  tasks: Approximately 80% is public; 20% is retained privately for contamination monitoring.
+  artifacts: Public task data and required figures are available for the released split.
+  grader: Open-source evaluator reports accuracy, precision, and coverage.
+  license: CC-BY-SA-4.0
+  biosafety_notes: Follow the upstream dataset's safeguards and license; tasks are linked, not mirrored.
+resources:
+  - {type: paper, url: 'https://arxiv.org/abs/2407.10362', license: null, access_notes: Creator paper.}
+  - {type: repository, url: 'https://github.com/Future-House/LAB-Bench', license: CC-BY-SA-4.0, access_notes: Official harness and public data.}
+  - {type: dataset, url: 'https://huggingface.co/datasets/futurehouse/lab-bench', license: CC-BY-SA-4.0, access_notes: Public split.}
+implementations:
+  - {framework: labbench Python evaluator, status: official, url: 'https://github.com/Future-House/LAB-Bench/tree/998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838', commit: 998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838, notes: Commit captured at verification time.}
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Repository structure, access split, evaluator, and license verified.'}
+evidence:
+  - work_id: lab-bench-paper
+    locator: 'Abstract; benchmark composition; official repository README'
+    supports: [summary, task_counts, domains, modalities, access, implementations]

@@ -1,0 +1,40 @@
+entity_type: benchmark
+id: biomysterybench
+name: BioMysteryBench
+aliases: [Bio Mystery Bench]
+summary: Open-ended bioinformatics investigations over real-world omics datasets, evaluated through repeated agent episodes and expert-created mysteries.
+kind: agentic-eval
+parent_id: null
+organizations: [Anthropic]
+release_date: '2026-04-29'
+latest_version: '1.0'
+domains: [genomics, transcriptomics, epigenomics, single-cell, proteomics, metabolomics, microbiome, multiomics, bioinformatics]
+capabilities: [data-analysis, coding, tool-use, scientific-reasoning]
+modalities: [text, raw-omics, database, code]
+task_formats: [open-ended investigation, containerized analysis]
+task_counts:
+  total: 99
+  basis: benchmark questions after four exclusions
+  reporting_status: reported
+  subsets:
+    - {id: human-solvable, label: Human-solvable, count: 76, basis: questions, exclusive: true, exhaustive: true, reporting_status: reported, notes: Solved by at least one expert panelist.}
+    - {id: human-difficult, label: Human-difficult, count: 23, basis: questions, exclusive: true, exhaustive: true, reporting_status: reported, notes: Not solved by the expert panel.}
+coverage_notes:
+  - {tag: proteomics, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: Modality listed; standalone question count not reported.}
+  - {tag: metabolomics, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: Modality listed; standalone question count not reported.}
+access:
+  level: private-internal
+  tasks: The complete mystery set is not publicly released.
+  artifacts: Data modalities are described, but benchmark inputs are not published as a runnable set.
+  grader: Human expert answers and adjudication are described but not released as a harness.
+  license: null
+  biosafety_notes: Metadata only; no biological datasets are copied.
+resources:
+  - {type: website, url: 'https://www.anthropic.com/research/Evaluating-Claude-For-Bioinformatics-With-BioMysteryBench', license: null, access_notes: Official research report.}
+implementations:
+  - {framework: Claude Code in isolated container, status: not-available, url: null, commit: null, notes: Evaluation environment is described but not released.}
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Scope, repetitions, modalities, and human split verified from the official report.'}
+evidence:
+  - work_id: biomysterybench-official
+    locator: 'Sections "A benchmark for agents" and "Comparing Claude to humans"; methodology footnotes'
+    supports: [summary, task_counts, domains, modalities, access]

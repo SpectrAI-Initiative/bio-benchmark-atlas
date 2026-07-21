@@ -1,0 +1,21 @@
+name: Correct metadata or result
+description: Propose an evidence-backed correction.
+title: "[Correction]: "
+labels: [registry, correction]
+body:
+  - type: input
+    id: entity
+    attributes: {label: Entity ID}
+    validations: {required: true}
+  - type: textarea
+    id: correction
+    attributes: {label: Current and proposed values}
+    validations: {required: true}
+  - type: input
+    id: source
+    attributes: {label: Primary or official source URL}
+    validations: {required: true}
+  - type: textarea
+    id: locator
+    attributes: {label: Page, section, figure, or table locator}
+    validations: {required: true}

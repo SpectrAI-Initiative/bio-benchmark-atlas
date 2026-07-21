@@ -1,0 +1,24 @@
+entity_type: benchmark
+id: lab-bench-figqa
+name: LAB-Bench FigQA
+aliases: [FigQA]
+summary: LAB-Bench track evaluating biological figure interpretation from multiple-choice questions with image inputs.
+kind: track
+parent_id: lab-bench
+organizations: [FutureHouse]
+release_date: '2024-07-14'
+latest_version: repository-main
+domains: [life-science, molecular-cell-biology]
+capabilities: [evidence-synthesis, scientific-reasoning]
+modalities: [text, figure]
+task_formats: [multiple choice]
+task_counts: {total: null, basis: questions, reporting_status: not_reported, subsets: []}
+coverage_notes: []
+access: {level: partially-open, tasks: Approximately 80% of LAB-Bench is public., artifacts: Public figures accompany released questions., grader: Open-source exact-choice evaluator., license: CC-BY-SA-4.0, biosafety_notes: null}
+resources:
+  - {type: repository, url: 'https://github.com/Future-House/LAB-Bench/tree/998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838/FigQA', license: CC-BY-SA-4.0, access_notes: Commit-pinned track directory.}
+implementations:
+  - {framework: labbench Python evaluator, status: official, url: 'https://github.com/Future-House/LAB-Bench/tree/998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838', commit: 998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838, notes: null}
+verification: {status: verified, last_verified: '2026-07-21', notes: Canonical suite track.}
+evidence:
+  - {work_id: lab-bench-paper, locator: 'Official repository FigQA directory and README', supports: [name, parent_id, modalities, access]}

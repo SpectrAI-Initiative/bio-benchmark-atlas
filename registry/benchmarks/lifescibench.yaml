@@ -1,0 +1,43 @@
+entity_type: benchmark
+id: lifescibench
+name: LifeSciBench
+aliases: [Life Science Bench]
+summary: Expert-authored, artifact-rich tasks that evaluate research-level judgment across applied life-science workflows.
+kind: agentic-eval
+parent_id: null
+organizations: [OpenAI]
+release_date: '2026-06-17'
+latest_version: '1.0'
+domains: [life-science, protein-science, protein-sequence, protein-structure, protein-design, protein-protein-binding, protein-ligand-binding, genomics, transcriptomics, single-cell, proteomics, medchem, clinical-translational]
+capabilities: [evidence-synthesis, design, optimization, data-analysis, experiment-planning, troubleshooting, scientific-reasoning, scientific-communication]
+modalities: [text, paper, table, figure, dna-rna-sequence, protein-sequence, structure-3d, web]
+task_formats: [expert free response, artifact-grounded analysis]
+task_counts:
+  total: 750
+  basis: expert-authored tasks
+  reporting_status: reported
+  subsets:
+    - {id: protein-primary-domain, label: Protein and structural biology primary domain, count: 136, basis: tasks, exclusive: false, exhaustive: false, reporting_status: reported, notes: null}
+    - {id: protein-design-optimization, label: Protein-domain tasks in design and optimization workflow, count: 62, basis: tasks, exclusive: false, exhaustive: false, reporting_status: reported, notes: Cross-tabulation of primary domain and workflow.}
+coverage_notes:
+  - {tag: protein-science, coverage: observed, count: 136, reporting_status: reported, notes: Primary-domain count.}
+  - {tag: protein-design, coverage: observed, count: 62, reporting_status: reported, notes: Protein primary-domain tasks in design and optimization.}
+  - {tag: protein-protein-binding, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: Binding is described in scope but no standalone count is reported.}
+  - {tag: protein-ligand-binding, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: Binding is described in scope but no standalone count is reported.}
+access:
+  level: private-internal
+  tasks: The complete task set is not publicly downloadable.
+  artifacts: Examples are public; the complete 1,062-artifact set is restricted.
+  grader: Task-specific expert rubrics are not released in full.
+  license: null
+  biosafety_notes: Some tasks concern applied biological design; only metadata and source links are reproduced here.
+resources:
+  - {type: paper, url: 'https://cdn.openai.com/pdf/b4299379-0a97-4ffa-8b9b-c3fbb299caa9/lifescibench_preprint.pdf', license: null, access_notes: Public preprint.}
+  - {type: website, url: 'https://openai.com/index/introducing-life-sci-bench/', license: null, access_notes: Official overview and examples.}
+implementations:
+  - {framework: official internal harness, status: not-available, url: null, commit: null, notes: No public runnable harness was identified.}
+verification: {status: verified, last_verified: '2026-07-21', notes: Counts and evaluation settings checked against the official paper and launch page.}
+evidence:
+  - work_id: lifescibench-preprint
+    locator: 'Abstract; Table 2; Sections 2.1 and 4'
+    supports: [name, summary, task_counts, domains, capabilities, modalities, access]

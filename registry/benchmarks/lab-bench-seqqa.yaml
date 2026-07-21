@@ -1,0 +1,25 @@
+entity_type: benchmark
+id: lab-bench-seqqa
+name: LAB-Bench SeqQA
+aliases: [SeqQA]
+summary: LAB-Bench track evaluating manipulation and interpretation of biological DNA, RNA, and protein sequences.
+kind: track
+parent_id: lab-bench
+organizations: [FutureHouse]
+release_date: '2024-07-14'
+latest_version: repository-main
+domains: [genomics, protein-sequence, bioinformatics]
+capabilities: [scientific-reasoning, data-analysis]
+modalities: [text, dna-rna-sequence, protein-sequence]
+task_formats: [multiple choice]
+task_counts: {total: null, basis: questions, reporting_status: not_reported, subsets: []}
+coverage_notes:
+  - {tag: protein-sequence, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: Track mixes nucleotide and protein sequence questions.}
+access: {level: partially-open, tasks: Approximately 80% of LAB-Bench is public., artifacts: Sequences appear in released task data., grader: Open-source exact-choice evaluator., license: CC-BY-SA-4.0, biosafety_notes: null}
+resources:
+  - {type: repository, url: 'https://github.com/Future-House/LAB-Bench/tree/998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838/SeqQA', license: CC-BY-SA-4.0, access_notes: Commit-pinned track directory.}
+implementations:
+  - {framework: labbench Python evaluator, status: official, url: 'https://github.com/Future-House/LAB-Bench/tree/998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838', commit: 998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838, notes: null}
+verification: {status: verified, last_verified: '2026-07-21', notes: Canonical suite track.}
+evidence:
+  - {work_id: lab-bench-paper, locator: 'Official repository SeqQA directory and README', supports: [name, parent_id, domains, modalities, access]}

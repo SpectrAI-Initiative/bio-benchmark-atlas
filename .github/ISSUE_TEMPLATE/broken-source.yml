@@ -1,0 +1,20 @@
+name: Report broken source
+description: Report an unavailable, moved, or materially changed canonical source.
+title: "[Source]: "
+labels: [source-monitor]
+body:
+  - type: input
+    id: entity
+    attributes: {label: Work or benchmark ID}
+    validations: {required: true}
+  - type: input
+    id: url
+    attributes: {label: Broken URL}
+    validations: {required: true}
+  - type: dropdown
+    id: failure
+    attributes: {label: Failure type, options: [Unavailable, Redirected, Content materially changed, Other]}
+    validations: {required: true}
+  - type: textarea
+    id: replacement
+    attributes: {label: Verified replacement source, description: Optional; prefer an official canonical URL.}

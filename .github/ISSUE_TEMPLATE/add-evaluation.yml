@@ -1,0 +1,29 @@
+name: Add official evaluation work
+description: Add a creator or official model-provider evaluation with settings.
+title: "[Evaluation]: "
+labels: [registry, evaluation]
+body:
+  - type: input
+    id: work
+    attributes: {label: Official work URL, description: Creator paper, system card, release page, or formal report.}
+    validations: {required: true}
+  - type: input
+    id: benchmark
+    attributes: {label: Benchmark and version}
+    validations: {required: true}
+  - type: textarea
+    id: scope
+    attributes: {label: Scope, description: Full/subset/track/unknown, subset/filter, and realized n.}
+    validations: {required: true}
+  - type: textarea
+    id: protocol
+    attributes: {label: Protocol, description: Exact model, shots, turns, prompt, reasoning, tools, internet, code, budgets, temperature, seed, repeats, grader, and contamination.}
+    validations: {required: true}
+  - type: textarea
+    id: metrics
+    attributes: {label: Metrics and result locators, description: Include units, aggregation, thresholds/tolerances, confidence intervals, and figure/table/page locators.}
+    validations: {required: true}
+  - type: textarea
+    id: missing
+    attributes: {label: Fields not reported by the source}
+    validations: {required: true}

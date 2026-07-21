@@ -1,0 +1,39 @@
+entity_type: benchmark
+id: proteinlmbench
+name: ProteinLMBench
+aliases: [Protein LM Bench]
+summary: Manually verified multiple-choice questions for evaluating natural-language models' understanding of protein science and engineering.
+kind: dataset
+parent_id: null
+organizations: [Tsinghua University, TourSynbio]
+release_date: '2024-06-08'
+latest_version: '1.0'
+domains: [protein-science, protein-sequence, protein-structure, protein-design, protein-protein-binding, protein-ligand-binding]
+capabilities: [knowledge, scientific-reasoning]
+modalities: [text]
+task_formats: [multiple choice]
+task_counts:
+  total: 944
+  basis: manually verified questions
+  reporting_status: reported
+  subsets: []
+coverage_notes:
+  - {tag: protein-design, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: Protein engineering is in scope; no verified standalone count was found.}
+  - {tag: protein-protein-binding, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: Binding topics are included; no verified standalone count was found.}
+access:
+  level: fully-open
+  tasks: Public on Hugging Face.
+  artifacts: Text-only questions.
+  grader: Exact multiple-choice accuracy.
+  license: apache-2.0
+  biosafety_notes: Dataset terms and canary guidance should be followed upstream.
+resources:
+  - {type: paper, url: 'https://arxiv.org/abs/2406.05540', license: null, access_notes: Creator preprint.}
+  - {type: dataset, url: 'https://huggingface.co/datasets/tsynbio/ProteinLMBench', license: apache-2.0, access_notes: Official dataset.}
+implementations:
+  - {framework: OpenCompass community adapter, status: community, url: 'https://github.com/open-compass/opencompass', commit: null, notes: 'Local implementation evidence was observed, but no public commit containing that adapter was confirmed; no local path is published.'}
+verification: {status: verified, last_verified: '2026-07-21', notes: Count and purpose verified from the creator paper and official dataset card.}
+evidence:
+  - work_id: proteinlmbench-paper
+    locator: 'Abstract; dataset construction and evaluation sections'
+    supports: [summary, task_counts, domains, capabilities, access]

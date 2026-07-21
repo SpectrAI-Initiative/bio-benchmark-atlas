@@ -1,0 +1,18 @@
+---
+import Layout from '../../components/Layout.astro';
+import { data, providerSlug, withBase } from '../../lib/data';
+export function getStaticPaths() {
+  const providers = [...new Set([...data.benchmarks.flatMap((b) => b.organizations), ...data.models.map((m) => m.provider), ...data.works.flatMap((w) => w.organizations)])];
+  return providers.map((provider) => ({ params: { provider: providerSlug(provider) }, props: { provider } }));
+}
+const { provider } = Astro.props;
+const created = data.benchmarks.filter((b) => b.organizations.includes(provider));
+const works = data.works.filter((w) => w.organizations.includes(provider));
+const models = data.models.filter((m) => m.provider === provider);
+const evaluated = data.evaluation_runs.filter((run) => run.results.some((result) => models.some((model) => model.id === result.model_id)));
+---
+<Layout title={provider} canonicalPath={`/providers/${providerSlug(provider)}/`}>
+  <header class="page-head shell"><p class="eyebrow">Organization / provider</p><h1>{provider}</h1><p class="lede">Creation and model evaluation are shown separately. An organization appearing in both roles does not merge those claims.</p></header>
+  <div class="shell section grid two"><section><h2>Benchmarks created</h2>{created.length ? created.map((benchmark) => <article class="card"><h3><a href={withBase(`/benchmarks/${benchmark.id}/`)}>{benchmark.name}</a></h3><p>{benchmark.summary}</p></article>) : <p class="muted">No creator relationship registered.</p>}</section>
+  <section><h2>Official works and evaluated models</h2>{works.map((work) => <article class="card"><p class="eyebrow">{work.source_class.replaceAll('_',' ')}</p><h3><a href={withBase(`/works/${work.id}/`)}>{work.title}</a></h3><p>{work.publication_date}</p></article>)}{models.length > 0 && <div class="card"><h3>Exact model records</h3><ul>{models.map((model) => <li><a href={withBase(`/models/${model.id}/`)}>{model.name}</a></li>)}</ul><p class="small muted">{evaluated.length} run(s) include at least one of these model IDs.</p></div>}</section></div>
+</Layout>

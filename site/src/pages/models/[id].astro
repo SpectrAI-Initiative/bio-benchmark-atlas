@@ -1,0 +1,12 @@
+---
+import Layout from '../../components/Layout.astro';
+import { benchmarkMap, data, metricLabel, workMap, withBase } from '../../lib/data';
+export function getStaticPaths() { return data.models.map((model) => ({ params: { id: model.id }, props: { model } })); }
+const { model } = Astro.props;
+const rows = data.evaluation_runs.flatMap((run) => run.results.filter((result) => result.model_id === model.id).map((result) => ({ run, result })));
+---
+<Layout title={model.name} canonicalPath={`/models/${model.id}/`}>
+  <header class="page-head shell"><div class="breadcrumbs"><a href={withBase('/')}>Atlas</a><span>/</span><span>Models</span><span>/</span><span>{model.id}</span></div><p class="eyebrow">Exact model identity</p><h1>{model.name}</h1><p class="lede">{model.provider} · version status: {model.version_status.replace('_',' ')}</p></header>
+  <div class="shell section"><div class="callout info">Similar model names are never merged automatically. This page only includes result rows that reference <code>{model.id}</code>.</div>
+  <div class="table-wrap"><table><thead><tr><th>Benchmark</th><th>Work</th><th>Run / group</th><th>Metric</th><th>Value</th></tr></thead><tbody>{rows.map(({run,result}) => <tr><td><a href={withBase(`/benchmarks/${run.benchmark_id}/`)}>{benchmarkMap.get(run.benchmark_id)?.name}</a></td><td><a href={withBase(`/works/${run.work_id}/`)}>{workMap.get(run.work_id)?.title}</a></td><td><a href={withBase(`/benchmarks/${run.benchmark_id}/#${run.id}`)}>{run.id}</a><br/><span class="small muted">{run.comparability_group}</span></td><td>{metricLabel(run,result.metric_id)}</td><td>{result.value}</td></tr>)}</tbody></table></div></div>
+</Layout>

@@ -1,0 +1,9 @@
+entity_type: model
+id: gemini-3-1-pro
+name: Gemini 3.1 Pro
+provider: Google
+release_date: null
+version_string: Gemini 3.1 Pro
+version_status: reported
+aliases: []
+verification: {status: verified, last_verified: '2026-07-21', notes: Exact LifeSciBench report label; endpoint snapshot not stated.}

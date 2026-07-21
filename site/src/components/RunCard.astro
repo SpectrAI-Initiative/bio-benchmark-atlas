@@ -1,0 +1,45 @@
+---
+import type { EvaluationRun } from '../lib/data';
+import { modelMap, reported, workMap, withBase } from '../lib/data';
+interface Props { run: EvaluationRun; }
+const { run } = Astro.props;
+const work = workMap.get(run.work_id);
+const settings = [
+  ['Scope', `${run.scope.type}${run.scope.n !== null ? ` · n=${run.scope.n}` : ''}`],
+  ['Shots', reported(run.protocol.shots)],
+  ['Turns', reported(run.protocol.turns)],
+  ['Internet', reported(run.protocol.tools.internet)],
+  ['Code execution', reported(run.protocol.tools.code_execution)],
+  ['External tools', reported(run.protocol.tools.external_tools)],
+  ['Repeats', reported(run.protocol.repeats)],
+  ['Grader', run.protocol.grader.reporting_status === 'reported' ? (run.protocol.grader.type ?? 'Reported') : 'Not reported'],
+];
+---
+<article class="run-card" id={run.id}>
+  <div class="run-head">
+    <div>
+      <p class="eyebrow">Evaluation run</p>
+      <h3>{run.id}</h3>
+      <p class="small muted">From {work ? <a href={withBase(`/works/${work.id}/`)}>{work.title}</a> : run.work_id}</p>
+    </div>
+    <div class="tag-list"><span class="tag accent">{run.comparability_group}</span><span class="tag">v{run.benchmark_version ?? 'Not reported'}</span></div>
+  </div>
+  <div class="setting-grid">
+    {settings.map(([label, value]) => <div class="setting"><small>{label}</small><strong class:list={{ 'not-reported': value === 'Not reported' }}>{value}</strong></div>)}
+  </div>
+  <details>
+    <summary>Metrics, results, and full protocol</summary>
+    <h4>Metrics</h4>
+    <div class="table-wrap">
+      <table><thead><tr><th>Metric</th><th>Unit</th><th>Aggregation</th><th>Threshold / tolerance</th></tr></thead>
+      <tbody>{run.metrics.map((metric) => <tr><td>{metric.source_label}</td><td>{metric.unit}</td><td>{metric.aggregation ?? 'Not reported'}</td><td>{metric.pass_threshold ?? metric.tolerance ?? 'Not reported'}</td></tr>)}</tbody></table>
+    </div>
+    {run.results.length > 0 ? (
+      <><h4>Results</h4><div class="table-wrap"><table><thead><tr><th>Model</th><th>Metric</th><th>Value</th><th>n</th></tr></thead><tbody>
+        {run.results.map((result) => <tr><td><a href={withBase(`/models/${result.model_id}/`)}>{modelMap.get(result.model_id)?.name ?? result.model_id}</a></td><td>{run.metrics.find((m) => m.metric_id === result.metric_id)?.source_label ?? result.metric_id}</td><td>{result.value}</td><td>{result.n ?? 'Not reported'}</td></tr>)}
+      </tbody></table></div></>
+    ) : <p class="muted small">No numeric result rows are published yet; the verified protocol remains useful.</p>}
+    <h4>Evidence</h4>
+    <ul>{run.evidence.map((evidence) => <li><strong>{evidence.locator}</strong> — supports {evidence.supports.join(', ')}</li>)}</ul>
+  </details>
+</article>

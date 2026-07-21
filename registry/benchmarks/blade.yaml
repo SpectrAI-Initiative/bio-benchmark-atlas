@@ -1,0 +1,39 @@
+entity_type: benchmark
+id: blade
+name: BLADE
+aliases: [Benchmarking Language Model Agents for Data-Driven Science]
+summary: Open-ended data-analysis benchmark comparing agent decisions and executable analyses with expert ground truth from scientific questions.
+kind: agentic-eval
+parent_id: null
+organizations: [University of Washington]
+release_date: '2024-08-19'
+latest_version: '1.0'
+domains: [life-science, clinical-translational]
+capabilities: [data-analysis, coding, scientific-reasoning]
+modalities: [text, table, code]
+task_formats: [open-ended research analysis]
+task_counts:
+  total: 12
+  basis: paired research questions and datasets
+  reporting_status: reported
+  subsets:
+    - {id: analysis-decisions, label: Annotated analysis decisions, count: 500, basis: approximate decisions across tasks, exclusive: false, exhaustive: false, reporting_status: reported, notes: More than 500 decisions; encoded as the conservative reported lower bound.}
+coverage_notes: []
+access:
+  level: fully-open
+  tasks: Public research questions and datasets.
+  artifacts: Public data and annotations in the official repository.
+  grader: Public matching and analysis-evaluation code.
+  license: MIT
+  biosafety_notes: BLADE spans general data-driven science; not every task is biological.
+resources:
+  - {type: paper, url: 'https://aclanthology.org/2024.findings-emnlp.815/', license: null, access_notes: Peer-reviewed creator paper.}
+  - {type: website, url: 'https://blade-bench.github.io/', license: null, access_notes: Official project site.}
+  - {type: repository, url: 'https://github.com/behavioral-data/BLADE', license: MIT, access_notes: Official code and data.}
+implementations:
+  - {framework: BLADE Python evaluator, status: official, url: 'https://github.com/behavioral-data/BLADE/tree/6118fa8d5007b91aa8c91c518182db82446a4547', commit: 6118fa8d5007b91aa8c91c518182db82446a4547, notes: Commit captured at verification time.}
+verification: {status: verified, last_verified: '2026-07-21', notes: Biological relevance is tagged conservatively because the suite also includes non-biological scientific questions.}
+evidence:
+  - work_id: blade-paper
+    locator: 'Abstract; Sections 3 and 5; official project site'
+    supports: [summary, task_counts, domains, capabilities, access, implementations]

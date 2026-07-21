@@ -1,0 +1,67 @@
+---
+import Layout from '../../components/Layout.astro';
+import PlotCard from '../../components/PlotCard.astro';
+import RunCard from '../../components/RunCard.astro';
+import Tag from '../../components/Tag.astro';
+import { aliasSlug, benchmarkMap, data, modelMap, runMap, termMaps, withBase, workMap } from '../../lib/data';
+
+export function getStaticPaths() {
+  return data.benchmarks.flatMap((benchmark) => [
+    { params: { id: benchmark.id }, props: { benchmark, alias: false } },
+    ...benchmark.aliases.map((alias) => ({ params: { id: aliasSlug(alias) }, props: { benchmark, alias: true } })),
+  ]);
+}
+const { benchmark, alias } = Astro.props;
+if (!benchmark) return Astro.redirect(withBase('/404/'));
+const runs = benchmark.evaluation_run_ids.map((id: string) => runMap.get(id)).filter(Boolean);
+const parent = benchmark.parent_id ? benchmarkMap.get(benchmark.parent_id) : undefined;
+const children = data.benchmarks.filter((item) => item.parent_id === benchmark.id);
+const resultCharts = runs.flatMap((run) => run!.metrics.map((metric) => ({
+  run: run!, metric,
+  values: run!.results.filter((r) => r.metric_id === metric.metric_id).map((r) => ({ label: modelMap.get(r.model_id)?.name ?? r.model_id, value: r.value, group: run!.comparability_group })),
+}))).filter((chart) => chart.values.length > 0);
+---
+{alias ? (
+  <Layout title={`Redirecting to ${benchmark.name}`} canonicalPath={`/benchmarks/${benchmark.id}/`}>
+    <div class="narrow section"><h1>Moved permanently</h1><p>This alias now points to <a href={withBase(`/benchmarks/${benchmark.id}/`)}>{benchmark.name}</a>.</p></div>
+    <script is:inline define:vars={{ target: withBase(`/benchmarks/${benchmark.id}/`) }}>location.replace(target);</script>
+  </Layout>
+) : (
+  <Layout title={benchmark.name} description={benchmark.summary} canonicalPath={`/benchmarks/${benchmark.id}/`}>
+    <header class="page-head shell">
+      <div class="breadcrumbs"><a href={withBase('/benchmarks/')}>Benchmarks</a><span>/</span>{parent && <><a href={withBase(`/benchmarks/${parent.id}/`)}>{parent.name}</a><span>/</span></>}<span>{benchmark.name}</span></div>
+      <p class="eyebrow">{benchmark.kind} · verified {benchmark.verification.last_verified}</p>
+      <h1>{benchmark.name}</h1><p class="lede">{benchmark.summary}</p>
+      <div class="tag-list">{benchmark.domains.map((id) => <Tag id={id} linked accent />)}</div>
+    </header>
+    <div class="shell section detail-grid">
+      <div>
+        {benchmark.id === 'lifescibench' && <div class="callout"><strong>Protein & binding audit:</strong> 136 tasks use Protein and Structural Biology as the primary domain; 62 are in Design, Optimization & Prediction. Protein binding is explicitly in scope, but its standalone task count is <strong>Not reported</strong>.</div>}
+        <section><p class="eyebrow">Benchmark definition</p><h2>What is counted</h2>
+          <dl class="definition-list">
+            <div><dt>Version</dt><dd>{benchmark.latest_version}</dd></div>
+            <div><dt>Total</dt><dd>{benchmark.task_counts.total ?? <span class="not-reported">Not reported</span>} <span class="muted small">({benchmark.task_counts.basis})</span></dd></div>
+            <div><dt>Task formats</dt><dd>{benchmark.task_formats.join('; ')}</dd></div>
+            <div><dt>Capabilities</dt><dd><div class="tag-list">{benchmark.capabilities.map((id) => <Tag id={id} axis="capabilities" />)}</div></dd></div>
+            <div><dt>Modalities</dt><dd><div class="tag-list">{benchmark.modalities.map((id) => <Tag id={id} axis="modalities" />)}</div></dd></div>
+          </dl>
+        </section>
+        {benchmark.task_counts.subsets.length > 0 && <section class="section-tight"><h2>Tracks and subsets</h2><div class="table-wrap"><table><thead><tr><th>ID</th><th>Count</th><th>Basis</th><th>Partition?</th></tr></thead><tbody>{benchmark.task_counts.subsets.map((subset) => <tr><td>{subset.label}<br/><code>{subset.id}</code></td><td>{subset.count ?? 'Not reported'}</td><td>{subset.basis}</td><td>{subset.exclusive && subset.exhaustive ? 'Exclusive & exhaustive' : 'No'}</td></tr>)}</tbody></table></div></section>}
+        {children.length > 0 && <section class="section-tight"><h2>Registered child tracks</h2><div class="grid two">{children.map((child) => <article class="card"><h3><a class="stretched" href={withBase(`/benchmarks/${child.id}/`)}>{child.name}</a></h3><p>{child.summary}</p></article>)}</div></section>}
+        {benchmark.coverage_notes.length > 0 && <section class="section-tight"><h2>Scientific coverage notes</h2><div class="table-wrap"><table><thead><tr><th>Domain</th><th>Coverage</th><th>Count</th><th>Interpretation</th></tr></thead><tbody>{benchmark.coverage_notes.map((note) => <tr><td>{termMaps.domains.get(note.tag)?.label ?? note.tag}</td><td>{note.coverage}</td><td class:list={{'not-reported': note.count === null}}>{note.count ?? 'Not reported'}</td><td>{note.notes}</td></tr>)}</tbody></table></div></section>}
+        <section class="section-tight"><p class="eyebrow">Evaluation registry</p><h2>Works and run settings</h2><p class="muted">A setting change—scope, prompt, tools, budget, grader, or repeats—creates a separate run. Charts never cross a comparability group.</p>
+          {runs.length ? runs.map((run) => <RunCard run={run!} />) : <div class="callout info">No normalized evaluation run is published yet. Creator evidence is still attached below.</div>}
+        </section>
+        {resultCharts.length > 0 && <section class="section-tight"><h2>Comparable result views</h2><div class="grid two">{resultCharts.map((chart) => <PlotCard title={chart.metric.source_label} description={`${chart.run.id} · ${chart.run.comparability_group}`} kind="dot" values={chart.values} csv="/data/evaluation-results.csv" tableColumns={[{key:'label',label:'Model'},{key:'value',label:'Value'},{key:'group',label:'Comparability group'}]} options={{xLabel: chart.metric.unit}} />)}</div></section>}
+        <section class="section-tight"><h2>Evidence and change history</h2><ul>{benchmark.evidence.map((evidence) => { const work = workMap.get(evidence.work_id); return <li><a href={withBase(`/works/${evidence.work_id}/`)}>{work?.title ?? evidence.work_id}</a> — {evidence.locator}<br/><span class="small muted">Supports: {evidence.supports.join(', ')}</span></li>; })}</ul><p><a href={`https://github.com/wang422003/bio-benchmark-atlas/commits/main/registry/benchmarks/${benchmark.id}.yaml`}>View source-level modification history on GitHub →</a></p></section>
+      </div>
+      <aside class="sidebar">
+        <div class="card"><p class="eyebrow">Access & reproducibility</p><dl class="definition-list">
+          <div><dt>Access</dt><dd>{termMaps.access_levels.get(benchmark.access.level)?.label ?? benchmark.access.level}</dd></div>
+          <div><dt>Tasks</dt><dd>{benchmark.access.tasks}</dd></div><div><dt>Artifacts</dt><dd>{benchmark.access.artifacts}</dd></div><div><dt>Grader</dt><dd>{benchmark.access.grader}</dd></div><div><dt>License</dt><dd>{benchmark.access.license ?? 'Not reported'}</dd></div>
+        </dl></div>
+        <div class="card" style="margin-top:1rem"><h3>Primary resources</h3><ul>{benchmark.resources.map((resource) => <li><a href={resource.url}>{resource.type}</a>{resource.license && <span class="muted small"> · {resource.license}</span>}</li>)}</ul><h3>Implementations</h3><ul>{benchmark.implementations.map((impl) => <li>{impl.url ? <a href={impl.url}>{impl.framework}</a> : impl.framework}<br/><span class="small muted">{impl.status}{impl.commit ? ` · ${impl.commit.slice(0, 8)}` : ''}</span></li>)}</ul></div>
+      </aside>
+    </div>
+  </Layout>
+)}

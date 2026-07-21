@@ -1,0 +1,43 @@
+entity_type: benchmark
+id: proteingym
+name: ProteinGym
+aliases: [Protein Gym]
+summary: Large-scale mutation-effect benchmarks spanning deep mutational scanning and clinical variants for protein fitness prediction and design.
+kind: suite
+parent_id: null
+organizations: [University of Oxford, Harvard Medical School]
+release_date: '2023-09-22'
+latest_version: '1.3'
+domains: [protein-sequence, protein-design]
+capabilities: [prediction, regression, classification, design]
+modalities: [protein-sequence, table]
+task_formats: [mutation-effect prediction, supervised prediction]
+task_counts:
+  total: null
+  basis: heterogeneous assays, proteins, and mutant measurements
+  reporting_status: not_reported
+  subsets:
+    - {id: dms-substitution-assays, label: DMS substitution assays, count: 217, basis: assays, exclusive: false, exhaustive: false, reporting_status: reported, notes: Approximately 2.7 million missense variants.}
+    - {id: dms-indel-assays, label: DMS indel assays, count: 74, basis: assays, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Approximately 300,000 mutants.'}
+    - {id: clinical-substitution-proteins, label: Clinical substitution proteins, count: 2525, basis: proteins, exclusive: false, exhaustive: false, reporting_status: reported, notes: Clinical benchmark.}
+    - {id: clinical-indel-proteins, label: Clinical indel proteins, count: 1555, basis: proteins, exclusive: false, exhaustive: false, reporting_status: reported, notes: Clinical benchmark.}
+coverage_notes:
+  - {tag: protein-design, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: 'The benchmark is intended for fitness prediction and design, but design is not a separately counted task subset.'}
+access:
+  level: fully-open
+  tasks: Processed benchmark tables are public.
+  artifacts: DMS and clinical data are distributed with source-specific attribution.
+  grader: Public scoring scripts and benchmark result files.
+  license: MIT
+  biosafety_notes: Individual source assay licenses and citations must also be respected.
+resources:
+  - {type: paper, url: 'https://papers.nips.cc/paper_files/paper/2023/hash/cac723e5ff29f65e3fcbb0739ae91bee-Abstract-Datasets_and_Benchmarks.html', license: null, access_notes: Peer-reviewed creator paper.}
+  - {type: website, url: 'https://proteingym.org/', license: null, access_notes: Official benchmark site.}
+  - {type: repository, url: 'https://github.com/OATML-Markslab/ProteinGym', license: MIT, access_notes: 'Official code, data links, and releases.'}
+implementations:
+  - {framework: ProteinGym scoring pipeline, status: official, url: 'https://github.com/OATML-Markslab/ProteinGym/tree/144fe22b07dfaeec2b366f2346203a9838a55b4c', commit: 144fe22b07dfaeec2b366f2346203a9838a55b4c, notes: Commit captured at verification time.}
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Current v1.3 counts come from the official repository, which supersedes some older website copy.'}
+evidence:
+  - work_id: proteingym-paper
+    locator: 'Abstract; official repository Overview and Releases'
+    supports: [summary, task_counts, domains, capabilities, access, implementations]

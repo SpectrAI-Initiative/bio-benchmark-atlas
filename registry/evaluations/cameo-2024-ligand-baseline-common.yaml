@@ -1,0 +1,41 @@
+entity_type: evaluation_run
+id: cameo-2024-ligand-baseline-common
+work_id: cameo-paper
+benchmark_id: cameo
+benchmark_version: 2024-complex-study
+model_ids: [cameo-alphafold3-v301, cameo-swissmodel-vina-vina, cameo-swissmodel-vina-ad4, cameo-swissmodel-glide]
+scope: {type: subset, n: 2584, subset_id: cameo-2024-ligand-baseline-common, filter: 'Targets in the 2024 ligand class predicted by all four baseline servers; 6,152 non-polymer entities.', reporting_status: reported}
+protocol:
+  shots: &na {value: null, reporting_status: not_applicable, notes: No natural-language in-context examples.}
+  turns: *na
+  system_prompt_public: *na
+  reasoning: *na
+  tools:
+    browser: {value: method-specific, reporting_status: reported, notes: No common interactive-browser setting applies to registered structure-prediction servers.}
+    internet: {value: allowed before each weekly deadline, reporting_status: reported, notes: All servers are evaluated simultaneously with the same public sequence and template background date.}
+    databases: {value: method-specific public structure and sequence data, reporting_status: reported, notes: Reference complex structures are withheld until PDB release.}
+    code_execution: {value: allowed, reporting_status: reported, notes: Each baseline executes its documented modeling and docking pipeline.}
+    container: {value: null, reporting_status: not_reported, notes: No common container is reported.}
+    external_tools: {value: 'AlphaFold 3 v3.0.1 or SWISS-MODEL followed by Glide or AutoDock Vina 1.2.5', reporting_status: reported, notes: 'The two Vina baselines differ only by vina versus AutoDock4 scoring functions; no pocket predictor is used.'}
+  token_budget: *na
+  time_budget: {value: approximately 3.5 days per weekly target, reporting_status: reported, notes: Saturday post-pre-release submission through Wednesday 00:00 UTC; a short email grace period is documented by the current service.}
+  temperature: *na
+  seed: {value: null, reporting_status: not_reported, notes: Method-specific stochastic settings are not normalized.}
+  repeats: {value: up to five models or ligand poses per target, reporting_status: reported, notes: 'The paper analyzes the top-ranked/model-1 prediction and selects the best-scored pose per ligand entity.'}
+  grader: {type: fully automated OpenStructure complex and ligand scoring, model: null, human_review: false, reporting_status: reported}
+  statistical: {value: common-subset aggregation across targets predicted by all four baselines, reporting_status: reported, notes: 'Ligand scores are aggregated across relevant non-polymer entities; common crystallographic artifacts are analyzed separately.'}
+  contamination: {value: PDB pre-release sequences and ligand identities available while experimental structures and poses remain withheld, reporting_status: reported, notes: 'All baselines receive the same weekly information cutoff; AlphaFold 3 training-date similarity is analyzed separately.'}
+metrics:
+  - {metric_id: ligand-success-rate, source_label: Ligand success rate, unit: percent of ligand entities, range: [0, 100], higher_is_better: true, aggregation: percentage across common-subset ligand entities, pass_threshold: null, tolerance: 'A success is a symmetry-corrected BiSyRMSD below 2 Å after binding-site superposition.'}
+  - {metric_id: lddt-pli, source_label: LDDT-PLI, unit: proportion, range: [0, 1], higher_is_better: true, aggregation: weighted aggregation across relevant ligand entities, pass_threshold: null, tolerance: null}
+  - {metric_id: bisyrmsd, source_label: BiSyRMSD, unit: angstrom, range: null, higher_is_better: false, aggregation: best-scored submitted pose per ligand entity in the creator analysis, pass_threshold: 2, tolerance: symmetry-corrected after binding-site superposition}
+results: []
+comparability_group: cameo-2024-ligand-four-baseline-common
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Exact baseline systems and protocol are registered; Figure 1 distributions are not transcribed into unsupported scalar result rows.'}
+evidence:
+  - id: cameo-2024-ligand-run-evidence
+    source_type: work
+    source_id: cameo-paper
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'Sections 2.3, 2.4.1, 2.5.1-2.5.2, and 3.2; Figure 1', note: 'Reports the four baselines, 2,584-target common subset, 6,152 entities, top-ranked model handling, ligand metrics, and exact pipeline versions.'}
+    supports: [/benchmark_version, /model_ids, /scope, /protocol, /metrics]

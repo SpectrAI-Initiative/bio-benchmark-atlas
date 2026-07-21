@@ -154,6 +154,47 @@ def test_casp_separates_rolling_round_tracks_and_assessment_units() -> None:
     }
 
 
+def test_cameo_uses_a_dated_rolling_snapshot_and_common_subsets() -> None:
+    entities = load_entities()
+    benchmark = next(item for item in entities["benchmark"] if item["id"] == "cameo")
+    work = next(item for item in entities["work"] if item["id"] == "cameo-paper")
+    runs = {item["id"]: item for item in entities["evaluation_run"]}
+    versions = {item["label"]: item for item in benchmark["versions"]}
+    study = versions["2024-complex-study"]
+    subsets = {item["id"]: item["count"] for item in study["task_counts"]["subsets"]}
+
+    assert benchmark["audit"]["status"] == "audited-with-caveats"
+    assert benchmark["latest_version"] == "current-complex-3d"
+    assert versions["current-complex-3d"]["status"] == "rolling"
+    assert versions["current-complex-3d"]["as_of"] == "2026-07-21"
+    assert versions["current-complex-3d"]["task_counts"] == benchmark["task_counts"]
+    assert benchmark["task_counts"]["total"] is None
+    assert benchmark["access"]["license"].startswith("CAMEO-provided data")
+    assert {status["path"] for status in benchmark["field_status"]} == {"/release_date"}
+    assert work["doi"] == "10.1002/prot.70060"
+    assert work["publication_date"] == "2025-09-28"
+
+    assert study["task_counts"]["total"] == 7150
+    assert subsets["cameo-2024-medium"] == 1332
+    assert subsets["cameo-2024-hard"] == 1981
+    assert subsets["cameo-2024-ligand"] == 3837
+    assert subsets["cameo-2024-ligand-baseline-common"] == 2584
+    assert subsets["cameo-2024-ppi-three-server-common"] == 392
+    assert subsets["cameo-2024-antibody-three-server-common"] == 83
+
+    ligand_run = runs["cameo-2024-ligand-baseline-common"]
+    ppi_run = runs["cameo-2024-ppi-three-server-common"]
+    antibody_run = runs["cameo-2024-antibody-three-server-common"]
+    assert ligand_run["scope"]["n"] == 2584
+    assert len(ligand_run["model_ids"]) == 4
+    assert ppi_run["scope"]["n"] == 392
+    assert ppi_run["protocol"]["time_budget"]["value"] == "approximately 3.5 days per weekly target"
+    assert antibody_run["scope"]["n"] == 83
+    assert {(row["model_id"], row["value"]) for row in antibody_run["results"]} == {
+        ("cameo-alphafold3-v301", 0.83), ("cameo-multifold-2024", 0.76),
+    }
+
+
 def test_biomysterybench_scope_and_repeats() -> None:
     entities = load_entities()
     benchmark = next(item for item in entities["benchmark"] if item["id"] == "biomysterybench")
@@ -191,6 +232,7 @@ def test_build_is_deterministic_and_surfaces_match() -> None:
     ).read_bytes()
     payload = json.loads((ROOT / "exports" / "registry.json").read_text(encoding="utf-8"))
     assert payload["meta"]["version"] == "1.1.0-dev"
+    assert all("model_ids" in run for run in payload["evaluation_runs"])
 
 
 def test_v11_exports_surface_audit_and_result_status_columns() -> None:

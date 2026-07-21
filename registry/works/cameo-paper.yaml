@@ -1,13 +1,13 @@
 entity_type: work
 id: cameo-paper
-title: 'Beyond Single Chains: Benchmarking Macromolecular Complex Prediction Methods With CAMEO'
-authors: [CAMEO Team]
-organizations: [SIB Swiss Institute of Bioinformatics]
+title: 'Beyond Single Chains: Benchmarking Macromolecular Complex Prediction Methods With the Continuous Automated Model EvaluatiOn (CAMEO)'
+authors: [Xavier Robin, Peter Škrinjar, Andrew M. Waterhouse, Gabriel Studer, Gerardo Tauriello, Janani Durairaj, Torsten Schwede]
+organizations: [SIB Swiss Institute of Bioinformatics, Biozentrum University of Basel]
 work_type: paper
 source_class: benchmark_creator
-publication_date: '2025-12-19'
-canonical_url: 'https://doi.org/10.1002/prot.70056'
-doi: '10.1002/prot.70056'
+publication_date: '2025-09-28'
+canonical_url: 'https://doi.org/10.1002/prot.70060'
+doi: '10.1002/prot.70060'
 arxiv: null
 status: published
-verification: {status: verified, last_verified: '2026-07-21', notes: Creator publication describing the current complex-focused platform.}
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Final creator paper; first published online 2025-09-28 and printed in Proteins 94(1):403-413.'}

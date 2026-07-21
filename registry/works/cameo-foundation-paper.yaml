@@ -1,0 +1,13 @@
+entity_type: work
+id: cameo-foundation-paper
+title: Continuous Automated Model EvaluatiOn (CAMEO) Complementing the Critical Assessment of Structure Prediction in CASP12
+authors: [Jürgen Haas, Alessandro Barbato, Dario Behringer, Gabriel Studer, Steven Roth, Marco Bertoni, Kamila Mostaguir, Rafal Gumienny, Torsten Schwede]
+organizations: [SIB Swiss Institute of Bioinformatics, Biozentrum University of Basel]
+work_type: paper
+source_class: benchmark_creator
+publication_date: '2017-12-17'
+canonical_url: 'https://doi.org/10.1002/prot.25431'
+doi: '10.1002/prot.25431'
+arxiv: null
+status: published
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Creator paper for the original weekly continuous platform; final journal issue is Proteins 86(S1):387-398 (2018).'}

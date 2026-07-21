@@ -219,6 +219,7 @@
       "properties": {
         "entity_type": {"const": "evaluation_run"}, "id": {"$ref": "#/$defs/Id"}, "work_id": {"$ref": "#/$defs/Id"}, "benchmark_id": {"$ref": "#/$defs/Id"},
         "benchmark_version": {"type": ["string", "null"]},
+        "model_ids": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/Id"}},
         "scope": {
           "type": "object", "additionalProperties": false, "required": ["type", "n", "subset_id", "filter", "reporting_status"],
           "properties": {"type": {"enum": ["full", "subset", "track", "unknown"]}, "n": {"type": ["integer", "null"], "minimum": 0}, "subset_id": {"anyOf": [{"$ref": "#/$defs/Id"}, {"type": "null"}]}, "filter": {"type": ["string", "null"]}, "reporting_status": {"enum": ["reported", "not_reported"]}}

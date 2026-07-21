@@ -28,7 +28,7 @@ The registry deliberately separates four things that are often conflated:
 
 - **Benchmark** — scientific task definition, version, access, taxonomy, counts, and implementations.
 - **Work** — the creator publication or official provider document making an evaluation claim.
-- **EvaluationRun** — one coherent scope and protocol, including prompts, tools, budgets, repeats, grader, and metrics.
+- **EvaluationRun** — one coherent scope and protocol, including exact evaluated model/system IDs, prompts, tools, budgets, repeats, grader, and metrics. A model can be linked even when the source reports no extractable scalar result.
 - **Model** — the exact model or agent-and-model identity reported by a source.
 
 Changing a subset, tool, prompt, reasoning setting, budget, grader, or repeat count requires a separate run. Models are only charted together within an explicit `comparability_group`.

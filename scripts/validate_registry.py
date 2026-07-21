@@ -369,6 +369,9 @@ def validate_registry() -> dict[str, list[dict[str, Any]]]:
             raise RegistryValidationError(f"{run['id']}: duplicate metric IDs")
         benchmark = by_type["benchmark"][run["benchmark_id"]]
         benchmark_audited = benchmark.get("audit", {}).get("status") in AUDITED_STATUSES
+        for model_id in run.get("model_ids", []):
+            if model_id not in by_type["model"]:
+                raise RegistryValidationError(f"{run['id']}: missing evaluated model {model_id}")
         run_evidence_ids = {item["id"] for item in run["evidence"] if item.get("id")}
         for result in run["results"]:
             if result["model_id"] not in by_type["model"]:

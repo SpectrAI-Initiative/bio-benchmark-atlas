@@ -34,9 +34,17 @@ def _build_payload() -> dict[str, Any]:
     }
     work_by_id = {item["id"]: item for item in verified["work"]}
     model_by_id = {item["id"]: item for item in verified["model"]}
+    evaluation_runs = []
+    for run in verified["evaluation_run"]:
+        enriched = dict(run)
+        enriched["model_ids"] = sorted({
+            *run.get("model_ids", []),
+            *(result["model_id"] for result in run["results"]),
+        })
+        evaluation_runs.append(enriched)
     runs_by_benchmark: defaultdict[str, list[str]] = defaultdict(list)
     works_by_benchmark: defaultdict[str, set[str]] = defaultdict(set)
-    for run in verified["evaluation_run"]:
+    for run in evaluation_runs:
         runs_by_benchmark[run["benchmark_id"]].append(run["id"])
         works_by_benchmark[run["benchmark_id"]].add(run["work_id"])
     benchmarks = []
@@ -57,7 +65,7 @@ def _build_payload() -> dict[str, Any]:
         "benchmarks": benchmarks,
         "works": verified["work"],
         "models": verified["model"],
-        "evaluation_runs": verified["evaluation_run"],
+        "evaluation_runs": evaluation_runs,
     }
 
 

@@ -2,39 +2,120 @@ entity_type: benchmark
 id: cameo
 name: CAMEO
 aliases: [Continuous Automated Model EvaluatiOn]
-summary: Weekly blind and automated evaluation of registered macromolecular structure-prediction servers against newly released PDB structures.
+summary: Weekly, automated, independent, blind evaluation of registered macromolecular structure-prediction servers on complete PDB entries whose experimental structures are withheld during prediction.
 kind: competition
 parent_id: null
-organizations: [SIB Swiss Institute of Bioinformatics]
-release_date: '2014-01-01'
-latest_version: living
-domains: [protein-structure, protein-protein-binding, protein-ligand-binding]
+organizations: [SIB Swiss Institute of Bioinformatics, Biozentrum University of Basel]
+release_date: '2012-01-01'
+latest_version: current-complex-3d
+domains: [protein-structure, protein-protein-binding, protein-ligand-binding, antibody-antigen]
 capabilities: [prediction]
 modalities: [protein-sequence, dna-rna-sequence, structure-3d]
-task_formats: [continuous blind server evaluation]
+task_formats: [continuous blind complete-complex structure prediction, stoichiometry prediction, ligand pose prediction]
 task_counts:
   total: null
-  basis: rolling weekly targets
+  basis: selected complete PDB entries accumulated by an unbounded weekly rolling service
   reporting_status: not_reported
   subsets: []
 coverage_notes:
-  - {tag: protein-protein-binding, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: Current complex targets may include protein assemblies.}
-  - {tag: protein-ligand-binding, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: Current target definition can include free ligands.}
+  - {tag: protein-protein-binding, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: 'Medium and hard complete-complex targets include homomers, heteromers, and antibodies; the living service has no fixed all-time count.'}
+  - {tag: protein-ligand-binding, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: 'Ligand targets and ligand-containing medium/hard targets are in scope; the living service has no fixed all-time count.'}
+  - {tag: antibody-antigen, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: 'Antibody complexes are analyzed as a protein-protein subclass; no current rolling count is asserted.'}
 access:
   level: partially-open
-  tasks: Results and released targets are public; participation requires server registration.
-  artifacts: Predictions, reference structures, and scores are available after evaluation.
-  grader: Community-established structural quality metrics are applied by the platform.
-  license: null
-  biosafety_notes: No upstream structures are redistributed here.
+  tasks: Public and development servers receive selected PDB pre-release entries; participation requires server registration and development-server names remain disguised.
+  artifacts: Public-server targets, model-1 results, reference structures, predictions, scores, and time-window downloads are public after release; models 2-5 and advanced scores are in downloads.
+  grader: Fully automated OpenStructure scoring against released PDB biounits; no single metric or overall ranking is defined.
+  license: CAMEO-provided data and submitted redistributable predictions are CC BY-SA 4.0; AlphaFold 3 outputs retain separate terms.
+  biosafety_notes: The registry mirrors no pre-release sequences, structures, ligands, predictions, or development-server results.
 resources:
-  - {type: website, url: 'https://cameo3d.org/', license: null, access_notes: Current official platform.}
-  - {type: documentation, url: 'https://cameo3d.org/help', license: null, access_notes: Current categories and scoring help.}
-  - {type: paper, url: 'https://doi.org/10.1002/prot.70056', license: null, access_notes: Creator update on macromolecular complexes.}
+  - {id: cameo-current-site-resource, type: website, url: 'https://cameo3d.org/', license: 'CC BY-SA 4.0 for CAMEO-provided data', access_notes: Current official result and comparison interface., last_checked: '2026-07-21', pin: {kind: snapshot, value: '2026-07-21', url: 'https://cameo3d.org/'}}
+  - {id: cameo-current-help-resource, type: documentation, url: 'https://cameo3d.org/help', license: 'CC BY-SA 4.0 for CAMEO-provided data', access_notes: 'Current workflow, filtering, formats, metrics, aggregation, and download documentation.', last_checked: '2026-07-21', pin: {kind: snapshot, value: '2026-07-21', url: 'https://cameo3d.org/help'}}
+  - {id: cameo-terms-resource, type: documentation, url: 'https://cameo3d.org/terms', license: 'CC BY-SA 4.0', access_notes: Official access and redistribution terms., last_checked: '2026-07-21', pin: {kind: snapshot, value: '2026-07-21', url: 'https://cameo3d.org/terms'}}
+  - {id: cameo-complex-paper-resource, type: paper, url: 'https://doi.org/10.1002/prot.70060', license: 'CC BY 4.0', access_notes: Final creator paper for the complete-complex platform and 2024 study snapshot., last_checked: '2026-07-21', pin: {kind: version, value: 'Proteins 94(1):403-413', url: 'https://doi.org/10.1002/prot.70060'}}
+  - {id: cameo-foundation-paper-resource, type: paper, url: 'https://doi.org/10.1002/prot.25431', license: null, access_notes: Creator paper documenting the original continuously running platform., last_checked: '2026-07-21', pin: {kind: version, value: 'Proteins 86(S1):387-398', url: 'https://doi.org/10.1002/prot.25431'}}
+  - {id: cameo-legacy-help-resource, type: documentation, url: 'https://archive.cameo3d.org/cameong_help/3d/', license: 'CC BY-SA 4.0 for CAMEO-provided data', access_notes: 'Official archive of the discontinued single-chain 3D category, which ended in April 2025.', last_checked: '2026-07-21', pin: {kind: snapshot, value: legacy-single-chain-ended-2025-04, url: 'https://archive.cameo3d.org/cameong_help/3d/'}}
 implementations:
-  - {framework: CAMEO service, status: not-available, url: null, commit: null, notes: Hosted evaluation service; no public pinned harness asserted.}
-verification: {status: verified, last_verified: '2026-07-21', notes: Historical single-chain categories are not conflated with the current complex benchmark.}
+  - {framework: CAMEO hosted evaluation service using OpenStructure, status: official, url: 'https://cameo3d.org/', commit: null, notes: 'The hosted grader is operational and documented; no public commit-pinned deployment source is asserted.'}
+versions:
+  - id: cameo-legacy-multicategory
+    label: legacy-multicategory
+    status: superseded
+    release_date: '2012-01-01'
+    as_of: '2025-04-05'
+    task_counts: {total: null, basis: 'rolling targets across now-discontinued single-chain 3D, quality-estimation, contact-prediction, and ligand-binding-site categories', reporting_status: not_reported, subsets: []}
+    formal_tracks: []
+    notes: 'The archive states that the old single-chain 3D category ended in April 2025; QE, CP, and LB are also discontinued.'
+    evidence_ids: [cameo-evidence-origin, cameo-evidence-legacy]
+  - id: cameo-2024-complex-study
+    label: 2024-complex-study
+    status: superseded
+    release_date: '2024-01-06'
+    as_of: '2024-11-30'
+    task_counts:
+      total: 7150
+      basis: selected interesting complete PDB entries in the creator-paper study window
+      reporting_status: reported
+      subsets:
+        - {id: cameo-2024-medium, label: Medium complete-complex targets, count: 1332, basis: selected PDB entries, exclusive: true, exhaustive: true, reporting_status: reported, notes: null}
+        - {id: cameo-2024-hard, label: Hard complete-complex targets, count: 1981, basis: selected PDB entries, exclusive: true, exhaustive: true, reporting_status: reported, notes: null}
+        - {id: cameo-2024-ligand, label: Ligand complete-complex targets, count: 3837, basis: selected PDB entries, exclusive: true, exhaustive: true, reporting_status: reported, notes: 'Easy complexes containing a ligand novel relative to their easy templates.'}
+        - {id: cameo-2024-ligand-plinder-mapped, label: Ligand targets mapped to PLINDER, count: 3615, basis: targets, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Corresponds to 9,459 ligands after excluding 222 targets from the mapping analysis.'}
+        - {id: cameo-2024-ligand-baseline-common, label: Ligand baseline common subset, count: 2584, basis: targets predicted by all four baseline servers, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Contains 6,152 non-polymer entities.'}
+        - {id: cameo-2024-ppi-after-monomer-exclusion, label: Protein-protein targets after monomer exclusion, count: 2078, basis: medium/hard protein-only targets, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Derived from 2,775 medium/hard targets after excluding 697 monomers.'}
+        - {id: cameo-2024-antibody-candidates, label: Antibody targets, count: 525, basis: protein-protein targets mapped to SAbDab, exclusive: false, exhaustive: false, reporting_status: reported, notes: null}
+        - {id: cameo-2024-homomer-candidates, label: Homomer targets, count: 836, basis: protein-protein targets, exclusive: false, exhaustive: false, reporting_status: reported, notes: null}
+        - {id: cameo-2024-heteromer-candidates, label: Non-antibody heteromer targets, count: 717, basis: protein-protein targets, exclusive: false, exhaustive: false, reporting_status: reported, notes: null}
+        - {id: cameo-2024-ppi-three-server-common, label: Protein-protein three-server common subset, count: 392, basis: 'targets predicted by AlphaFold 3, MultiFOLD, and SWISS-MODEL', exclusive: false, exhaustive: false, reporting_status: reported, notes: null}
+        - {id: cameo-2024-antibody-three-server-common, label: Antibody targets in the three-server common subset, count: 83, basis: common-subset targets, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'The paper reports that 61 of these 83 antibody targets have one protein chain per entity.'}
+    formal_tracks: []
+    notes: 'A bounded creator-paper snapshot; it is not an all-time CAMEO total.'
+    evidence_ids: [cameo-evidence-2024-study]
+  - id: cameo-current-complex-3d
+    label: current-complex-3d
+    status: rolling
+    release_date: null
+    as_of: '2026-07-21'
+    task_counts: {total: null, basis: selected complete PDB entries accumulated by an unbounded weekly rolling service, reporting_status: not_reported, subsets: []}
+    formal_tracks: []
+    notes: 'Current single category: complex structures modeling (3D). Counts change weekly and no fixed all-time snapshot is asserted.'
+    evidence_ids: [cameo-evidence-current-help]
+audit:
+  status: audited-with-caveats
+  audited_date: '2026-07-21'
+  unresolved_fields: 1
+  notes: 'The current scope and 2024 bounded study are verified; the exact first service day in 2012 is not reported.'
+field_status:
+  - {path: /release_date, status: provisional, confidence: medium, reason: 'Creator sources establish that CAMEO has operated since 2012 but do not report an exact first service day; 2012-01-01 is a year-normalized date.', evidence_ids: [cameo-evidence-origin]}
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Audited against final creator papers and the current official workflow, terms, and archived category documentation.'}
 evidence:
-  - work_id: cameo-paper
-    locator: 'Abstract; Sections 1 and 2.1; official Help page'
-    supports: [summary, domains, task_counts, access, latest_version]
+  - id: cameo-evidence-origin
+    source_type: work
+    source_id: cameo-foundation-paper
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'Abstract and Introduction', note: 'Documents the creator-operated continuous platform and its weekly blind PDB pre-release workflow since 2012.'}
+    supports: [/name, /aliases, /kind, /organizations, /release_date]
+  - id: cameo-evidence-legacy
+    source_type: resource
+    source_id: cameo-legacy-help-resource
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'Archive notice and General Workflow', note: 'Identifies the historical categories and the April 2025 end of single-chain 3D.'}
+    supports: [/versions/0/as_of, /versions/0/task_counts/total, /versions/0/task_counts/basis, /versions/0/task_counts/subsets]
+  - id: cameo-evidence-2024-study
+    source_type: work
+    source_id: cameo-paper
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'Sections 2.1-2.5 and 3; Figures 1-4', note: 'Reports the 2024 window, 14,078 PDB releases, 7,150 selected targets, category counts, common subsets, models, metrics, and public downloads.'}
+    supports: [/summary, /domains, /capabilities, /modalities, /task_formats, /coverage_notes, /versions/1/release_date, /versions/1/as_of, /versions/1/task_counts/total, /versions/1/task_counts/basis, /versions/1/task_counts/subsets, /resources, /implementations]
+  - id: cameo-evidence-current-help
+    source_type: resource
+    source_id: cameo-current-help-resource
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'General Workflow; Target Submission; Prediction Format; Evaluation; Scores aggregation', note: 'Defines the current complex-only rolling category, target unit, four-day window, up-to-five models, OpenStructure scoring, common-subset aggregation, and access.'}
+    supports: [/latest_version, /task_counts/total, /task_counts/basis, /task_counts/subsets, /access/tasks, /access/artifacts, /access/grader, /access/biosafety_notes, /versions/2/as_of, /versions/2/task_counts/total, /versions/2/task_counts/basis, /versions/2/task_counts/subsets]
+  - id: cameo-evidence-terms
+    source_type: resource
+    source_id: cameo-terms-resource
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'Description; Terms; Copyright', note: 'Public versus development-server access and CC BY-SA 4.0 redistribution terms.'}
+    supports: [/access/level, /access/license]

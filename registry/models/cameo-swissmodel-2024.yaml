@@ -1,0 +1,9 @@
+entity_type: model
+id: cameo-swissmodel-2024
+name: SWISS-MODEL (CAMEO 2024 participant)
+provider: SIB Swiss Institute of Bioinformatics
+release_date: null
+version_string: null
+version_status: not_reported
+aliases: [SWISS-MODEL]
+verification: {status: verified, last_verified: '2026-07-21', notes: 'The final CAMEO creator paper identifies the participant but does not provide an exact server release string.'}

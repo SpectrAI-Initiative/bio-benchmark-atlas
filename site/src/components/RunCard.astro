@@ -5,15 +5,30 @@ import { evidenceLocator, modelMap, reported, workMap, withBase } from '../lib/d
 interface Props { run: EvaluationRun; }
 const { run } = Astro.props;
 const work = workMap.get(run.work_id);
+const grader = run.protocol.grader;
+const graderSummary = grader.reporting_status === 'reported'
+  ? [grader.type ?? 'Reported', grader.model ? `model: ${grader.model}` : null, grader.human_review === null ? 'human review: not reported' : `human review: ${grader.human_review ? 'yes' : 'no'}`].filter(Boolean).join(' · ')
+  : 'Not reported';
 const settings = [
   ['Scope', `${run.scope.type}${run.scope.n !== null ? ` · n=${run.scope.n}` : ''}`],
   ['Shots', reported(run.protocol.shots)],
   ['Turns', reported(run.protocol.turns)],
+  ['System prompt public', reported(run.protocol.system_prompt_public)],
+  ['Reasoning / effort', reported(run.protocol.reasoning)],
+  ['Browser', reported(run.protocol.tools.browser)],
   ['Internet', reported(run.protocol.tools.internet)],
+  ['Databases', reported(run.protocol.tools.databases)],
   ['Code execution', reported(run.protocol.tools.code_execution)],
+  ['Container', reported(run.protocol.tools.container)],
   ['External tools', reported(run.protocol.tools.external_tools)],
+  ['Token budget', reported(run.protocol.token_budget)],
+  ['Time / cost budget', reported(run.protocol.time_budget)],
+  ['Temperature', reported(run.protocol.temperature)],
+  ['Seed', reported(run.protocol.seed)],
   ['Repeats', reported(run.protocol.repeats)],
-  ['Grader', run.protocol.grader.reporting_status === 'reported' ? (run.protocol.grader.type ?? 'Reported') : 'Not reported'],
+  ['Grader', graderSummary],
+  ['Statistics', reported(run.protocol.statistical)],
+  ['Contamination', reported(run.protocol.contamination)],
 ];
 ---
 <article class="run-card" id={run.id}>

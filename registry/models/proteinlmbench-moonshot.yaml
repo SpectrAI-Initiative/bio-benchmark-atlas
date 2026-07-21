@@ -1,0 +1,9 @@
+entity_type: model
+id: proteinlmbench-moonshot
+name: "Moonshot (ProteinLMBench label)"
+provider: "Not reported"
+release_date: null
+version_string: null
+version_status: not_reported
+aliases: ["Moonshot"]
+verification: {status: verified, last_verified: '2026-07-21', notes: "The creator paper does not identify a provider checkpoint or API snapshot, and its citation is not sufficient to resolve the evaluated system."}

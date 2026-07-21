@@ -1,0 +1,9 @@
+entity_type: model
+id: proteinlmbench-internlm2-20b
+name: "InternLM2-20B"
+provider: "Shanghai AI Laboratory"
+release_date: null
+version_string: "InternLM2-20B"
+version_status: reported
+aliases: []
+verification: {status: verified, last_verified: '2026-07-21', notes: "Exact creator-paper Table 3 label; checkpoint revision is not reported."}

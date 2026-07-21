@@ -272,6 +272,67 @@ def test_flip_separates_task_counts_landscape_samples_and_all_split_protocols() 
     assert {row["confidence"] for run in runs.values() for row in run["results"]} == {"high"}
 
 
+def test_proteinlmbench_pins_release_resolves_choice_counts_and_registers_table3() -> None:
+    entities = load_entities()
+    benchmark = next(item for item in entities["benchmark"] if item["id"] == "proteinlmbench")
+    work = next(item for item in entities["work"] if item["id"] == "proteinlmbench-paper")
+    run = next(item for item in entities["evaluation_run"] if item["id"] == "proteinlmbench-creator-full")
+    versions = {item["label"]: item for item in benchmark["versions"]}
+    counts = {item["id"]: item["count"] for item in benchmark["task_counts"]["subsets"]}
+
+    assert benchmark["audit"]["status"] == "audited-with-caveats"
+    assert benchmark["release_date"] == "2024-04-29"
+    assert benchmark["latest_version"] == "hf-f139796"
+    assert versions["hf-f139796"]["task_counts"] == benchmark["task_counts"]
+    assert benchmark["task_counts"]["total"] == 944
+    assert counts == {
+        "proteinlmbench-two-choice": 3,
+        "proteinlmbench-three-choice": 21,
+        "proteinlmbench-four-choice": 42,
+        "proteinlmbench-five-choice": 1,
+        "proteinlmbench-six-choice": 871,
+        "proteinlmbench-seven-choice": 2,
+        "proteinlmbench-eight-choice": 1,
+        "proteinlmbench-ten-choice": 3,
+    }
+    assert sum(counts.values()) == 944
+    assert versions["hf-c59f90c"]["task_counts"]["total"] == 944
+    assert versions["paper-v2"]["task_counts"]["subsets"][0]["count"] == 944
+    assert {item["path"] for item in benchmark["field_status"]} == {
+        "/task_formats",
+        "/task_counts/subsets/4/count",
+        "/versions/1/task_counts/subsets/4/count",
+        "/access/license",
+    }
+    dataset = next(item for item in benchmark["resources"] if item["id"] == "proteinlmbench-dataset-resource")
+    repository = next(item for item in benchmark["resources"] if item["id"] == "proteinlmbench-repository-resource")
+    assert dataset["pin"]["value"] == "f1397963c7f727a4a2f00cdd691e6e219c36e992"
+    assert repository["pin"]["value"] == "d8586e22ff85f6805edea0bbc23002aaccf525c4"
+    assert work["authors"][0] == "Yiqing Shen"
+    assert work["publication_date"] == "2024-06-08"
+
+    assert run["benchmark_version"] == "paper-v2"
+    assert run["scope"] == {
+        "type": "full", "n": 944, "subset_id": None,
+        "filter": "All 944 paper-defined ProteinLMBench questions; the paper does not pin an exact Hugging Face commit.",
+        "reporting_status": "reported",
+    }
+    assert run["protocol"]["shots"]["value"] == 0
+    assert run["protocol"]["temperature"]["value"] == 0.1
+    assert run["protocol"]["token_budget"]["value"] == "20 generated tokens per question"
+    assert run["protocol"]["repeats"]["value"] == 1
+    assert run["protocol"]["seed"]["value"] == "not set"
+    assert len(run["model_ids"]) == 18
+    assert len(run["results"]) == 36
+    assert {item["metric_id"] for item in run["metrics"]} == {"accuracy", "inference-time-minutes"}
+    assert {(row["model_id"], row["metric_id"], row["value"]) for row in run["results"]} >= {
+        ("toursynbio-7b", "accuracy", 62.18),
+        ("proteinlmbench-gpt4-turbo", "accuracy", 57.94),
+        ("proteinlmbench-chatglm3-6b", "inference-time-minutes", 8.00),
+    }
+    assert next(item for item in entities["model"] if item["id"] == "proteinlmbench-gpt4-turbo")["version_status"] == "not_reported"
+
+
 def test_biomysterybench_scope_and_repeats() -> None:
     entities = load_entities()
     benchmark = next(item for item in entities["benchmark"] if item["id"] == "biomysterybench")

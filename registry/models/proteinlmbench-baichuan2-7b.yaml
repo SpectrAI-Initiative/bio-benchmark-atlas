@@ -1,0 +1,9 @@
+entity_type: model
+id: proteinlmbench-baichuan2-7b
+name: "Baichuan2-7B"
+provider: "Baichuan Intelligence"
+release_date: null
+version_string: "Baichuan2-7B"
+version_status: reported
+aliases: []
+verification: {status: verified, last_verified: '2026-07-21', notes: "Exact creator-paper label."}

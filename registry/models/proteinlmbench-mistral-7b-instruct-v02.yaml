@@ -1,0 +1,9 @@
+entity_type: model
+id: proteinlmbench-mistral-7b-instruct-v02
+name: "Mistral-7B-Instruct-v0.2"
+provider: "Mistral AI"
+release_date: null
+version_string: "Mistral-7B-Instruct-v0.2"
+version_status: reported
+aliases: []
+verification: {status: verified, last_verified: '2026-07-21', notes: "Exact version reported in Section 6 and Table 3."}

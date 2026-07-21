@@ -1,8 +1,8 @@
 entity_type: work
 id: proteinlmbench-paper
 title: A Fine-tuning Dataset and Benchmark for Large Language Models for Protein Understanding
-authors: [TourSynbio Team]
-organizations: [Tsinghua University, TourSynbio]
+authors: [Yiqing Shen, Zan Chen, Michail Mamalakis, Luhan He, Haiyang Xia, Tianbin Li, Yanzhou Su, Junjun He, Yu Guang Wang]
+organizations: [Toursun Synbio, Johns Hopkins University, University of Cambridge, Shanghai Institute for Biomedical and Pharmaceutical Technologies, Shanghai AI Laboratory, Shanghai Jiao Tong University, UNSW Sydney]
 work_type: preprint
 source_class: benchmark_creator
 publication_date: '2024-06-08'
@@ -10,4 +10,4 @@ canonical_url: 'https://arxiv.org/abs/2406.05540'
 doi: null
 arxiv: '2406.05540'
 status: preprint
-verification: {status: verified, last_verified: '2026-07-21', notes: Creator preprint introducing ProteinLMBench.}
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Creator preprint v2 dated 2024-07-08; first arXiv submission was 2024-06-08.'}

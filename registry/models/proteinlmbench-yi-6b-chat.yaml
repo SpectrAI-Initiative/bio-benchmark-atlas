@@ -1,0 +1,9 @@
+entity_type: model
+id: proteinlmbench-yi-6b-chat
+name: "Yi-6B-Chat"
+provider: "01.AI"
+release_date: null
+version_string: "Yi-6B-Chat"
+version_status: reported
+aliases: ["Yi-6B"]
+verification: {status: verified, last_verified: '2026-07-21', notes: "Section 6 identifies Yi-6B-Chat; Table 3 shortens it to Yi-6B."}

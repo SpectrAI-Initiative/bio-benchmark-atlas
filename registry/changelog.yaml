@@ -1,5 +1,9 @@
 - date: '2026-07-21'
   type: audit
+  entity_ids: [proteinlmbench, proteinlmbench-paper, proteinlmbench-creator-full, toursynbio-7b]
+  summary: Audited ProteinLMBench against arXiv v2, its complete commit-pinned Hugging Face history and current JSON, and the official runner; corrected the release date to 2024-04-29, recorded the 2-to-10-option distribution and official license conflicts, kept topical design/binding counts unreported, and registered all 18 creator-evaluated systems with 36 accuracy and inference-time results.
+- date: '2026-07-21'
+  type: audit
   entity_ids: [flip, flip-aav, flip-gb1, flip-meltome, flip-paper]
   summary: Audited original FLIP as 15 dataset-by-split tasks across three formal landscape tracks; separated task counts from sequence-example counts, registered all 15 creator evaluation protocols and 155 main-table Spearman results, isolated the two optimistic sampled splits, pinned the official implementation, and resolved the Meltome Human-cell total to 7,158 using the versioned CSV while retaining the paper's 7,156 discrepancy.
 - date: '2026-07-21'

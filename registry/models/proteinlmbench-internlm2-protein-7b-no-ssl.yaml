@@ -1,0 +1,9 @@
+entity_type: model
+id: proteinlmbench-internlm2-protein-7b-no-ssl
+name: "InternLM2-Protein-7B (w/o SSL)"
+provider: "Toursun Synbio"
+release_date: null
+version_string: "InternLM2-Protein-7B (w/o SSL)"
+version_status: reported
+aliases: []
+verification: {status: verified, last_verified: '2026-07-21', notes: "InternLM2-7B trained only with the ProteinLMDataset SFT phase."}

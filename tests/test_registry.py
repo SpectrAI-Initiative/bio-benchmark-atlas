@@ -161,6 +161,22 @@ def test_registry_pointer_resolution_supports_arrays_and_wildcards() -> None:
     assert not _resolve_pointer(document, "/results/*/missing")
 
 
+def test_comparability_group_rejects_any_protocol_difference(monkeypatch) -> None:
+    entities = copy.deepcopy(load_entities())
+    figqa_runs = [
+        run for run in entities["evaluation_run"] if run["benchmark_id"] == "lab-bench-figqa"
+    ]
+    assert len(figqa_runs) >= 2
+    figqa_runs[1]["comparability_group"] = figqa_runs[0]["comparability_group"]
+    monkeypatch.setattr(validator_module, "load_entities", lambda: entities)
+    try:
+        validator_module.validate_registry()
+    except RegistryValidationError as error:
+        assert "mixes incompatible benchmark/version/scope/metrics" in str(error)
+    else:
+        raise AssertionError("incompatible protocols unexpectedly shared a comparability group")
+
+
 def test_source_monitor_inventory_includes_works_and_resources() -> None:
     sources = _sources()
     assert sum(item["source_type"] == "work" for item in sources) == len(load_entities()["work"])

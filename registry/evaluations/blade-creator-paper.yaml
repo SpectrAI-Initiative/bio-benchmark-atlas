@@ -1,33 +1,62 @@
 entity_type: evaluation_run
 id: blade-creator-paper
 work_id: blade-paper
-benchmark_id: blade
-benchmark_version: '1.0'
-scope: {type: full, n: 12, subset_id: null, filter: All paired research questions and datasets., reporting_status: reported}
+benchmark_id: blade-analysis-generation
+benchmark_version: arXiv v3
+model_ids: [blade-codellama-7b-instruct, blade-deepseek-coder-6-7b-instruct, blade-llama3-8b-unversioned, blade-llama3-70b-unversioned, blade-mixtral-8x22b-unversioned, blade-gpt35-turbo-unversioned, blade-gpt4o-unversioned, blade-gemini-1-5-pro-unversioned, blade-claude-3-5-sonnet-20240620]
+scope: {type: full, n: 12, subset_id: null, filter: 'All twelve BLADE research-question/dataset pairs in the one-turn analysis-generation setting.', reporting_status: reported}
 protocol:
-  shots: &nr {value: null, reporting_status: not_reported, notes: Setting varies across evaluated agents.}
-  turns: {value: multi-turn, reporting_status: reported, notes: Agents plan and execute analyses.}
-  system_prompt_public: *nr
-  reasoning: *nr
+  shots: {value: one-shot, reporting_status: reported, notes: The prompt includes one complete worked analysis example.}
+  turns: {value: single-turn, reporting_status: reported, notes: 'One model completion produces the conceptual variables, transform function, and statistical-model function.'}
+  system_prompt_public: {value: true, reporting_status: reported, notes: 'The full system, task, schema, format, and worked-example prompts are published in the appendix and repository.'}
+  reasoning: {value: direct prompted generation without an agent loop, reporting_status: reported, notes: No provider reasoning-effort control is reported.}
   tools:
-    browser: *nr
-    internet: *nr
-    databases: *nr
-    code_execution: {value: true, reporting_status: reported, notes: Tool-augmented agents interact with data through code.}
-    container: *nr
-    external_tools: *nr
-  token_budget: *nr
-  time_budget: *nr
-  temperature: *nr
-  seed: *nr
-  repeats: *nr
-  grader: {type: automated matching to expert analysis decisions, model: null, human_review: true, reporting_status: reported}
-  statistical: {value: decision and analysis coverage summaries, reporting_status: reported, notes: null}
-  contamination: *nr
+    browser: {value: false, reporting_status: reported, notes: No browser tool is exposed in the one-turn baseline.}
+    internet: {value: false, reporting_status: reported, notes: No network tool is exposed in the one-turn baseline.}
+    databases: {value: false, reporting_status: reported, notes: No external database tool is exposed.}
+    code_execution: {value: false, reporting_status: reported, notes: The model does not execute code during generation; the evaluator subsequently executes the submitted transform/model code.}
+    container: {value: false, reporting_status: reported, notes: No interactive sandbox is exposed to the one-turn model.}
+    external_tools: {value: none, reporting_status: reported, notes: The model receives the question and serialized dataset schema directly.}
+  token_budget: {value: null, reporting_status: not_reported, notes: No per-run token limit is reported.}
+  time_budget: {value: null, reporting_status: not_reported, notes: No wall-clock limit is reported.}
+  temperature: {value: 0.8, reporting_status: reported, notes: Used to encourage diverse valid analysis decisions across repeated runs.}
+  seed: {value: null, reporting_status: not_reported, notes: No random seed is reported.}
+  repeats: {value: 40, reporting_status: reported, notes: Forty independent generations per model and source dataset.}
+  grader: {type: hybrid automatic executable and decision matching, model: GPT-4o (exact snapshot not reported), human_review: false, reporting_status: reported}
+  statistical: {value: 'For each dataset and decision type, average precision across all runs and coverage@10 feed a harmonic-mean F1; decision-type F1 values are weighted by ground-truth decision counts. Reported F1 is the mean of 1,000 bootstrap resamples with a percentile-derived 95% interval.', reporting_status: reported, notes: 'Run errors receive hit rate zero and remain in coverage. Modeling-decision weighting uses min(|G_model|, 10).'}
+  contamination: {value: null, reporting_status: not_reported, notes: No pretraining-contamination or decontamination analysis is reported.}
 metrics:
-  - {metric_id: analysis-decision-coverage, source_label: Analysis decision coverage, unit: proportion, range: [0, 1], higher_is_better: true, aggregation: macro across research questions, pass_threshold: null, tolerance: semantic and structural matching}
-results: []
-comparability_group: blade-v1-full-tool-agent
-verification: {status: verified, last_verified: '2026-07-21', notes: Model-specific rows are deferred until prompt and agent variants are separated.}
+- {metric_id: average-precision, source_label: Average precision, unit: percent, range: [0, 100], higher_is_better: true, aggregation: mean of per-run precision followed by macro averaging across datasets for each decision type, pass_threshold: null, tolerance: GPT-4o semantic matching plus transformation value/graph matching}
+- {metric_id: coverage-at-10, source_label: Coverage@10, unit: percent, range: [0, 100], higher_is_better: true, aggregation: ground-truth coverage of the union of ten sampled runs followed by macro averaging across datasets for each decision type, pass_threshold: null, tolerance: run errors count as zero-coverage generations}
+- {metric_id: decision-weighted-f1, source_label: Decision-type weighted F1-score, unit: percent, range: [0, 100], higher_is_better: true, aggregation: weighted mean of per-decision-type harmonic means of average precision and coverage@10, pass_threshold: null, tolerance: 1000-run bootstrap mean and 95% interval}
+results:
+- {model_id: blade-codellama-7b-instruct, metric_id: decision-weighted-f1, value: 16.8, ci_low: 15.2, ci_high: 18.5, n: 12, notes: Forty one-turn generations per dataset; Table 2., status: verified, confidence: high, evidence_ids: [blade-evidence-one-turn-results]}
+- {model_id: blade-deepseek-coder-6-7b-instruct, metric_id: decision-weighted-f1, value: 33.9, ci_low: 32.2, ci_high: 35.4, n: 12, notes: Forty one-turn generations per dataset; Table 2., status: verified, confidence: high, evidence_ids: [blade-evidence-one-turn-results]}
+- {model_id: blade-llama3-8b-unversioned, metric_id: decision-weighted-f1, value: 29.6, ci_low: 27.7, ci_high: 31.5, n: 12, notes: Forty one-turn generations per dataset; exact served snapshot not reported., status: verified, confidence: high, evidence_ids: [blade-evidence-one-turn-results]}
+- {model_id: blade-llama3-70b-unversioned, metric_id: decision-weighted-f1, value: 36.3, ci_low: 34.7, ci_high: 37.8, n: 12, notes: Forty one-turn generations per dataset; exact served snapshot not reported., status: verified, confidence: high, evidence_ids: [blade-evidence-one-turn-results]}
+- {model_id: blade-mixtral-8x22b-unversioned, metric_id: decision-weighted-f1, value: 40.1, ci_low: 38.0, ci_high: 42.1, n: 12, notes: Forty one-turn generations per dataset; exact served snapshot not reported., status: verified, confidence: high, evidence_ids: [blade-evidence-one-turn-results]}
+- {model_id: blade-gpt35-turbo-unversioned, metric_id: decision-weighted-f1, value: 30.5, ci_low: 28.7, ci_high: 32.2, n: 12, notes: Forty one-turn generations per dataset; dated endpoint snapshot not reported., status: verified, confidence: high, evidence_ids: [blade-evidence-one-turn-results]}
+- {model_id: blade-gpt4o-unversioned, metric_id: decision-weighted-f1, value: 41.7, ci_low: 40.2, ci_high: 43.2, n: 12, notes: Forty one-turn generations per dataset; dated endpoint snapshot not reported., status: verified, confidence: high, evidence_ids: [blade-evidence-one-turn-results]}
+- {model_id: blade-gemini-1-5-pro-unversioned, metric_id: decision-weighted-f1, value: 41.1, ci_low: 39.6, ci_high: 42.5, n: 12, notes: Forty one-turn generations per dataset; immutable endpoint snapshot not reported., status: verified, confidence: high, evidence_ids: [blade-evidence-one-turn-results]}
+- {model_id: blade-claude-3-5-sonnet-20240620, metric_id: decision-weighted-f1, value: 43.9, ci_low: 42.6, ci_high: 44.9, n: 12, notes: Forty one-turn generations per dataset; Table 2., status: verified, confidence: high, evidence_ids: [blade-evidence-one-turn-results]}
+comparability_group: blade-arxiv-v3-generation-one-turn-40-temperature-08
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Full scope, one-shot/single-turn setting, no-tool baseline, 40 repeats, temperature, hybrid grader, metric construction, bootstrap, and all nine Table 2 results were verified.'}
 evidence:
-  - {work_id: blade-paper, locator: 'Sections 3–5 and evaluation appendix', supports: [scope, protocol.turns, protocol.tools.code_execution, protocol.grader, metrics]}
+- id: blade-evidence-one-turn-protocol
+  source_type: resource
+  source_id: blade-generation-paper-resource
+  accessed_date: '2026-07-21'
+  locator: {type: section, value: 'arXiv v3 §§4.2, 5–6 and Appendices A.6–A.7', note: 'Defines the three submitted artifacts, one-shot one-turn prompt, temperature 0.8, 40 runs, GPT-4o-assisted evaluation, average precision, coverage@10, weighted F1, and 1,000-iteration bootstrap.'}
+  supports: [/benchmark_version, /scope, /protocol, /metrics, /comparability_group]
+- id: blade-evidence-one-turn-results
+  source_type: resource
+  source_id: blade-generation-paper-resource
+  accessed_date: '2026-07-21'
+  locator: {type: table, value: 'Table 2, One-turn Setting', note: 'Prints all nine decision-type weighted F1 point estimates and 95% confidence intervals.'}
+  supports: [/model_ids, /results]
+- id: blade-evidence-one-turn-code
+  source_type: resource
+  source_id: blade-generation-repository-resource
+  accessed_date: '2026-07-21'
+  locator: {type: repository-path, value: 'run_scripts/sh_run_one_turn.sh, blade_bench/baselines/run.py, blade_bench/baselines/lm/analysis.py, blade_bench/conf/llm_config.yml, and blade_bench/eval/ at commit 6118fa8d5007b91aa8c91c518182db82446a4547', note: 'Confirms all 12 datasets, 40 runs, direct generation, public prompt/evaluator, and the available exact model strings.'}
+  supports: [/model_ids, /protocol/shots, /protocol/turns, /protocol/system_prompt_public, /protocol/tools, /protocol/repeats, /protocol/grader]

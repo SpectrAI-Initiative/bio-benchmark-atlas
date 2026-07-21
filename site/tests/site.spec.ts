@@ -280,6 +280,32 @@ test('BixBench separates versions, artifact units, and creator evaluation modes'
   await expect(page.locator('.chart-card')).toHaveCount(10);
 });
 
+test('BLADE separates task units and direct, agent, and MCQ protocols', async ({ page }) => {
+  await page.goto('/bio-benchmark-atlas/benchmarks/blade/');
+  const audit = page.locator('.callout').filter({ hasText: 'Task-unit and protocol audit' });
+  await expect(audit).toContainText('12 source research-question/dataset pairs');
+  await expect(audit).toContainText('188 MCQs');
+  await expect(audit).toContainText('536 ground-truth decisions');
+  await expect(page.getByRole('link', { name: 'BLADE Decision-Discrimination MCQ' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'BLADE End-to-End Analysis Generation' })).toBeVisible();
+
+  const direct = page.locator('#blade-creator-paper');
+  await expect(direct).toContainText('full · n=12');
+  await expect(direct.getByText('Repeats', { exact: true }).locator('..')).toContainText('40');
+  await expect(direct).toContainText('43.9');
+
+  const react = page.locator('#blade-creator-react');
+  await expect(react).toContainText('maximum 10 agent steps');
+  await expect(react.getByText('Repeats', { exact: true }).locator('..')).toContainText('20');
+  await expect(react).toContainText('44.8');
+
+  const mcq = page.locator('#blade-creator-decision-mcq');
+  await expect(mcq).toContainText('full · n=188');
+  await expect(mcq.getByText('Temperature', { exact: true }).locator('..')).toContainText('0');
+  await expect(page.locator('.run-card')).toHaveCount(3);
+  await expect(page.locator('.chart-card')).toHaveCount(2);
+});
+
 test('work, domain, archive, and Chinese guide routes render', async ({ page }) => {
   for (const [path, heading] of [
     ['/bio-benchmark-atlas/works/lifescibench-preprint/', 'LifeSciBench'],

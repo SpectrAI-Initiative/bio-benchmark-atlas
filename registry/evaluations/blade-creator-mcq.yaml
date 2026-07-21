@@ -1,0 +1,45 @@
+entity_type: evaluation_run
+id: blade-creator-decision-mcq
+work_id: blade-paper
+benchmark_id: blade-mcq
+benchmark_version: arXiv v3
+model_ids: [blade-codellama-7b-instruct, blade-deepseek-coder-6-7b-instruct, blade-llama3-8b-unversioned, blade-llama3-70b-unversioned, blade-mixtral-8x22b-unversioned, blade-gpt35-turbo-unversioned, blade-gpt4o-unversioned, blade-gemini-1-5-pro-unversioned, blade-claude-3-5-sonnet-20240620]
+scope: {type: full, n: 188, subset_id: null, filter: 'All 20 conceptual-variable and 168 transformation MCQs.', reporting_status: reported}
+protocol:
+  shots: {value: zero-shot, reporting_status: reported, notes: The public MCQ prompt contains no in-context solved example.}
+  turns: {value: single-turn, reporting_status: reported, notes: One completion returns a selected option and rationale for each question.}
+  system_prompt_public: {value: true, reporting_status: reported, notes: The system and instruction prompt are public in the repository and paper appendix.}
+  reasoning: {value: direct multiple-choice completion, reporting_status: reported, notes: No provider reasoning-effort control is reported.}
+  tools:
+    browser: {value: false, reporting_status: reported, notes: No browser tool is exposed.}
+    internet: {value: false, reporting_status: reported, notes: No network tool is exposed.}
+    databases: {value: false, reporting_status: reported, notes: No external database tool is exposed.}
+    code_execution: {value: false, reporting_status: reported, notes: The MCQ runner requests a direct response without code execution.}
+    container: {value: false, reporting_status: reported, notes: No interactive sandbox is exposed.}
+    external_tools: {value: none, reporting_status: reported, notes: 'The model receives the research question, serialized dataset description, and choices.'}
+  token_budget: {value: null, reporting_status: not_reported, notes: No per-question token limit is reported.}
+  time_budget: {value: null, reporting_status: not_reported, notes: No wall-clock limit is reported.}
+  temperature: {value: 0, reporting_status: reported, notes: The creator paper explicitly sets temperature zero for Task 1.}
+  seed: {value: null, reporting_status: not_reported, notes: No seed is reported.}
+  repeats: {value: 1, reporting_status: reported, notes: The public runner iterates once over each MCQ; the paper reports no repeated MCQ sampling.}
+  grader: {type: deterministic exact option match, model: null, human_review: false, reporting_status: reported}
+  statistical: {value: question-weighted accuracy with 95% confidence intervals, reporting_status: reported, notes: The paper does not state the confidence-interval construction; numeric Figure 3 values are not printed in a table and are therefore not digitized here.}
+  contamination: {value: null, reporting_status: not_reported, notes: No pretraining-contamination or decontamination analysis is reported.}
+metrics:
+- {metric_id: accuracy, source_label: Accuracy, unit: percent, range: [0, 100], higher_is_better: true, aggregation: correct choices divided by all 188 MCQs, pass_threshold: null, tolerance: exact option identifier}
+results: []
+comparability_group: blade-arxiv-v3-mcq-zero-shot-temperature-0
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Full 188-question scope, zero-shot single-turn prompt, temperature, no-tool setting, deterministic grader, and metric were verified. Figure-only values are intentionally not digitized.'}
+evidence:
+- id: blade-evidence-mcq-protocol
+  source_type: resource
+  source_id: blade-mcq-paper-resource
+  accessed_date: '2026-07-21'
+  locator: {type: section, value: 'arXiv v3 §§4.1 and 6, Figure 3, and Appendix A.6 Figure 19', note: 'Reports 188 MCQs, nine evaluated model families, temperature zero, accuracy with 95% intervals, and the public prompt.'}
+  supports: [/benchmark_version, /model_ids, /scope, /protocol/temperature, /protocol/statistical, /metrics, /comparability_group]
+- id: blade-evidence-mcq-code
+  source_type: resource
+  source_id: blade-mcq-repository-resource
+  accessed_date: '2026-07-21'
+  locator: {type: repository-path, value: 'run_mcq.py, run_scripts/sh_run_mcq.sh, blade_bench/baselines/lm/mcq.py, blade_bench/eval/datamodel/run_mcq.py, and blade_bench/conf/llm_config.yml at commit 6118fa8d5007b91aa8c91c518182db82446a4547', note: 'Confirms one direct prompt per item, no tool loop, exact-choice grading, complete public prompt, 20/168 question components, and available exact model strings.'}
+  supports: [/scope, /protocol/shots, /protocol/turns, /protocol/system_prompt_public, /protocol/reasoning, /protocol/tools, /protocol/repeats, /protocol/grader, /model_ids]

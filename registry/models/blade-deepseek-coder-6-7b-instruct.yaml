@@ -1,0 +1,9 @@
+entity_type: model
+id: blade-deepseek-coder-6-7b-instruct
+name: DeepSeek-Coder Instruct 6.7B (BLADE)
+provider: DeepSeek
+release_date: null
+version_string: deepseek-ai/deepseek-coder-6.7b-instruct
+version_status: reported
+aliases: [Deepseek-Coder 6.7B, DeepSeek-Coder Instruct 6.7B]
+verification: {status: verified, last_verified: '2026-07-21', notes: 'The creator paper supplies the model family/size and the official BLADE config pins the Hugging Face checkpoint string; no inference-server revision is reported.'}

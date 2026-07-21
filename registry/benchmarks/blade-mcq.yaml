@@ -1,0 +1,83 @@
+entity_type: benchmark
+id: blade-mcq
+name: BLADE Decision-Discrimination MCQ
+aliases: [BLADE Task 1]
+summary: The BLADE track for selecting the most or least justifiable conceptual-variable and data-transformation decisions for a research question and dataset.
+kind: track
+parent_id: blade
+organizations: [University of Washington, UC Berkeley, New York University, Stanford University, University of British Columbia, Microsoft, George Washington University]
+release_date: '2024-08-19'
+latest_version: arXiv v3
+domains: [life-science]
+capabilities: [knowledge, classification, data-analysis, scientific-reasoning]
+modalities: [text, table]
+task_formats: [multiple choice]
+task_counts: &mcq-counts
+  total: 188
+  basis: individual multiple-choice decision-discrimination questions
+  reporting_status: reported
+  subsets:
+  - {id: blade-mcq-conceptual-items, label: Conceptual-variable MCQs, count: 20, basis: individual questions asking which conceptual variable is most or least justifiable, exclusive: true, exhaustive: true, reporting_status: reported, notes: Mutually exclusive with transformation MCQs.}
+  - {id: blade-mcq-transform-items, label: Transformation MCQs, count: 168, basis: individual questions asking which transformation is most or least justifiable, exclusive: true, exhaustive: true, reporting_status: reported, notes: Mutually exclusive with conceptual-variable MCQs.}
+  - {id: blade-mcq-source-datasets, label: Source datasets represented, count: 11, basis: official dataset directories containing mcq_dataset.json at the pinned commit, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'A source-dataset count, not a partition of questions; the soccer dataset is part of analysis generation but has no MCQ file.'}
+coverage_notes:
+- {tag: life-science, coverage: observed, count: null, reporting_status: not_reported, notes: 'Biological source datasets are present, but the paper does not publish an MCQ count by scientific domain.'}
+- {tag: protein-design, coverage: not-in-scope, count: 0, reporting_status: reported, notes: No official BLADE source research question concerns protein design.}
+- {tag: protein-protein-binding, coverage: not-in-scope, count: 0, reporting_status: reported, notes: No official BLADE source research question concerns protein-protein binding.}
+- {tag: protein-ligand-binding, coverage: not-in-scope, count: 0, reporting_status: reported, notes: No official BLADE source research question concerns protein-ligand binding.}
+access:
+  level: fully-open
+  tasks: All 188 MCQ objects and their choices are public in eleven commit-pinned dataset directories.
+  artifacts: Public dataset descriptions and MCQ records; benchmark data are ODC-By-1.0.
+  grader: Public deterministic exact-choice accuracy implementation.
+  license: Apache-2.0 for code; ODC-By-1.0 for data and MCQ records; CC BY 4.0 for the ACL paper
+  biosafety_notes: The track contains no protein, omics, pathogen, intervention, or wet-lab task.
+resources:
+- id: blade-mcq-paper-resource
+  type: paper
+  url: https://arxiv.org/abs/2408.09667
+  license: CC BY 4.0
+  access_notes: Current v3 creator manuscript defining Task 1 and its counts.
+  last_checked: '2026-07-21'
+  pin: {kind: snapshot, value: 'sha256:8f37f27a5ca94540bf1eb8475c9dc838220a085788c402ba65fee980af807488', url: 'https://arxiv.org/src/2408.09667'}
+- id: blade-mcq-repository-resource
+  type: repository
+  url: https://github.com/behavioral-data/BLADE
+  license: Apache-2.0 for code; ODC-By-1.0 for data
+  access_notes: Official MCQ data, prompt, runner, and deterministic metrics.
+  last_checked: '2026-07-21'
+  pin: {kind: commit, value: 6118fa8d5007b91aa8c91c518182db82446a4547, url: 'https://github.com/behavioral-data/BLADE/tree/6118fa8d5007b91aa8c91c518182db82446a4547'}
+implementations:
+- {framework: BLADE MCQ runner 0.1.1, status: official, url: 'https://github.com/behavioral-data/BLADE/tree/6118fa8d5007b91aa8c91c518182db82446a4547', commit: 6118fa8d5007b91aa8c91c518182db82446a4547, notes: 'run_mcq.py plus public prompt, MCQ records, and exact-choice metrics.'}
+versions:
+- id: blade-mcq-arxiv-v3
+  label: arXiv v3
+  status: current
+  release_date: '2025-11-10'
+  as_of: '2026-07-21'
+  task_counts: *mcq-counts
+  formal_tracks: []
+  notes: Current published MCQ inventory and task definition.
+  evidence_ids: [blade-mcq-evidence-counts]
+audit: {status: audited, audited_date: '2026-07-21', unresolved_fields: 0, notes: 'Counts, task definition, prompt, metric, access, and official protocol were verified.'}
+field_status: []
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Audited against creator paper v3 and the commit-pinned official MCQ files and runner.'}
+evidence:
+- id: blade-mcq-evidence-counts
+  source_type: resource
+  source_id: blade-mcq-paper-resource
+  accessed_date: '2026-07-21'
+  locator: {type: section, value: 'arXiv v3 §4.1, §6, Figure 3, and Appendix A.6', note: 'Defines the MCQ task and reports 188 questions: 20 conceptual-variable and 168 transformation questions.'}
+  supports: [/name, /summary, /kind, /parent_id, /organizations, /release_date, /latest_version, /capabilities, /modalities, /task_formats, /task_counts, /task_counts/total, /task_counts/basis, /task_counts/subsets, /versions/0/task_counts]
+- id: blade-mcq-evidence-files
+  source_type: resource
+  source_id: blade-mcq-repository-resource
+  accessed_date: '2026-07-21'
+  locator: {type: repository-path, value: 'blade_bench/datasets/*/mcq_dataset.json, blade_bench/baselines/lm/mcq.py, run_mcq.py, and blade_bench/eval/datamodel/run_mcq.py at commit 6118fa8d5007b91aa8c91c518182db82446a4547', note: 'Public files reproduce 20/168/188 across eleven source datasets and implement a single prompt call plus exact-choice accuracy.'}
+  supports: [/task_counts, /access, /access/level, /access/license, /resources, /implementations]
+- id: blade-mcq-evidence-taxonomy
+  source_type: resource
+  source_id: blade-mcq-paper-resource
+  accessed_date: '2026-07-21'
+  locator: {type: table, value: 'Table 3', note: 'The source-question inventory includes biological/ecological datasets but no protein, binding, or omics question; MCQ-by-domain counts are not reported.'}
+  supports: [/domains, /coverage_notes, /access/biosafety_notes]

@@ -1,0 +1,9 @@
+entity_type: model
+id: blade-mixtral-8x22b-unversioned
+name: Mixtral 8x22B (BLADE snapshot not reported)
+provider: Mistral AI
+release_date: null
+version_string: null
+version_status: not_reported
+aliases: [Mixtral-8x22B, Mixtral 8x22B]
+verification: {status: verified, last_verified: '2026-07-21', notes: 'The paper reports the family and size, but the official config contains Mistral and Together routes and does not identify which exact served snapshot produced the published results.'}

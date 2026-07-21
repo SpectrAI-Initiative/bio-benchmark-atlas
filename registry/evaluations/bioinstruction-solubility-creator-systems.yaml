@@ -1,0 +1,49 @@
+entity_type: evaluation_run
+id: bioinstruction-solubility-creator-systems
+work_id: bioinstructions-paper
+benchmark_id: bioinstruction-solubility
+benchmark_version: emnlp-2025
+model_ids: [bioinstruction-chatmultiomics-balanced, bioinstruction-chatmultiomics-stage2, bioinstruction-chatmultiomics-stage12, bioinstruction-chatmultiomics-stage123]
+scope: {type: subset, n: 2001, subset_id: bioinstruction-solubility-test, filter: "Published held-out test split in Table 2.", reporting_status: reported}
+protocol:
+  shots: {value: 0, reporting_status: reported, notes: "The published prompt contains no demonstrations."}
+  turns: {value: single-turn, reporting_status: reported, notes: "One sequence-conditioned prompt produces one answer."}
+  system_prompt_public: {value: true, reporting_status: reported, notes: "Section 4.2 publishes the Psc system prompt used for task performance computation."}
+  reasoning: {value: "Psc requests clear, concise task answers and numeric output for regression tasks.", reporting_status: reported, notes: null}
+  tools:
+    browser: &no-tool {value: false, reporting_status: reported, notes: "Direct model inference over supplied sequence prompts; no agent tool calls are part of the protocol."}
+    internet: *no-tool
+    databases: *no-tool
+    code_execution: *no-tool
+    container: {value: null, reporting_status: not_reported, notes: "No common evaluation container is reported."}
+    external_tools: *no-tool
+  token_budget: &nr {value: null, reporting_status: not_reported, notes: "Not reported."}
+  time_budget: *nr
+  temperature: *nr
+  seed: *nr
+  repeats: *nr
+  grader: {type: "keyword-first binary extraction with sentiment-model fallback, followed by accuracy", model: "cardiffnlp/twitter-roberta-base-sentiment-latest fallback", human_review: false, reporting_status: reported}
+  statistical: {value: "Point metric over the complete published test split, scaled by 100 and rounded to two decimals; no confidence interval is reported.", reporting_status: reported, notes: "Metrics are never averaged across tasks."}
+  contamination: {value: null, reporting_status: not_reported, notes: "No suite-level decontamination analysis is reported."}
+metrics:
+  - {metric_id: accuracy, source_label: "Accuracy", unit: percent, range: [0,100], higher_is_better: true, aggregation: "Exact binary accuracy across held-out test examples, scaled by 100", pass_threshold: null, tolerance: null}
+results:
+  - {model_id: bioinstruction-chatmultiomics-balanced, metric_id: accuracy, value: 52.37, ci_low: null, ci_high: null, n: 2001, notes: "Sol creator-paper result; metric scaled by 100.", status: verified, confidence: high, evidence_ids: [bioinstruction-solubility-creator-systems-results]}
+  - {model_id: bioinstruction-chatmultiomics-stage2, metric_id: accuracy, value: 49.28, ci_low: null, ci_high: null, n: 2001, notes: "Sol creator-paper result; metric scaled by 100.", status: verified, confidence: high, evidence_ids: [bioinstruction-solubility-creator-systems-results]}
+  - {model_id: bioinstruction-chatmultiomics-stage12, metric_id: accuracy, value: 62.07, ci_low: null, ci_high: null, n: 2001, notes: "Sol creator-paper result; metric scaled by 100.", status: verified, confidence: high, evidence_ids: [bioinstruction-solubility-creator-systems-results]}
+  - {model_id: bioinstruction-chatmultiomics-stage123, metric_id: accuracy, value: 63.02, ci_low: null, ci_high: null, n: 2001, notes: "Sol creator-paper result; metric scaled by 100.", status: verified, confidence: high, evidence_ids: [bioinstruction-solubility-creator-systems-results]}
+comparability_group: bioinstruction-solubility-creator-systems-emnlp-2025
+verification: {status: verified, last_verified: '2026-07-21', notes: "Prompt-distinct model groups are separate runs. Literature-SOTA rows are excluded because they do not use this evaluation prompt."}
+evidence:
+  - id: bioinstruction-solubility-creator-systems-scope-protocol
+    source_type: work
+    source_id: bioinstructions-paper
+    accessed_date: '2026-07-21'
+    locator: {type: table, value: "Table 2 (Sol test split); Appendix A.3; Table 8; Section 4.2 Psc prompt", note: "Scope, prompt, output parser, grader, scaling, and aggregation."}
+    supports: [/scope, /benchmark_version, /model_ids, /protocol, /metrics]
+  - id: bioinstruction-solubility-creator-systems-results
+    source_type: work
+    source_id: bioinstructions-paper
+    accessed_date: '2026-07-21'
+    locator: {type: table, value: "Table 6 (Sol column)", note: "All registered model values; literature-SOTA row omitted."}
+    supports: [/results]

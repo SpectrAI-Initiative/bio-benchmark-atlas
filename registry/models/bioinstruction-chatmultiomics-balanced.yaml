@@ -1,0 +1,9 @@
+entity_type: model
+id: bioinstruction-chatmultiomics-balanced
+name: "ChatMultiOmics stage 1 + balanced stage 2"
+provider: "Biology-Instructions creators"
+release_date: "2024-12-26"
+version_string: "ours (stage 1 + balanced stage 2)"
+version_status: reported
+aliases: ["ours (stage 1 + balanced stage 2)"]
+verification: {status: verified, last_verified: '2026-07-21', notes: "Creator-paper balanced-dataset ablation; a public checkpoint is not linked."}

@@ -1,0 +1,9 @@
+entity_type: model
+id: bioinstruction-galactica-13b
+name: "Galactica-1.3B (Biology-Instructions label)"
+provider: "Meta AI"
+release_date: null
+version_string: "Galactica-1.3B"
+version_status: reported
+aliases: ["Galactica-1.3B"]
+verification: {status: verified, last_verified: '2026-07-21', notes: "Exact upstream checkpoint revision is not reported."}

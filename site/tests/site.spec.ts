@@ -124,6 +124,27 @@ test('ProteinLMBench shows released option counts and complete creator evaluatio
   await expect(page.locator('.chart-card details tbody tr')).toHaveCount(36);
 });
 
+test('Biology-Instructions separates formal tasks, sample splits, and prompt groups', async ({ page }) => {
+  await page.goto('/bio-benchmark-atlas/benchmarks/bioinstruction/');
+  await expect(page.getByText(/21 formal tasks—6 DNA, 6 RNA, 5 protein, and 4 multi-molecule/)).toBeVisible();
+  await expect(page.getByText(/task rows sum to 243,227 test examples/)).toBeVisible();
+  await expect(page.getByText(/Stage-3 workbook has 8,002 rows/)).toBeVisible();
+  await expect(page.getByText('63 normalized runs', { exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Biology-Instructions Antibody-Antigen Neutralization', exact: true })).toBeVisible();
+  await expect(page.getByText(/Evaluation settings and results are published on the child-track pages/)).toBeVisible();
+  await expect(page.locator('.run-card')).toHaveCount(0);
+
+  await page.goto('/bio-benchmark-atlas/benchmarks/bioinstruction-aan/');
+  await expect(page.locator('dt').filter({ hasText: /^Total$/ }).locator('..')).toContainText('26902');
+  await expect(page.getByRole('cell').filter({ hasText: 'Test split' }).first()).toBeVisible();
+  await expect(page.getByRole('cell', { name: '3301' }).first()).toBeVisible();
+  await expect(page.locator('#bioinstruction-aan-open-baselines')).toContainText('subset · n=3301');
+  await expect(page.locator('#bioinstruction-aan-closed-baselines')).toContainText('GPT-4o');
+  await expect(page.locator('#bioinstruction-aan-creator-systems')).toContainText('ChatMultiOmics');
+  await expect(page.locator('.chart-card')).toHaveCount(3);
+  await expect(page.locator('.chart-card details tbody tr')).toHaveCount(16);
+});
+
 test('BioMysteryBench separates the human subsets and repeats', async ({ page }) => {
   await page.goto('/bio-benchmark-atlas/benchmarks/biomysterybench/');
   await expect(page.getByRole('cell', { name: 'Human-solvable' })).toBeVisible();

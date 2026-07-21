@@ -1,0 +1,9 @@
+entity_type: model
+id: bioinstruction-llama31-8b-instruct
+name: "LLaMA3.1-8B-Instruct (Biology-Instructions label)"
+provider: "Meta"
+release_date: null
+version_string: "LLaMA3.1-8B-Instruct"
+version_status: reported
+aliases: ["LLaMA3.1-8B-Instruct"]
+verification: {status: verified, last_verified: '2026-07-21', notes: "The creator paper reports this model label but not a repository revision or weight hash."}

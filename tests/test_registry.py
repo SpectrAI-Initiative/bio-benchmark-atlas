@@ -411,6 +411,132 @@ def test_biology_instructions_separates_21_tasks_splits_prompts_and_results() ->
     assert next(item for item in entities["model"] if item["id"] == "bioinstruction-gpt4o")["version_status"] == "not_reported"
 
 
+def test_lab_bench_resolves_counts_tracks_creator_results_and_official_runs() -> None:
+    entities = load_entities()
+    benchmarks = {item["id"]: item for item in entities["benchmark"]}
+    runs = {item["id"]: item for item in entities["evaluation_run"]}
+    root = benchmarks["lab-bench"]
+    work = next(item for item in entities["work"] if item["id"] == "lab-bench-paper")
+    versions = {item["label"]: item for item in root["versions"]}
+    counts = {item["id"]: item["count"] for item in root["task_counts"]["subsets"]}
+    direct_children = {
+        item["id"] for item in benchmarks.values() if item.get("parent_id") == "lab-bench"
+    }
+
+    assert root["audit"]["status"] == "audited-with-caveats"
+    assert root["latest_version"] == "repository-998a8e0"
+    assert root["task_counts"]["total"] == 2_457
+    assert versions["repository-998a8e0"]["task_counts"] == root["task_counts"]
+    assert counts == {
+        "lab-bench-litqa2": 248,
+        "lab-bench-suppqa": 102,
+        "lab-bench-figqa": 226,
+        "lab-bench-tableqa": 305,
+        "lab-bench-dbqa": 650,
+        "lab-bench-protocolqa": 135,
+        "lab-bench-seqqa": 750,
+        "lab-bench-cloning-scenarios": 41,
+        "lab-bench-broad-categories": 8,
+        "lab-bench-formal-task-files": 31,
+        "lab-bench-readme-narrower-subtasks": 30,
+    }
+    assert direct_children == {
+        "lab-bench-litqa2", "lab-bench-suppqa", "lab-bench-figqa", "lab-bench-tableqa",
+        "lab-bench-dbqa", "lab-bench-protocolqa", "lab-bench-seqqa",
+        "lab-bench-cloning-scenarios",
+    }
+    assert set(versions["repository-998a8e0"]["formal_tracks"]) == direct_children
+    assert len(versions["paper-v3"]["task_counts"]["subsets"]) == 10
+    assert {item["path"] for item in root["field_status"]} == {
+        "/task_counts/subsets/10/count",
+        "/versions/1/task_counts/subsets/10/count",
+    }
+    assert root["access"]["level"] == "partially-open"
+    assert "1,967" in root["access"]["tasks"] and "490" in root["access"]["tasks"]
+    assert root["access"]["license"] == "CC-BY-SA-4.0"
+    assert work["title"] == "LAB-Bench: Measuring Capabilities of Language Models for Biology Research"
+    assert work["authors"] == [
+        "Jon M. Laurent", "Joseph D. Janizek", "Michael Ruzo", "Michaela M. Hinks",
+        "Michael J. Hammerling", "Siddharth Narayanan", "Manvitha Ponnapati",
+        "Andrew D. White", "Samuel G. Rodriques",
+    ]
+
+    db_tracks = benchmarks["lab-bench-dbqa"]["versions"][-1]["formal_tracks"]
+    seq_tracks = benchmarks["lab-bench-seqqa"]["versions"][-1]["formal_tracks"]
+    assert len(db_tracks) == 10 and sum(benchmarks[item]["task_counts"]["total"] for item in db_tracks) == 650
+    assert len(seq_tracks) == 15 and sum(benchmarks[item]["task_counts"]["total"] for item in seq_tracks) == 750
+    assert benchmarks["lab-bench-dbqa-viral-ppi"]["task_counts"]["total"] == 50
+
+    creator_runs = [run for run in runs.values() if run["id"].endswith("-creator-mcq")]
+    assert len(creator_runs) == 31
+    assert sum(len(run["results"]) for run in creator_runs) == 642
+    assert all(run["benchmark_version"] == "paper-v3" for run in creator_runs)
+    assert all(run["scope"]["type"] == "full" for run in creator_runs)
+    assert all(run["protocol"]["repeats"]["value"] == 3 for run in creator_runs)
+    assert all(run["protocol"]["tools"]["internet"]["value"] is False for run in creator_runs)
+    assert {
+        row["model_id"] for row in runs["lab-bench-figqa-creator-mcq"]["results"]
+    }.isdisjoint({"lab-bench-meta-llama-3-70b-instruct"})
+    assert {
+        row["model_id"] for row in runs["lab-bench-tableqa-creator-mcq"]["results"]
+    }.isdisjoint({"lab-bench-meta-llama-3-70b-instruct"})
+
+    def result_value(run_id: str, model_id: str, metric_id: str) -> float:
+        return next(
+            row["value"] for row in runs[run_id]["results"]
+            if row["model_id"] == model_id and row["metric_id"] == metric_id
+        )
+
+    assert result_value(
+        "lab-bench-figqa-creator-mcq", "lab-bench-claude-3-5-sonnet-20240620", "accuracy",
+    ) == 0.46
+    assert result_value(
+        "lab-bench-dbqa-viral-ppi-creator-mcq", "lab-bench-gpt-4o-unversioned", "precision",
+    ) == 0.69
+    assert result_value(
+        "lab-bench-seqqa-pcr-seq-primers-creator-mcq",
+        "lab-bench-claude-3-5-sonnet-20240620", "accuracy",
+    ) == 0.97
+    llama_run = runs["lab-bench-cloning-scenarios-creator-mcq-llama-context"]
+    assert llama_run["scope"]["n"] == 41
+    assert "only 25 prompts" in llama_run["scope"]["filter"]
+    assert len(llama_run["results"]) == 3
+
+    open_runs = [run for run in runs.values() if run["id"].endswith("-creator-open-response")]
+    assert {(run["benchmark_id"], run["scope"]["n"]) for run in open_runs} == {
+        ("lab-bench-figqa", 10), ("lab-bench-protocolqa", 20),
+        ("lab-bench-cloning-scenarios", 10),
+    }
+    assert all(run["protocol"]["grader"]["human_review"] is True for run in open_runs)
+    assert sum(len(run["results"]) for run in open_runs) == 6
+
+    sonnet45 = runs["lab-bench-protocolqa-anthropic-sonnet45-system-card"]
+    assert sonnet45["scope"]["type"] == "track" and sonnet45["scope"]["n"] is None
+    assert sonnet45["protocol"]["shots"]["value"] == 10
+    assert sonnet45["protocol"]["tools"]["internet"]["value"] is False
+    assert {(row["model_id"], row["value"]) for row in sonnet45["results"]} == {
+        ("claude-opus-4", 0.796), ("claude-opus-4-1", 0.833),
+    }
+    no_tools = runs["lab-bench-figqa-no-tools"]
+    crop = runs["lab-bench-figqa-crop-tool"]
+    assert no_tools["protocol"]["reasoning"]["value"] == "adaptive thinking at max effort"
+    assert no_tools["protocol"]["repeats"]["value"] == 5
+    assert {(row["model_id"], row["value"]) for row in no_tools["results"]} == {
+        ("claude-sonnet-4-6", 58.8), ("claude-sonnet-4-5", 53.4),
+        ("claude-opus-4-6", 58.0),
+    }
+    assert {(row["model_id"], row["value"]) for row in crop["results"]} == {
+        ("claude-sonnet-4-6", 77.1), ("claude-sonnet-4-5", 59.3),
+        ("claude-opus-4-6", 78.3),
+    }
+    lab_results = [
+        row for run in runs.values() if run["benchmark_id"].startswith("lab-bench")
+        for row in run["results"]
+    ]
+    assert {row["status"] for row in lab_results} == {"verified"}
+    assert {row["confidence"] for row in lab_results} == {"high"}
+
+
 def test_biomysterybench_scope_and_repeats() -> None:
     entities = load_entities()
     benchmark = next(item for item in entities["benchmark"] if item["id"] == "biomysterybench")

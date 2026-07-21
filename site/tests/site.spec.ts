@@ -145,6 +145,43 @@ test('Biology-Instructions separates formal tasks, sample splits, and prompt gro
   await expect(page.locator('.chart-card details tbody tr')).toHaveCount(16);
 });
 
+test('LAB-Bench separates category, task-file, split, and provider evaluation settings', async ({ page }) => {
+  await page.goto('/bio-benchmark-atlas/benchmarks/lab-bench/');
+  await expect(page.getByText(/contains 2,457 questions across 8 broad categories/)).toBeVisible();
+  await expect(page.getByText(/1,967 public and 490 private questions across 31 task files/)).toBeVisible();
+  await expect(page.getByText(/official README instead says 30 narrower subtasks/)).toBeVisible();
+  await expect(page.getByText('Conflicted · high', { exact: true }).first()).toBeVisible();
+  for (const name of [
+    'LAB-Bench LitQA2', 'LAB-Bench SuppQA', 'LAB-Bench FigQA', 'LAB-Bench TableQA',
+    'LAB-Bench DbQA', 'LAB-Bench ProtocolQA', 'LAB-Bench SeqQA', 'LAB-Bench CloningScenarios',
+  ]) {
+    await expect(page.getByRole('link', { name, exact: true }).first()).toBeVisible();
+  }
+
+  await page.goto('/bio-benchmark-atlas/benchmarks/lab-bench-dbqa/');
+  await expect(page.locator('dt').filter({ hasText: /^Total$/ }).locator('..')).toContainText('650');
+  await expect(page.getByRole('link', { name: 'LAB-Bench DbQA — Viral protein–protein interactions', exact: true })).toBeVisible();
+
+  await page.goto('/bio-benchmark-atlas/benchmarks/lab-bench-seqqa/');
+  await expect(page.locator('dt').filter({ hasText: /^Total$/ }).locator('..')).toContainText('750');
+  await expect(page.getByText('15 normalized runs', { exact: true })).toBeVisible();
+
+  await page.goto('/bio-benchmark-atlas/benchmarks/lab-bench-dbqa-viral-ppi/');
+  await expect(page.locator('dt').filter({ hasText: /^Total$/ }).locator('..')).toContainText('50');
+  await expect(page.locator('#lab-bench-dbqa-viral-ppi-creator-mcq')).toContainText('full · n=50');
+  await expect(page.locator('#lab-bench-dbqa-viral-ppi-creator-mcq')).toContainText('GPT-4o');
+
+  await page.goto('/bio-benchmark-atlas/benchmarks/lab-bench-protocolqa/');
+  const protocolRun = page.locator('#lab-bench-protocolqa-anthropic-sonnet45-system-card');
+  await expect(protocolRun.getByText('Scope', { exact: true }).locator('..')).toContainText('track');
+  await expect(protocolRun.getByText('Shots', { exact: true }).locator('..')).toContainText('10');
+  await expect(protocolRun.getByText('Repeats', { exact: true }).locator('..')).toContainText('Not reported');
+
+  await page.goto('/bio-benchmark-atlas/benchmarks/lab-bench-figqa/');
+  await expect(page.locator('#lab-bench-figqa-no-tools')).toContainText('adaptive thinking at max effort');
+  await expect(page.locator('#lab-bench-figqa-crop-tool')).toContainText('crop tool');
+});
+
 test('BioMysteryBench separates the human subsets and repeats', async ({ page }) => {
   await page.goto('/bio-benchmark-atlas/benchmarks/biomysterybench/');
   await expect(page.getByRole('cell', { name: 'Human-solvable' })).toBeVisible();

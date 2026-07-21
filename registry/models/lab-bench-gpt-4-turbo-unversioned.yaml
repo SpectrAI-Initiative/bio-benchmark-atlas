@@ -1,0 +1,15 @@
+entity_type: model
+id: lab-bench-gpt-4-turbo-unversioned
+name: GPT-4 Turbo (LAB-Bench snapshot not reported)
+provider: OpenAI
+release_date: null
+version_string: null
+version_status: not_reported
+aliases:
+- GPT-4 Turbo
+- gpt-4-turbo
+verification:
+  status: verified
+  last_verified: '2026-07-21'
+  notes: Identity follows the exact label or API string reported by the cited official work; no unreported dated snapshot
+    is inferred.

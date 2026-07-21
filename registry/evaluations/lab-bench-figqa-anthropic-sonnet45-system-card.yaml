@@ -1,0 +1,178 @@
+entity_type: evaluation_run
+id: lab-bench-figqa-anthropic-sonnet45-system-card
+work_id: anthropic-sonnet-4-5-system-card
+benchmark_id: lab-bench-figqa
+benchmark_version: null
+model_ids:
+- claude-sonnet-4
+- claude-opus-4
+- claude-opus-4-1
+- claude-sonnet-4-5
+scope:
+  type: track
+  n: null
+  subset_id: null
+  filter: lab-bench-figqa track; benchmark snapshot, public/private scope, and realized n are not reported.
+  reporting_status: not_reported
+protocol:
+  shots:
+    value: 10
+    reporting_status: reported
+    notes: Figure title and caption specify 10-shot prompting.
+  turns:
+    value: single-turn
+    reporting_status: reported
+    notes: Multiple-choice evaluation.
+  system_prompt_public:
+    value: null
+    reporting_status: not_reported
+    notes: Not reported.
+  reasoning:
+    value: null
+    reporting_status: not_reported
+    notes: Thinking/effort configuration is not reported.
+  tools:
+    browser:
+      value: false
+      reporting_status: reported
+      notes: The system card says search and bioinformatics tools were not included in the testing environment.
+    internet:
+      value: false
+      reporting_status: reported
+      notes: The system card says search and bioinformatics tools were not included in the testing environment.
+    databases:
+      value: false
+      reporting_status: reported
+      notes: The system card says search and bioinformatics tools were not included in the testing environment.
+    code_execution:
+      value: false
+      reporting_status: reported
+      notes: The system card says search and bioinformatics tools were not included in the testing environment.
+    container:
+      value: false
+      reporting_status: reported
+      notes: The system card says search and bioinformatics tools were not included in the testing environment.
+    external_tools:
+      value: false
+      reporting_status: reported
+      notes: The system card says search and bioinformatics tools were not included in the testing environment.
+  token_budget:
+    value: null
+    reporting_status: not_reported
+    notes: Not reported.
+  time_budget:
+    value: null
+    reporting_status: not_reported
+    notes: Not reported.
+  temperature:
+    value: null
+    reporting_status: not_reported
+    notes: Not reported.
+  seed:
+    value: null
+    reporting_status: not_reported
+    notes: Not reported.
+  repeats:
+    value: null
+    reporting_status: not_reported
+    notes: The number of repeats underlying the plotted error bars is not reported.
+  grader:
+    type: null
+    model: null
+    human_review: null
+    reporting_status: not_reported
+  statistical:
+    value: reported point estimate with plotted error bars
+    reporting_status: reported
+    notes: The figure does not give numeric interval bounds.
+  contamination:
+    value: null
+    reporting_status: not_reported
+    notes: Not reported.
+metrics:
+- metric_id: accuracy
+  source_label: LAB-Bench score
+  unit: proportion
+  range:
+  - 0
+  - 1
+  higher_is_better: true
+  aggregation: null
+  pass_threshold: null
+  tolerance: null
+results:
+- model_id: claude-sonnet-4
+  metric_id: accuracy
+  value: 0.398
+  ci_low: null
+  ci_high: null
+  n: null
+  notes: Point label transcribed from Figure 9.2.4.4.A; numeric error-bar bounds are not reported.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - lab-bench-figqa-anthropic-sonnet45-system-card-results
+- model_id: claude-opus-4
+  metric_id: accuracy
+  value: 0.508
+  ci_low: null
+  ci_high: null
+  n: null
+  notes: Point label transcribed from Figure 9.2.4.4.A; numeric error-bar bounds are not reported.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - lab-bench-figqa-anthropic-sonnet45-system-card-results
+- model_id: claude-opus-4-1
+  metric_id: accuracy
+  value: 0.481
+  ci_low: null
+  ci_high: null
+  n: null
+  notes: Point label transcribed from Figure 9.2.4.4.A; numeric error-bar bounds are not reported.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - lab-bench-figqa-anthropic-sonnet45-system-card-results
+- model_id: claude-sonnet-4-5
+  metric_id: accuracy
+  value: 0.497
+  ci_low: null
+  ci_high: null
+  n: null
+  notes: Point label transcribed from Figure 9.2.4.4.A; numeric error-bar bounds are not reported.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - lab-bench-figqa-anthropic-sonnet45-system-card-results
+comparability_group: lab-bench-figqa-anthropic-10shot-no-tools
+verification:
+  status: verified
+  last_verified: '2026-07-21'
+  notes: Protocol, exact point labels, and missing n/repeat details were checked on printed pages 132–133.
+evidence:
+- id: lab-bench-figqa-anthropic-sonnet45-system-card-protocol
+  source_type: work
+  source_id: anthropic-sonnet-4-5-system-card
+  accessed_date: '2026-07-21'
+  locator:
+    type: section
+    value: Section 9.2.4.4, printed pages 132–133
+    note: Four selected tracks, 10-shot prompting, no search/bioinformatics tools, threshold, and unreported scope/repeats/grader.
+  supports:
+  - /benchmark_version
+  - /model_ids
+  - /scope
+  - /protocol
+  - /metrics
+- id: lab-bench-figqa-anthropic-sonnet45-system-card-results
+  source_type: work
+  source_id: anthropic-sonnet-4-5-system-card
+  accessed_date: '2026-07-21'
+  locator:
+    type: figure
+    value: Figure 9.2.4.4.A, printed page 133
+    note: Exact point labels. Protocol Sonnet 4/4.5 labels are represented in the Claude for Life Sciences run to avoid duplicate
+      result rows.
+  supports:
+  - /results

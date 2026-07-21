@@ -1,24 +1,213 @@
 entity_type: benchmark
 id: lab-bench-protocolqa
 name: LAB-Bench ProtocolQA
-aliases: [ProtocolQA]
-summary: LAB-Bench track evaluating identification and troubleshooting of errors in biological laboratory protocols.
+aliases:
+- ProtocolQA
+summary: Troubleshoots intentionally modified published biological protocols by selecting steps that would repair the stated
+  outcome.
 kind: track
 parent_id: lab-bench
-organizations: [FutureHouse]
+organizations:
+- FutureHouse
 release_date: '2024-07-14'
-latest_version: repository-main
-domains: [assay-screening, molecular-cell-biology]
-capabilities: [troubleshooting, scientific-reasoning]
-modalities: [text]
-task_formats: [multiple choice]
-task_counts: {total: null, basis: questions, reporting_status: not_reported, subsets: []}
+latest_version: repository-998a8e0
+domains:
+- assay-screening
+- molecular-cell-biology
+capabilities:
+- troubleshooting
+- scientific-reasoning
+modalities:
+- text
+task_formats:
+- multiple choice
+task_counts:
+  total: 135
+  basis: questions across public and private splits
+  reporting_status: reported
+  subsets:
+  - id: lab-bench-protocolqa-public
+    label: Public split
+    count: 108
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: Released in the official repository and Hugging Face dataset.
+  - id: lab-bench-protocolqa-private
+    label: Private contamination-monitoring split
+    count: 27
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: IDs are published; question contents are withheld.
+  - id: lab-bench-protocolqa-creator-open-response
+    label: Creator open-response study
+    count: 20
+    basis: modified questions sampled for the creator open-response study
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: A non-exhaustive derived subset; wording was modified to remove multiple-choice framing.
 coverage_notes: []
-access: {level: partially-open, tasks: Approximately 80% of LAB-Bench is public., artifacts: Text protocols are included in released questions., grader: Open-source exact-choice evaluator., license: CC-BY-SA-4.0, biosafety_notes: Do not treat benchmark answers as laboratory operating guidance.}
+access:
+  level: partially-open
+  tasks: 108 questions are public and 27 question contents are withheld.
+  artifacts: The official repository publishes the public questions and both public/private ID manifests.
+  grader: The official harness scores exact single-choice outputs and reports accuracy, precision, coverage, and n.
+  license: CC-BY-SA-4.0
+  biosafety_notes: BioBench Atlas stores metadata and aggregate results only and does not mirror question or sequence content.
+    Benchmark answers must not be treated as operational laboratory guidance.
 resources:
-  - {type: repository, url: 'https://github.com/Future-House/LAB-Bench/tree/998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838/ProtocolQA', license: CC-BY-SA-4.0, access_notes: Commit-pinned track directory.}
+- id: lab-bench-protocolqa-repository-resource
+  type: repository
+  url: https://github.com/Future-House/LAB-Bench/tree/998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838/ProtocolQA
+  license: CC-BY-SA-4.0
+  access_notes: Commit-pinned official task files with prefix ProtocolQA/protocolqa-v1.
+  last_checked: '2026-07-21'
+  pin:
+    kind: commit
+    value: 998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838
+    url: https://github.com/Future-House/LAB-Bench/tree/998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838/ProtocolQA
 implementations:
-  - {framework: labbench Python evaluator, status: official, url: 'https://github.com/Future-House/LAB-Bench/tree/998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838', commit: 998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838, notes: null}
-verification: {status: verified, last_verified: '2026-07-21', notes: Canonical suite track.}
+- framework: labbench Python evaluator
+  status: official
+  url: https://github.com/Future-House/LAB-Bench/blob/998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838/ProtocolQA/task.py
+  commit: 998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838
+  notes: Official task loader and exact-choice evaluator integration.
+versions:
+- id: lab-bench-protocolqa-paper-v3
+  label: paper-v3
+  status: active
+  release_date: '2024-07-17'
+  as_of: '2024-07-17'
+  task_counts:
+    total: 135
+    basis: questions across public and private splits
+    reporting_status: reported
+    subsets:
+    - id: lab-bench-protocolqa-public
+      label: Public split
+      count: 108
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: Released in the official repository and Hugging Face dataset.
+    - id: lab-bench-protocolqa-private
+      label: Private contamination-monitoring split
+      count: 27
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: IDs are published; question contents are withheld.
+    - id: lab-bench-protocolqa-creator-open-response
+      label: Creator open-response study
+      count: 20
+      basis: modified questions sampled for the creator open-response study
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: A non-exhaustive derived subset; wording was modified to remove multiple-choice framing.
+  formal_tracks: []
+  notes: Creator-paper full task snapshot used for Tables 2–4.
+  evidence_ids:
+  - lab-bench-protocolqa-evidence-paper
+- id: lab-bench-protocolqa-repository-998a8e0
+  label: repository-998a8e0
+  status: current
+  release_date: '2025-09-27'
+  as_of: '2026-07-21'
+  task_counts:
+    total: 135
+    basis: questions across public and private splits
+    reporting_status: reported
+    subsets:
+    - id: lab-bench-protocolqa-public
+      label: Public split
+      count: 108
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: Released in the official repository and Hugging Face dataset.
+    - id: lab-bench-protocolqa-private
+      label: Private contamination-monitoring split
+      count: 27
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: IDs are published; question contents are withheld.
+    - id: lab-bench-protocolqa-creator-open-response
+      label: Creator open-response study
+      count: 20
+      basis: modified questions sampled for the creator open-response study
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: A non-exhaustive derived subset; wording was modified to remove multiple-choice framing.
+  formal_tracks: []
+  notes: Current commit-pinned task snapshot.
+  evidence_ids:
+  - lab-bench-protocolqa-evidence-repository
+audit:
+  status: audited
+  audited_date: '2026-07-21'
+  unresolved_fields: 0
+  notes: null
+field_status: []
+verification:
+  status: verified
+  last_verified: '2026-07-21'
+  notes: Task count and public/private membership independently recomputed from the pinned split manifest.
 evidence:
-  - {work_id: lab-bench-paper, locator: 'Official repository ProtocolQA directory and README', supports: [name, parent_id, capabilities, access]}
+- id: lab-bench-protocolqa-evidence-paper
+  source_type: work
+  source_id: lab-bench-paper
+  accessed_date: '2026-07-21'
+  locator:
+    type: section
+    value: Table 1; Appendix Tables 2–6; task description for ProtocolQA
+    note: Task definition, total count, creator protocol, and result row.
+  supports:
+  - /name
+  - /organizations
+  - /release_date
+  - /kind
+  - /domains
+  - /capabilities
+  - /modalities
+  - /task_counts/total
+  - /task_counts/basis
+  - /task_counts/subsets
+  - /coverage_notes
+  - /access/level
+  - /access/license
+  - /versions/0/task_counts/total
+  - /versions/0/task_counts/basis
+  - /versions/0/task_counts/subsets
+- id: lab-bench-protocolqa-evidence-repository
+  source_type: resource
+  source_id: lab-bench-protocolqa-repository-resource
+  accessed_date: '2026-07-21'
+  locator:
+    type: repository-path
+    value: ProtocolQA/protocolqa-v1-splits.json; ProtocolQA/protocolqa-v1-public.jsonl where present; task.py at 998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838
+    note: Public/private/total 108/27/135.
+  supports:
+  - /latest_version
+  - /task_counts/total
+  - /task_counts/basis
+  - /task_counts/subsets
+  - /access/level
+  - /access/tasks
+  - /access/artifacts
+  - /access/grader
+  - /access/license
+  - /resources
+  - /versions/1/task_counts/total
+  - /versions/1/task_counts/basis
+  - /versions/1/task_counts/subsets

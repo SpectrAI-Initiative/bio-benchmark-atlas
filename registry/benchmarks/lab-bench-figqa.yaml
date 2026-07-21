@@ -1,24 +1,214 @@
 entity_type: benchmark
 id: lab-bench-figqa
 name: LAB-Bench FigQA
-aliases: [FigQA]
-summary: LAB-Bench track evaluating biological figure interpretation from multiple-choice questions with image inputs.
+aliases:
+- FigQA
+summary: Multiple-choice interpretation and multi-element reasoning over scientific figures shown without captions or paper
+  context.
 kind: track
 parent_id: lab-bench
-organizations: [FutureHouse]
+organizations:
+- FutureHouse
 release_date: '2024-07-14'
-latest_version: repository-main
-domains: [life-science, molecular-cell-biology]
-capabilities: [evidence-synthesis, scientific-reasoning]
-modalities: [text, figure]
-task_formats: [multiple choice]
-task_counts: {total: null, basis: questions, reporting_status: not_reported, subsets: []}
+latest_version: repository-998a8e0
+domains:
+- life-science
+- molecular-cell-biology
+capabilities:
+- evidence-synthesis
+- scientific-reasoning
+modalities:
+- text
+- figure
+- image
+task_formats:
+- multiple choice
+task_counts:
+  total: 226
+  basis: questions across public and private splits
+  reporting_status: reported
+  subsets:
+  - id: lab-bench-figqa-public
+    label: Public split
+    count: 181
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: Released in the official repository and Hugging Face dataset.
+  - id: lab-bench-figqa-private
+    label: Private contamination-monitoring split
+    count: 45
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: IDs are published; question contents are withheld.
+  - id: lab-bench-figqa-creator-open-response
+    label: Creator open-response study
+    count: 10
+    basis: modified questions sampled for the creator open-response study
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: A non-exhaustive derived subset; wording was modified to remove multiple-choice framing.
 coverage_notes: []
-access: {level: partially-open, tasks: Approximately 80% of LAB-Bench is public., artifacts: Public figures accompany released questions., grader: Open-source exact-choice evaluator., license: CC-BY-SA-4.0, biosafety_notes: null}
+access:
+  level: partially-open
+  tasks: 181 questions are public and 45 question contents are withheld.
+  artifacts: The official repository publishes the public questions and both public/private ID manifests.
+  grader: The official harness scores exact single-choice outputs and reports accuracy, precision, coverage, and n.
+  license: CC-BY-SA-4.0
+  biosafety_notes: BioBench Atlas stores metadata and aggregate results only and does not mirror question or sequence content.
 resources:
-  - {type: repository, url: 'https://github.com/Future-House/LAB-Bench/tree/998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838/FigQA', license: CC-BY-SA-4.0, access_notes: Commit-pinned track directory.}
+- id: lab-bench-figqa-repository-resource
+  type: repository
+  url: https://github.com/Future-House/LAB-Bench/tree/998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838/FigQA
+  license: CC-BY-SA-4.0
+  access_notes: Commit-pinned official task files with prefix FigQA/figqa-v1.
+  last_checked: '2026-07-21'
+  pin:
+    kind: commit
+    value: 998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838
+    url: https://github.com/Future-House/LAB-Bench/tree/998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838/FigQA
 implementations:
-  - {framework: labbench Python evaluator, status: official, url: 'https://github.com/Future-House/LAB-Bench/tree/998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838', commit: 998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838, notes: null}
-verification: {status: verified, last_verified: '2026-07-21', notes: Canonical suite track.}
+- framework: labbench Python evaluator
+  status: official
+  url: https://github.com/Future-House/LAB-Bench/blob/998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838/FigQA/task.py
+  commit: 998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838
+  notes: Official task loader and exact-choice evaluator integration.
+versions:
+- id: lab-bench-figqa-paper-v3
+  label: paper-v3
+  status: active
+  release_date: '2024-07-17'
+  as_of: '2024-07-17'
+  task_counts:
+    total: 226
+    basis: questions across public and private splits
+    reporting_status: reported
+    subsets:
+    - id: lab-bench-figqa-public
+      label: Public split
+      count: 181
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: Released in the official repository and Hugging Face dataset.
+    - id: lab-bench-figqa-private
+      label: Private contamination-monitoring split
+      count: 45
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: IDs are published; question contents are withheld.
+    - id: lab-bench-figqa-creator-open-response
+      label: Creator open-response study
+      count: 10
+      basis: modified questions sampled for the creator open-response study
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: A non-exhaustive derived subset; wording was modified to remove multiple-choice framing.
+  formal_tracks: []
+  notes: Creator-paper full task snapshot used for Tables 2–4.
+  evidence_ids:
+  - lab-bench-figqa-evidence-paper
+- id: lab-bench-figqa-repository-998a8e0
+  label: repository-998a8e0
+  status: current
+  release_date: '2025-09-27'
+  as_of: '2026-07-21'
+  task_counts:
+    total: 226
+    basis: questions across public and private splits
+    reporting_status: reported
+    subsets:
+    - id: lab-bench-figqa-public
+      label: Public split
+      count: 181
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: Released in the official repository and Hugging Face dataset.
+    - id: lab-bench-figqa-private
+      label: Private contamination-monitoring split
+      count: 45
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: IDs are published; question contents are withheld.
+    - id: lab-bench-figqa-creator-open-response
+      label: Creator open-response study
+      count: 10
+      basis: modified questions sampled for the creator open-response study
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: A non-exhaustive derived subset; wording was modified to remove multiple-choice framing.
+  formal_tracks: []
+  notes: Current commit-pinned task snapshot.
+  evidence_ids:
+  - lab-bench-figqa-evidence-repository
+audit:
+  status: audited
+  audited_date: '2026-07-21'
+  unresolved_fields: 0
+  notes: null
+field_status: []
+verification:
+  status: verified
+  last_verified: '2026-07-21'
+  notes: Task count and public/private membership independently recomputed from the pinned split manifest.
 evidence:
-  - {work_id: lab-bench-paper, locator: 'Official repository FigQA directory and README', supports: [name, parent_id, modalities, access]}
+- id: lab-bench-figqa-evidence-paper
+  source_type: work
+  source_id: lab-bench-paper
+  accessed_date: '2026-07-21'
+  locator:
+    type: section
+    value: Table 1; Appendix Tables 2–6; task description for FigQA
+    note: Task definition, total count, creator protocol, and result row.
+  supports:
+  - /name
+  - /organizations
+  - /release_date
+  - /kind
+  - /domains
+  - /capabilities
+  - /modalities
+  - /task_counts/total
+  - /task_counts/basis
+  - /task_counts/subsets
+  - /coverage_notes
+  - /access/level
+  - /access/license
+  - /versions/0/task_counts/total
+  - /versions/0/task_counts/basis
+  - /versions/0/task_counts/subsets
+- id: lab-bench-figqa-evidence-repository
+  source_type: resource
+  source_id: lab-bench-figqa-repository-resource
+  accessed_date: '2026-07-21'
+  locator:
+    type: repository-path
+    value: FigQA/figqa-v1-splits.json; FigQA/figqa-v1-public.jsonl where present; task.py at 998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838
+    note: Public/private/total 181/45/226.
+  supports:
+  - /latest_version
+  - /task_counts/total
+  - /task_counts/basis
+  - /task_counts/subsets
+  - /access/level
+  - /access/tasks
+  - /access/artifacts
+  - /access/grader
+  - /access/license
+  - /resources
+  - /versions/1/task_counts/total
+  - /versions/1/task_counts/basis
+  - /versions/1/task_counts/subsets

@@ -1,0 +1,188 @@
+entity_type: benchmark
+id: lab-bench-seqqa-pcr-seq-primers
+name: LAB-Bench SeqQA — Amplicon sequence to primers
+aliases:
+- SeqQA — Amplicon sequence to primers
+summary: Selects primers that produce a requested amplicon sequence from a DNA template.
+kind: track
+parent_id: lab-bench-seqqa
+organizations:
+- FutureHouse
+release_date: '2024-07-14'
+latest_version: repository-998a8e0
+domains:
+- genomics
+- molecular-cell-biology
+capabilities:
+- design
+- data-analysis
+modalities:
+- text
+- dna-rna-sequence
+task_formats:
+- multiple choice
+task_counts:
+  total: 50
+  basis: questions across public and private splits
+  reporting_status: reported
+  subsets:
+  - id: lab-bench-seqqa-pcr-seq-primers-public
+    label: Public split
+    count: 40
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: Released in the official repository and Hugging Face dataset.
+  - id: lab-bench-seqqa-pcr-seq-primers-private
+    label: Private contamination-monitoring split
+    count: 10
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: IDs are published; question contents are withheld.
+coverage_notes: []
+access:
+  level: partially-open
+  tasks: 40 questions are public and 10 question contents are withheld.
+  artifacts: The official repository publishes the public questions and both public/private ID manifests.
+  grader: The official harness scores exact single-choice outputs and reports accuracy, precision, coverage, and n.
+  license: CC-BY-SA-4.0
+  biosafety_notes: BioBench Atlas stores metadata and aggregate results only and does not mirror question or sequence content.
+resources:
+- id: lab-bench-seqqa-pcr-seq-primers-repository-resource
+  type: repository
+  url: https://github.com/Future-House/LAB-Bench/tree/998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838/SeqQA
+  license: CC-BY-SA-4.0
+  access_notes: Commit-pinned official task files with prefix SeqQA/PCR-seq-primers-v1.
+  last_checked: '2026-07-21'
+  pin:
+    kind: commit
+    value: 998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838
+    url: https://github.com/Future-House/LAB-Bench/tree/998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838/SeqQA
+implementations:
+- framework: labbench Python evaluator
+  status: official
+  url: https://github.com/Future-House/LAB-Bench/blob/998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838/SeqQA/task.py
+  commit: 998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838
+  notes: Official task loader and exact-choice evaluator integration.
+versions:
+- id: lab-bench-seqqa-pcr-seq-primers-paper-v3
+  label: paper-v3
+  status: active
+  release_date: '2024-07-17'
+  as_of: '2024-07-17'
+  task_counts:
+    total: 50
+    basis: questions across public and private splits
+    reporting_status: reported
+    subsets:
+    - id: lab-bench-seqqa-pcr-seq-primers-public
+      label: Public split
+      count: 40
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: Released in the official repository and Hugging Face dataset.
+    - id: lab-bench-seqqa-pcr-seq-primers-private
+      label: Private contamination-monitoring split
+      count: 10
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: IDs are published; question contents are withheld.
+  formal_tracks: []
+  notes: Creator-paper full task snapshot used for Tables 2–4.
+  evidence_ids:
+  - lab-bench-seqqa-pcr-seq-primers-evidence-paper
+- id: lab-bench-seqqa-pcr-seq-primers-repository-998a8e0
+  label: repository-998a8e0
+  status: current
+  release_date: '2025-09-27'
+  as_of: '2026-07-21'
+  task_counts:
+    total: 50
+    basis: questions across public and private splits
+    reporting_status: reported
+    subsets:
+    - id: lab-bench-seqqa-pcr-seq-primers-public
+      label: Public split
+      count: 40
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: Released in the official repository and Hugging Face dataset.
+    - id: lab-bench-seqqa-pcr-seq-primers-private
+      label: Private contamination-monitoring split
+      count: 10
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: IDs are published; question contents are withheld.
+  formal_tracks: []
+  notes: Current commit-pinned task snapshot.
+  evidence_ids:
+  - lab-bench-seqqa-pcr-seq-primers-evidence-repository
+audit:
+  status: audited
+  audited_date: '2026-07-21'
+  unresolved_fields: 0
+  notes: null
+field_status: []
+verification:
+  status: verified
+  last_verified: '2026-07-21'
+  notes: Task count and public/private membership independently recomputed from the pinned split manifest.
+evidence:
+- id: lab-bench-seqqa-pcr-seq-primers-evidence-paper
+  source_type: work
+  source_id: lab-bench-paper
+  accessed_date: '2026-07-21'
+  locator:
+    type: section
+    value: Table 1; Appendix Tables 2–6; task description for SeqQA_PCR-seq-primers-v1
+    note: Task definition, total count, creator protocol, and result row.
+  supports:
+  - /name
+  - /organizations
+  - /release_date
+  - /kind
+  - /domains
+  - /capabilities
+  - /modalities
+  - /task_counts/total
+  - /task_counts/basis
+  - /task_counts/subsets
+  - /coverage_notes
+  - /access/level
+  - /access/license
+  - /versions/0/task_counts/total
+  - /versions/0/task_counts/basis
+  - /versions/0/task_counts/subsets
+- id: lab-bench-seqqa-pcr-seq-primers-evidence-repository
+  source_type: resource
+  source_id: lab-bench-seqqa-pcr-seq-primers-repository-resource
+  accessed_date: '2026-07-21'
+  locator:
+    type: repository-path
+    value: SeqQA/PCR-seq-primers-v1-splits.json; SeqQA/PCR-seq-primers-v1-public.jsonl where present; task.py at 998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838
+    note: Public/private/total 40/10/50.
+  supports:
+  - /latest_version
+  - /task_counts/total
+  - /task_counts/basis
+  - /task_counts/subsets
+  - /access/level
+  - /access/tasks
+  - /access/artifacts
+  - /access/grader
+  - /access/license
+  - /resources
+  - /versions/1/task_counts/total
+  - /versions/1/task_counts/basis
+  - /versions/1/task_counts/subsets

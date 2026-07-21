@@ -1,0 +1,13 @@
+entity_type: model
+id: claude-opus-4
+name: Claude Opus 4
+provider: Anthropic
+release_date: null
+version_string: Claude Opus 4
+version_status: reported
+aliases: []
+verification:
+  status: verified
+  last_verified: '2026-07-21'
+  notes: Identity follows the exact label or API string reported by the cited official work; no unreported dated snapshot
+    is inferred.

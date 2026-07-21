@@ -1,0 +1,14 @@
+entity_type: model
+id: lab-bench-gemini-1-5-pro-001
+name: Gemini 1.5 Pro (gemini-1.5-pro-001)
+provider: Google
+release_date: null
+version_string: gemini-1.5-pro-001
+version_status: reported
+aliases:
+- Gemini 1.5 Pro
+verification:
+  status: verified
+  last_verified: '2026-07-21'
+  notes: Identity follows the exact label or API string reported by the cited official work; no unreported dated snapshot
+    is inferred.

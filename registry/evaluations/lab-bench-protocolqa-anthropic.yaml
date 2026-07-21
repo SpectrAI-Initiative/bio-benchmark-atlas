@@ -2,34 +2,46 @@ entity_type: evaluation_run
 id: lab-bench-protocolqa-anthropic
 work_id: anthropic-life-sciences
 benchmark_id: lab-bench-protocolqa
-benchmark_version: repository-main
-scope: {type: track, n: null, subset_id: null, filter: ProtocolQA track; source does not state the realized item count., reporting_status: not_reported}
+benchmark_version: null
+model_ids: [claude-sonnet-4-5, claude-sonnet-4]
+scope: {type: track, n: null, subset_id: null, filter: 'ProtocolQA track; benchmark snapshot, public/private scope, and realized item count are not reported.', reporting_status: not_reported}
 protocol:
-  shots: {value: 10, reporting_status: reported, notes: Official page footnote reports 10-shot prompting.}
-  turns: {value: single-turn, reporting_status: reported, notes: Multiple-choice response.}
+  shots: {value: 10, reporting_status: reported, notes: Official page footnote and linked system card report 10-shot prompting.}
+  turns: {value: single-turn, reporting_status: reported, notes: Multiple-choice evaluation.}
   system_prompt_public: &nr {value: null, reporting_status: not_reported, notes: Not reported.}
   reasoning: *nr
   tools:
-    browser: {value: false, reporting_status: reported, notes: No tools reported.}
-    internet: {value: false, reporting_status: reported, notes: No internet reported.}
-    databases: {value: false, reporting_status: reported, notes: No tools reported.}
-    code_execution: {value: false, reporting_status: reported, notes: No tools reported.}
-    container: {value: false, reporting_status: reported, notes: No tools reported.}
-    external_tools: {value: false, reporting_status: reported, notes: No tools reported.}
+    browser: {value: false, reporting_status: reported, notes: Linked system card says search tools were not included.}
+    internet: {value: false, reporting_status: reported, notes: Linked system card says search tools were not included.}
+    databases: {value: false, reporting_status: reported, notes: Linked system card says bioinformatics tools were not included.}
+    code_execution: {value: false, reporting_status: reported, notes: Linked system card says tools were not included in the testing environment.}
+    container: {value: false, reporting_status: reported, notes: Linked system card says tools were not included in the testing environment.}
+    external_tools: {value: false, reporting_status: reported, notes: No search or bioinformatics tools.}
   token_budget: *nr
   time_budget: *nr
   temperature: *nr
   seed: *nr
   repeats: *nr
-  grader: {type: exact multiple-choice match, model: null, human_review: false, reporting_status: reported}
-  statistical: {value: accuracy, reporting_status: reported, notes: null}
+  grader: {type: null, model: null, human_review: null, reporting_status: not_reported}
+  statistical: {value: reported point estimate with plotted error bars, reporting_status: reported, notes: Repeat count and numeric interval bounds are not reported.}
   contamination: *nr
 metrics:
-  - {metric_id: accuracy, source_label: ProtocolQA score, unit: proportion, range: [0, 1], higher_is_better: true, aggregation: problem-weighted mean, pass_threshold: null, tolerance: exact choice}
+  - {metric_id: accuracy, source_label: ProtocolQA score, unit: proportion, range: [0, 1], higher_is_better: true, aggregation: null, pass_threshold: null, tolerance: null}
 results:
-  - {model_id: claude-sonnet-4-5, metric_id: accuracy, value: 0.83, ci_low: null, ci_high: null, n: null, notes: null}
-  - {model_id: claude-sonnet-4, metric_id: accuracy, value: 0.74, ci_low: null, ci_high: null, n: null, notes: null}
-comparability_group: lab-bench-protocolqa-10shot-no-tools
-verification: {status: verified, last_verified: '2026-07-21', notes: Human score shown by Anthropic is not encoded as a model result.}
+  - {model_id: claude-sonnet-4-5, metric_id: accuracy, value: 0.83, ci_low: null, ci_high: null, n: null, notes: 'Official release rounds the system-card point label 0.833 to 0.83.', status: verified, confidence: high, evidence_ids: [lab-bench-protocolqa-anthropic-results]}
+  - {model_id: claude-sonnet-4, metric_id: accuracy, value: 0.74, ci_low: null, ci_high: null, n: null, notes: 'Official release rounds the system-card point label 0.741 to 0.74.', status: verified, confidence: high, evidence_ids: [lab-bench-protocolqa-anthropic-results]}
+comparability_group: lab-bench-protocolqa-anthropic-life-sciences-10shot-no-tools
+verification: {status: verified, last_verified: '2026-07-21', notes: 'The public release gives rounded Sonnet results; the linked system-card figure gives three-decimal labels and the shared protocol.'}
 evidence:
-  - {work_id: anthropic-life-sciences, locator: 'ProtocolQA comparison and evaluation footnote 1', supports: [scope, protocol.shots, protocol.tools, metrics, results]}
+  - id: lab-bench-protocolqa-anthropic-protocol
+    source_type: work
+    source_id: anthropic-sonnet-4-5-system-card
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'Section 9.2.4.4 and Figure 9.2.4.4.A, printed pages 132–133', note: '10-shot, no search/bioinformatics tools, point estimates with error bars, and unreported n/repeats/grader.'}
+    supports: [/benchmark_version, /model_ids, /scope, /protocol, /metrics]
+  - id: lab-bench-protocolqa-anthropic-results
+    source_type: work
+    source_id: anthropic-life-sciences
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'Making Claude a better research partner; footnote 1', note: 'Sonnet 4.5 score 0.83, Sonnet 4 score 0.74, and 10-shot prompting.'}
+    supports: [/results]

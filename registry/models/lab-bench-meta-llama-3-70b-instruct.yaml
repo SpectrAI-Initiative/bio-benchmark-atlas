@@ -1,0 +1,14 @@
+entity_type: model
+id: lab-bench-meta-llama-3-70b-instruct
+name: Meta-Llama-3-70B-Instruct (Anyscale API)
+provider: Meta
+release_date: null
+version_string: Meta-Llama-3-70B-Instruct
+version_status: reported
+aliases:
+- Llama 3 70B Instruct
+verification:
+  status: verified
+  last_verified: '2026-07-21'
+  notes: Identity follows the exact label or API string reported by the cited official work; no unreported dated snapshot
+    is inferred.

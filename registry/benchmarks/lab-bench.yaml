@@ -1,41 +1,495 @@
 entity_type: benchmark
 id: lab-bench
 name: LAB-Bench
-aliases: [Language Agent Biology Benchmark]
-summary: Multiple-choice suite covering literature, figures, tables, protocols, databases, sequences, supplements, and cloning workflows in biology.
+aliases:
+- Language Agent Biology Benchmark
+summary: A practical biology-research suite of 2,457 multiple-choice questions across eight broad categories and 31 versioned
+  task files, with public and private contamination-monitoring splits.
 kind: suite
 parent_id: null
-organizations: [FutureHouse]
+organizations:
+- FutureHouse
 release_date: '2024-07-14'
-latest_version: repository-main
-domains: [life-science, molecular-cell-biology, assay-screening, bioinformatics, protein-sequence, genomics]
-capabilities: [knowledge, evidence-synthesis, retrieval, troubleshooting, scientific-reasoning]
-modalities: [text, paper, table, figure, dna-rna-sequence, protein-sequence, database]
-task_formats: [multiple choice]
+latest_version: repository-998a8e0
+domains:
+- life-science
+- molecular-cell-biology
+- assay-screening
+- bioinformatics
+- protein-sequence
+- protein-protein-binding
+- genomics
+- transcriptomics
+- epigenomics
+- clinical-translational
+- virology
+capabilities:
+- knowledge
+- evidence-synthesis
+- retrieval
+- prediction
+- classification
+- design
+- data-analysis
+- tool-use
+- experiment-planning
+- troubleshooting
+- scientific-reasoning
+modalities:
+- text
+- paper
+- table
+- figure
+- image
+- dna-rna-sequence
+- protein-sequence
+- database
+- web
+task_formats:
+- multiple choice
 task_counts:
-  total: null
-  basis: questions across 30 subtasks
-  reporting_status: not_reported
+  total: 2457
+  basis: multiple-choice questions across the complete public and private creator snapshot
+  reporting_status: reported
   subsets:
-    - {id: broad-categories, label: Broad categories, count: 8, basis: categories, exclusive: false, exhaustive: false, reporting_status: reported, notes: Not a task count.}
-    - {id: narrower-subtasks, label: Narrower subtasks, count: 30, basis: subtasks, exclusive: false, exhaustive: false, reporting_status: reported, notes: Not a question count.}
+  - id: lab-bench-litqa2
+    label: LitQA2
+    count: 248
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: null
+  - id: lab-bench-suppqa
+    label: SuppQA
+    count: 102
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: null
+  - id: lab-bench-figqa
+    label: FigQA
+    count: 226
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: null
+  - id: lab-bench-tableqa
+    label: TableQA
+    count: 305
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: null
+  - id: lab-bench-dbqa
+    label: DbQA
+    count: 650
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: null
+  - id: lab-bench-protocolqa
+    label: ProtocolQA
+    count: 135
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: null
+  - id: lab-bench-seqqa
+    label: SeqQA
+    count: 750
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: null
+  - id: lab-bench-cloning-scenarios
+    label: CloningScenarios
+    count: 41
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: null
+  - id: lab-bench-broad-categories
+    label: Broad categories
+    count: 8
+    basis: categories
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: Not a question count.
+  - id: lab-bench-formal-task-files
+    label: Versioned formal task files
+    count: 31
+    basis: versioned split files
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: The 31 files are the six single-task categories, 10 DbQA subtasks, 15 SeqQA subtasks, and CloningScenarios.
+  - id: lab-bench-readme-narrower-subtasks
+    label: Narrower subtasks stated in README
+    count: 30
+    basis: subtasks claimed in README
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: Conflicts with the 31 versioned split files and 31 creator-result rows.
 coverage_notes:
-  - {tag: protein-sequence, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: SeqQA includes biological sequence manipulation; exact protein-only count is not reported.}
+- tag: protein-sequence
+  coverage: explicitly-in-scope
+  count: null
+  reporting_status: not_reported
+  notes: SeqQA and two ClinVar DbQA tasks require DNA/protein-sequence reasoning, but the sources do not publish a protein-only
+    question count.
+- tag: protein-protein-binding
+  coverage: explicitly-in-scope
+  count: 50
+  reporting_status: reported
+  notes: The Viral PPI formal task has 50 questions about predicted viral–human protein interactions.
+- tag: protein-design
+  coverage: not-in-scope
+  count: 0
+  reporting_status: reported
+  notes: Primer and cloning design are in scope; protein sequence design is not a released LAB-Bench task.
 access:
   level: partially-open
-  tasks: Approximately 80% is public; 20% is retained privately for contamination monitoring.
-  artifacts: Public task data and required figures are available for the released split.
-  grader: Open-source evaluator reports accuracy, precision, and coverage.
+  tasks: 1,967 questions are public and 490 question contents are withheld; all 2,457 IDs and split membership are versioned.
+  artifacts: Public questions, figures, tables, open-answer variants, split manifests, and the Python harness are released.
+  grader: The official harness scores accuracy, precision/selective accuracy, coverage, and total n from exact single-choice
+    outputs.
   license: CC-BY-SA-4.0
-  biosafety_notes: Follow the upstream dataset's safeguards and license; tasks are linked, not mirrored.
+  biosafety_notes: The suite includes molecular-cloning and viral-PPI questions. BioBench Atlas stores only metadata and aggregate
+    results and does not mirror questions or private content.
 resources:
-  - {type: paper, url: 'https://arxiv.org/abs/2407.10362', license: null, access_notes: Creator paper.}
-  - {type: repository, url: 'https://github.com/Future-House/LAB-Bench', license: CC-BY-SA-4.0, access_notes: Official harness and public data.}
-  - {type: dataset, url: 'https://huggingface.co/datasets/futurehouse/lab-bench', license: CC-BY-SA-4.0, access_notes: Public split.}
+- id: lab-bench-paper-resource
+  type: paper
+  url: https://arxiv.org/abs/2407.10362v3
+  license: null
+  access_notes: Creator preprint v3; the official HTML snapshot used for the audit has SHA256 4a29823b3e160541213840523b8f4ff69fdcadf4314245ab09b7e7cb1ea62e44.
+  last_checked: '2026-07-21'
+  pin:
+    kind: version
+    value: v3
+    url: https://arxiv.org/html/2407.10362v3
+- id: lab-bench-repository-resource
+  type: repository
+  url: https://github.com/Future-House/LAB-Bench
+  license: CC-BY-SA-4.0
+  access_notes: Official harness, public data, 31 split manifests, and private IDs.
+  last_checked: '2026-07-21'
+  pin:
+    kind: commit
+    value: 998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838
+    url: https://github.com/Future-House/LAB-Bench/tree/998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838
+- id: lab-bench-dataset-resource
+  type: dataset
+  url: https://huggingface.co/datasets/futurehouse/lab-bench
+  license: CC-BY-SA-4.0
+  access_notes: Official public dataset mirror; ungated at verification time.
+  last_checked: '2026-07-21'
+  pin:
+    kind: commit
+    value: 5c77cec648430f30611808808861eb86f81d5eaa
+    url: https://huggingface.co/datasets/futurehouse/lab-bench/tree/5c77cec648430f30611808808861eb86f81d5eaa
 implementations:
-  - {framework: labbench Python evaluator, status: official, url: 'https://github.com/Future-House/LAB-Bench/tree/998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838', commit: 998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838, notes: Commit captured at verification time.}
-verification: {status: verified, last_verified: '2026-07-21', notes: 'Repository structure, access split, evaluator, and license verified.'}
+- framework: labbench Python evaluator
+  status: official
+  url: https://github.com/Future-House/LAB-Bench/tree/998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838/labbench
+  commit: 998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838
+  notes: Python 3.10+ harness with public task loaders, exact-choice scoring, and accuracy/precision/coverage metrics.
+versions:
+- id: lab-bench-paper-v3
+  label: paper-v3
+  status: active
+  release_date: '2024-07-17'
+  as_of: '2024-07-17'
+  task_counts:
+    total: 2457
+    basis: multiple-choice questions across the complete public and private creator snapshot
+    reporting_status: reported
+    subsets:
+    - id: lab-bench-litqa2
+      label: LitQA2
+      count: 248
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-suppqa
+      label: SuppQA
+      count: 102
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-figqa
+      label: FigQA
+      count: 226
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-tableqa
+      label: TableQA
+      count: 305
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-dbqa
+      label: DbQA
+      count: 650
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-protocolqa
+      label: ProtocolQA
+      count: 135
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-seqqa
+      label: SeqQA
+      count: 750
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-cloning-scenarios
+      label: CloningScenarios
+      count: 41
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-broad-categories
+      label: Broad categories
+      count: 8
+      basis: categories
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: Not a question count.
+    - id: lab-bench-formal-task-files
+      label: Creator-paper task/result rows
+      count: 31
+      basis: task rows reported across Tables 2–4
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: The 31 rows are the six other single-task categories, 10 DbQA subtasks, 15 SeqQA subtasks, and CloningScenarios.
+  formal_tracks: &id001
+  - lab-bench-litqa2
+  - lab-bench-suppqa
+  - lab-bench-figqa
+  - lab-bench-tableqa
+  - lab-bench-dbqa
+  - lab-bench-protocolqa
+  - lab-bench-seqqa
+  - lab-bench-cloning-scenarios
+  notes: Complete creator-paper evaluation snapshot, including public and private splits.
+  evidence_ids:
+  - lab-bench-evidence-paper
+- id: lab-bench-repository-998a8e0
+  label: repository-998a8e0
+  status: current
+  release_date: '2025-09-27'
+  as_of: '2026-07-21'
+  task_counts:
+    total: 2457
+    basis: multiple-choice questions across the complete public and private creator snapshot
+    reporting_status: reported
+    subsets:
+    - id: lab-bench-litqa2
+      label: LitQA2
+      count: 248
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-suppqa
+      label: SuppQA
+      count: 102
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-figqa
+      label: FigQA
+      count: 226
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-tableqa
+      label: TableQA
+      count: 305
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-dbqa
+      label: DbQA
+      count: 650
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-protocolqa
+      label: ProtocolQA
+      count: 135
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-seqqa
+      label: SeqQA
+      count: 750
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-cloning-scenarios
+      label: CloningScenarios
+      count: 41
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-broad-categories
+      label: Broad categories
+      count: 8
+      basis: categories
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: Not a question count.
+    - id: lab-bench-formal-task-files
+      label: Versioned formal task files
+      count: 31
+      basis: versioned split files
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: The 31 files are the six single-task categories, 10 DbQA subtasks, 15 SeqQA subtasks, and CloningScenarios.
+    - id: lab-bench-readme-narrower-subtasks
+      label: Narrower subtasks stated in README
+      count: 30
+      basis: subtasks claimed in README
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: Conflicts with the 31 versioned split files and 31 creator-result rows.
+  formal_tracks: *id001
+  notes: Current official repository snapshot; includes the 2025 fixes documented in CHANGELOG.md.
+  evidence_ids:
+  - lab-bench-evidence-repository
+audit:
+  status: audited-with-caveats
+  audited_date: '2026-07-21'
+  unresolved_fields: 2
+  notes: Counts, access, protocol, and result tables are audited. The README claim of 30 narrower subtasks conflicts with
+    31 versioned split files and 31 creator-result rows.
+field_status:
+- path: /task_counts/subsets/10/count
+  status: conflicted
+  confidence: high
+  reason: The official README says 30 narrower subtasks, while the pinned repository contains 31 versioned split files and
+    the paper reports 31 task/result rows.
+  evidence_ids:
+  - lab-bench-evidence-paper
+  - lab-bench-evidence-repository
+- path: /versions/1/task_counts/subsets/10/count
+  status: conflicted
+  confidence: high
+  reason: The current snapshot preserves the README claim of 30 alongside the reproducible count of 31 versioned split files.
+  evidence_ids:
+  - lab-bench-evidence-repository
+verification:
+  status: verified
+  last_verified: '2026-07-21'
+  notes: Audited against arXiv v3, all 31 commit-pinned split manifests, the official evaluator, the current Hugging Face
+    revision, and official Anthropic reports.
 evidence:
-  - work_id: lab-bench-paper
-    locator: 'Abstract; benchmark composition; official repository README'
-    supports: [summary, task_counts, domains, modalities, access, implementations]
+- id: lab-bench-evidence-paper
+  source_type: work
+  source_id: lab-bench-paper
+  accessed_date: '2026-07-21'
+  locator:
+    type: section
+    value: Abstract; Sections 1–2; Table 1; Appendix B–E; Tables 2–6
+    note: Definition, full count, category/subtask rows, public/private policy, task descriptions, creator protocol, metrics,
+      models, and results.
+  supports:
+  - /name
+  - /aliases
+  - /summary
+  - /kind
+  - /organizations
+  - /release_date
+  - /domains
+  - /capabilities
+  - /modalities
+  - /task_counts/total
+  - /task_counts/basis
+  - /task_counts/subsets
+  - /task_counts/subsets/10/count
+  - /coverage_notes
+  - /access/level
+  - /access/tasks
+  - /access/artifacts
+  - /access/grader
+  - /access/license
+  - /access/biosafety_notes
+  - /versions/0/task_counts/total
+  - /versions/0/task_counts/basis
+  - /versions/0/task_counts/subsets
+- id: lab-bench-evidence-repository
+  source_type: resource
+  source_id: lab-bench-repository-resource
+  accessed_date: '2026-07-21'
+  locator:
+    type: repository-path
+    value: README.md; CHANGELOG.md; LICENSE; 31 *-splits.json files; labbench/evaluator.py at 998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838
+    note: 31 files sum to public/private/total 1,967/490/2,457; README states 8 categories and 30 narrower subtasks.
+  supports:
+  - /latest_version
+  - /task_counts/total
+  - /task_counts/basis
+  - /task_counts/subsets
+  - /task_counts/subsets/10/count
+  - /access/level
+  - /access/tasks
+  - /access/artifacts
+  - /access/grader
+  - /access/license
+  - /resources
+  - /implementations
+  - /versions/1/task_counts/total
+  - /versions/1/task_counts/basis
+  - /versions/1/task_counts/subsets
+  - /versions/1/task_counts/subsets/10/count

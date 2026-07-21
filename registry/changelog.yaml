@@ -1,5 +1,9 @@
 - date: '2026-07-21'
   type: audit
+  entity_ids: [lab-bench, lab-bench-paper, lab-bench-litqa2, lab-bench-suppqa, lab-bench-figqa, lab-bench-tableqa, lab-bench-dbqa, lab-bench-protocolqa, lab-bench-seqqa, lab-bench-cloning-scenarios, anthropic-sonnet-4-5-system-card]
+  summary: Audited LAB-Bench as 2,457 questions in eight broad categories; reproduced the 1,967 public and 490 private split across 31 versioned task files, preserved the README's conflicting 30-subtask claim, registered every formal DbQA and SeqQA child track, transcribed all 31 creator multiple-choice result rows and three expert-graded open-response studies, and separated Anthropic 10-shot and crop-tool evaluations by protocol and comparability group.
+- date: '2026-07-21'
+  type: audit
   entity_ids: [bioinstruction, bioinstructions-paper, bioinstruction-emp, bioinstruction-ea, bioinstruction-pd300, bioinstruction-cpd, bioinstruction-tb-human, bioinstruction-tb-mouse, bioinstruction-apa, bioinstruction-ncrna, bioinstruction-modification, bioinstruction-mrl, bioinstruction-prs, bioinstruction-crispr-on-target, bioinstruction-ec, bioinstruction-stability, bioinstruction-fluorescence, bioinstruction-solubility, bioinstruction-thermostability, bioinstruction-aan, bioinstruction-rpi, bioinstruction-epi, bioinstruction-sirna]
   summary: Audited Biology-Instructions as 21 formal tasks rather than 21 questions; registered 6 DNA, 6 RNA, 5 protein, and 4 multi-molecule child tracks with train/validation/test counts, separated open-source, closed-source, and creator prompts into 63 runs, captured 345 creator-paper results, kept protein design out of scope, corrected access and license claims, and preserved the paper/repository conflicts over aggregate test totals, Stage-3 rows, and evaluator registration keys.
 - date: '2026-07-21'

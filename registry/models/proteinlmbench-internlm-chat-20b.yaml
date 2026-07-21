@@ -1,0 +1,9 @@
+entity_type: model
+id: proteinlmbench-internlm-chat-20b
+name: "InternLM-Chat-20B"
+provider: "Shanghai AI Laboratory"
+release_date: null
+version_string: "InternLM-Chat-20B"
+version_status: reported
+aliases: []
+verification: {status: verified, last_verified: '2026-07-21', notes: "Exact creator-paper label."}

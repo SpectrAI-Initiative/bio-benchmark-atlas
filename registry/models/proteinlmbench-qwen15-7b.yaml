@@ -1,0 +1,9 @@
+entity_type: model
+id: proteinlmbench-qwen15-7b
+name: "Qwen1.5-7B"
+provider: "Alibaba Cloud"
+release_date: null
+version_string: "Qwen1.5-7B"
+version_status: reported
+aliases: []
+verification: {status: verified, last_verified: '2026-07-21', notes: "Exact creator-paper label."}

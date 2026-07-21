@@ -2,32 +2,93 @@ entity_type: evaluation_run
 id: proteinlmbench-creator-full
 work_id: proteinlmbench-paper
 benchmark_id: proteinlmbench
-benchmark_version: '1.0'
-scope: {type: full, n: 944, subset_id: null, filter: All manually verified questions., reporting_status: reported}
+benchmark_version: paper-v2
+model_ids: [proteinlmbench-gpt4-turbo, proteinlmbench-internlm2-20b, proteinlmbench-gpt35-turbo, proteinlmbench-internlm2-7b, proteinlmbench-internlm2-chat-7b, proteinlmbench-internlm2-chat-20b, proteinlmbench-yi-6b-chat, proteinlmbench-mistral-7b-instruct-v02, proteinlmbench-chatglm3-6b, proteinlmbench-baichuan2-7b, proteinlmbench-internlm-chat-20b, proteinlmbench-llama2-7b-chat, proteinlmbench-moonshot, proteinlmbench-qwen15-7b, proteinlmbench-falcon-7b-instruct, proteinlmbench-falcon-7b, toursynbio-7b, proteinlmbench-internlm2-protein-7b-no-ssl]
+scope: {type: full, n: 944, subset_id: null, filter: 'All 944 paper-defined ProteinLMBench questions; the paper does not pin an exact Hugging Face commit.', reporting_status: reported}
 protocol:
-  shots: {value: 0, reporting_status: reported, notes: Zero-shot evaluation described by the creator benchmark.}
-  turns: {value: single-turn, reporting_status: reported, notes: Multiple-choice answer.}
-  system_prompt_public: &nr {value: null, reporting_status: not_reported, notes: Exact shared prompt not normalized.}
-  reasoning: *nr
+  shots: {value: 0, reporting_status: reported, notes: 'The official evaluation template contains no demonstrations.'}
+  turns: {value: single-turn, reporting_status: reported, notes: 'One prompt and one generated answer per question.'}
+  system_prompt_public: {value: null, reporting_status: not_applicable, notes: 'No separate system prompt is used; the complete user prompt template is public.'}
+  reasoning: {value: 'Think step by step.', reporting_status: reported, notes: 'The output must begin with the selected option and generation is limited to 20 new tokens.'}
   tools:
-    browser: {value: false, reporting_status: reported, notes: No tool use reported.}
-    internet: {value: false, reporting_status: reported, notes: No tool use reported.}
-    databases: {value: false, reporting_status: reported, notes: No tool use reported.}
-    code_execution: {value: false, reporting_status: reported, notes: Model answers questions directly.}
-    container: {value: false, reporting_status: reported, notes: No agent container.}
-    external_tools: {value: false, reporting_status: reported, notes: No tools.}
-  token_budget: *nr
-  time_budget: *nr
-  temperature: *nr
-  seed: *nr
-  repeats: *nr
-  grader: {type: exact multiple-choice match, model: null, human_review: false, reporting_status: reported}
-  statistical: {value: accuracy, reporting_status: reported, notes: null}
-  contamination: *nr
+    browser: &no-tool {value: false, reporting_status: reported, notes: 'The official runner supplies only the question and options.'}
+    internet: *no-tool
+    databases: *no-tool
+    code_execution: *no-tool
+    container: {value: null, reporting_status: not_reported, notes: 'No standardized container is reported.'}
+    external_tools: *no-tool
+  token_budget: {value: '20 generated tokens per question', reporting_status: reported, notes: 'Official runner max_new_tokens=20.'}
+  time_budget: {value: null, reporting_status: not_reported, notes: 'Table 3 reports observed inference time per model, not a common enforced budget.'}
+  temperature: {value: 0.1, reporting_status: reported, notes: 'Official runner uses sampling with temperature 0.1.'}
+  seed: {value: 'not set', reporting_status: reported, notes: 'The paper checklist explicitly says random seeds were not set.'}
+  repeats: {value: 1, reporting_status: reported, notes: 'The paper checklist says multiple experiments were not conducted; no error bars are reported.'}
+  grader: {type: first-integer exact option match, model: null, human_review: false, reporting_status: reported}
+  statistical: {value: 'single-run problem-weighted accuracy and total wall-clock inference minutes; no confidence intervals or error bars', reporting_status: reported, notes: null}
+  contamination: {value: 'No decontamination analysis reported; the paper says RAG generated questions and GPT-4 validated answers, while the later official repository says Mixtral-8x7B was used at each generation stage followed by expert review.', reporting_status: reported, notes: 'GPT-4.0-turbo is also one of the evaluated models.'}
 metrics:
-  - {metric_id: accuracy, source_label: Accuracy, unit: percent, range: [0, 100], higher_is_better: true, aggregation: problem-weighted mean, pass_threshold: null, tolerance: exact choice}
-results: []
-comparability_group: proteinlmbench-v1-full-zero-shot
-verification: {status: verified, last_verified: '2026-07-21', notes: Creator-paper baseline rows await detailed extraction.}
+  - {metric_id: accuracy, source_label: Correct Rate, unit: percent, range: [0, 100], higher_is_better: true, aggregation: problem-weighted over 944 questions, pass_threshold: null, tolerance: exact first-integer option match}
+  - {metric_id: inference-time-minutes, source_label: Inference Time, unit: minutes, range: [0, 1000000], higher_is_better: false, aggregation: total wall-clock time over 944 questions, pass_threshold: null, tolerance: null}
+results:
+  - {model_id: proteinlmbench-gpt4-turbo, metric_id: accuracy, value: 57.94, ci_low: null, ci_high: null, n: 944, notes: 'Exact API snapshot not reported.', status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+  - {model_id: proteinlmbench-gpt4-turbo, metric_id: inference-time-minutes, value: 15.52, ci_low: null, ci_high: null, n: 944, notes: 'Observed total; common hardware/service conditions not reported.', status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+  - {model_id: proteinlmbench-internlm2-20b, metric_id: accuracy, value: 57.52, ci_low: null, ci_high: null, n: 944, notes: null, status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+  - {model_id: proteinlmbench-internlm2-20b, metric_id: inference-time-minutes, value: 47.20, ci_low: null, ci_high: null, n: 944, notes: null, status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+  - {model_id: proteinlmbench-gpt35-turbo, metric_id: accuracy, value: 55.19, ci_low: null, ci_high: null, n: 944, notes: 'Exact API snapshot not reported.', status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+  - {model_id: proteinlmbench-gpt35-turbo, metric_id: inference-time-minutes, value: 21.03, ci_low: null, ci_high: null, n: 944, notes: null, status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+  - {model_id: proteinlmbench-internlm2-7b, metric_id: accuracy, value: 54.98, ci_low: null, ci_high: null, n: 944, notes: null, status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+  - {model_id: proteinlmbench-internlm2-7b, metric_id: inference-time-minutes, value: 19.23, ci_low: null, ci_high: null, n: 944, notes: null, status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+  - {model_id: proteinlmbench-internlm2-chat-7b, metric_id: accuracy, value: 54.76, ci_low: null, ci_high: null, n: 944, notes: null, status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+  - {model_id: proteinlmbench-internlm2-chat-7b, metric_id: inference-time-minutes, value: 35.58, ci_low: null, ci_high: null, n: 944, notes: null, status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+  - {model_id: proteinlmbench-internlm2-chat-20b, metric_id: accuracy, value: 51.38, ci_low: null, ci_high: null, n: 944, notes: null, status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+  - {model_id: proteinlmbench-internlm2-chat-20b, metric_id: inference-time-minutes, value: 31.11, ci_low: null, ci_high: null, n: 944, notes: null, status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+  - {model_id: proteinlmbench-yi-6b-chat, metric_id: accuracy, value: 50.85, ci_low: null, ci_high: null, n: 944, notes: null, status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+  - {model_id: proteinlmbench-yi-6b-chat, metric_id: inference-time-minutes, value: 59.05, ci_low: null, ci_high: null, n: 944, notes: null, status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+  - {model_id: proteinlmbench-mistral-7b-instruct-v02, metric_id: accuracy, value: 50.11, ci_low: null, ci_high: null, n: 944, notes: null, status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+  - {model_id: proteinlmbench-mistral-7b-instruct-v02, metric_id: inference-time-minutes, value: 13.00, ci_low: null, ci_high: null, n: 944, notes: null, status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+  - {model_id: proteinlmbench-chatglm3-6b, metric_id: accuracy, value: 48.94, ci_low: null, ci_high: null, n: 944, notes: null, status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+  - {model_id: proteinlmbench-chatglm3-6b, metric_id: inference-time-minutes, value: 8.00, ci_low: null, ci_high: null, n: 944, notes: null, status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+  - {model_id: proteinlmbench-baichuan2-7b, metric_id: accuracy, value: 44.49, ci_low: null, ci_high: null, n: 944, notes: null, status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+  - {model_id: proteinlmbench-baichuan2-7b, metric_id: inference-time-minutes, value: 16.37, ci_low: null, ci_high: null, n: 944, notes: null, status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+  - {model_id: proteinlmbench-internlm-chat-20b, metric_id: accuracy, value: 40.54, ci_low: null, ci_high: null, n: 944, notes: null, status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+  - {model_id: proteinlmbench-internlm-chat-20b, metric_id: inference-time-minutes, value: 66.00, ci_low: null, ci_high: null, n: 944, notes: null, status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+  - {model_id: proteinlmbench-llama2-7b-chat, metric_id: accuracy, value: 39.64, ci_low: null, ci_high: null, n: 944, notes: null, status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+  - {model_id: proteinlmbench-llama2-7b-chat, metric_id: inference-time-minutes, value: 64.00, ci_low: null, ci_high: null, n: 944, notes: null, status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+  - {model_id: proteinlmbench-moonshot, metric_id: accuracy, value: 38.26, ci_low: null, ci_high: null, n: 944, notes: 'Exact provider model/version not reported.', status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+  - {model_id: proteinlmbench-moonshot, metric_id: inference-time-minutes, value: 16.25, ci_low: null, ci_high: null, n: 944, notes: null, status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+  - {model_id: proteinlmbench-qwen15-7b, metric_id: accuracy, value: 21.73, ci_low: null, ci_high: null, n: 944, notes: null, status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+  - {model_id: proteinlmbench-qwen15-7b, metric_id: inference-time-minutes, value: 13.00, ci_low: null, ci_high: null, n: 944, notes: null, status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+  - {model_id: proteinlmbench-falcon-7b-instruct, metric_id: accuracy, value: 20.55, ci_low: null, ci_high: null, n: 944, notes: null, status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+  - {model_id: proteinlmbench-falcon-7b-instruct, metric_id: inference-time-minutes, value: 25.42, ci_low: null, ci_high: null, n: 944, notes: null, status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+  - {model_id: proteinlmbench-falcon-7b, metric_id: accuracy, value: 19.17, ci_low: null, ci_high: null, n: 944, notes: null, status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+  - {model_id: proteinlmbench-falcon-7b, metric_id: inference-time-minutes, value: 15.55, ci_low: null, ci_high: null, n: 944, notes: null, status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+  - {model_id: toursynbio-7b, metric_id: accuracy, value: 62.18, ci_low: null, ci_high: null, n: 944, notes: 'InternLM2-Protein-7B with SSL then SFT.', status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+  - {model_id: toursynbio-7b, metric_id: inference-time-minutes, value: 22.34, ci_low: null, ci_high: null, n: 944, notes: null, status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+  - {model_id: proteinlmbench-internlm2-protein-7b-no-ssl, metric_id: accuracy, value: 58.26, ci_low: null, ci_high: null, n: 944, notes: 'SFT only; no ProteinLMDataset self-supervised phase.', status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+  - {model_id: proteinlmbench-internlm2-protein-7b-no-ssl, metric_id: inference-time-minutes, value: 21.36, ci_low: null, ci_high: null, n: 944, notes: null, status: verified, confidence: high, evidence_ids: [proteinlmbench-eval-results]}
+comparability_group: proteinlmbench-paper-v2-full-official
+verification: {status: verified, last_verified: '2026-07-21', notes: 'All 18 model labels, 36 Table 3 values, paper-defined scope, public runner settings, and missing version/seed/error-bar details are explicitly recorded.'}
 evidence:
-  - {work_id: proteinlmbench-paper, locator: 'Benchmark construction and evaluation sections', supports: [scope, protocol, metrics]}
+  - id: proteinlmbench-eval-scope
+    source_type: work
+    source_id: proteinlmbench-paper
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'Abstract; Sections 3.2, 4.3, 6; Appendix C.3', note: '944-question full paper evaluation and 18 evaluated model/system labels.'}
+    supports: [/scope, /benchmark_version, /model_ids]
+  - id: proteinlmbench-eval-protocol
+    source_type: resource
+    source_id: proteinlmbench-repository-resource
+    accessed_date: '2026-07-21'
+    locator: {type: repository-path, value: 'benchmark/benchmark_your_model.py at d8586e22ff85f6805edea0bbc23002aaccf525c4', note: 'No demonstrations/tools, single prompt, think-step-by-step instruction, temperature 0.1, 20-token cap, first-integer parser, and exact scorer.'}
+    supports: [/protocol]
+  - id: proteinlmbench-eval-results
+    source_type: work
+    source_id: proteinlmbench-paper
+    accessed_date: '2026-07-21'
+    locator: {type: table, value: 'p. 23, Table 3; p. 14 checklist item 3(c)', note: 'All accuracy and inference-time values; checklist confirms no repeated experiments or random seeds and no error bars.'}
+    supports: [/protocol/seed, /protocol/repeats, /protocol/statistical, /metrics, /results]
+  - id: proteinlmbench-eval-contamination
+    source_type: work
+    source_id: proteinlmbench-paper
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'Section 4.3 and Appendix B.3 Q22', note: 'RAG/GPT-4 generation/validation and machine-plus-human verification; no decontamination analysis.'}
+    supports: [/protocol/contamination]

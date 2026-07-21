@@ -1,39 +1,141 @@
 entity_type: benchmark
 id: proteinlmbench
 name: ProteinLMBench
-aliases: [Protein LM Bench]
-summary: Manually verified multiple-choice questions for evaluating natural-language models' understanding of protein science and engineering.
+aliases: [Protein LM Bench, ProteinLMBenchmark]
+summary: A creator-curated set of 944 protein-science multiple-choice questions with answer explanations, generated from research literature and released for evaluating text LLM protein understanding.
 kind: dataset
 parent_id: null
-organizations: [Tsinghua University, TourSynbio]
-release_date: '2024-06-08'
-latest_version: '1.0'
+organizations: [Toursun Synbio, Johns Hopkins University, University of Cambridge, Shanghai Institute for Biomedical and Pharmaceutical Technologies, Shanghai AI Laboratory, Shanghai Jiao Tong University, UNSW Sydney]
+release_date: '2024-04-29'
+latest_version: hf-f139796
 domains: [protein-science, protein-sequence, protein-structure, protein-design, protein-protein-binding, protein-ligand-binding]
-capabilities: [knowledge, scientific-reasoning]
+capabilities: [knowledge, scientific-reasoning, prediction]
 modalities: [text]
-task_formats: [multiple choice]
-task_counts:
+task_formats: [variable-choice multiple choice with 2 to 10 options in the current snapshot]
+task_counts: &proteinlmbench-current-counts
   total: 944
-  basis: manually verified questions
+  basis: question records in ProteinLMBench.json
   reporting_status: reported
-  subsets: []
+  subsets:
+    - {id: proteinlmbench-two-choice, label: Two-choice questions, count: 3, basis: questions grouped by options-array length, exclusive: true, exhaustive: true, reporting_status: reported, notes: null}
+    - {id: proteinlmbench-three-choice, label: Three-choice questions, count: 21, basis: questions grouped by options-array length, exclusive: true, exhaustive: true, reporting_status: reported, notes: null}
+    - {id: proteinlmbench-four-choice, label: Four-choice questions, count: 42, basis: questions grouped by options-array length, exclusive: true, exhaustive: true, reporting_status: reported, notes: null}
+    - {id: proteinlmbench-five-choice, label: Five-choice questions, count: 1, basis: questions grouped by options-array length, exclusive: true, exhaustive: true, reporting_status: reported, notes: null}
+    - {id: proteinlmbench-six-choice, label: Six-choice questions, count: 871, basis: questions grouped by options-array length, exclusive: true, exhaustive: true, reporting_status: reported, notes: 'The paper describes all 944 questions as six-choice; the current versioned JSON contains 871 six-choice records.'}
+    - {id: proteinlmbench-seven-choice, label: Seven-choice questions, count: 2, basis: questions grouped by options-array length, exclusive: true, exhaustive: true, reporting_status: reported, notes: 'Both have answer option 7.'}
+    - {id: proteinlmbench-eight-choice, label: Eight-choice questions, count: 1, basis: questions grouped by options-array length, exclusive: true, exhaustive: true, reporting_status: reported, notes: null}
+    - {id: proteinlmbench-ten-choice, label: Ten-choice questions, count: 3, basis: questions grouped by options-array length, exclusive: true, exhaustive: true, reporting_status: reported, notes: null}
 coverage_notes:
-  - {tag: protein-design, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: Protein engineering is in scope; no verified standalone count was found.}
-  - {tag: protein-protein-binding, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: Binding topics are included; no verified standalone count was found.}
+  - {tag: protein-design, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: 'The paper dataset card names Protein design as a possible benchmark task, but the released evaluation file has no topical category field, so no design-question count is inferred.'}
+  - {tag: protein-sequence, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: 'The paper claims sequence-understanding coverage, but the current evaluation JSON exposes only question, options, answer, and explanation text fields and contains no explicit raw-sequence input field.'}
+  - {tag: protein-protein-binding, coverage: observed, count: null, reporting_status: not_reported, notes: 'Official questions discuss protein-protein interactions and antibody binding, but no official topical labels support a standalone count.'}
+  - {tag: protein-ligand-binding, coverage: observed, count: null, reporting_status: not_reported, notes: 'Official questions discuss ligand binding, but no official topical labels support a standalone count.'}
 access:
   level: fully-open
-  tasks: Public on Hugging Face.
-  artifacts: Text-only questions.
-  grader: Exact multiple-choice accuracy.
-  license: apache-2.0
-  biosafety_notes: Dataset terms and canary guidance should be followed upstream.
+  tasks: The complete evaluation JSON and CSV are publicly downloadable without gating from the creator Hugging Face repository.
+  artifacts: Each record contains question, options, correct-answer label, and explanation; the current snapshot has no topical-category or raw-sequence field.
+  grader: The official runner extracts the first integer from a response and compares it exactly with the answer-option integer.
+  license: Apache-2.0 on the current Hugging Face dataset card and official code repository; the paper dataset card separately says Toursun Synbio metadata are CC BY 4.0.
+  biosafety_notes: 'Questions cover protein science and engineering literature. The registry mirrors no questions, answer explanations, sequences, training corpora, or model outputs.'
 resources:
-  - {type: paper, url: 'https://arxiv.org/abs/2406.05540', license: null, access_notes: Creator preprint.}
-  - {type: dataset, url: 'https://huggingface.co/datasets/tsynbio/ProteinLMBench', license: apache-2.0, access_notes: Official dataset.}
+  - id: proteinlmbench-paper-resource
+    type: paper
+    url: https://arxiv.org/pdf/2406.05540
+    license: null
+    access_notes: Creator preprint v2 with benchmark construction, evaluation results, dataset card, and training details.
+    last_checked: '2026-07-21'
+    pin: {kind: snapshot, value: 'sha256:161a6e71e4e3321c91bd884ab2c906704c9110dbd5d3672651689e9369ca98dd', url: 'https://arxiv.org/pdf/2406.05540'}
+  - id: proteinlmbench-dataset-resource
+    type: dataset
+    url: https://huggingface.co/datasets/tsynbio/ProteinLMBench
+    license: Apache-2.0
+    access_notes: 'Official versioned dataset. ProteinLMBench.json is 1,087,875 bytes with SHA256 f2dce5c1b54e8ce73897a4af48ae8ba05507076d511b9d02d57cddf31c42ed96 at the pin.'
+    last_checked: '2026-07-21'
+    pin: {kind: commit, value: f1397963c7f727a4a2f00cdd691e6e219c36e992, url: 'https://huggingface.co/datasets/tsynbio/ProteinLMBench/tree/f1397963c7f727a4a2f00cdd691e6e219c36e992'}
+  - id: proteinlmbench-repository-resource
+    type: repository
+    url: https://github.com/tsynbio/ProteinLMDataset
+    license: Apache-2.0
+    access_notes: Official creator code for benchmark generation and prompt-only model evaluation.
+    last_checked: '2026-07-21'
+    pin: {kind: commit, value: d8586e22ff85f6805edea0bbc23002aaccf525c4, url: 'https://github.com/tsynbio/ProteinLMDataset/tree/d8586e22ff85f6805edea0bbc23002aaccf525c4'}
 implementations:
-  - {framework: OpenCompass community adapter, status: community, url: 'https://github.com/open-compass/opencompass', commit: null, notes: 'Local implementation evidence was observed, but no public commit containing that adapter was confirmed; no local path is published.'}
-verification: {status: verified, last_verified: '2026-07-21', notes: Count and purpose verified from the creator paper and official dataset card.}
+  - {framework: ProteinLMBenchmark official runner, status: official, url: 'https://github.com/tsynbio/ProteinLMDataset/blob/d8586e22ff85f6805edea0bbc23002aaccf525c4/benchmark/benchmark_your_model.py', commit: d8586e22ff85f6805edea0bbc23002aaccf525c4, notes: 'Public prompt template, temperature 0.1, 20-new-token limit, first-integer answer parser, and exact accuracy scorer.'}
+versions:
+  - id: proteinlmbench-hf-c59f90c
+    label: hf-c59f90c
+    status: superseded
+    release_date: '2024-04-29'
+    as_of: '2024-04-29'
+    task_counts:
+      total: 944
+      basis: question rows in the initial public CSV
+      reporting_status: reported
+      subsets:
+        - {id: proteinlmbench-two-choice, label: Two-choice questions, count: 3, basis: non-empty option columns in CSV, exclusive: true, exhaustive: true, reporting_status: reported, notes: null}
+        - {id: proteinlmbench-three-choice, label: Three-choice questions, count: 21, basis: non-empty option columns in CSV, exclusive: true, exhaustive: true, reporting_status: reported, notes: null}
+        - {id: proteinlmbench-four-choice, label: Four-choice questions, count: 42, basis: non-empty option columns in CSV, exclusive: true, exhaustive: true, reporting_status: reported, notes: null}
+        - {id: proteinlmbench-five-choice, label: Five-choice questions, count: 1, basis: non-empty option columns in CSV, exclusive: true, exhaustive: true, reporting_status: reported, notes: null}
+        - {id: proteinlmbench-six-choice, label: Six-choice questions visible in CSV, count: 877, basis: non-empty option columns in the six-option CSV schema, exclusive: true, exhaustive: true, reporting_status: reported, notes: 'The initial CSV schema had only six option columns; later JSON preserves 7, 8, and 10-option records.'}
+    formal_tracks: []
+    notes: Initial public benchmark-file snapshot; the repository itself was initialized earlier the same day.
+    evidence_ids: [proteinlmbench-evidence-dataset-history]
+  - id: proteinlmbench-hf-f139796
+    label: hf-f139796
+    status: current
+    release_date: '2024-05-23'
+    as_of: '2026-07-21'
+    task_counts: *proteinlmbench-current-counts
+    formal_tracks: []
+    notes: 'Current official revision. The evaluation JSON has 944 records and variable option counts; it contains no topical-category field.'
+    evidence_ids: [proteinlmbench-evidence-current-dataset]
+  - id: proteinlmbench-paper-v2
+    label: paper-v2
+    status: active
+    release_date: '2024-07-08'
+    as_of: '2024-07-08'
+    task_counts:
+      total: 944
+      basis: questions described in creator preprint v2
+      reporting_status: reported
+      subsets:
+        - {id: proteinlmbench-paper-six-choice, label: Six-choice questions claimed by paper, count: 944, basis: questions, exclusive: true, exhaustive: true, reporting_status: reported, notes: 'Conflicts with both the initial CSV and current JSON option-count distributions.'}
+    formal_tracks: []
+    notes: 'Paper-defined evaluation snapshot used for Table 3; the manuscript does not pin an exact Hugging Face revision.'
+    evidence_ids: [proteinlmbench-evidence-paper]
+audit:
+  status: audited-with-caveats
+  audited_date: '2026-07-21'
+  unresolved_fields: 4
+  notes: 'The versioned dataset takes precedence for the current record. Official-source conflicts over all-six-choice format and license remain machine-readable; topical coverage cannot be counted because the release has no category labels.'
+field_status:
+  - {path: /task_formats, status: conflicted, confidence: high, reason: 'The paper calls every item six-choice, while the current official JSON contains 2-10 options per record.', evidence_ids: [proteinlmbench-evidence-paper, proteinlmbench-evidence-current-dataset]}
+  - {path: /task_counts/subsets/4/count, status: conflicted, confidence: high, reason: 'Current JSON has 871 six-choice records; paper v2 claims all 944 are six-choice.', evidence_ids: [proteinlmbench-evidence-paper, proteinlmbench-evidence-current-dataset]}
+  - {path: /versions/1/task_counts/subsets/4/count, status: conflicted, confidence: high, reason: 'Current JSON has 871 six-choice records; paper v2 claims all 944 are six-choice.', evidence_ids: [proteinlmbench-evidence-paper, proteinlmbench-evidence-current-dataset]}
+  - {path: /access/license, status: conflicted, confidence: high, reason: 'Current official dataset card and repository say Apache-2.0; the paper dataset card says Toursun Synbio metadata are CC BY 4.0. Both statements are retained.', evidence_ids: [proteinlmbench-evidence-paper, proteinlmbench-evidence-current-dataset]}
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Audited against arXiv v2, the complete commit-pinned evaluation JSON and repository history, and the official evaluation runner.'}
 evidence:
-  - work_id: proteinlmbench-paper
-    locator: 'Abstract; dataset construction and evaluation sections'
-    supports: [summary, task_counts, domains, capabilities, access]
+  - id: proteinlmbench-evidence-paper
+    source_type: work
+    source_id: proteinlmbench-paper
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'Abstract; Sections 3.2, 4.3, 5-6; Table 3; Appendix B.5-B.7 and C', note: '944 count, claimed six-choice format, topic scope, construction/verification, evaluated models/results, no repeats/seeds, license statement, and paper-version snapshot.'}
+    supports: [/name, /aliases, /summary, /kind, /organizations, /domains, /capabilities, /modalities, /task_formats, /task_counts/total, /task_counts/basis, /task_counts/subsets/4/count, /coverage_notes, /access/level, /access/tasks, /access/artifacts, /access/grader, /access/license, /access/biosafety_notes, /versions/1/task_counts/subsets/4/count, /versions/2/release_date, /versions/2/task_counts/total, /versions/2/task_counts/basis, /versions/2/task_counts/subsets]
+  - id: proteinlmbench-evidence-dataset-history
+    source_type: resource
+    source_id: proteinlmbench-dataset-resource
+    accessed_date: '2026-07-21'
+    locator: {type: release, value: 'Hugging Face commits c59f90c91e215bae673574c57c9a6c4a9f6aa87b and f1397963c7f727a4a2f00cdd691e6e219c36e992', note: 'Initial CSV release date/counts and later JSON restoration.'}
+    supports: [/release_date, /versions/0/release_date, /versions/0/as_of, /versions/0/task_counts/total, /versions/0/task_counts/basis, /versions/0/task_counts/subsets]
+  - id: proteinlmbench-evidence-current-dataset
+    source_type: resource
+    source_id: proteinlmbench-dataset-resource
+    accessed_date: '2026-07-21'
+    locator: {type: repository-path, value: 'ProteinLMBench.json and README.md at f1397963c7f727a4a2f00cdd691e6e219c36e992', note: '944 records; fields question/options/answer/explanation; option counts 2:3, 3:21, 4:42, 5:1, 6:871, 7:2, 8:1, 10:3; Apache-2.0 card.'}
+    supports: [/latest_version, /modalities, /task_formats, /task_counts/total, /task_counts/basis, /task_counts/subsets, /task_counts/subsets/4/count, /access/level, /access/tasks, /access/artifacts, /access/license, /resources, /versions/1/release_date, /versions/1/as_of, /versions/1/task_counts/total, /versions/1/task_counts/basis, /versions/1/task_counts/subsets, /versions/1/task_counts/subsets/4/count]
+  - id: proteinlmbench-evidence-runner
+    source_type: resource
+    source_id: proteinlmbench-repository-resource
+    accessed_date: '2026-07-21'
+    locator: {type: repository-path, value: 'README.md; LICENSE; benchmark/benchmark_your_model.py at d8586e22ff85f6805edea0bbc23002aaccf525c4', note: 'Manual expert review statement, public prompt-only runner, parser/grader, and Apache-2.0 license.'}
+    supports: [/access/tasks, /access/grader, /access/license, /resources, /implementations]

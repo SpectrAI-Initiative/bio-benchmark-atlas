@@ -1,0 +1,9 @@
+entity_type: model
+id: proteinlmbench-chatglm3-6b
+name: "ChatGLM3-6B"
+provider: "Zhipu AI / Tsinghua University"
+release_date: null
+version_string: "ChatGLM3-6B"
+version_status: reported
+aliases: []
+verification: {status: verified, last_verified: '2026-07-21', notes: "Exact creator-paper label."}

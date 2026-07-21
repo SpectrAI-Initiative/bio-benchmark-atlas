@@ -109,6 +109,21 @@ test('FLIP separates task and sample units and isolates every split comparison',
   await expect(page.locator('.plot-host svg[viewBox]').first()).toBeVisible();
 });
 
+test('ProteinLMBench shows released option counts and complete creator evaluation', async ({ page }) => {
+  await page.goto('/bio-benchmark-atlas/benchmarks/proteinlmbench/');
+  await expect(page.getByText(/only 871 have six choices/)).toBeVisible();
+  await expect(page.getByText(/remaining 73 have 2–5, 7, 8, or 10 choices/)).toBeVisible();
+  await expect(page.getByText('Conflicted · high', { exact: true }).first()).toBeVisible();
+  await expect(page.getByRole('cell', { name: 'Six-choice questions' })).toBeVisible();
+  await expect(page.getByRole('cell', { name: '871' }).first()).toBeVisible();
+  const run = page.locator('#proteinlmbench-creator-full');
+  await expect(run).toContainText('full · n=944');
+  await expect(run).toContainText('20 generated tokens per question');
+  await expect(run).toContainText('0.1');
+  await expect(run).toContainText('InternLM2-Protein-7B');
+  await expect(page.locator('.chart-card details tbody tr')).toHaveCount(36);
+});
+
 test('BioMysteryBench separates the human subsets and repeats', async ({ page }) => {
   await page.goto('/bio-benchmark-atlas/benchmarks/biomysterybench/');
   await expect(page.getByRole('cell', { name: 'Human-solvable' })).toBeVisible();

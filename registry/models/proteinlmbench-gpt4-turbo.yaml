@@ -1,0 +1,9 @@
+entity_type: model
+id: proteinlmbench-gpt4-turbo
+name: "GPT4.0-turbo (ProteinLMBench label)"
+provider: "OpenAI"
+release_date: null
+version_string: null
+version_status: not_reported
+aliases: ["GPT4.0-turbo"]
+verification: {status: verified, last_verified: '2026-07-21', notes: "The paper does not report the dated API snapshot."}

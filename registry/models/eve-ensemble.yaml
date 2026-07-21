@@ -1,0 +1,9 @@
+entity_type: model
+id: eve-ensemble
+name: EVE (ensemble)
+provider: Harvard Medical School
+release_date: null
+version_string: EVE ensemble
+version_status: reported
+aliases: []
+verification: {status: verified, last_verified: '2026-07-21', notes: Exact result variant in ProteinGym v1.0 Table A5.}

@@ -1,0 +1,9 @@
+entity_type: model
+id: esm2-3b
+name: ESM2 (3B)
+provider: Meta AI
+release_date: null
+version_string: ESM2 3B
+version_status: reported
+aliases: [ESM-2 3B]
+verification: {status: verified, last_verified: '2026-07-21', notes: Exact size variant in ProteinGym v1.0 Table A5.}

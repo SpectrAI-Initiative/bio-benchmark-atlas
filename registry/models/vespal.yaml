@@ -1,0 +1,9 @@
+entity_type: model
+id: vespal
+name: VESPAl
+provider: Technical University of Munich
+release_date: null
+version_string: VESPAl
+version_status: reported
+aliases: []
+verification: {status: verified, last_verified: '2026-07-21', notes: Exact case-sensitive label in ProteinGym v1.0 Table A5.}

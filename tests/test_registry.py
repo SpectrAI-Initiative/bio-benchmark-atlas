@@ -59,6 +59,42 @@ def test_lifescibench_protein_and_binding_contract() -> None:
     assert work["title"] == "LifeSciBench: Evaluating Language Models on Realistic, Expert-Level Tasks in the Life Sciences"
 
 
+def test_proteingym_versions_counts_binding_and_protocol() -> None:
+    entities = load_entities()
+    benchmark = next(item for item in entities["benchmark"] if item["id"] == "proteingym")
+    run = next(item for item in entities["evaluation_run"] if item["id"] == "proteingym-v10-dms-substitutions-zero-shot")
+    work = next(item for item in entities["work"] if item["id"] == "proteingym-paper")
+    versions = {item["label"]: item for item in benchmark["versions"]}
+    latest_subsets = {item["id"]: item for item in benchmark["task_counts"]["subsets"]}
+    v10_subsets = {item["id"]: item for item in versions["1.0"]["task_counts"]["subsets"]}
+    assert benchmark["audit"]["status"] == "audited-with-caveats"
+    assert benchmark["latest_version"] == "1.3"
+    assert versions["1.3"]["task_counts"] == benchmark["task_counts"]
+    assert latest_subsets["dms-substitution-assays"]["count"] == 217
+    assert latest_subsets["dms-indel-assays"]["count"] == 66
+    assert latest_subsets["clinical-substitution-proteins"]["count"] == 2525
+    assert latest_subsets["clinical-indel-proteins"]["count"] == 1555
+    assert v10_subsets["dms-substitution-binding-assays"]["count"] == 14
+    assert latest_subsets["dms-substitution-binding-assays"]["count"] == 13
+    assert {item["path"] for item in benchmark["field_status"]} == {
+        "/task_counts/subsets/1/count",
+        "/versions/3/task_counts/subsets/1/count",
+    }
+    assert run["benchmark_version"] == "1.0"
+    assert run["benchmark_id"] == "proteingym-dms-substitutions"
+    assert run["scope"] == {
+        "type": "full", "n": 217, "subset_id": None, "filter": None,
+        "reporting_status": "reported",
+    }
+    assert {item["metric_id"] for item in run["metrics"]} == {
+        "spearman-correlation", "auc-roc", "matthews-correlation",
+        "ndcg-at-10-percent", "top-10-percent-recall",
+    }
+    assert run["protocol"]["statistical"]["value"].startswith("Non-parametric bootstrap")
+    assert work["arxiv"] is None
+    assert "Hansen Spinner" in work["authors"]
+
+
 def test_biomysterybench_scope_and_repeats() -> None:
     entities = load_entities()
     benchmark = next(item for item in entities["benchmark"] if item["id"] == "biomysterybench")

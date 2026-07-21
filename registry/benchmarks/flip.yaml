@@ -2,39 +2,90 @@ entity_type: benchmark
 id: flip
 name: FLIP
 aliases: [Fitness Landscape Inference for Proteins]
-summary: Protein sequence-to-fitness prediction tasks with splits designed to probe generalization regimes relevant to protein engineering.
+summary: A supervised protein sequence-to-fitness benchmark that turns three experimental landscapes into 15 biologically motivated dataset splits for testing generalization in protein engineering.
 kind: suite
 parent_id: null
-organizations: [VantAI, Salesforce Research]
+organizations: [Technical University of Munich, Microsoft Research New England, California Institute of Technology, University of California Berkeley, Massachusetts Institute of Technology, Salesforce Research]
 release_date: '2021-10-11'
 latest_version: original-2021
 domains: [protein-sequence, protein-design, protein-protein-binding]
-capabilities: [prediction, regression, design, optimization]
+capabilities: [prediction, regression]
 modalities: [protein-sequence, table]
-task_formats: [fitness regression]
-task_counts:
+task_formats: [supervised sequence-to-fitness regression]
+task_counts: &flip-counts
   total: 15
   basis: dataset-and-split benchmark tasks
   reporting_status: reported
   subsets:
-    - {id: source-landscapes, label: Source fitness landscapes, count: 3, basis: 'AAV, GB1, and Meltome landscapes', exclusive: false, exhaustive: false, reporting_status: reported, notes: Each landscape has multiple generalization splits.}
+    - {id: flip-aav-tasks, label: AAV landscape splits, count: 7, basis: dataset-and-split tasks, exclusive: true, exhaustive: true, reporting_status: reported, notes: 'Six active comparison splits plus one sampled split used mainly for discourse.'}
+    - {id: flip-gb1-tasks, label: GB1 landscape splits, count: 5, basis: dataset-and-split tasks, exclusive: true, exhaustive: true, reporting_status: reported, notes: 'Four active comparison splits plus one sampled split used mainly for discourse.'}
+    - {id: flip-meltome-tasks, label: Meltome thermostability splits, count: 3, basis: dataset-and-split tasks, exclusive: true, exhaustive: true, reporting_status: reported, notes: 'Mixed, Human, and Human-cell are all active.'}
+    - {id: flip-active-comparison-tasks, label: Active performance-comparison splits, count: 13, basis: dataset-and-split tasks, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Current official repository semaphore marks all original splits active except the two sampled splits.'}
+    - {id: flip-discourse-sampled-tasks, label: Sampled discourse splits, count: 2, basis: dataset-and-split tasks, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'AAV Sampled and GB1 Sampled are orange: the repository warns against performance comparisons because random sampling can overestimate performance.'}
 coverage_notes:
-  - {tag: protein-protein-binding, coverage: observed, count: null, reporting_status: not_reported, notes: GB1 includes immunoglobulin binding; task-level binding count is not separately reported here.}
+  - {tag: protein-protein-binding, coverage: explicitly-in-scope, count: 5, reporting_status: reported, notes: 'All five GB1 dataset-split tasks predict the fitness of an immunoglobulin-binding protein domain; this is task count, not a distinct set of five assays.'}
+  - {tag: protein-design, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: 'All tasks are motivated by protein engineering, but FLIP evaluates prediction/regression rather than sequence generation or optimization and does not publish a separate design-task count.'}
 access:
   level: fully-open
-  tasks: Benchmark data and split definitions are public.
-  artifacts: Sequence and fitness tables are public subject to dataset-specific attribution.
-  grader: Standard regression metrics and public baseline scripts.
-  license: mixed
-  biosafety_notes: Individual landscape licenses and citations must be checked upstream.
+  tasks: All original AAV, GB1, and Meltome split CSVs and split definitions are public.
+  artifacts: The official repository publishes processed split archives, preprocessing notebooks, baseline code, and dataset-specific documentation.
+  grader: Deterministic Spearman correlation and mean-squared-error calculations are implemented in the public baseline code.
+  license: 'AFL-3.0 for FLIP code and derived task files; original GB1 data are CC BY 4.0; AAV and Meltome were obtained with creator permission.'
+  biosafety_notes: 'AAV concerns capsid viability for gene-therapy research. This registry mirrors no sequences, measurements, or model outputs.'
 resources:
-  - {type: paper, url: 'https://datasets-benchmarks-proceedings.neurips.cc/paper_files/paper/2021/hash/2b44928ae11fb9384c4cf38708677c48-Abstract-round2.html', license: null, access_notes: Peer-reviewed creator paper.}
-  - {type: website, url: 'https://flip.protein.properties/', license: null, access_notes: 'Official project site, now also describing FLIP2.'}
-  - {type: dataset, url: 'http://data.bioembeddings.com/public/FLIP/', license: mixed, access_notes: Original public benchmark files.}
+  - id: flip-paper-resource
+    type: paper
+    url: https://flip.protein.properties/assets/FLIP_2021_manuscript.pdf
+    license: CC BY 4.0
+    access_notes: Final NeurIPS 2021 Datasets and Benchmarks creator paper and supplementary material.
+    last_checked: '2026-07-21'
+    pin: {kind: snapshot, value: 'sha256:afcf360c88a7a4ae153b3c2d8d4fa6d4ac0abe84f2131b94409abff6447ce363', url: 'https://flip.protein.properties/assets/FLIP_2021_manuscript.pdf'}
+  - id: flip-project-site-resource
+    type: website
+    url: https://flip.protein.properties/
+    license: null
+    access_notes: 'Official living project site; it now distinguishes original FLIP legacy datasets from FLIP2.'
+    last_checked: '2026-07-21'
+    pin: {kind: snapshot, value: '2026-07-21', url: 'https://flip.protein.properties/'}
+  - id: flip-repository-resource
+    type: repository
+    url: https://github.com/J-SNACKKB/FLIP
+    license: AFL-3.0
+    access_notes: 'Official creator repository. The pinned current commit contains original FLIP paths and later additions; only aav, gb1, and meltome are counted in original-2021.'
+    last_checked: '2026-07-21'
+    pin: {kind: commit, value: 62cace8735f5610e2743cf06ce0f944b37fffaa6, url: 'https://github.com/J-SNACKKB/FLIP/tree/62cace8735f5610e2743cf06ce0f944b37fffaa6'}
+  - id: flip-dataset-resource
+    type: dataset
+    url: http://data.bioembeddings.com/public/FLIP/
+    license: mixed
+    access_notes: Creator-hosted original benchmark data mirror linked by the paper and repository.
+    last_checked: '2026-07-21'
+    pin: {kind: snapshot, value: '2026-07-21', url: 'http://data.bioembeddings.com/public/FLIP/'}
 implementations:
-  - {framework: FLIP reference baselines, status: official, url: 'https://flip.protein.properties/', commit: null, notes: Project site links the maintained code; no immutable original commit was confirmed.}
-verification: {status: verified, last_verified: '2026-07-21', notes: 'This record describes original FLIP, not FLIP2.'}
+  - {framework: FLIP reference baselines, status: official, url: 'https://github.com/J-SNACKKB/FLIP/tree/62cace8735f5610e2743cf06ce0f944b37fffaa6/baselines', commit: 62cace8735f5610e2743cf06ce0f944b37fffaa6, notes: 'Pinned official baseline training and scoring code; no original-2021 release tag exists in the repository.'}
+versions:
+  - id: flip-original-2021
+    label: original-2021
+    status: current
+    release_date: '2021-10-11'
+    as_of: '2026-07-21'
+    task_counts: *flip-counts
+    formal_tracks: [flip-aav, flip-gb1, flip-meltome]
+    notes: 'This record is intentionally limited to the three landscapes and 15 splits in the 2021 creator paper. Later repository datasets and FLIP2 are not folded into this version.'
+    evidence_ids: [flip-evidence-paper-definition, flip-evidence-repository-splits]
+audit: {status: audited, audited_date: '2026-07-21', unresolved_fields: 0, notes: 'Original FLIP, later repository additions, and FLIP2 are explicitly separated; landscape and active/discourse split counts were checked against the paper and pinned repository.'}
+field_status: []
+verification: {status: verified, last_verified: '2026-07-21', notes: Field-level family audit complete.}
 evidence:
-  - work_id: flip-paper
-    locator: 'Abstract; benchmark datasets and split descriptions'
-    supports: [summary, task_counts, domains, capabilities, access]
+  - id: flip-evidence-paper-definition
+    source_type: work
+    source_id: flip-paper
+    accessed_date: '2026-07-21'
+    locator: {type: table, value: 'pp. 3–7, Figure 1 and Tables 2–3', note: 'Defines the three landscapes, 15 dataset splits, task inputs/outputs, baseline classes, sample counts, licenses, and protein-engineering motivation.'}
+    supports: [/name, /aliases, /summary, /kind, /organizations, /release_date, /domains, /capabilities, /modalities, /task_formats, /task_counts/total, /task_counts/basis, /task_counts/subsets, /coverage_notes, /access/level, /access/tasks, /access/artifacts, /access/grader, /access/license, /access/biosafety_notes, /versions/0/release_date, /versions/0/task_counts/total, /versions/0/task_counts/basis, /versions/0/task_counts/subsets]
+  - id: flip-evidence-repository-splits
+    source_type: resource
+    source_id: flip-repository-resource
+    accessed_date: '2026-07-21'
+    locator: {type: repository-path, value: 'README.md; splits/README.md; splits/{aav,gb1,meltome}/README.md; LICENSE at commit 62cace8735f5610e2743cf06ce0f944b37fffaa6', note: 'Separates active, discourse-only, and obsolete splits; documents dataset-specific licensing and pins the runnable implementation.'}
+    supports: [/latest_version, /task_counts/subsets, /resources, /implementations, /versions/0/as_of, /versions/0/task_counts/subsets, /versions/0/formal_tracks]

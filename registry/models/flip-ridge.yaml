@@ -1,0 +1,9 @@
+entity_type: model
+id: flip-ridge
+name: Ridge regression (FLIP)
+provider: FLIP creators
+release_date: null
+version_string: scikit-learn Ridge defaults on one-hot encoding
+version_status: reported
+aliases: []
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Exact supervised baseline family and settings reported in Section 4.'}

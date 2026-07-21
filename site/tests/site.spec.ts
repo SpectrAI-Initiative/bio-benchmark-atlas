@@ -15,7 +15,7 @@ test('explorer restores and updates URL filter state', async ({ page }) => {
   await expect(page.getByRole('link', { name: 'ProteinGym', exact: true })).toBeVisible();
   await page.locator('#q').fill('FLIP');
   await expect(page).toHaveURL(/q=FLIP/);
-  await expect(page.getByRole('link', { name: 'FLIP' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'FLIP', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: 'ProteinGym', exact: true })).toBeHidden();
 });
 
@@ -90,6 +90,23 @@ test('CAMEO shows rolling scope, bounded study counts, and exact evaluated syste
   await expect(page.getByRole('heading', { name: 'SWISS-MODEL + Schrödinger Glide' })).toBeVisible();
   await expect(page.getByText('cameo-2024-ligand-baseline-common', { exact: true })).toBeVisible();
   await expect(page.getByText(/no normalized numeric result is published/i)).toBeVisible();
+});
+
+test('FLIP separates task and sample units and isolates every split comparison', async ({ page }) => {
+  await page.goto('/bio-benchmark-atlas/benchmarks/flip/');
+  await expect(page.getByText(/original FLIP contains 15 dataset×split tasks/)).toBeVisible();
+  await expect(page.getByText(/Thirteen splits are active for performance comparison/)).toBeVisible();
+  for (const name of ['FLIP AAV', 'FLIP GB1', 'FLIP Meltome Thermostability']) {
+    await expect(page.getByRole('link', { name, exact: true }).first()).toBeVisible();
+  }
+  await expect(page.locator('#flip-aav-mut-des')).toContainText('subset · n=201426');
+  await expect(page.locator('#flip-gb1-one-vs-rest')).toContainText('subset · n=8704');
+  await expect(page.locator('#flip-meltome-human-cell')).toContainText('subset · n=1366');
+
+  await page.goto('/bio-benchmark-atlas/benchmarks/flip-meltome/');
+  await expect(page.getByText(/pinned official CSV contains 7,158 rows/)).toBeVisible();
+  await expect(page.getByRole('cell', { name: '7158' }).first()).toBeVisible();
+  await expect(page.locator('.plot-host svg[viewBox]').first()).toBeVisible();
 });
 
 test('BioMysteryBench separates the human subsets and repeats', async ({ page }) => {

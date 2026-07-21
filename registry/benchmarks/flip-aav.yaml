@@ -1,0 +1,60 @@
+entity_type: benchmark
+id: flip-aav
+name: FLIP AAV
+aliases: [FLIP AAV capsid viability landscape]
+summary: Seven supervised splits over sampled and machine-designed AAV2 VP-1 capsid variants, measuring generalization across mutation depth, fitness, and sampled-versus-designed pools.
+kind: track
+parent_id: flip
+organizations: [Technical University of Munich, Microsoft Research New England, California Institute of Technology, University of California Berkeley, Massachusetts Institute of Technology, Salesforce Research]
+release_date: '2021-10-11'
+latest_version: original-2021
+domains: [protein-sequence, protein-design]
+capabilities: [prediction, regression]
+modalities: [protein-sequence, table]
+task_formats: [sequence-to-capsid-viability regression]
+task_counts: &flip-aav-counts
+  total: 284009
+  basis: distinct sequence-fitness examples across the sampled and designed AAV pools
+  reporting_status: reported
+  subsets:
+    - {id: aav-mut-des-test, label: Mut-Des test set, count: 201426, basis: test examples, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Train on 82,583 sampled variants; test on 201,426 designed variants.'}
+    - {id: aav-des-mut-test, label: Des-Mut test set, count: 82583, basis: test examples, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Train on 201,426 designed variants; test on 82,583 sampled variants.'}
+    - {id: aav-one-vs-rest-test, label: 1-vs-rest test set, count: 81413, basis: test examples, exclusive: false, exhaustive: false, reporting_status: reported, notes: '1,170 training examples; sampled pool only.'}
+    - {id: aav-two-vs-rest-test, label: 2-vs-rest test set, count: 50776, basis: test examples, exclusive: false, exhaustive: false, reporting_status: reported, notes: '31,807 training examples; sampled pool only.'}
+    - {id: aav-seven-vs-rest-test, label: 7-vs-rest test set, count: 12581, basis: test examples, exclusive: false, exhaustive: false, reporting_status: reported, notes: '70,002 training examples; sampled pool only.'}
+    - {id: aav-low-vs-high-test, label: low-vs-high test set, count: 35037, basis: test examples, exclusive: false, exhaustive: false, reporting_status: reported, notes: '47,546 training examples at or below wild-type fitness; test examples are above wild-type fitness.'}
+    - {id: aav-sampled-test, label: Sampled test set, count: 16517, basis: test examples, exclusive: false, exhaustive: false, reporting_status: reported, notes: '66,066 random training examples; discourse-only split not recommended for performance comparison.'}
+coverage_notes:
+  - {tag: protein-design, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: 'The dataset includes model-designed variants and is motivated by capsid engineering, but the evaluated task is fitness prediction rather than sequence generation.'}
+access: {level: fully-open, tasks: 'All seven regression split CSVs are public.', artifacts: 'Processed splits, raw-data preparation notebook, reference sequence, and baselines are public.', grader: 'Deterministic Spearman correlation and MSE.', license: 'AFL-3.0 for modified split data; raw AAV source was obtained with written permission and its upstream repository has no explicit license.', biosafety_notes: 'AAV2 capsid viability is relevant to gene-therapy vector engineering; this registry stores metadata and aggregate results only.'}
+resources:
+  - {id: flip-aav-paper-resource, type: paper, url: 'https://flip.protein.properties/assets/FLIP_2021_manuscript.pdf', license: CC BY 4.0, access_notes: 'Creator-authorized manuscript, especially Section 3.2 and Tables 2, 5, and 7.', last_checked: '2026-07-21', pin: {kind: snapshot, value: 'sha256:afcf360c88a7a4ae153b3c2d8d4fa6d4ac0abe84f2131b94409abff6447ce363', url: 'https://flip.protein.properties/assets/FLIP_2021_manuscript.pdf'}}
+  - {id: flip-aav-repository-resource, type: repository, url: 'https://github.com/J-SNACKKB/FLIP/tree/62cace8735f5610e2743cf06ce0f944b37fffaa6/splits/aav', license: AFL-3.0, access_notes: 'Official AAV split archive and documentation.', last_checked: '2026-07-21', pin: {kind: commit, value: 62cace8735f5610e2743cf06ce0f944b37fffaa6, url: 'https://github.com/J-SNACKKB/FLIP/tree/62cace8735f5610e2743cf06ce0f944b37fffaa6/splits/aav'}}
+implementations:
+  - {framework: FLIP AAV baselines, status: official, url: 'https://github.com/J-SNACKKB/FLIP/tree/62cace8735f5610e2743cf06ce0f944b37fffaa6/baselines', commit: 62cace8735f5610e2743cf06ce0f944b37fffaa6, notes: 'Use dataset aav and the paper-to-repository split-name mappings.'}
+versions:
+  - id: flip-aav-original-2021
+    label: original-2021
+    status: current
+    release_date: '2021-10-11'
+    as_of: '2026-07-21'
+    task_counts: *flip-aav-counts
+    formal_tracks: []
+    notes: 'The seven task splits overlap and therefore are not summed as sample partitions.'
+    evidence_ids: [flip-aav-evidence-paper]
+audit: {status: audited, audited_date: '2026-07-21', unresolved_fields: 0, notes: 'All train/test counts and AAV-specific protocol details were checked against the creator paper and pinned official split documentation.'}
+field_status: []
+verification: {status: verified, last_verified: '2026-07-21', notes: Field-level track audit complete.}
+evidence:
+  - id: flip-aav-evidence-paper
+    source_type: work
+    source_id: flip-paper
+    accessed_date: '2026-07-21'
+    locator: {type: table, value: 'pp. 4, 6, 9; Table 2, Section 3.2, Tables 5 and 7', note: 'AAV definition, seven splits, exact train/test counts, regression setup, and baseline results.'}
+    supports: [/name, /summary, /kind, /organizations, /release_date, /latest_version, /domains, /capabilities, /modalities, /task_formats, /task_counts/total, /task_counts/basis, /task_counts/subsets, /coverage_notes, /access/level, /access/tasks, /access/artifacts, /access/grader, /access/license, /access/biosafety_notes, /versions/0/release_date, /versions/0/as_of, /versions/0/task_counts/total, /versions/0/task_counts/basis, /versions/0/task_counts/subsets]
+  - id: flip-aav-evidence-repository
+    source_type: resource
+    source_id: flip-aav-repository-resource
+    accessed_date: '2026-07-21'
+    locator: {type: repository-path, value: 'splits/aav/README.md and splits/aav/splits.zip at commit 62cace8735f5610e2743cf06ce0f944b37fffaa6', note: 'Confirms regression/binary files, active versus sampled status, access, and AFL-3.0 derivative license.'}
+    supports: [/access/tasks, /access/artifacts, /access/license, /resources, /implementations]

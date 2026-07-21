@@ -1,0 +1,9 @@
+entity_type: model
+id: flip-esm-untrained-mut-mean
+name: ESM-untrained (mut mean)
+provider: FLIP creators
+release_date: null
+version_string: ESM-untrained (mut mean)
+version_status: reported
+aliases: []
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Randomly initialized 750M ESM architecture pooled over the mutated region; not applicable to Meltome.'}

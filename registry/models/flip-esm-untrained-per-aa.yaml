@@ -1,0 +1,9 @@
+entity_type: model
+id: flip-esm-untrained-per-aa
+name: ESM-untrained (per AA)
+provider: FLIP creators
+release_date: null
+version_string: ESM-untrained (per AA)
+version_status: reported
+aliases: []
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Randomly initialized 750M ESM architecture with learned 1D-attention pooling/regression head.'}

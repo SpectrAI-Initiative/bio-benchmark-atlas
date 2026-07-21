@@ -1,0 +1,9 @@
+entity_type: model
+id: flip-cnn
+name: Convolutional network (FLIP)
+provider: FLIP creators
+release_date: null
+version_string: FLIP CNN
+version_status: reported
+aliases: []
+verification: {status: verified, last_verified: '2026-07-21', notes: 'One-hot CNN with width-5/1024-channel convolution, 2048-dimensional mapping, max pooling, and scalar output.'}

@@ -476,22 +476,9 @@ def validate_registry() -> dict[str, list[dict[str, Any]]]:
             (
                 run["benchmark_id"],
                 run["benchmark_version"],
-                run["scope"]["type"],
-                run["scope"]["subset_id"],
-                tuple(metric["metric_id"] for metric in run["metrics"]),
-                json.dumps(
-                    {
-                        "shots": run["protocol"]["shots"],
-                        "turns": run["protocol"]["turns"],
-                        "reasoning": run["protocol"]["reasoning"],
-                        "tools": run["protocol"]["tools"],
-                        "token_budget": run["protocol"]["token_budget"],
-                        "time_budget": run["protocol"]["time_budget"],
-                        "repeats": run["protocol"]["repeats"],
-                        "grader": run["protocol"]["grader"],
-                    },
-                    sort_keys=True,
-                ),
+                json.dumps(run["scope"], sort_keys=True),
+                json.dumps(run["metrics"], sort_keys=True),
+                json.dumps(run["protocol"], sort_keys=True),
             )
             for run in runs
         }

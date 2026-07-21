@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import copy
 import subprocess
 import sys
 from pathlib import Path
@@ -12,7 +13,9 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from registry_io import load_entities  # noqa: E402
-from validate_registry import validate_registry  # noqa: E402
+from check_sources import _sources  # noqa: E402
+import validate_registry as validator_module  # noqa: E402
+from validate_registry import RegistryValidationError, _resolve_pointer, validate_registry  # noqa: E402
 
 
 def test_registry_validates_and_has_v1_depth() -> None:
@@ -73,7 +76,123 @@ def test_build_is_deterministic_and_surfaces_match() -> None:
         ROOT / "site" / "public" / "data" / "registry.json"
     ).read_bytes()
     payload = json.loads((ROOT / "exports" / "registry.json").read_text(encoding="utf-8"))
-    assert payload["meta"]["version"] == "1.0.0"
+    assert payload["meta"]["version"] == "1.1.0-dev"
+
+
+def test_v11_exports_surface_audit_and_result_status_columns() -> None:
+    subprocess.run([sys.executable, "scripts/build_registry.py"], cwd=ROOT, check=True)
+    benchmark_header = (ROOT / "exports" / "benchmarks.csv").read_text(encoding="utf-8").splitlines()[0]
+    result_header = (ROOT / "exports" / "evaluation-results.csv").read_text(encoding="utf-8").splitlines()[0]
+    assert {"audit_status", "provisional_fields", "conflicted_fields"} <= set(benchmark_header.split(","))
+    assert {"result_status", "confidence", "result_evidence_ids"} <= set(result_header.split(","))
+    payload = json.loads((ROOT / "exports" / "registry.json").read_text(encoding="utf-8"))
+    assert {benchmark["audit"]["status"] for benchmark in payload["benchmarks"]} == {"legacy"}
+
+
+def _audited_lifescibench_entities() -> dict[str, list[dict[str, object]]]:
+    entities = copy.deepcopy(load_entities())
+    benchmark = next(item for item in entities["benchmark"] if item["id"] == "lifescibench")
+    run = next(item for item in entities["evaluation_run"] if item["id"] == "lifescibench-official-full")
+    for index, resource in enumerate(benchmark["resources"], start=1):
+        resource["id"] = f"lifescibench-resource-{index}"
+        resource["last_checked"] = "2026-07-21"
+    critical = sorted(validator_module.BENCHMARK_CRITICAL_PATHS)
+    benchmark["evidence"] = [{
+        "id": "lifescibench-core-evidence",
+        "source_type": "work",
+        "source_id": "lifescibench-preprint",
+        "accessed_date": "2026-07-21",
+        "locator": {"type": "section", "value": "Abstract; Table 2; Sections 2.1 and 4"},
+        "supports": critical,
+    }]
+    benchmark["versions"] = [{
+        "id": "lifescibench-v1-0",
+        "label": "1.0",
+        "status": "current",
+        "release_date": "2026-06-17",
+        "as_of": None,
+        "task_counts": copy.deepcopy(benchmark["task_counts"]),
+        "formal_tracks": [],
+        "notes": None,
+        "evidence_ids": ["lifescibench-core-evidence"],
+    }]
+    benchmark["audit"] = {
+        "status": "audited", "audited_date": "2026-07-21", "unresolved_fields": 0, "notes": None,
+    }
+    benchmark["field_status"] = []
+    run["evidence"] = [{
+        "id": "lifescibench-run-evidence",
+        "source_type": "work",
+        "source_id": "lifescibench-preprint",
+        "accessed_date": "2026-07-21",
+        "locator": {"type": "section", "value": "Sections 3 and 4; overall results table"},
+        "supports": ["/scope", "/protocol", "/metrics", "/results"],
+    }]
+    for result in run["results"]:
+        result.update({
+            "status": "verified", "confidence": "high",
+            "evidence_ids": ["lifescibench-run-evidence"],
+        })
+    return entities
+
+
+def test_audited_record_contract_and_provisional_total_blocks_full_scope(monkeypatch) -> None:
+    entities = _audited_lifescibench_entities()
+    monkeypatch.setattr(validator_module, "load_entities", lambda: entities)
+    validator_module.validate_registry()
+    benchmark = next(item for item in entities["benchmark"] if item["id"] == "lifescibench")
+    benchmark["audit"].update({"status": "audited-with-caveats", "unresolved_fields": 1})
+    benchmark["field_status"] = [{
+        "path": "/task_counts/total", "status": "provisional", "confidence": "low",
+        "reason": "Synthetic regression case.", "evidence_ids": ["lifescibench-core-evidence"],
+    }]
+    try:
+        validator_module.validate_registry()
+    except RegistryValidationError as error:
+        assert "full scope cannot rely on a provisional/conflicted total" in str(error)
+    else:
+        raise AssertionError("provisional total unexpectedly allowed a full-scope evaluation")
+
+
+def test_registry_pointer_resolution_supports_arrays_and_wildcards() -> None:
+    document = {"results": [{"value": 1}, {"value": 2}], "task_counts": {"total": 2}}
+    assert _resolve_pointer(document, "/task_counts/total")
+    assert _resolve_pointer(document, "/results/*/value")
+    assert not _resolve_pointer(document, "/results/*/missing")
+
+
+def test_source_monitor_inventory_includes_works_and_resources() -> None:
+    sources = _sources()
+    assert sum(item["source_type"] == "work" for item in sources) == len(load_entities()["work"])
+    assert sum(item["source_type"] == "resource" for item in sources) == sum(
+        len(benchmark["resources"]) for benchmark in load_entities()["benchmark"]
+    )
+    assert len({item["source_key"] for item in sources}) == len(sources)
+
+
+def test_source_monitor_opens_drift_issue_without_mutating_registry(tmp_path) -> None:
+    report = tmp_path / "report.json"
+    state = tmp_path / "state.json"
+    issues = tmp_path / "issues.json"
+    source = {
+        "source_key": "work:example", "source_type": "work", "source_id": "example",
+        "url": "https://example.org/source", "ok": True, "status": 200,
+        "final_url": "https://example.org/source", "sha256": "new", "sha256_scope": "full",
+        "etag": None, "last_modified": None, "checked_at": "2026-07-21T00:00:00+00:00",
+    }
+    report.write_text(json.dumps([source]), encoding="utf-8")
+    state.write_text(json.dumps({"work:example": {"consecutive_failures": 0, "sha256": "old"}}), encoding="utf-8")
+    before = {
+        path: path.read_bytes()
+        for path in ROOT.glob("registry/**/*.yaml")
+    }
+    subprocess.run([
+        sys.executable, "scripts/update_source_state.py", "--report", str(report),
+        "--state", str(state), "--issues", str(issues),
+    ], cwd=ROOT, check=True)
+    flagged = json.loads(issues.read_text(encoding="utf-8"))
+    assert flagged[0]["monitor_reasons"] == ["fingerprint-changed"]
+    assert before == {path: path.read_bytes() for path in ROOT.glob("registry/**/*.yaml")}
 
 
 def test_all_primary_families_have_creator_evidence() -> None:

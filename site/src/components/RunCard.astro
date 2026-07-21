@@ -1,6 +1,7 @@
 ---
 import type { EvaluationRun } from '../lib/data';
-import { modelMap, reported, workMap, withBase } from '../lib/data';
+import StatusBadge from './StatusBadge.astro';
+import { evidenceLocator, modelMap, reported, workMap, withBase } from '../lib/data';
 interface Props { run: EvaluationRun; }
 const { run } = Astro.props;
 const work = workMap.get(run.work_id);
@@ -36,10 +37,10 @@ const settings = [
     </div>
     {run.results.length > 0 ? (
       <><h4>Results</h4><div class="table-wrap"><table><thead><tr><th>Model</th><th>Metric</th><th>Value</th><th>n</th></tr></thead><tbody>
-        {run.results.map((result) => <tr><td><a href={withBase(`/models/${result.model_id}/`)}>{modelMap.get(result.model_id)?.name ?? result.model_id}</a></td><td>{run.metrics.find((m) => m.metric_id === result.metric_id)?.source_label ?? result.metric_id}</td><td>{result.value}</td><td>{result.n ?? 'Not reported'}</td></tr>)}
+        {run.results.map((result) => <tr><td><a href={withBase(`/models/${result.model_id}/`)}>{modelMap.get(result.model_id)?.name ?? result.model_id}</a></td><td>{run.metrics.find((m) => m.metric_id === result.metric_id)?.source_label ?? result.metric_id}</td><td>{result.value}{(result.status === 'provisional' || result.status === 'conflicted') && <StatusBadge status={result.status} confidence={result.confidence} />}</td><td>{result.n ?? 'Not reported'}</td></tr>)}
       </tbody></table></div></>
     ) : <p class="muted small">No numeric result rows are published yet; the verified protocol remains useful.</p>}
     <h4>Evidence</h4>
-    <ul>{run.evidence.map((evidence) => <li><strong>{evidence.locator}</strong> — supports {evidence.supports.join(', ')}</li>)}</ul>
+    <ul>{run.evidence.map((evidence) => <li><strong>{evidenceLocator(evidence)}</strong> — supports {evidence.supports.join(', ')}</li>)}</ul>
   </details>
 </article>

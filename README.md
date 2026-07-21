@@ -4,6 +4,8 @@ BioBench Atlas is a source-grounded registry of benchmarks for protein science, 
 
 The website is published at **https://spectrai-initiative.github.io/bio-benchmark-atlas/**.
 
+The immutable `v1.0.0` release remains available while the registry is upgraded family by family under the development version `1.1.0-dev`. Production entities expose an audit status so downstream users can distinguish legacy records from completed field-level audits.
+
 ## Principles
 
 - Primary sources only in v1: benchmark-creator publications and official model-provider reports.
@@ -30,6 +32,8 @@ The registry deliberately separates four things that are often conflated:
 - **Model** — the exact model or agent-and-model identity reported by a source.
 
 Changing a subset, tool, prompt, reasoning setting, budget, grader, or repeat count requires a separate run. Models are only charted together within an explicit `comparability_group`.
+
+Audited benchmarks additionally carry structured version history, permanent resource and evidence IDs, precise locators, and machine-readable `field_status` warnings. Provisional or conflicted totals cannot establish `scope: full`; provisional/conflicted result rows remain downloadable but are excluded from comparison charts.
 
 ## Public data interfaces
 

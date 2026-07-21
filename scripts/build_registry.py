@@ -42,6 +42,11 @@ def _build_payload() -> dict[str, Any]:
     benchmarks = []
     for benchmark in verified["benchmark"]:
         enriched = dict(benchmark)
+        enriched["audit"] = benchmark.get("audit", {
+            "status": "legacy", "audited_date": None, "unresolved_fields": 0,
+            "notes": "Not yet processed by the v1.1 field-level audit.",
+        })
+        enriched["field_status"] = benchmark.get("field_status", [])
         enriched["evaluation_run_ids"] = sorted(runs_by_benchmark[benchmark["id"]])
         enriched["evaluating_work_ids"] = sorted(works_by_benchmark[benchmark["id"]])
         benchmarks.append(enriched)
@@ -85,9 +90,16 @@ def main() -> None:
             "domains": ";".join(item["domains"]), "capabilities": ";".join(item["capabilities"]),
             "modalities": ";".join(item["modalities"]), "access": item["access"]["level"],
             "evaluation_runs": len(item["evaluation_run_ids"]), "works": len(item["evaluating_work_ids"]),
+            "audit_status": item["audit"]["status"],
+            "provisional_fields": ";".join(
+                status["path"] for status in item["field_status"] if status["status"] == "provisional"
+            ),
+            "conflicted_fields": ";".join(
+                status["path"] for status in item["field_status"] if status["status"] == "conflicted"
+            ),
             "last_verified": item["verification"]["last_verified"],
         })
-    benchmark_fields = ["id", "name", "kind", "parent_id", "release_date", "latest_version", "task_count", "domains", "capabilities", "modalities", "access", "evaluation_runs", "works", "last_verified"]
+    benchmark_fields = ["id", "name", "kind", "parent_id", "release_date", "latest_version", "task_count", "domains", "capabilities", "modalities", "access", "evaluation_runs", "works", "audit_status", "provisional_fields", "conflicted_fields", "last_verified"]
     write_csv(exports / "benchmarks.csv", benchmark_fields, benchmark_rows)
     shutil.copy2(exports / "benchmarks.csv", public_data / "benchmarks.csv")
 
@@ -104,8 +116,11 @@ def main() -> None:
                 "browser": _reported(run["protocol"]["tools"]["browser"]), "internet": _reported(run["protocol"]["tools"]["internet"]),
                 "code_execution": _reported(run["protocol"]["tools"]["code_execution"]), "repeats": _reported(run["protocol"]["repeats"]),
                 "grader": run["protocol"]["grader"]["type"] or "Not reported", "comparability_group": run["comparability_group"],
+                "result_status": result.get("status", "legacy"),
+                "confidence": result.get("confidence", ""),
+                "result_evidence_ids": ";".join(result.get("evidence_ids", [])),
             })
-    result_fields = ["evaluation_run_id", "work_id", "benchmark_id", "benchmark_version", "scope", "subset_id", "n", "model_id", "metric_id", "value", "ci_low", "ci_high", "shots", "turns", "browser", "internet", "code_execution", "repeats", "grader", "comparability_group"]
+    result_fields = ["evaluation_run_id", "work_id", "benchmark_id", "benchmark_version", "scope", "subset_id", "n", "model_id", "metric_id", "value", "ci_low", "ci_high", "shots", "turns", "browser", "internet", "code_execution", "repeats", "grader", "comparability_group", "result_status", "confidence", "result_evidence_ids"]
     write_csv(exports / "evaluation-results.csv", result_fields, result_rows)
     shutil.copy2(exports / "evaluation-results.csv", public_data / "evaluation-results.csv")
     print(f"Built registry {payload['meta']['version']} with {len(payload['benchmarks'])} benchmarks and {len(payload['evaluation_runs'])} evaluation runs.")

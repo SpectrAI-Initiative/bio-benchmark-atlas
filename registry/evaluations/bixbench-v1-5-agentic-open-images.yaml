@@ -1,0 +1,45 @@
+entity_type: evaluation_run
+id: bixbench-v1-5-agentic-open-images
+work_id: bixbench-v1-5-release
+benchmark_id: bixbench
+benchmark_version: v1.5
+model_ids: [bixbench-gpt-4o-unversioned, bixbench-claude-3-5-sonnet-20241022]
+scope: {type: full, n: 205, subset_id: null, filter: 'All v1.5 questions in the plots/images-allowed open-answer condition.', reporting_status: reported}
+protocol: &agentic-open-protocol
+  shots: {value: zero-shot task initialization, reporting_status: reported, notes: No demonstrations.}
+  turns: {value: multi-turn Aviary SimpleAgent trajectory, reporting_status: reported, notes: Up to 20 steps over a mutable notebook and capsule workspace.}
+  system_prompt_public: {value: true, reporting_status: reported, notes: Public system prompt and open-answer prompt template.}
+  reasoning: {value: SimpleAgent with at most 20 steps, reporting_status: reported, notes: No provider reasoning-effort control.}
+  tools:
+    browser: {value: false, reporting_status: reported, notes: No browser tool in the published scaffold.}
+    internet: {value: null, reporting_status: not_reported, notes: Container network availability is not reported.}
+    databases: {value: null, reporting_status: not_reported, notes: External database access is not reported.}
+    code_execution: {value: true, reporting_status: reported, notes: 'Mutable Python notebook with Python, R, and Bash packages.'}
+    container: {value: true, reporting_status: reported, notes: Official Docker notebook environment.}
+    external_tools: {value: notebook editing and capsule workspace inspection, reporting_status: reported, notes: Plots and images are allowed in this condition.}
+  token_budget: {value: null, reporting_status: not_reported, notes: Not reported.}
+  time_budget: {value: 'maximum 20 agent steps', reporting_status: reported, notes: README estimates 24–48 hours for the full batch but no per-episode wall time.}
+  temperature: {value: 1.0, reporting_status: reported, notes: Both official model configs.}
+  seed: {value: null, reporting_status: not_reported, notes: Not reported.}
+  repeats: {value: 5, reporting_status: reported, notes: README and postprocessing configuration state five replicas; the reproduction shell loop is off by one if run literally and would request replica IDs 0–5.}
+  grader: {type: row-specific open-answer verifier, model: GPT-4o for llm_verifier rows (exact endpoint not reported), human_review: false, reporting_status: reported}
+  statistical: {value: accuracy with 95% Wilson interval, reporting_status: reported, notes: The official PNG has no printed scalar labels; bars and interval endpoints are not digitized.}
+  contamination: {value: public benchmark canary, reporting_status: reported, notes: No model-specific decontamination analysis.}
+metrics:
+- {metric_id: accuracy, source_label: Accuracy, unit: percent, range: [0, 100], higher_is_better: true, aggregation: question-replica-weighted mean, pass_threshold: null, tolerance: verifier-specific}
+results: []
+comparability_group: bixbench-v1-5-agentic-open-images-five-replicas
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Scope, configs, and plotted metric verified; scalar scores are omitted because the figure does not print them. The upstream replica-loop inconsistency is retained in notes.'}
+evidence:
+- id: bixbench-evidence-v1-5-agentic-open-config
+  source_type: resource
+  source_id: bixbench-repository-resource
+  accessed_date: '2026-07-21'
+  locator: {type: repository-path, value: 'README.md; bixbench/run_configuration/4o_image.yaml and claude_image.yaml; scripts/run_agentic.sh at commit 49311180bdacb324c596f2e07596c126f2004008', note: 'Reports 205-question v1.5, Docker, SimpleAgent, 20 steps, temperature 1, images allowed, model strings, and stated five replicas.'}
+  supports: [/benchmark_version, /scope, /protocol, /metrics]
+- id: bixbench-evidence-v1-5-agentic-open-figure
+  source_type: resource
+  source_id: bixbench-v1-5-results-resource
+  accessed_date: '2026-07-21'
+  locator: {type: figure, value: 'bixbench_results_comparison.png, Open-answer group', note: 'Official accuracy bars with 95% Wilson intervals and no printed scalar labels.'}
+  supports: [/metrics]

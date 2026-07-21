@@ -2,32 +2,52 @@ entity_type: evaluation_run
 id: bixbench-creator-paper
 work_id: bixbench-paper
 benchmark_id: bixbench
-benchmark_version: paper-2025
-scope: {type: unknown, n: null, subset_id: null, filter: The paper predates public dataset v1.5 and its evaluated task count is not mapped here to the current 205-question release., reporting_status: not_reported}
+benchmark_version: v1.0
+model_ids: [bixbench-gpt-4o-unversioned, bixbench-claude-3-5-sonnet-unversioned]
+scope: {type: full, n: 296, subset_id: null, filter: 'All 296 v1.0 questions in the primary open-answer, plots/images-allowed condition.', reporting_status: reported}
 protocol:
-  shots: &nr {value: null, reporting_status: not_reported, notes: Not normalized from the paper.}
-  turns: {value: multi-turn, reporting_status: reported, notes: Agents execute long analysis trajectories.}
-  system_prompt_public: *nr
-  reasoning: *nr
+  shots: {value: zero-shot task initialization, reporting_status: reported, notes: Each trajectory starts from a task capsule without in-context demonstrations.}
+  turns: {value: multi-turn ReAct agent trajectory, reporting_status: reported, notes: 'The agent repeatedly edits and executes a notebook, inspects the workspace, and submits a final answer.'}
+  system_prompt_public: {value: true, reporting_status: reported, notes: The final trajectory-initiation prompt is reproduced in Appendix A and the paper-era harness is public.}
+  reasoning: {value: Aviary ReActAgent with at most 25 steps, reporting_status: reported, notes: Maximum steps are recorded in the paper-era config; no provider reasoning-effort control is reported.}
   tools:
-    browser: *nr
-    internet: *nr
-    databases: *nr
-    code_execution: {value: true, reporting_status: reported, notes: 'Python, R, and Bash analysis.'}
-    container: {value: true, reporting_status: reported, notes: Data-analysis capsules.}
-    external_tools: *nr
-  token_budget: *nr
-  time_budget: *nr
-  temperature: *nr
-  seed: *nr
-  repeats: *nr
-  grader: {type: range and LLM verifiers, model: null, human_review: null, reporting_status: reported}
-  statistical: {value: accuracy, reporting_status: reported, notes: Open-answer and multiple-choice conditions are reported separately upstream.}
-  contamination: {value: public canary and no-training warning, reporting_status: reported, notes: Current public dataset includes a canary.}
+    browser: {value: false, reporting_status: reported, notes: 'The published scaffold exposes notebook editing, workspace listing, and answer submission rather than a browser.'}
+    internet: {value: null, reporting_status: not_reported, notes: Network availability inside the container is not reported.}
+    databases: {value: null, reporting_status: not_reported, notes: External database access is not reported.}
+    code_execution: {value: true, reporting_status: reported, notes: 'Every notebook edit reruns the notebook with Python, R, and Bash packages available.'}
+    container: {value: true, reporting_status: reported, notes: Analyses run in the pre-built BixBench-env:v1.0 Docker container.}
+    external_tools: {value: 'edit cell, list workdir, and submit answer', reporting_status: reported, notes: These are the three agent tools listed in the paper.}
+  token_budget: {value: null, reporting_status: not_reported, notes: Not reported.}
+  time_budget: {value: 'maximum 25 agent steps', reporting_status: reported, notes: No wall-clock or token limit is reported.}
+  temperature: {value: 1.0, reporting_status: reported, notes: Paper-era official configuration value.}
+  seed: {value: null, reporting_status: not_reported, notes: Not reported.}
+  repeats: {value: 10, reporting_status: reported, notes: Each capsule analysis was run independently ten times per model and modality.}
+  grader: {type: binary LLM judgment against the ground-truth solution, model: Claude 3.5 Sonnet (exact version not reported), human_review: false, reporting_status: reported}
+  statistical: {value: accuracy over all question-trajectory pairs; official plots use 95% Wilson intervals, reporting_status: reported, notes: The paper text prints rounded headline accuracies but not numeric interval bounds.}
+  contamination: {value: null, reporting_status: not_reported, notes: No pretraining-contamination or decontamination analysis is reported.}
 metrics:
-  - {metric_id: accuracy, source_label: Accuracy, unit: percent, range: [0, 100], higher_is_better: true, aggregation: problem-weighted mean, pass_threshold: null, tolerance: verifier-specific}
-results: []
-comparability_group: bixbench-paper-2025-unknown-scope
-verification: {status: verified, last_verified: '2026-07-21', notes: Results omitted rather than mixing the paper release with v1.5.}
+- {metric_id: accuracy, source_label: Accuracy, unit: percent, range: [0, 100], higher_is_better: true, aggregation: question-trajectory-weighted mean over ten runs per question, pass_threshold: null, tolerance: binary LLM judge}
+results:
+- {model_id: bixbench-gpt-4o-unversioned, metric_id: accuracy, value: 9.0, ci_low: null, ci_high: null, n: 296, notes: 'Rounded open-answer headline in the paper text; ten trajectories per capsule, with plots/images allowed.', status: verified, confidence: high, evidence_ids: [bixbench-evidence-paper-open-results]}
+- {model_id: bixbench-claude-3-5-sonnet-unversioned, metric_id: accuracy, value: 17.0, ci_low: null, ci_high: null, n: 296, notes: 'Rounded open-answer headline in the paper text; ten trajectories per capsule, with plots/images allowed.', status: verified, confidence: high, evidence_ids: [bixbench-evidence-paper-open-results]}
+comparability_group: bixbench-v1-open-agentic-images-ten-runs
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Original full scope, tool/container protocol, ten repeats, grader, and the two printed open-answer scores verified; unprinted interval bounds are left null.'}
 evidence:
-  - {work_id: bixbench-paper, locator: 'Abstract; benchmark and agent framework sections', supports: [scope, protocol.turns, protocol.tools.code_execution, protocol.grader, metrics]}
+- id: bixbench-evidence-paper-open-scope-protocol
+  source_type: work
+  source_id: bixbench-paper
+  accessed_date: '2026-07-21'
+  locator: {type: page, value: 'PDF pp. 4–7, §§3.2.2–3.2.5 and §4.1', note: 'Reports 296 questions, Docker environment, three tools, notebook execution, ten parallel analyses, plots/images condition, Claude judge, and aggregation.'}
+  supports: [/benchmark_version, /scope, /protocol, /metrics]
+- id: bixbench-evidence-paper-open-config
+  source_type: resource
+  source_id: bixbench-v1-paper-code-resource
+  accessed_date: '2026-07-21'
+  locator: {type: repository-path, value: 'bixbench/config.yaml at commit 6c28217959d5d7dd6f48c59894534fced7c6c040', note: 'Records ReActAgent, temperature 1.0, maximum 25 steps, public prompt key, and total_questions 296.'}
+  supports: [/protocol/reasoning, /protocol/system_prompt_public, /protocol/time_budget, /protocol/temperature]
+- id: bixbench-evidence-paper-open-results
+  source_type: work
+  source_id: bixbench-paper
+  accessed_date: '2026-07-21'
+  locator: {type: page, value: 'PDF pp. 1 and 6, abstract and §4.1; Figure 4', note: 'Text explicitly reports Claude 3.5 Sonnet at 17% and GPT-4o at 9% in open-answer evaluation.'}
+  supports: [/results]

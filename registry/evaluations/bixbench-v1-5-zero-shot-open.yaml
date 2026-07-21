@@ -1,0 +1,53 @@
+entity_type: evaluation_run
+id: bixbench-v1-5-zero-shot-open
+work_id: bixbench-v1-5-release
+benchmark_id: bixbench
+benchmark_version: v1.5
+model_ids: [bixbench-gpt-4o-unversioned, bixbench-claude-3-5-sonnet-unversioned]
+scope: {type: full, n: 205, subset_id: null, filter: 'All v1.5 rows, question text only, open-answer prompt.', reporting_status: reported}
+protocol:
+  shots: {value: zero-shot, reporting_status: reported, notes: The prompt contains the question but no demonstrations or capsule files.}
+  turns: {value: single-turn model call, reporting_status: reported, notes: One generation per question.}
+  system_prompt_public: {value: true, reporting_status: reported, notes: The open-ended prompt template is public in bixbench/prompts.py.}
+  reasoning: {value: default model behavior, reporting_status: reported, notes: No explicit reasoning-effort parameter.}
+  tools:
+    browser: {value: false, reporting_status: reported, notes: No browser.}
+    internet: {value: false, reporting_status: reported, notes: No internet tool.}
+    databases: {value: false, reporting_status: reported, notes: No database tool.}
+    code_execution: {value: false, reporting_status: reported, notes: No notebook or code execution.}
+    container: {value: false, reporting_status: reported, notes: Direct model calls rather than agent containers.}
+    external_tools: {value: false, reporting_status: reported, notes: No capsule files or external tools.}
+  token_budget: {value: null, reporting_status: not_reported, notes: Not reported.}
+  time_budget: {value: null, reporting_status: not_reported, notes: Not reported.}
+  temperature: {value: 1.0, reporting_status: reported, notes: Default in generate_zeroshot_evals.py; the release script does not override it.}
+  seed: {value: null, reporting_status: not_reported, notes: Not reported.}
+  repeats: {value: 1, reporting_status: reported, notes: The release JSON contains one prediction per model and question.}
+  grader: {type: 'row-specific string, numeric-range, or LLM verifier', model: GPT-4o for llm_verifier rows (exact endpoint not reported), human_review: false, reporting_status: reported}
+  statistical: {value: 'accuracy over 205 questions, plus precision and coverage from correct/sure flags', reporting_status: reported, notes: No confidence intervals.}
+  contamination: {value: public benchmark canary, reporting_status: reported, notes: The dataset includes a canary and no-training warning; no model-specific decontamination analysis.}
+metrics:
+- {metric_id: accuracy, source_label: accuracy, unit: percent, range: [0, 100], higher_is_better: true, aggregation: correct over all 205 questions, pass_threshold: null, tolerance: verifier-specific}
+- {metric_id: precision, source_label: precision, unit: percent, range: [0, 100], higher_is_better: true, aggregation: correct over sure predictions, pass_threshold: null, tolerance: verifier-specific}
+- {metric_id: coverage, source_label: coverage, unit: percent, range: [0, 100], higher_is_better: true, aggregation: sure predictions over all 205 questions, pass_threshold: null, tolerance: null}
+results:
+- {model_id: bixbench-gpt-4o-unversioned, metric_id: accuracy, value: 2.9268292683, ci_low: null, ci_high: null, n: 205, notes: 6 correct of 205., status: verified, confidence: high, evidence_ids: [bixbench-evidence-v1-5-open-results]}
+- {model_id: bixbench-gpt-4o-unversioned, metric_id: precision, value: 2.9268292683, ci_low: null, ci_high: null, n: 205, notes: 6 correct among 205 sure predictions., status: verified, confidence: high, evidence_ids: [bixbench-evidence-v1-5-open-results]}
+- {model_id: bixbench-gpt-4o-unversioned, metric_id: coverage, value: 100.0, ci_low: null, ci_high: null, n: 205, notes: 205 sure predictions of 205., status: verified, confidence: high, evidence_ids: [bixbench-evidence-v1-5-open-results]}
+- {model_id: bixbench-claude-3-5-sonnet-unversioned, metric_id: accuracy, value: 2.9268292683, ci_low: null, ci_high: null, n: 205, notes: 6 correct of 205., status: verified, confidence: high, evidence_ids: [bixbench-evidence-v1-5-open-results]}
+- {model_id: bixbench-claude-3-5-sonnet-unversioned, metric_id: precision, value: 2.9268292683, ci_low: null, ci_high: null, n: 205, notes: 6 correct among 205 sure predictions., status: verified, confidence: high, evidence_ids: [bixbench-evidence-v1-5-open-results]}
+- {model_id: bixbench-claude-3-5-sonnet-unversioned, metric_id: coverage, value: 100.0, ci_low: null, ci_high: null, n: 205, notes: 205 sure predictions of 205., status: verified, confidence: high, evidence_ids: [bixbench-evidence-v1-5-open-results]}
+comparability_group: bixbench-v1-5-zero-shot-open-temperature-one
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Exact JSON values and public generation/grading code verified at pinned creator commits.'}
+evidence:
+- id: bixbench-evidence-v1-5-open-protocol
+  source_type: resource
+  source_id: bixbench-repository-resource
+  accessed_date: '2026-07-21'
+  locator: {type: repository-path, value: 'generate_zeroshot_evals.py, grade_outputs.py, bixbench/zero_shot.py, bixbench/graders.py, and scripts/run_zeroshot.sh at commit 49311180bdacb324c596f2e07596c126f2004008', note: 'Defines full-dataset single calls, temperature 1.0, public prompts, no tools/files, and mixed open-answer verifiers.'}
+  supports: [/benchmark_version, /scope, /protocol, /metrics]
+- id: bixbench-evidence-v1-5-open-results
+  source_type: resource
+  source_id: bixbench-v1-5-results-resource
+  accessed_date: '2026-07-21'
+  locator: {type: repository-path, value: 'bixbench-v1.5_results/zero_shot_baselines.json at commit 28909d842bc492ecd99bab303279afb29e3cb353', note: 'Both models have n_total 205, n_correct 6, n_sure 205.'}
+  supports: [/results]

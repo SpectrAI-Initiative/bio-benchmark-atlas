@@ -1,0 +1,39 @@
+entity_type: evaluation_run
+id: bixbench-v1-5-agentic-mcq-refusal-no-images
+work_id: bixbench-v1-5-release
+benchmark_id: bixbench
+benchmark_version: v1.5
+model_ids: [bixbench-gpt-4o-unversioned, bixbench-claude-3-5-sonnet-20241022]
+scope: {type: full, n: 205, subset_id: null, filter: 'All v1.5 questions, no plots/images, with the refusal option.', reporting_status: reported}
+protocol:
+  shots: {value: zero-shot task initialization, reporting_status: reported, notes: No demonstrations.}
+  turns: {value: multi-turn Aviary SimpleAgent trajectory followed by MCQ postprocessing, reporting_status: reported, notes: Up to 20 agent steps before choice conversion.}
+  system_prompt_public: {value: true, reporting_status: reported, notes: Public system and MCQ prompt templates.}
+  reasoning: {value: SimpleAgent with at most 20 steps and an instruction to avoid plots/images, reporting_status: reported, notes: No provider effort control.}
+  tools:
+    browser: {value: false, reporting_status: reported, notes: No browser tool.}
+    internet: {value: null, reporting_status: not_reported, notes: Container network availability is not reported.}
+    databases: {value: null, reporting_status: not_reported, notes: External database access is not reported.}
+    code_execution: {value: true, reporting_status: reported, notes: Mutable notebook execution remains enabled.}
+    container: {value: true, reporting_status: reported, notes: Official Docker notebook environment.}
+    external_tools: {value: notebook editing and capsule workspace inspection, reporting_status: reported, notes: Agent is explicitly instructed not to generate plots/images.}
+  token_budget: {value: null, reporting_status: not_reported, notes: Not reported.}
+  time_budget: {value: 'maximum 20 agent steps', reporting_status: reported, notes: No per-episode wall time reported.}
+  temperature: {value: 1.0, reporting_status: reported, notes: Both official model configs.}
+  seed: {value: null, reporting_status: not_reported, notes: Not reported.}
+  repeats: {value: 5, reporting_status: reported, notes: README and postprocessing state five replicas; the reproduction shell loop would request IDs 0–5 if run literally.}
+  grader: {type: multiple-choice conversion with Insufficient information refusal, model: null, human_review: false, reporting_status: reported}
+  statistical: {value: majority-vote accuracy by vote count, reporting_status: reported, notes: Official trajectory plot has no printed aggregate scalar label.}
+  contamination: {value: public benchmark canary, reporting_status: reported, notes: No model-specific decontamination analysis.}
+metrics:
+- {metric_id: majority-vote-accuracy, source_label: Accuracy, unit: percent, range: [0, 100], higher_is_better: true, aggregation: majority vote over stated five replicas per question, pass_threshold: null, tolerance: exact selected option}
+results: []
+comparability_group: bixbench-v1-5-agentic-mcq-refusal-no-images-five-replicas
+verification: {status: verified, last_verified: '2026-07-21', notes: 'No-image protocol and trajectory plot verified; no curve value is digitized.'}
+evidence:
+- id: bixbench-evidence-v1-5-agentic-mcq-refusal-no-images
+  source_type: resource
+  source_id: bixbench-repository-resource
+  accessed_date: '2026-07-21'
+  locator: {type: repository-path, value: '4o_no_image.yaml, claude_no_image.yaml, v1.5_paper_results.yaml, README.md, and scripts/run_agentic.sh at commit 49311180bdacb324c596f2e07596c126f2004008', note: 'Defines avoid_images true, refusal condition, full dataset, agent settings, and majority-vote postprocessing.'}
+  supports: [/benchmark_version, /scope, /protocol, /metrics]

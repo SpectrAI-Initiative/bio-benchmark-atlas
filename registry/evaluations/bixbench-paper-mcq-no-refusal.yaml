@@ -1,0 +1,39 @@
+entity_type: evaluation_run
+id: bixbench-paper-mcq-no-refusal
+work_id: bixbench-paper
+benchmark_id: bixbench
+benchmark_version: v1.0
+model_ids: [bixbench-gpt-4o-unversioned, bixbench-claude-3-5-sonnet-unversioned]
+scope: {type: full, n: 296, subset_id: null, filter: 'All v1.0 questions, plots/images allowed, without the refusal option.', reporting_status: reported}
+protocol:
+  shots: {value: zero-shot task initialization, reporting_status: reported, notes: No demonstrations.}
+  turns: {value: multi-turn ReAct analysis followed by a separate MCQ call, reporting_status: reported, notes: The second LLM receives notebook context and must choose a substantive option.}
+  system_prompt_public: {value: true, reporting_status: reported, notes: Prompts are public.}
+  reasoning: {value: Aviary ReActAgent with at most 25 steps, reporting_status: reported, notes: No provider effort control reported.}
+  tools:
+    browser: {value: false, reporting_status: reported, notes: No browser tool.}
+    internet: {value: null, reporting_status: not_reported, notes: Not reported.}
+    databases: {value: null, reporting_status: not_reported, notes: Not reported.}
+    code_execution: {value: true, reporting_status: reported, notes: Notebook code execution.}
+    container: {value: true, reporting_status: reported, notes: BixBench-env:v1.0 Docker container.}
+    external_tools: {value: 'edit cell, list workdir, and submit answer', reporting_status: reported, notes: Official scaffold tools.}
+  token_budget: {value: null, reporting_status: not_reported, notes: Not reported.}
+  time_budget: {value: 'maximum 25 agent steps', reporting_status: reported, notes: No wall-clock limit reported.}
+  temperature: {value: 1.0, reporting_status: reported, notes: Paper-era official configuration value.}
+  seed: {value: null, reporting_status: not_reported, notes: Not reported.}
+  repeats: {value: 10, reporting_status: reported, notes: Ten trajectories feed majority voting.}
+  grader: {type: second-LLM forced multiple-choice selection, model: Claude 3.5 Sonnet (exact version not reported), human_review: false, reporting_status: reported}
+  statistical: {value: majority vote over ten trajectories with accuracy, reporting_status: reported, notes: 'Figure 4 has bars but no printed scalar labels, so no values are transcribed.'}
+  contamination: {value: null, reporting_status: not_reported, notes: Not reported.}
+metrics:
+- {metric_id: majority-vote-accuracy, source_label: Accuracy, unit: percent, range: [0, 100], higher_is_better: true, aggregation: majority vote over ten trajectories per question, pass_threshold: null, tolerance: exact selected option}
+results: []
+comparability_group: bixbench-v1-mcq-no-refusal-images-ten-runs
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Protocol verified; numeric bars are intentionally not estimated from Figure 4.'}
+evidence:
+- id: bixbench-evidence-paper-mcq-no-refusal
+  source_type: work
+  source_id: bixbench-paper
+  accessed_date: '2026-07-21'
+  locator: {type: page, value: 'PDF pp. 6–7, Figure 4 and §4.1', note: 'Reports the forced-answer ablation and ten-trajectory majority-vote accuracy.'}
+  supports: [/benchmark_version, /scope, /protocol, /metrics]

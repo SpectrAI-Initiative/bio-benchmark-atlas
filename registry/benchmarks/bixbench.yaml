@@ -2,38 +2,160 @@ entity_type: benchmark
 id: bixbench
 name: BixBench
 aliases: [Bioinformatics Benchmark]
-summary: Real-world bioinformatics analysis scenarios derived from published notebooks and datasets, requiring code execution and open-ended interpretation.
+summary: A containerized benchmark of long-horizon bioinformatics analysis over real published notebooks and associated data, with open-answer and multiple-choice evaluation modes.
 kind: agentic-eval
 parent_id: null
 organizations: [FutureHouse, ScienceMachine]
 release_date: '2025-02-28'
-latest_version: '1.5'
-domains: [bioinformatics, genomics, transcriptomics, single-cell, proteomics]
+latest_version: v1.5
+domains: [bioinformatics, genomics, transcriptomics, epigenomics, single-cell, proteomics, multiomics]
 capabilities: [data-analysis, coding, tool-use, scientific-reasoning]
-modalities: [text, table, raw-omics, code]
-task_formats: [open answer, multiple choice]
-task_counts:
+modalities: [text, table, figure, dna-rna-sequence, raw-omics, image, code]
+task_formats: [open-ended bioinformatics analysis, multiple choice]
+task_counts: &v15-counts
   total: 205
-  basis: questions in public v1.5 dataset
+  basis: one question per row in the official v1.5 BixBench.jsonl
   reporting_status: reported
   subsets:
-    - {id: analysis-capsules, label: Source analysis capsules, count: 60, basis: published notebooks and related data capsules, exclusive: false, exhaustive: false, reporting_status: reported, notes: Not a task partition.}
-coverage_notes: []
+  - {id: bixbench-v1-5-referenced-capsules, label: Referenced capsules in v1.5 rows, count: 59, basis: unique capsule_uuid values referenced by the 205 rows, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'A source-artifact count, not a partition of questions.'}
+  - {id: bixbench-v1-5-readme-notebooks, label: Source notebooks stated in README, count: 60, basis: real-world published Jupyter notebooks and related capsules stated in the official README, exclusive: false, exhaustive: false, reporting_status: reported, notes: Conflicts with 59 referenced capsule UUIDs and 64 capsule archives; upstream does not document how the three units correspond.}
+  - {id: bixbench-v1-5-release-archives, label: Capsule archives in v1.5 release, count: 64, basis: CapsuleFolder-*.zip paths in the official v1.5 dataset tag, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'A stored-artifact count, not a partition of questions.'}
+  - {id: bixbench-v1-5-llm-verifier, label: LLM-verifier questions, count: 83, basis: rows whose eval_mode is llm_verifier, exclusive: true, exhaustive: true, reporting_status: reported, notes: Mutually exclusive with the two deterministic verifier modes.}
+  - {id: bixbench-v1-5-string-verifier, label: String-verifier questions, count: 61, basis: rows whose eval_mode is str_verifier, exclusive: true, exhaustive: true, reporting_status: reported, notes: Mutually exclusive with the other verifier modes.}
+  - {id: bixbench-v1-5-range-verifier, label: Range-verifier questions, count: 61, basis: rows whose eval_mode is range_verifier, exclusive: true, exhaustive: true, reporting_status: reported, notes: Mutually exclusive with the other verifier modes.}
+coverage_notes:
+- {tag: genomics, coverage: observed, count: 74, reporting_status: reported, notes: v1.5 rows carrying the multi-label Genomics category; category counts overlap.}
+- {tag: transcriptomics, coverage: observed, count: 69, reporting_status: reported, notes: v1.5 rows carrying the multi-label Transcriptomics category; category counts overlap.}
+- {tag: epigenomics, coverage: observed, count: 12, reporting_status: reported, notes: v1.5 rows carrying the multi-label Epigenomics category; category counts overlap.}
+- {tag: single-cell, coverage: observed, count: 2, reporting_status: reported, notes: v1.5 rows carrying the multi-label Single-Cell category; category counts overlap.}
+- {tag: proteomics, coverage: observed, count: 4, reporting_status: reported, notes: v1.5 rows carrying the multi-label Proteomics category; category counts overlap.}
+- {tag: multiomics, coverage: observed, count: 2, reporting_status: reported, notes: v1.5 rows carrying the multi-label Integrative Omics category; category counts overlap.}
+- {tag: protein-protein-binding, coverage: unknown, count: null, reporting_status: not_reported, notes: No standalone protein-protein-binding count is published or encoded as a v1.5 category.}
+- {tag: protein-ligand-binding, coverage: unknown, count: null, reporting_status: not_reported, notes: No standalone protein-ligand-binding count is published or encoded as a v1.5 category.}
 access:
   level: fully-open
-  tasks: Public on Hugging Face.
-  artifacts: Source datasets and analysis capsules are linked by the upstream project.
-  grader: Public range and LLM verifiers are included with the benchmark tooling.
-  license: CC-BY-NC-4.0
-  biosafety_notes: Upstream benchmark data must not be copied into training corpora; this registry stores metadata only.
+  tasks: The official Hugging Face release publishes all 205 v1.5 questions, targets, distractors, verifier modes, and canaries.
+  artifacts: Public capsule archives contain the notebook-derived analysis environments and associated data; users must authenticate to Hugging Face to download them.
+  grader: The Apache-2.0 repository publishes the string, range, LLM, multiple-choice, and open-ended grading code.
+  license: Apache-2.0 for the official code and current dataset; the preprint's own reuse license is not reported
+  biosafety_notes: The benchmark covers general computational-biology analyses and publishes a no-training canary; this registry mirrors neither task data nor capsule archives, and the creators do not publish a separate biosafety classification.
 resources:
-  - {type: paper, url: 'https://arxiv.org/abs/2503.00096', license: null, access_notes: Creator preprint.}
-  - {type: repository, url: 'https://github.com/Future-House/BixBench', license: CC-BY-NC-4.0, access_notes: Official code.}
-  - {type: dataset, url: 'https://huggingface.co/datasets/futurehouse/BixBench', license: CC-BY-NC-4.0, access_notes: Versioned public dataset.}
+- id: bixbench-paper-resource
+  type: paper
+  url: https://storage.googleapis.com/bixbench-results/BixBench.pdf
+  license: null
+  access_notes: Creator-hosted preprint PDF describing the original 296-question, 53-capsule v1.0 evaluation.
+  last_checked: '2026-07-21'
+  pin: {kind: snapshot, value: 'sha256:784d36d0b16e24479f3fe86614b089b57cc5e27be075723bc4736652ec92e637', url: 'https://storage.googleapis.com/bixbench-results/BixBench.pdf'}
+- id: bixbench-repository-resource
+  type: repository
+  url: https://github.com/Future-House/BixBench
+  license: Apache-2.0
+  access_notes: Official code, current harness, graders, release results, and reproduction scripts.
+  last_checked: '2026-07-21'
+  pin: {kind: commit, value: 49311180bdacb324c596f2e07596c126f2004008, url: 'https://github.com/Future-House/BixBench/tree/49311180bdacb324c596f2e07596c126f2004008'}
+- id: bixbench-v1-paper-code-resource
+  type: repository
+  url: https://github.com/Future-House/BixBench
+  license: Apache-2.0
+  access_notes: Paper-era harness snapshot with the 296-question postprocessing configuration and 25-step ReAct settings.
+  last_checked: '2026-07-21'
+  pin: {kind: commit, value: 6c28217959d5d7dd6f48c59894534fced7c6c040, url: 'https://github.com/Future-House/BixBench/tree/6c28217959d5d7dd6f48c59894534fced7c6c040'}
+- id: bixbench-v1-5-dataset-resource
+  type: dataset
+  url: https://huggingface.co/datasets/futurehouse/BixBench
+  license: Apache-2.0
+  access_notes: Official v1.5 tag; BixBench.jsonl has SHA256 0d1204dcdae7193a9132ced5a3502008f6b3b163debc1b65b2aa2d86cb132dc9.
+  last_checked: '2026-07-21'
+  pin: {kind: commit, value: 2f660cbcab36b87f5d49b997f71e67be94131889, url: 'https://huggingface.co/datasets/futurehouse/BixBench/tree/2f660cbcab36b87f5d49b997f71e67be94131889'}
+- id: bixbench-v1-5-results-resource
+  type: documentation
+  url: https://github.com/Future-House/BixBench/tree/28909d842bc492ecd99bab303279afb29e3cb353/bixbench-v1.5_results
+  license: Apache-2.0
+  access_notes: Official v1.5 result release, including exact zero-shot baseline JSON and plots for agentic conditions.
+  last_checked: '2026-07-21'
+  pin: {kind: commit, value: 28909d842bc492ecd99bab303279afb29e3cb353, url: 'https://github.com/Future-House/BixBench/tree/28909d842bc492ecd99bab303279afb29e3cb353/bixbench-v1.5_results'}
 implementations:
-  - {framework: BixBench agent harness, status: official, url: 'https://github.com/Future-House/BixBench/tree/49311180bdacb324c596f2e07596c126f2004008', commit: 49311180bdacb324c596f2e07596c126f2004008, notes: Commit captured at verification time.}
-verification: {status: verified, last_verified: '2026-07-21', notes: 'Current task count follows dataset v1.5; the original paper describes an earlier, larger draft.'}
+- {framework: BixBench Aviary agent and zero-shot harness, status: official, url: 'https://github.com/Future-House/BixBench/tree/49311180bdacb324c596f2e07596c126f2004008', commit: 49311180bdacb324c596f2e07596c126f2004008, notes: 'Current Docker runner, prompt templates, graders, and result processing.'}
+- {framework: BixBench paper-era Aviary harness, status: official, url: 'https://github.com/Future-House/BixBench/tree/6c28217959d5d7dd6f48c59894534fced7c6c040', commit: 6c28217959d5d7dd6f48c59894534fced7c6c040, notes: Snapshot aligned to the original 296-question publication.}
+versions:
+- id: bixbench-v1-0
+  label: v1.0
+  status: superseded
+  release_date: '2025-02-28'
+  as_of: '2025-03-03'
+  task_counts:
+    total: 296
+    basis: open-answer questions reported in the original creator preprint
+    reporting_status: reported
+    subsets:
+    - {id: bixbench-v1-capsules, label: Analytical scenarios or capsules, count: 53, basis: expert-curated notebook-and-data scenarios in the paper release, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'A scenario count, not a partition of the 296 questions.'}
+  formal_tracks: []
+  notes: Original paper snapshot used for the creator's ten-trajectory agent evaluation; superseded after substantial question review and flattening in v1.5.
+  evidence_ids: [bixbench-evidence-paper-counts]
+- id: bixbench-v1-5
+  label: v1.5
+  status: current
+  release_date: '2025-09-23'
+  as_of: '2025-09-29'
+  task_counts: *v15-counts
+  formal_tracks: []
+  notes: Current flattened release after substantial re-review and revision of the original questions; the v1.0 tag remains available upstream.
+  evidence_ids: [bixbench-evidence-v1-5-counts, bixbench-evidence-capsule-count-conflict]
+audit:
+  status: audited-with-caveats
+  audited_date: '2026-07-21'
+  unresolved_fields: 2
+  notes: Version, question, verifier, taxonomy, access, protocol, and result claims were audited against creator sources. The upstream 60-notebook claim cannot be reconciled to the 59 referenced capsule UUIDs and 64 stored archives.
+field_status:
+- path: /task_counts/subsets/1/count
+  status: conflicted
+  confidence: high
+  reason: The README states 60 published notebooks/capsules, while v1.5 rows reference 59 unique capsule UUIDs and the release tree contains 64 capsule ZIP files; the relation among these units is undocumented.
+  evidence_ids: [bixbench-evidence-capsule-count-conflict]
+- path: /versions/1/task_counts/subsets/1/count
+  status: conflicted
+  confidence: high
+  reason: The README states 60 published notebooks/capsules, while v1.5 rows reference 59 unique capsule UUIDs and the release tree contains 64 capsule ZIP files; the relation among these units is undocumented.
+  evidence_ids: [bixbench-evidence-capsule-count-conflict]
+verification:
+  status: verified
+  last_verified: '2026-07-21'
+  notes: Audited against the creator PDF, Apache-2.0 repositories, commit-pinned v1.5 dataset, graders, and official result JSON; conflicting source-artifact units remain explicitly flagged.
 evidence:
-  - work_id: bixbench-paper
-    locator: 'Abstract; official repository README and v1.5 dataset card'
-    supports: [summary, task_counts, domains, capabilities, modalities, access, implementations]
+- id: bixbench-evidence-identity
+  source_type: work
+  source_id: bixbench-paper
+  accessed_date: '2026-07-21'
+  locator: {type: page, value: 'PDF pp. 1–2, title, abstract, and contributions', note: 'Names the benchmark, creators, initial publication, agentic data-analysis objective, and open/MCQ modes.'}
+  supports: [/name, /organizations, /release_date, /kind, /summary, /capabilities, /task_formats]
+- id: bixbench-evidence-paper-counts
+  source_type: work
+  source_id: bixbench-paper
+  accessed_date: '2026-07-21'
+  locator: {type: page, value: 'PDF pp. 2, 4, and 6, Contributions, §3.2.1, and §4.1', note: 'Reports 53 analytical scenarios/capsules and 296 questions in the original release.'}
+  supports: [/versions/0/task_counts/total, /versions/0/task_counts/basis, /versions/0/task_counts/subsets]
+- id: bixbench-evidence-v1-5-counts
+  source_type: resource
+  source_id: bixbench-v1-5-dataset-resource
+  accessed_date: '2026-07-21'
+  locator: {type: repository-path, value: 'BixBench.jsonl at commit 2f660cbcab36b87f5d49b997f71e67be94131889', note: '205 unique rows; verifier modes are 83 llm_verifier, 61 str_verifier, and 61 range_verifier.'}
+  supports: [/latest_version, /task_counts/total, /task_counts/basis, /task_counts/subsets, /versions/1/task_counts/total, /versions/1/task_counts/basis, /versions/1/task_counts/subsets]
+- id: bixbench-evidence-capsule-count-conflict
+  source_type: resource
+  source_id: bixbench-v1-5-dataset-resource
+  accessed_date: '2026-07-21'
+  locator: {type: repository-path, value: 'README.md, BixBench.jsonl, and v1.5 tree at commit 2f660cbcab36b87f5d49b997f71e67be94131889', note: 'README claims 60 source notebooks; JSONL references 59 capsule UUIDs; the tagged tree stores 64 CapsuleFolder ZIP files.'}
+  supports: [/task_counts/subsets, /task_counts/subsets/1/count, /versions/1/task_counts/subsets, /versions/1/task_counts/subsets/1/count]
+- id: bixbench-evidence-taxonomy
+  source_type: resource
+  source_id: bixbench-v1-5-dataset-resource
+  accessed_date: '2026-07-21'
+  locator: {type: repository-path, value: 'BixBench.jsonl category, question, and artifact fields', note: 'Multi-label category counts include Genomics 74, Transcriptomics 69, Epigenomics 12, Proteomics 4, Single-Cell 2, and Integrative Omics 2; rows also reference tabular, sequence, imaging, raw-data, and notebook analyses.'}
+  supports: [/domains, /modalities, /coverage_notes]
+- id: bixbench-evidence-access-license
+  source_type: resource
+  source_id: bixbench-repository-resource
+  accessed_date: '2026-07-21'
+  locator: {type: repository-path, value: 'README.md, LICENSE, bixbench/graders.py, and scripts at commit 49311180bdacb324c596f2e07596c126f2004008', note: 'Apache-2.0 license and public Docker harness, prompts, graders, and download/run instructions.'}
+  supports: [/access/level, /access/license, /access/tasks, /access/artifacts, /access/grader, /resources, /implementations]

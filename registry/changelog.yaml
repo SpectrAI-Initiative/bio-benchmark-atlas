@@ -58,3 +58,7 @@
   type: verification
   entity_ids: [biomysterybench]
   summary: Recorded the 99-question total, 76/23 human split, five-episode protocol, and accuracy/consistency metrics.
+- date: '2026-07-21'
+  type: audit
+  entity_ids: [bixbench, bixbench-paper, bixbench-v1-5-release, bixbench-creator-paper, bixbench-paper-mcq-refusal, bixbench-paper-mcq-no-refusal, bixbench-paper-mcq-no-images, bixbench-v1-5-zero-shot-open, bixbench-v1-5-zero-shot-mcq-refusal, bixbench-v1-5-zero-shot-mcq-no-refusal, bixbench-v1-5-agentic-open-images, bixbench-v1-5-agentic-mcq-refusal-images, bixbench-v1-5-agentic-mcq-no-refusal-images, bixbench-v1-5-agentic-mcq-refusal-no-images, bixbench-gpt-4o-unversioned, bixbench-claude-3-5-sonnet-unversioned, bixbench-claude-3-5-sonnet-20241022]
+  summary: Audited BixBench across the original v1.0 paper snapshot and current v1.5 release; corrected the code/data license to Apache-2.0, separated 296 questions/53 capsules from 205 current questions, retained the unresolved 60-notebook claim beside 59 referenced capsule UUIDs and 64 stored archives, registered the 83/61/61 verifier partition and overlapping omics categories, and split creator agentic, ablation, and zero-shot protocols without digitizing unlabeled plots.

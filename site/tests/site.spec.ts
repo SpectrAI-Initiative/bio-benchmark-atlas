@@ -24,7 +24,12 @@ test('LifeSciBench shows audited protein and binding counts', async ({ page }) =
   await expect(page.getByText(/136 tasks use Protein and Structural Biology/)).toBeVisible();
   await expect(page.getByText(/62 are in Design, Optimization & Prediction/)).toBeVisible();
   await expect(page.getByRole('cell', { name: 'Not reported' }).first()).toBeVisible();
-  await expect(page.locator('#lifescibench-official-full .tag.accent')).toHaveText('lifescibench-v1-full-official');
+  await expect(page.getByText('initial-release', { exact: true }).first()).toBeVisible();
+  await expect(page.getByText(/agentic-eval · audited/)).toBeVisible();
+  const run = page.locator('#lifescibench-official-full');
+  await expect(run.locator('.tag.accent')).toHaveText('lifescibench-initial-release-full-official');
+  await expect(run.getByText('Scope', { exact: true }).locator('..')).toContainText('full · n=750');
+  await expect(run.getByText('Repeats', { exact: true }).locator('..')).toContainText('Not reported');
 });
 
 test('BioMysteryBench separates the human subsets and repeats', async ({ page }) => {

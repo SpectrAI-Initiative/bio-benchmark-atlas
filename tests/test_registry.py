@@ -30,14 +30,33 @@ def test_registry_validates_and_has_v1_depth() -> None:
 
 
 def test_lifescibench_protein_and_binding_contract() -> None:
-    benchmark = next(item for item in load_entities()["benchmark"] if item["id"] == "lifescibench")
+    entities = load_entities()
+    benchmark = next(item for item in entities["benchmark"] if item["id"] == "lifescibench")
+    run = next(item for item in entities["evaluation_run"] if item["id"] == "lifescibench-official-full")
+    work = next(item for item in entities["work"] if item["id"] == "lifescibench-preprint")
     subsets = {item["id"]: item for item in benchmark["task_counts"]["subsets"]}
     notes = {item["tag"]: item for item in benchmark["coverage_notes"]}
+    assert benchmark["audit"]["status"] == "audited"
+    assert benchmark["latest_version"] == "initial-release"
+    assert benchmark["versions"][0]["task_counts"] == benchmark["task_counts"]
     assert benchmark["task_counts"]["total"] == 750
     assert subsets["protein-primary-domain"]["count"] == 136
     assert subsets["protein-design-optimization"]["count"] == 62
     assert notes["protein-protein-binding"]["count"] is None
     assert notes["protein-protein-binding"]["reporting_status"] == "not_reported"
+    assert run["benchmark_version"] == "initial-release"
+    assert run["scope"] == {
+        "type": "full", "n": 750, "subset_id": None, "filter": None, "reporting_status": "reported",
+    }
+    assert run["protocol"]["turns"]["value"] == "single-turn"
+    assert run["protocol"]["tools"]["internet"]["value"] is True
+    assert run["protocol"]["repeats"]["value"] is None
+    assert run["protocol"]["repeats"]["reporting_status"] == "not_reported"
+    assert {metric["source_label"] for metric in run["metrics"]} == {
+        "Normalized rubric score", "Task pass rate",
+    }
+    assert {result["status"] for result in run["results"]} == {"verified"}
+    assert work["title"] == "LifeSciBench: Evaluating Language Models on Realistic, Expert-Level Tasks in the Life Sciences"
 
 
 def test_biomysterybench_scope_and_repeats() -> None:
@@ -86,13 +105,17 @@ def test_v11_exports_surface_audit_and_result_status_columns() -> None:
     assert {"audit_status", "provisional_fields", "conflicted_fields"} <= set(benchmark_header.split(","))
     assert {"result_status", "confidence", "result_evidence_ids"} <= set(result_header.split(","))
     payload = json.loads((ROOT / "exports" / "registry.json").read_text(encoding="utf-8"))
-    assert {benchmark["audit"]["status"] for benchmark in payload["benchmarks"]} == {"legacy"}
+    audit_statuses = {benchmark["audit"]["status"] for benchmark in payload["benchmarks"]}
+    assert audit_statuses <= {"legacy", "audited", "audited-with-caveats"}
+    assert "legacy" in audit_statuses
 
 
 def _audited_lifescibench_entities() -> dict[str, list[dict[str, object]]]:
     entities = copy.deepcopy(load_entities())
     benchmark = next(item for item in entities["benchmark"] if item["id"] == "lifescibench")
     run = next(item for item in entities["evaluation_run"] if item["id"] == "lifescibench-official-full")
+    if benchmark.get("audit", {}).get("status") in validator_module.AUDITED_STATUSES:
+        return entities
     for index, resource in enumerate(benchmark["resources"], start=1):
         resource["id"] = f"lifescibench-resource-{index}"
         resource["last_checked"] = "2026-07-21"
@@ -141,10 +164,13 @@ def test_audited_record_contract_and_provisional_total_blocks_full_scope(monkeyp
     monkeypatch.setattr(validator_module, "load_entities", lambda: entities)
     validator_module.validate_registry()
     benchmark = next(item for item in entities["benchmark"] if item["id"] == "lifescibench")
+    total_evidence_id = next(
+        item["id"] for item in benchmark["evidence"] if "/task_counts/total" in item["supports"]
+    )
     benchmark["audit"].update({"status": "audited-with-caveats", "unresolved_fields": 1})
     benchmark["field_status"] = [{
         "path": "/task_counts/total", "status": "provisional", "confidence": "low",
-        "reason": "Synthetic regression case.", "evidence_ids": ["lifescibench-core-evidence"],
+        "reason": "Synthetic regression case.", "evidence_ids": [total_evidence_id],
     }]
     try:
         validator_module.validate_registry()
@@ -217,7 +243,14 @@ def test_all_primary_families_have_creator_evidence() -> None:
     for benchmark in entities["benchmark"]:
         if benchmark["parent_id"] is not None:
             continue
-        assert any(works[item["work_id"]]["source_class"] == "benchmark_creator" for item in benchmark["evidence"])
+        source_work_ids = {
+            item.get("source_id") if item.get("source_type") == "work" else item.get("work_id")
+            for item in benchmark["evidence"]
+        }
+        assert any(
+            work_id in works and works[work_id]["source_class"] == "benchmark_creator"
+            for work_id in source_work_ids
+        )
 
 
 def test_registry_yaml_has_no_empty_strings() -> None:

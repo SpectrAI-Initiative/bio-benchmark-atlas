@@ -2,16 +2,16 @@ entity_type: evaluation_run
 id: lifescibench-official-full
 work_id: lifescibench-preprint
 benchmark_id: lifescibench
-benchmark_version: '1.0'
+benchmark_version: initial-release
 scope: {type: full, n: 750, subset_id: null, filter: null, reporting_status: reported}
 protocol:
-  shots: {value: 0, reporting_status: reported, notes: No in-context examples reported.}
-  turns: {value: single-turn, reporting_status: reported, notes: Each task is completed in one agent turn.}
-  system_prompt_public: &nr {value: null, reporting_status: not_reported, notes: Not specified in the public report.}
-  reasoning: {value: null, reporting_status: not_reported, notes: Model-specific effort is not sufficiently reported for a finer split.}
+  shots: &nr {value: null, reporting_status: not_reported, notes: Not specified in the official report.}
+  turns: {value: single-turn, reporting_status: reported, notes: Each model receives the prompt and associated artifacts once and produces a final answer without follow-up interaction.}
+  system_prompt_public: *nr
+  reasoning: {value: null, reporting_status: not_reported, notes: 'Models were asked to include reasoning, calculations, caveats, or assumptions when useful, but model-specific reasoning/effort settings are not reported.'}
   tools:
-    browser: {value: true, reporting_status: reported, notes: Internet access was unrestricted.}
-    internet: {value: true, reporting_status: reported, notes: Unrestricted internet access.}
+    browser: {value: true, reporting_status: reported, notes: Unrestricted Internet browsing was permitted.}
+    internet: {value: true, reporting_status: reported, notes: Unrestricted Internet browsing was permitted.}
     databases: *nr
     code_execution: *nr
     container: *nr
@@ -20,25 +20,48 @@ protocol:
   time_budget: *nr
   temperature: *nr
   seed: *nr
-  repeats: {value: 1, reporting_status: reported, notes: One response per model-task pair.}
-  grader: {type: task-specific expert rubric, model: null, human_review: true, reporting_status: reported}
-  statistical: {value: problem-weighted mean and task-level threshold, reporting_status: reported, notes: Pass requires at least 70% task rubric score.}
-  contamination: {value: benchmark held internal, reporting_status: reported, notes: Full tasks are not public.}
+  repeats: {value: null, reporting_status: not_reported, notes: The number of model samples or repeated episodes per task is not reported; it must not be inferred as one.}
+  grader: {type: 'task-specific expert rubric; automated or model-assisted where used; expert spot-validation on a stratified response subset', model: null, human_review: true, reporting_status: reported}
+  statistical: {value: problem-weighted mean with each task weighted equally, reporting_status: reported, notes: Subgroup metrics use the same definitions unless otherwise specified; no confidence intervals are reported for overall results.}
+  contamination: {value: null, reporting_status: not_reported, notes: The report describes release restrictions but does not report a contamination or decontamination analysis.}
 metrics:
-  - {metric_id: rubric-score, source_label: Score, unit: proportion, range: [0, 1], higher_is_better: true, aggregation: problem-weighted mean, pass_threshold: null, tolerance: null}
-  - {metric_id: pass-rate, source_label: Pass rate, unit: percent, range: [0, 100], higher_is_better: true, aggregation: percentage of tasks at or above threshold, pass_threshold: 70, tolerance: null}
+  - {metric_id: rubric-score, source_label: Normalized rubric score, unit: proportion, range: [0, 1], higher_is_better: true, aggregation: problem-weighted mean with each task weighted equally, pass_threshold: null, tolerance: null}
+  - {metric_id: pass-rate, source_label: Task pass rate, unit: percent, range: [0, 100], higher_is_better: true, aggregation: fraction of tasks whose normalized rubric score is at least 70%, pass_threshold: 70, tolerance: null}
 results:
-  - {model_id: gpt-rosalind, metric_id: rubric-score, value: 0.576, ci_low: null, ci_high: null, n: 750, notes: null}
-  - {model_id: gpt-rosalind, metric_id: pass-rate, value: 36.1, ci_low: null, ci_high: null, n: 750, notes: null}
-  - {model_id: gpt-5-5, metric_id: rubric-score, value: 0.519, ci_low: null, ci_high: null, n: 750, notes: null}
-  - {model_id: gpt-5-5, metric_id: pass-rate, value: 25.7, ci_low: null, ci_high: null, n: 750, notes: null}
-  - {model_id: gemini-3-1-pro, metric_id: rubric-score, value: 0.515, ci_low: null, ci_high: null, n: 750, notes: null}
-  - {model_id: gemini-3-1-pro, metric_id: pass-rate, value: 23.6, ci_low: null, ci_high: null, n: 750, notes: null}
-  - {model_id: gpt-5-4, metric_id: rubric-score, value: 0.479, ci_low: null, ci_high: null, n: 750, notes: null}
-  - {model_id: gpt-5-4, metric_id: pass-rate, value: 20.7, ci_low: null, ci_high: null, n: 750, notes: null}
-  - {model_id: grok-4-3, metric_id: rubric-score, value: 0.399, ci_low: null, ci_high: null, n: 750, notes: null}
-  - {model_id: grok-4-3, metric_id: pass-rate, value: 13.0, ci_low: null, ci_high: null, n: 750, notes: null}
-comparability_group: lifescibench-v1-full-official
-verification: {status: verified, last_verified: '2026-07-21', notes: Values transcribed from the official report; unreported protocol fields remain null.}
+  - {model_id: gpt-rosalind, metric_id: rubric-score, value: 0.576, ci_low: null, ci_high: null, n: 750, notes: n is the number of tasks; repeats are not reported., status: verified, confidence: high, evidence_ids: [lifescibench-evidence-results]}
+  - {model_id: gpt-rosalind, metric_id: pass-rate, value: 36.1, ci_low: null, ci_high: null, n: 750, notes: n is the number of tasks; repeats are not reported., status: verified, confidence: high, evidence_ids: [lifescibench-evidence-results]}
+  - {model_id: gpt-5-5, metric_id: rubric-score, value: 0.519, ci_low: null, ci_high: null, n: 750, notes: n is the number of tasks; repeats are not reported., status: verified, confidence: high, evidence_ids: [lifescibench-evidence-results]}
+  - {model_id: gpt-5-5, metric_id: pass-rate, value: 25.7, ci_low: null, ci_high: null, n: 750, notes: n is the number of tasks; repeats are not reported., status: verified, confidence: high, evidence_ids: [lifescibench-evidence-results]}
+  - {model_id: gemini-3-1-pro, metric_id: rubric-score, value: 0.515, ci_low: null, ci_high: null, n: 750, notes: n is the number of tasks; repeats are not reported., status: verified, confidence: high, evidence_ids: [lifescibench-evidence-results]}
+  - {model_id: gemini-3-1-pro, metric_id: pass-rate, value: 23.6, ci_low: null, ci_high: null, n: 750, notes: n is the number of tasks; repeats are not reported., status: verified, confidence: high, evidence_ids: [lifescibench-evidence-results]}
+  - {model_id: gpt-5-4, metric_id: rubric-score, value: 0.479, ci_low: null, ci_high: null, n: 750, notes: n is the number of tasks; repeats are not reported., status: verified, confidence: high, evidence_ids: [lifescibench-evidence-results]}
+  - {model_id: gpt-5-4, metric_id: pass-rate, value: 20.7, ci_low: null, ci_high: null, n: 750, notes: n is the number of tasks; repeats are not reported., status: verified, confidence: high, evidence_ids: [lifescibench-evidence-results]}
+  - {model_id: grok-4-3, metric_id: rubric-score, value: 0.399, ci_low: null, ci_high: null, n: 750, notes: n is the number of tasks; repeats are not reported., status: verified, confidence: high, evidence_ids: [lifescibench-evidence-results]}
+  - {model_id: grok-4-3, metric_id: pass-rate, value: 13.0, ci_low: null, ci_high: null, n: 750, notes: n is the number of tasks; repeats are not reported., status: verified, confidence: high, evidence_ids: [lifescibench-evidence-results]}
+comparability_group: lifescibench-initial-release-full-official
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Full-scope protocol, metrics, and values checked against Sections 5–6 of the official report; unreported settings remain null.'}
 evidence:
-  - {work_id: lifescibench-preprint, locator: 'Sections 3 and 4; overall results table', supports: [scope, protocol.turns, protocol.tools.internet, protocol.grader, metrics, results]}
+  - id: lifescibench-evidence-run-scope
+    source_type: work
+    source_id: lifescibench-preprint
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'pp. 7 and 15, Sections 5.1 and 8', note: 'States single-turn evaluation, unrestricted Internet browsing, and evaluation of five models across all 750 questions.'}
+    supports: [/scope, /benchmark_version, /protocol/turns, /protocol/tools/browser, /protocol/tools/internet]
+  - id: lifescibench-evidence-metrics
+    source_type: work
+    source_id: lifescibench-preprint
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'pp. 7–8, Sections 5.1–5.3', note: 'Defines rubric grading, normalized score, 70% task threshold, problem weighting, automated/model-assisted grading, and expert spot-validation.'}
+    supports: [/protocol/grader, /protocol/statistical, /metrics]
+  - id: lifescibench-evidence-unreported-settings
+    source_type: work
+    source_id: lifescibench-preprint
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'pp. 7–8 and 16, Sections 5.1–5.3 and Appendix A', note: 'Complete public protocol and disclosure sections do not state shots, system prompt, model effort, non-browser tools, budgets, temperature, seed, repeat count, or contamination analysis.'}
+    supports: [/protocol/shots, /protocol/system_prompt_public, /protocol/reasoning, /protocol/tools/databases, /protocol/tools/code_execution, /protocol/tools/container, /protocol/tools/external_tools, /protocol/token_budget, /protocol/time_budget, /protocol/temperature, /protocol/seed, /protocol/repeats, /protocol/contamination]
+  - id: lifescibench-evidence-results
+    source_type: work
+    source_id: lifescibench-preprint
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'p. 9, Section 6.1 and Figure 4', note: Reports overall normalized score and task pass rate for all five models.}
+    supports: [/results]

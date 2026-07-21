@@ -1,13 +1,13 @@
 entity_type: work
 id: lifescibench-preprint
-title: LifeSciBench
-authors: [OpenAI]
-organizations: [OpenAI]
-work_type: technical-report
+title: 'LifeSciBench: Evaluating Language Models on Realistic, Expert-Level Tasks in the Life Sciences'
+authors: [Amelia Liu, Andrew Ho, Anne Marie Droste, David Martin, Edmund Wong, Edward Zhou, Isabelle Zhou, Joshua Park, Joy Jiao, Katie-Rose Skelly, Kenny Kim, Kevin Rao, Masatoshi Uehara, Max Marion, Nicole Fitzgerald, Rachel Dias, Suyash Shringarpure, Yuan Yuan, Yunyun Wang]
+organizations: [OpenAI, Tacit Labs]
+work_type: preprint
 source_class: benchmark_creator
 publication_date: '2026-06-17'
-canonical_url: 'https://cdn.openai.com/pdf/b4299379-0a97-4ffa-8b9b-c3fbb299caa9/lifescibench_preprint.pdf'
+canonical_url: https://cdn.openai.com/pdf/b4299379-0a97-4ffa-8b9b-c3fbb299caa9/lifescibench_preprint.pdf
 doi: null
 arxiv: null
-status: published
-verification: {status: verified, last_verified: '2026-07-21', notes: Official OpenAI report.}
+status: preprint
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Title, author list, and affiliations transcribed from the official OpenAI-hosted preprint; publication date follows the official release page.'}

@@ -3,7 +3,7 @@ id: codex-cli-gpt-5-4
 name: Codex CLI (GPT-5.4)
 provider: OpenAI
 release_date: null
-version_string: Codex CLI (GPT-5.4)
+version_string: Codex CLI v0.115.0 + gpt-5.4
 version_status: reported
-aliases: []
-verification: {status: verified, last_verified: '2026-07-21', notes: Agent-and-model label reported by the CompBioBench creators.}
+aliases: ['Codex CLI (GPT 5.4) [xhigh]']
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Exact CLI version, model identifier, and xhigh reasoning setting reported in the CompBioBench Methods.'}

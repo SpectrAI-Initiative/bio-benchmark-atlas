@@ -1,0 +1,9 @@
+entity_type: model
+id: claude-code-sonnet-4-6
+name: Claude Code (Sonnet 4.6)
+provider: Anthropic
+release_date: null
+version_string: Claude Code v2.1.87 + claude-sonnet-4-6 (1M context)
+version_status: reported
+aliases: ['Claude Code (Sonnet 4.6) [high]']
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Exact CLI version, model identifier, context variant, and high effort reported in the CompBioBench Methods.'}

@@ -2,34 +2,49 @@ entity_type: evaluation_run
 id: compbiobench-creator-full
 work_id: compbiobench-preprint
 benchmark_id: compbiobench
-benchmark_version: '1.0'
-scope: {type: full, n: 100, subset_id: null, filter: All benchmark tasks., reporting_status: reported}
+benchmark_version: v1
+model_ids: [codex-cli-gpt-5-4]
+scope: {type: full, n: 100, subset_id: null, filter: All 100 v1 tasks., reporting_status: reported}
 protocol:
-  shots: &nr {value: null, reporting_status: not_reported, notes: Not reported as a shot count.}
-  turns: {value: multi-turn, reporting_status: reported, notes: End-to-end agentic tasks.}
-  system_prompt_public: *nr
-  reasoning: *nr
+  shots: {value: zero-shot, reporting_status: reported, notes: The published wrapper prompt contains instructions but no worked examples.}
+  turns: {value: multi-turn agent trajectory, reporting_status: reported, notes: 'Codex autonomously used the shell, code, tools, and web before returning one answer.'}
+  system_prompt_public: {value: false, reporting_status: reported, notes: The benchmark wrapper prompt is public; the underlying vendor system prompt is not published.}
+  reasoning: {value: xhigh, reporting_status: reported, notes: model_reasoning_effort=xhigh.}
   tools:
-    browser: {value: true, reporting_status: reported, notes: Agents fetch external resources as needed.}
-    internet: {value: true, reporting_status: reported, notes: Bare environment permits fetching data and tools.}
-    databases: {value: true, reporting_status: reported, notes: Real-world external resources may be used.}
-    code_execution: {value: true, reporting_status: reported, notes: Bespoke code is required.}
-    container: {value: true, reporting_status: reported, notes: Runner provisions a bare-minimum environment.}
-    external_tools: {value: true, reporting_status: reported, notes: Agents install or retrieve required tools.}
-  token_budget: *nr
-  time_budget: *nr
-  temperature: *nr
-  seed: *nr
-  repeats: *nr
-  grader: {type: objective task-specific answer checker, model: null, human_review: false, reporting_status: reported}
-  statistical: {value: problem-weighted accuracy, reporting_status: reported, notes: null}
-  contamination: {value: synthetic or augmented data with metadata scrambling and scrubbing, reporting_status: reported, notes: Construction reduces lookup shortcuts.}
+    browser: {value: web access through the agent environment, reporting_status: reported, notes: No distinct browser UI is specified.}
+    internet: {value: true, reporting_status: reported, notes: Codex network_access was enabled and web use was encouraged.}
+    databases: {value: true, reporting_status: reported, notes: Agents could retrieve external biological resources.}
+    code_execution: {value: true, reporting_status: reported, notes: Codex ran arbitrary analysis commands with auto approval.}
+    container: {value: false, reporting_status: reported, notes: A per-question Conda environment was cloned; the runner was not a hard filesystem sandbox or container.}
+    external_tools: {value: true, reporting_status: reported, notes: Agents could install and retrieve required tools.}
+  token_budget: {value: null, reporting_status: not_reported, notes: No token ceiling is reported.}
+  time_budget: {value: '120 minutes initially; timed-out questions rerun clean once with 240 minutes', reporting_status: reported, notes: A second timeout was scored incorrect.}
+  temperature: {value: null, reporting_status: not_reported, notes: Not reported.}
+  seed: {value: null, reporting_status: not_reported, notes: Not reported.}
+  repeats: {value: 3, reporting_status: reported, notes: Three independent full-benchmark runs.}
+  grader: {type: whitespace-stripped exact string match with occasional manual format-only correction, model: null, human_review: true, reporting_status: reported}
+  statistical: {value: mean over three independent runs; consistency reported as correct in all three and correct at least once, reporting_status: reported, notes: Wall time and cost plots clip per-question values at 7200 seconds and USD 10; no confidence interval is published.}
+  contamination: {value: synthetic/augmented inputs and scrubbed identifiers reduce lookup shortcuts, reporting_status: reported, notes: No model pretraining decontamination analysis is reported.}
 metrics:
-  - {metric_id: accuracy, source_label: Accuracy, unit: percent, range: [0, 100], higher_is_better: true, aggregation: problem-weighted mean, pass_threshold: null, tolerance: task-specific}
+- {metric_id: accuracy, source_label: Accuracy, unit: percent, range: [0, 100], higher_is_better: true, aggregation: mean problem accuracy over three runs, pass_threshold: null, tolerance: whitespace-stripped exact match}
+- {metric_id: mean-wall-clock-time, source_label: Wall-clock time per question, unit: seconds, range: null, higher_is_better: false, aggregation: mean over questions and runs after 7200-second display clipping, pass_threshold: null, tolerance: null}
+- {metric_id: mean-cost, source_label: Cost per question, unit: USD, range: null, higher_is_better: false, aggregation: mean over questions and runs after USD-10 display clipping, pass_threshold: null, tolerance: null}
 results:
-  - {model_id: codex-cli-gpt-5-4, metric_id: accuracy, value: 83.0, ci_low: null, ci_high: null, n: 100, notes: End-to-end system result.}
-  - {model_id: claude-code-opus-4-6, metric_id: accuracy, value: 81.0, ci_low: null, ci_high: null, n: 100, notes: End-to-end system result.}
-comparability_group: compbiobench-v1-full-bare-environment
-verification: {status: verified, last_verified: '2026-07-21', notes: Headline full-set values from the creator preprint.}
+- {model_id: codex-cli-gpt-5-4, metric_id: accuracy, value: 83.3, ci_low: null, ci_high: null, n: 100, notes: Mean of three full runs; 73% solved on all three and 92% at least once., status: verified, confidence: high, evidence_ids: [compbiobench-evidence-codex-results]}
+- {model_id: codex-cli-gpt-5-4, metric_id: mean-wall-clock-time, value: 679.0, ci_low: null, ci_high: null, n: 100, notes: Printed Figure 2 label; mean across three runs., status: verified, confidence: high, evidence_ids: [compbiobench-evidence-codex-results]}
+- {model_id: codex-cli-gpt-5-4, metric_id: mean-cost, value: 1.0, ci_low: null, ci_high: null, n: 100, notes: Printed Figure 2 label; mean across three runs., status: verified, confidence: high, evidence_ids: [compbiobench-evidence-codex-results]}
+comparability_group: compbiobench-v1-codex-xhigh-three-runs
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Full scope, exact CLI/model/effort, repeat protocol, and three Figure 2 values verified.'}
 evidence:
-  - {work_id: compbiobench-preprint, locator: 'Abstract; benchmark construction and experimental setup', supports: [scope, protocol.tools, protocol.grader, protocol.contamination, metrics, results]}
+- id: compbiobench-evidence-codex-scope-protocol
+  source_type: work
+  source_id: compbiobench-preprint
+  accessed_date: '2026-07-21'
+  locator: {type: page, value: 'PDF pp. 13–14, Methods: agent execution and model configurations', note: 'Reports public wrapper prompt, internet/code/tool access, Conda isolation, 120/240-minute policy, Codex CLI v0.115.0, gpt-5.4, xhigh, and three runs.'}
+  supports: [/benchmark_version, /scope, /protocol]
+- id: compbiobench-evidence-codex-results
+  source_type: work
+  source_id: compbiobench-preprint
+  accessed_date: '2026-07-21'
+  locator: {type: figure, value: 'PDF pp. 3–4, Figure 2A–C and Results', note: 'Printed labels report 83.3% accuracy, 679.0 seconds, and USD 1.0; text reports three-run consistency.'}
+  supports: [/metrics, /results]

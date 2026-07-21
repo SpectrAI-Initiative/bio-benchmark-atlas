@@ -1,0 +1,46 @@
+entity_type: evaluation_run
+id: compbiobench-codex-hardest
+work_id: compbiobench-preprint
+benchmark_id: compbiobench
+benchmark_version: v1
+model_ids: [codex-cli-gpt-5-4]
+scope: {type: subset, n: 17, subset_id: compbiobench-difficulty-levels-4-5, filter: Contributor-rated difficulty Levels 4 and 5 grouped together., reporting_status: reported}
+protocol:
+  shots: {value: zero-shot, reporting_status: reported, notes: Public wrapper prompt has no examples.}
+  turns: {value: multi-turn agent trajectory, reporting_status: reported, notes: Codex agent.}
+  system_prompt_public: {value: false, reporting_status: reported, notes: Benchmark wrapper public; vendor system prompt not public.}
+  reasoning: {value: xhigh, reporting_status: reported, notes: gpt-5.4 model_reasoning_effort=xhigh.}
+  tools:
+    browser: {value: web access through agent environment, reporting_status: reported, notes: No distinct browser UI specified.}
+    internet: {value: true, reporting_status: reported, notes: Web enabled.}
+    databases: {value: true, reporting_status: reported, notes: External biological resources permitted.}
+    code_execution: {value: true, reporting_status: reported, notes: Auto-approved command execution.}
+    container: {value: false, reporting_status: reported, notes: 'Per-question Conda clone, not a hard container.'}
+    external_tools: {value: true, reporting_status: reported, notes: Installation/retrieval allowed.}
+  token_budget: {value: null, reporting_status: not_reported, notes: Not reported.}
+  time_budget: {value: '120 minutes initially; timeout rerun once with 240 minutes', reporting_status: reported, notes: Same underlying runs as the full result.}
+  temperature: {value: null, reporting_status: not_reported, notes: Not reported.}
+  seed: {value: null, reporting_status: not_reported, notes: Not reported.}
+  repeats: {value: 3, reporting_status: reported, notes: Values averaged across three runs.}
+  grader: {type: whitespace-stripped exact string match with occasional manual format-only correction, model: null, human_review: true, reporting_status: reported}
+  statistical: {value: accuracy averaged over three runs within the 17-task subset, reporting_status: reported, notes: No CI.}
+  contamination: {value: benchmark construction reduces lookup shortcuts, reporting_status: reported, notes: No pretraining decontamination analysis.}
+metrics:
+- {metric_id: accuracy, source_label: Accuracy — difficulty Levels 4–5, unit: percent, range: [0, 100], higher_is_better: true, aggregation: mean problem accuracy over three runs, pass_threshold: null, tolerance: whitespace-stripped exact match}
+results:
+- {model_id: codex-cli-gpt-5-4, metric_id: accuracy, value: 59.0, ci_low: null, ci_high: null, n: 17, notes: Supplementary Figure 2 label; average across three runs., status: verified, confidence: high, evidence_ids: [compbiobench-evidence-codex-hardest-results]}
+comparability_group: compbiobench-v1-hardest-codex-xhigh-three-runs
+verification: {status: verified, last_verified: '2026-07-21', notes: Seventeen-task grouped scope and 59% three-run mean verified.}
+evidence:
+- id: compbiobench-evidence-codex-hardest-protocol
+  source_type: work
+  source_id: compbiobench-preprint
+  accessed_date: '2026-07-21'
+  locator: {type: page, value: 'PDF pp. 13–14, Methods', note: 'Exact Codex configuration and common agent protocol.'}
+  supports: [/protocol]
+- id: compbiobench-evidence-codex-hardest-results
+  source_type: work
+  source_id: compbiobench-preprint
+  accessed_date: '2026-07-21'
+  locator: {type: figure, value: 'PDF p. 11, Supplementary Figure 2B and caption', note: 'Levels 4 and 5 grouped; 17 tasks; Codex label 59; three-run average.'}
+  supports: [/scope, /metrics, /results]

@@ -1,38 +1,224 @@
 entity_type: benchmark
 id: compbiobench
 name: CompBioBench
-aliases: [Computational Biology Benchmark]
-summary: Expert-curated, objectively gradable computational-biology tasks requiring multistep reasoning, code, tools, and external resources.
+aliases:
+- Computational Biology Benchmark
+summary: A 100-task agent benchmark of objectively gradable computational-biology problems requiring multi-step reasoning, bespoke code, tools, and real-world external resources.
 kind: agentic-eval
 parent_id: null
-organizations: [Genentech, Roche]
+organizations:
+- Genentech
+- Roche
 release_date: '2026-04-06'
-latest_version: '1.0'
-domains: [genomics, transcriptomics, epigenomics, single-cell, bioinformatics, clinical-translational]
-capabilities: [data-analysis, coding, tool-use, retrieval, scientific-reasoning]
-modalities: [text, table, raw-omics, database, web, code]
-task_formats: [agentic computational analysis]
+latest_version: v1
+domains:
+- protein-structure
+- genomics
+- transcriptomics
+- epigenomics
+- single-cell
+- spatial-omics
+- bioinformatics
+- clinical-translational
+capabilities:
+- data-analysis
+- coding
+- tool-use
+- retrieval
+- scientific-reasoning
+modalities:
+- text
+- table
+- dna-rna-sequence
+- protein-sequence
+- structure-3d
+- raw-omics
+- database
+- web
+- code
+task_formats:
+- agentic computational analysis
+- exact single-line answer
 task_counts:
   total: 100
-  basis: benchmark tasks
+  basis: v1 independent computational-biology tasks
   reporting_status: reported
-  subsets: []
-coverage_notes: []
+  subsets:
+  - {id: compbiobench-domain-epigenomics, label: 'Domain — Epigenomics', count: 20, basis: tasks in the domain partition, exclusive: false, exhaustive: false, reporting_status: reported, notes: Official v1 TSV domain label; partition members are non-exhaustive here because other independent partitions are also registered.}
+  - {id: compbiobench-domain-genomics, label: 'Domain — Genomics', count: 20, basis: tasks in the domain partition, exclusive: false, exhaustive: false, reporting_status: reported, notes: Official v1 TSV domain label.}
+  - {id: compbiobench-domain-machine-learning, label: 'Domain — Machine Learning', count: 7, basis: tasks in the domain partition, exclusive: false, exhaustive: false, reporting_status: reported, notes: Official v1 TSV domain label.}
+  - {id: compbiobench-domain-population-genetics, label: 'Domain — Population Genetics', count: 12, basis: tasks in the domain partition, exclusive: false, exhaustive: false, reporting_status: reported, notes: Official v1 TSV domain label.}
+  - {id: compbiobench-domain-single-cell, label: 'Domain — Single-cell', count: 21, basis: tasks in the domain partition, exclusive: false, exhaustive: false, reporting_status: reported, notes: Official v1 TSV domain label.}
+  - {id: compbiobench-domain-spatial, label: 'Domain — Spatial', count: 2, basis: tasks in the domain partition, exclusive: false, exhaustive: false, reporting_status: reported, notes: Official v1 TSV domain label.}
+  - {id: compbiobench-domain-structure, label: 'Domain — Structure', count: 1, basis: tasks in the domain partition, exclusive: false, exhaustive: false, reporting_status: reported, notes: The sole Structure task asks which uppercase letter a supplied PDB protein resembles across projections.}
+  - {id: compbiobench-domain-transcriptomics, label: 'Domain — Transcriptomics', count: 17, basis: tasks in the domain partition, exclusive: false, exhaustive: false, reporting_status: reported, notes: Official v1 TSV domain label.}
+  - {id: compbiobench-style-metadata-recovery, label: 'Question style — Metadata Recovery', count: 27, basis: tasks in the question-style partition, exclusive: false, exhaustive: false, reporting_status: reported, notes: Official v1 TSV question_style label.}
+  - {id: compbiobench-style-retrieval, label: 'Question style — Retrieval', count: 17, basis: tasks in the question-style partition, exclusive: false, exhaustive: false, reporting_status: reported, notes: Official v1 TSV question_style label.}
+  - {id: compbiobench-style-routine-analysis, label: 'Question style — Routine Analysis', count: 22, basis: tasks in the question-style partition, exclusive: false, exhaustive: false, reporting_status: reported, notes: Official v1 TSV question_style label.}
+  - {id: compbiobench-style-synthetic-augmented, label: 'Question style — Synthetic/Augmented Data', count: 26, basis: tasks in the question-style partition, exclusive: false, exhaustive: false, reporting_status: reported, notes: Official v1 TSV question_style label.}
+  - {id: compbiobench-style-tooling, label: 'Question style — Tooling', count: 8, basis: tasks in the question-style partition, exclusive: false, exhaustive: false, reporting_status: reported, notes: Official v1 TSV question_style label.}
+  - {id: compbiobench-difficulty-level-1, label: 'Contributor difficulty — Level 1', count: 17, basis: tasks in the paper difficulty partition, exclusive: false, exhaustive: false, reporting_status: reported, notes: Contributor ratings are approximate and were not extensively calibrated.}
+  - {id: compbiobench-difficulty-level-2, label: 'Contributor difficulty — Level 2', count: 26, basis: tasks in the paper difficulty partition, exclusive: false, exhaustive: false, reporting_status: reported, notes: Contributor ratings are approximate and were not extensively calibrated.}
+  - {id: compbiobench-difficulty-level-3, label: 'Contributor difficulty — Level 3', count: 40, basis: tasks in the paper difficulty partition, exclusive: false, exhaustive: false, reporting_status: reported, notes: Contributor ratings are approximate and were not extensively calibrated.}
+  - {id: compbiobench-difficulty-levels-4-5, label: 'Contributor difficulty — Levels 4–5', count: 17, basis: tasks in the grouped hardest subset, exclusive: false, exhaustive: false, reporting_status: reported, notes: The paper groups Levels 4 and 5 for its hardest-subset analysis.}
+  - {id: compbiobench-internet-required, label: Internet required, count: 78, basis: tasks whose v1 TSV internet_required field is True, exclusive: false, exhaustive: false, reporting_status: reported, notes: Public v1 TSV count.}
+  - {id: compbiobench-internet-not-required, label: Internet not required, count: 22, basis: tasks whose v1 TSV internet_required field is False, exclusive: false, exhaustive: false, reporting_status: reported, notes: Public v1 TSV count.}
+coverage_notes:
+- tag: protein-structure
+  coverage: observed
+  count: 1
+  reporting_status: reported
+  notes: The official v1 TSV contains one Structure-domain PDB projection task; this is not a protein-folding or binding benchmark.
+- tag: protein-protein-binding
+  coverage: unknown
+  count: null
+  reporting_status: not_reported
+  notes: No standalone protein-protein binding category or count is reported.
+- tag: protein-ligand-binding
+  coverage: unknown
+  count: null
+  reporting_status: not_reported
+  notes: No standalone protein-ligand binding category or count is reported.
 access:
-  level: fully-open
-  tasks: Public through Zenodo and the official runner.
-  artifacts: Synthetic, augmented, and scrubbed real datasets are distributed by the creators.
-  grader: Objective answer checking is implemented in the public runner.
-  license: Apache-2.0
-  biosafety_notes: Metadata and source links only; upstream data terms continue to apply.
+  level: partially-open
+  tasks: All 100 v1 questions and their metadata are open on Zenodo and Hugging Face.
+  artifacts: The versioned Zenodo record provides a 12,001,320,960-byte input-data archive and a 100-row TSV; a commit-pinned Hugging Face mirror exposes the task files individually.
+  grader: The public leaderboard scores whitespace-stripped exact string matches, but ground-truth answers and the evaluation backend are private; the public runner executes agents and extracts answers without grading them.
+  license: CC BY 4.0 for the dataset; MIT for the runner; Apache-2.0 for the leaderboard Space; CC BY-NC 4.0 for the preprint
+  biosafety_notes: The registry mirrors no task data or answers. The creators use synthetic/augmented data and scrubbed metadata to prevent lookup shortcuts; source-resource terms still apply.
 resources:
-  - {type: paper, url: 'https://www.biorxiv.org/content/10.64898/2026.04.06.716850v1', license: CC-BY-NC-ND-4.0, access_notes: Creator preprint.}
-  - {type: repository, url: 'https://github.com/Genentech/compbiobench-runner', license: Apache-2.0, access_notes: Official runner.}
-  - {type: dataset, url: 'https://doi.org/10.5281/zenodo.19443185', license: null, access_notes: Creator archive.}
+- id: compbiobench-paper-resource
+  type: paper
+  url: https://www.biorxiv.org/content/10.64898/2026.04.06.716850v1.full.pdf
+  license: CC BY-NC 4.0
+  access_notes: Creator preprint v1, posted 2026-04-09.
+  last_checked: '2026-07-21'
+  pin: {kind: snapshot, value: 'sha256:29fcc2a5b0b2314a1810b07f338847ca3aa900d7c72c21f98e66d57f19972862', url: 'https://www.biorxiv.org/content/10.64898/2026.04.06.716850v1.full.pdf'}
+- id: compbiobench-zenodo-resource
+  type: dataset
+  url: https://doi.org/10.5281/zenodo.19443186
+  license: CC BY 4.0
+  access_notes: Immutable v1 record beneath concept DOI 10.5281/zenodo.19443185; TSV MD5 b9d72c04c018ee25798cc93ba77c1964 and data archive MD5 043dd0395898f2a71b6e81aea6a92276.
+  last_checked: '2026-07-21'
+  pin: {kind: version, value: 'v1-record-19443186', url: 'https://zenodo.org/records/19443186'}
+- id: compbiobench-hf-data-resource
+  type: dataset
+  url: https://huggingface.co/datasets/Genentech/compbiobench-data-v1
+  license: CC BY 4.0
+  access_notes: Official public task and input-data mirror.
+  last_checked: '2026-07-21'
+  pin: {kind: commit, value: 86ee0a22e036fef2a98f382f8fd528d5d390dde3, url: 'https://huggingface.co/datasets/Genentech/compbiobench-data-v1/tree/86ee0a22e036fef2a98f382f8fd528d5d390dde3'}
+- id: compbiobench-runner-resource
+  type: repository
+  url: https://github.com/Genentech/compbiobench-runner
+  license: MIT
+  access_notes: Official execution runner; it records answers, traces, time, tokens, and cost but does not contain the answer key or scoring logic.
+  last_checked: '2026-07-21'
+  pin: {kind: commit, value: dc350ed37ccd7d7ce96347d139f06dc4bf283f26, url: 'https://github.com/Genentech/compbiobench-runner/tree/dc350ed37ccd7d7ce96347d139f06dc4bf283f26'}
+- id: compbiobench-leaderboard-resource
+  type: leaderboard
+  url: https://huggingface.co/spaces/Genentech/compbiobench-leaderboard-v1
+  license: Apache-2.0
+  access_notes: Official submission UI and exact-match scoring service; public app code submits to private answer/result repositories.
+  last_checked: '2026-07-21'
+  pin: {kind: commit, value: 6a63e6d2cae531d9e9bf46b341606ed6b304ba3f, url: 'https://huggingface.co/spaces/Genentech/compbiobench-leaderboard-v1/tree/6a63e6d2cae531d9e9bf46b341606ed6b304ba3f'}
 implementations:
-  - {framework: CompBioBench runner, status: official, url: 'https://github.com/Genentech/compbiobench-runner/tree/dc350ed37ccd7d7ce96347d139f06dc4bf283f26', commit: dc350ed37ccd7d7ce96347d139f06dc4bf283f26, notes: Commit captured at verification time.}
-verification: {status: verified, last_verified: '2026-07-21', notes: Task count and headline creator results checked against the primary preprint.}
+- framework: CompBioBench runner
+  status: official
+  url: https://github.com/Genentech/compbiobench-runner/tree/dc350ed37ccd7d7ce96347d139f06dc4bf283f26
+  commit: dc350ed37ccd7d7ce96347d139f06dc4bf283f26
+  notes: Public MIT-licensed runner for Claude Code and Codex CLI with per-question Conda clones; not a hard filesystem sandbox and not a grader.
+- framework: CompBioBench leaderboard
+  status: official
+  url: https://huggingface.co/spaces/Genentech/compbiobench-leaderboard-v1/tree/6a63e6d2cae531d9e9bf46b341606ed6b304ba3f
+  commit: 6a63e6d2cae531d9e9bf46b341606ed6b304ba3f
+  notes: Public submission interface backed by private ground-truth and result repositories.
+versions:
+- id: compbiobench-v1
+  label: v1
+  status: current
+  release_date: '2026-04-06'
+  as_of: '2026-04-06'
+  task_counts:
+    total: 100
+    basis: v1 independent computational-biology tasks
+    reporting_status: reported
+    subsets:
+    - {id: compbiobench-domain-epigenomics, label: 'Domain — Epigenomics', count: 20, basis: tasks in the domain partition, exclusive: false, exhaustive: false, reporting_status: reported, notes: Official v1 TSV domain label; partition members are non-exhaustive here because other independent partitions are also registered.}
+    - {id: compbiobench-domain-genomics, label: 'Domain — Genomics', count: 20, basis: tasks in the domain partition, exclusive: false, exhaustive: false, reporting_status: reported, notes: Official v1 TSV domain label.}
+    - {id: compbiobench-domain-machine-learning, label: 'Domain — Machine Learning', count: 7, basis: tasks in the domain partition, exclusive: false, exhaustive: false, reporting_status: reported, notes: Official v1 TSV domain label.}
+    - {id: compbiobench-domain-population-genetics, label: 'Domain — Population Genetics', count: 12, basis: tasks in the domain partition, exclusive: false, exhaustive: false, reporting_status: reported, notes: Official v1 TSV domain label.}
+    - {id: compbiobench-domain-single-cell, label: 'Domain — Single-cell', count: 21, basis: tasks in the domain partition, exclusive: false, exhaustive: false, reporting_status: reported, notes: Official v1 TSV domain label.}
+    - {id: compbiobench-domain-spatial, label: 'Domain — Spatial', count: 2, basis: tasks in the domain partition, exclusive: false, exhaustive: false, reporting_status: reported, notes: Official v1 TSV domain label.}
+    - {id: compbiobench-domain-structure, label: 'Domain — Structure', count: 1, basis: tasks in the domain partition, exclusive: false, exhaustive: false, reporting_status: reported, notes: The sole Structure task asks which uppercase letter a supplied PDB protein resembles across projections.}
+    - {id: compbiobench-domain-transcriptomics, label: 'Domain — Transcriptomics', count: 17, basis: tasks in the domain partition, exclusive: false, exhaustive: false, reporting_status: reported, notes: Official v1 TSV domain label.}
+    - {id: compbiobench-style-metadata-recovery, label: 'Question style — Metadata Recovery', count: 27, basis: tasks in the question-style partition, exclusive: false, exhaustive: false, reporting_status: reported, notes: Official v1 TSV question_style label.}
+    - {id: compbiobench-style-retrieval, label: 'Question style — Retrieval', count: 17, basis: tasks in the question-style partition, exclusive: false, exhaustive: false, reporting_status: reported, notes: Official v1 TSV question_style label.}
+    - {id: compbiobench-style-routine-analysis, label: 'Question style — Routine Analysis', count: 22, basis: tasks in the question-style partition, exclusive: false, exhaustive: false, reporting_status: reported, notes: Official v1 TSV question_style label.}
+    - {id: compbiobench-style-synthetic-augmented, label: 'Question style — Synthetic/Augmented Data', count: 26, basis: tasks in the question-style partition, exclusive: false, exhaustive: false, reporting_status: reported, notes: Official v1 TSV question_style label.}
+    - {id: compbiobench-style-tooling, label: 'Question style — Tooling', count: 8, basis: tasks in the question-style partition, exclusive: false, exhaustive: false, reporting_status: reported, notes: Official v1 TSV question_style label.}
+    - {id: compbiobench-difficulty-level-1, label: 'Contributor difficulty — Level 1', count: 17, basis: tasks in the paper difficulty partition, exclusive: false, exhaustive: false, reporting_status: reported, notes: Contributor ratings are approximate and were not extensively calibrated.}
+    - {id: compbiobench-difficulty-level-2, label: 'Contributor difficulty — Level 2', count: 26, basis: tasks in the paper difficulty partition, exclusive: false, exhaustive: false, reporting_status: reported, notes: Contributor ratings are approximate and were not extensively calibrated.}
+    - {id: compbiobench-difficulty-level-3, label: 'Contributor difficulty — Level 3', count: 40, basis: tasks in the paper difficulty partition, exclusive: false, exhaustive: false, reporting_status: reported, notes: Contributor ratings are approximate and were not extensively calibrated.}
+    - {id: compbiobench-difficulty-levels-4-5, label: 'Contributor difficulty — Levels 4–5', count: 17, basis: tasks in the grouped hardest subset, exclusive: false, exhaustive: false, reporting_status: reported, notes: The paper groups Levels 4 and 5 for its hardest-subset analysis.}
+    - {id: compbiobench-internet-required, label: Internet required, count: 78, basis: tasks whose v1 TSV internet_required field is True, exclusive: false, exhaustive: false, reporting_status: reported, notes: Public v1 TSV count.}
+    - {id: compbiobench-internet-not-required, label: Internet not required, count: 22, basis: tasks whose v1 TSV internet_required field is False, exclusive: false, exhaustive: false, reporting_status: reported, notes: Public v1 TSV count.}
+  formal_tracks: []
+  notes: The immutable Zenodo v1 record and commit-pinned Hugging Face mirror contain the same 100-row TSV; no newer formal benchmark version was identified.
+  evidence_ids: [compbiobench-evidence-version, compbiobench-evidence-counts]
+audit:
+  status: audited
+  audited_date: '2026-07-21'
+  unresolved_fields: 0
+  notes: Dataset, runner, leaderboard, and paper licenses are recorded separately; the runner is not mislabeled as a grader, and every result is tied to its exact agent, effort, repeat, scope, and timeout setting.
+field_status: []
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Field-level audit completed against bioRxiv v1, Zenodo record 19443186, the official TSV, runner commit, Hugging Face dataset, and leaderboard Space.'}
 evidence:
-  - work_id: compbiobench-preprint
-    locator: 'Abstract; benchmark construction and evaluation sections; Data/Code links'
-    supports: [summary, task_counts, domains, capabilities, modalities, access, implementations]
+- id: compbiobench-evidence-identity
+  source_type: work
+  source_id: compbiobench-preprint
+  accessed_date: '2026-07-21'
+  locator: {type: page, value: 'pp. 1–3, abstract, benchmark design/philosophy, and Figure 1', note: 'Defines the task format, objective-answer construction, organizations, domains, capabilities, and modalities.'}
+  supports: [/name, /organizations, /kind, /summary, /capabilities, /modalities]
+- id: compbiobench-evidence-version
+  source_type: resource
+  source_id: compbiobench-zenodo-resource
+  accessed_date: '2026-07-21'
+  locator: {type: release, value: 'Zenodo immutable record 19443186, published 2026-04-06', note: Record title identifies CompBioBench v1 and links the concept DOI.}
+  supports: [/release_date, /latest_version, /resources/1/url, /resources/1/pin]
+- id: compbiobench-evidence-counts
+  source_type: resource
+  source_id: compbiobench-zenodo-resource
+  accessed_date: '2026-07-21'
+  locator: {type: repository-path, value: 'compbiobench.v1.tsv (MD5 b9d72c04c018ee25798cc93ba77c1964)', note: 'Contains 100 unique question_id rows; domain counts sum to 100, style counts sum to 100, and internet_required is 78 True / 22 False.'}
+  supports: [/task_counts/total, /task_counts/basis, /task_counts/subsets, /versions/0/task_counts/total, /versions/0/task_counts/basis, /versions/0/task_counts/subsets, /coverage_notes/0]
+- id: compbiobench-evidence-taxonomy
+  source_type: resource
+  source_id: compbiobench-hf-data-resource
+  accessed_date: '2026-07-21'
+  locator: {type: repository-path, value: 'compbiobench.v1.tsv at commit 86ee0a22e036fef2a98f382f8fd528d5d390dde3', note: 'Public questions, file paths, domain, style, skills, internet, and GPU flags.'}
+  supports: [/domains, /coverage_notes/1, /coverage_notes/2]
+- id: compbiobench-evidence-access
+  source_type: resource
+  source_id: compbiobench-leaderboard-resource
+  accessed_date: '2026-07-21'
+  locator: {type: repository-path, value: 'app.py and README at commit 6a63e6d2cae531d9e9bf46b341606ed6b304ba3f', note: 'Public exact-match submission UI backed by private submissions, ground-truth, and results repositories.'}
+  supports: [/access/level, /access/grader, /access/license, /resources/4/license, /resources/4/pin, /implementations/1]
+- id: compbiobench-evidence-paper-license
+  source_type: work
+  source_id: compbiobench-preprint
+  accessed_date: '2026-07-21'
+  locator: {type: page, value: 'PDF page headers, first-page copyright statement, and Data availability', note: 'Preprint is CC BY-NC 4.0 and links the official data, runner, and leaderboard resources.'}
+  supports: [/access/license, /resources, /resources/0/license, /resources/0/pin]
+- id: compbiobench-evidence-data-licenses
+  source_type: resource
+  source_id: compbiobench-zenodo-resource
+  accessed_date: '2026-07-21'
+  locator: {type: release, value: 'Zenodo record 19443186 metadata and file manifest', note: 'Dataset is CC BY 4.0 and provides the immutable TSV/data-archive files.'}
+  supports: [/access/tasks, /access/artifacts, /access/license, /resources/1/license, /resources/2/license]
+- id: compbiobench-evidence-runner-license
+  source_type: resource
+  source_id: compbiobench-runner-resource
+  accessed_date: '2026-07-21'
+  locator: {type: repository-path, value: 'LICENSE, README.md, run_benchmark.py, and environment.yml at dc350ed37ccd7d7ce96347d139f06dc4bf283f26', note: 'MIT license and per-question Conda execution without grading.'}
+  supports: [/access/license, /resources/3/license, /resources/3/pin, /implementations/0]

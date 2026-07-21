@@ -1,13 +1,13 @@
 entity_type: work
 id: proteingym-paper
 title: 'ProteinGym: Large-Scale Benchmarks for Protein Fitness Prediction and Design'
-authors: [Pascal Notin, Aaron Kollasch, Daniel Ritter, Lood van Niekerk, Steffanie Paul, Han Spinner, Nathan Rollins, Ada Shaw, Rose Orenbuch, Ruben Weitzman, Jonathan Frazer, Mafalda Dias, Dinko Franceschi, Yarin Gal, Debora Marks]
-organizations: [University of Oxford, Harvard Medical School]
+authors: [Pascal Notin, Aaron W. Kollasch, Daniel Ritter, Lood van Niekerk, Steffanie Paul, Hansen Spinner, Nathan Rollins, Ada Shaw, Ruben Weitzman, Jonathan Frazer, Mafalda Dias, Dinko Franceschi, Rose Orenbuch, Yarin Gal, Debora S. Marks]
+organizations: [University of Oxford, Harvard Medical School, Seismic Therapeutic, Harvard University, Centre for Genomic Regulation, Universitat Pompeu Fabra, Broad Institute]
 work_type: paper
 source_class: benchmark_creator
-publication_date: '2023-09-22'
-canonical_url: 'https://papers.nips.cc/paper_files/paper/2023/hash/cac723e5ff29f65e3fcbb0739ae91bee-Abstract-Datasets_and_Benchmarks.html'
+publication_date: '2023-12-10'
+canonical_url: https://papers.nips.cc/paper_files/paper/2023/hash/cac723e5ff29f65e3fcbb0739ae91bee-Abstract-Datasets_and_Benchmarks.html
 doi: null
-arxiv: '2301.06280'
+arxiv: null
 status: published
-verification: {status: verified, last_verified: '2026-07-21', notes: NeurIPS Datasets and Benchmarks paper.}
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Final NeurIPS 2023 Datasets and Benchmarks proceedings paper. The official PDF spells the sixth author Hansen Spinner, while the NeurIPS program/BibTeX says Han Spinner; this record follows the final PDF author line. Publication date is normalized to the first day of NeurIPS 2023.'}

@@ -39,7 +39,7 @@
 }
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; max-width: 100%; overflow-x: hidden; }
 body {
   margin: 0;
   color: var(--ink);
@@ -50,6 +50,12 @@ body {
   font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   line-height: 1.6;
   min-height: 100vh;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+@supports (overflow: clip) {
+  html, body { overflow-x: clip; }
 }
 
 a { color: inherit; text-underline-offset: 3px; }
@@ -174,6 +180,7 @@ td a { font-weight: 700; text-decoration: none; }
 .detail-grid { display: grid; grid-template-columns: minmax(0, 1fr) 310px; gap: 3rem; align-items: start; }
 .detail-grid > * { min-width: 0; }
 .sidebar { position: sticky; top: 6.2rem; }
+.sidebar, .sidebar * { overflow-wrap: anywhere; }
 .definition-list { margin: 0; }
 .definition-list > div { display: grid; grid-template-columns: 130px 1fr; gap: 1rem; padding: .7rem 0; border-bottom: 1px solid var(--line); }
 .definition-list dt { color: var(--ink-soft); font-size: .79rem; font-weight: 700; }

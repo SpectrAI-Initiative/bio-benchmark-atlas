@@ -1,0 +1,104 @@
+entity_type: evaluation_run
+id: proteingym-v10-dms-substitutions-zero-shot
+work_id: proteingym-paper
+benchmark_id: proteingym-dms-substitutions
+benchmark_version: '1.0'
+scope: {type: full, n: 217, subset_id: null, filter: null, reporting_status: reported}
+protocol:
+  shots: {value: 0, reporting_status: reported, notes: 'Here zero-shot describes access to assay labels, not natural-language in-context examples.'}
+  turns: {value: not-applicable, reporting_status: not_applicable, notes: Batch mutation-effect prediction benchmark.}
+  system_prompt_public: &na {value: null, reporting_status: not_applicable, notes: No natural-language prompt.}
+  reasoning: *na
+  tools:
+    browser: *na
+    internet: *na
+    databases: *na
+    code_execution: {value: null, reporting_status: not_applicable, notes: 'Inference is performed by model-specific code; code execution is not an affordance granted to an evaluated agent.'}
+    container: {value: null, reporting_status: not_reported, notes: 'The paper does not standardize one container across baselines.'}
+    external_tools: {value: model-specific inputs, reporting_status: reported, notes: 'Baselines use their defined input modalities, including single sequences, MSAs, or structures; this is not a common tool-use condition.'}
+  token_budget: *na
+  time_budget: {value: null, reporting_status: not_reported, notes: No common runtime budget is reported.}
+  temperature: *na
+  seed: {value: null, reporting_status: not_reported, notes: Baseline-specific stochastic settings are not normalized in the aggregate result table.}
+  repeats: {value: null, reporting_status: not_reported, notes: Repeated inference count is not reported as a common protocol field.}
+  grader: {type: deterministic official scoring pipeline, model: null, human_review: false, reporting_status: reported}
+  statistical: {value: 'Non-parametric bootstrap standard error of each model-to-best Spearman difference over 10,000 bootstrap samples from proteins', reporting_status: reported, notes: 'Table A5 reports standard error of the difference from TranceptEVE, not a confidence interval for each raw score.'}
+  contamination: {value: null, reporting_status: not_reported, notes: Model-specific training overlap is not normalized in the creator-paper result table.}
+metrics:
+  - {metric_id: spearman-correlation, source_label: Spearman, unit: correlation, range: [-1, 1], higher_is_better: true, aggregation: 'assay-level Spearman, averaged within five functional groups, then equal-weight mean across groups', pass_threshold: null, tolerance: null}
+  - {metric_id: auc-roc, source_label: AUC, unit: area under ROC curve, range: [0, 1], higher_is_better: true, aggregation: 'assay-level AUC, averaged within five functional groups, then equal-weight mean across groups', pass_threshold: null, tolerance: null}
+  - {metric_id: matthews-correlation, source_label: MCC, unit: correlation, range: [-1, 1], higher_is_better: true, aggregation: 'assay-level MCC, averaged within five functional groups, then equal-weight mean across groups', pass_threshold: null, tolerance: null}
+  - {metric_id: ndcg-at-10-percent, source_label: NDCG@10%, unit: normalized discounted cumulative gain, range: [0, 1], higher_is_better: true, aggregation: 'assay-level NDCG@10%, averaged within five functional groups, then equal-weight mean across groups', pass_threshold: null, tolerance: null}
+  - {metric_id: top-10-percent-recall, source_label: Top 10% recall, unit: proportion, range: [0, 1], higher_is_better: true, aggregation: 'assay-level top-10% recall, averaged within five functional groups, then equal-weight mean across groups', pass_threshold: null, tolerance: null}
+results:
+  - {model_id: trancepteve-l, metric_id: spearman-correlation, value: 0.456, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 1*; bootstrap SE of difference from the best model: 0.000.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: trancepteve-m, metric_id: spearman-correlation, value: 0.455, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 1*; bootstrap SE of difference from the best model: 0.004.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: gemme, metric_id: spearman-correlation, value: 0.455, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 1*; bootstrap SE of difference from the best model: 0.007.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: trancepteve-s, metric_id: spearman-correlation, value: 0.452, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 4; bootstrap SE of difference from the best model: 0.004.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: eve-ensemble, metric_id: spearman-correlation, value: 0.439, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 5; bootstrap SE of difference from the best model: 0.006.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: vespa, metric_id: spearman-correlation, value: 0.436, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 6; bootstrap SE of difference from the best model: 0.006.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: tranception-l, metric_id: spearman-correlation, value: 0.434, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 7*; bootstrap SE of difference from the best model: 0.004.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: msa-transformer-ensemble, metric_id: spearman-correlation, value: 0.434, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 7*; bootstrap SE of difference from the best model: 0.009.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: eve-single, metric_id: spearman-correlation, value: 0.433, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 9; bootstrap SE of difference from the best model: 0.005.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: tranception-m, metric_id: spearman-correlation, value: 0.427, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 10; bootstrap SE of difference from the best model: 0.005.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: esm-if1, metric_id: spearman-correlation, value: 0.422, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 11; bootstrap SE of difference from the best model: 0.011.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: msa-transformer-single, metric_id: spearman-correlation, value: 0.421, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 12; bootstrap SE of difference from the best model: 0.009.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: deepsequence-ensemble, metric_id: spearman-correlation, value: 0.419, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 13; bootstrap SE of difference from the best model: 0.008.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: tranception-s, metric_id: spearman-correlation, value: 0.418, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 14; bootstrap SE of difference from the best model: 0.006.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: esm2-650m, metric_id: spearman-correlation, value: 0.414, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 15; bootstrap SE of difference from the best model: 0.012.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: deepsequence-single, metric_id: spearman-correlation, value: 0.407, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 16*; bootstrap SE of difference from the best model: 0.008.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: esm-1v-ensemble, metric_id: spearman-correlation, value: 0.407, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 16*; bootstrap SE of difference from the best model: 0.012.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: esm2-3b, metric_id: spearman-correlation, value: 0.406, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 18; bootstrap SE of difference from the best model: 0.011.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: mif-st, metric_id: spearman-correlation, value: 0.401, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 19*; bootstrap SE of difference from the best model: 0.010.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: esm2-15b, metric_id: spearman-correlation, value: 0.401, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 19*; bootstrap SE of difference from the best model: 0.010.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: evmutation, metric_id: spearman-correlation, value: 0.395, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 21; bootstrap SE of difference from the best model: 0.006.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: esm-1b, metric_id: spearman-correlation, value: 0.394, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 22*; bootstrap SE of difference from the best model: 0.010.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: vespal, metric_id: spearman-correlation, value: 0.394, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 22*; bootstrap SE of difference from the best model: 0.007.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: progen2-xl, metric_id: spearman-correlation, value: 0.391, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 24; bootstrap SE of difference from the best model: 0.008.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: esm2-150m, metric_id: spearman-correlation, value: 0.387, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 25; bootstrap SE of difference from the best model: 0.013.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: mif, metric_id: spearman-correlation, value: 0.382, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 26; bootstrap SE of difference from the best model: 0.011.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: progen2-l, metric_id: spearman-correlation, value: 0.380, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 27; bootstrap SE of difference from the best model: 0.008.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: progen2-m, metric_id: spearman-correlation, value: 0.379, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 28; bootstrap SE of difference from the best model: 0.008.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: progen2-base, metric_id: spearman-correlation, value: 0.378, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 29; bootstrap SE of difference from the best model: 0.009.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: tranception-l-no-retrieval, metric_id: spearman-correlation, value: 0.374, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 30*; bootstrap SE of difference from the best model: 0.008.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: esm-1v-single, metric_id: spearman-correlation, value: 0.374, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 30*; bootstrap SE of difference from the best model: 0.013.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: wavenet, metric_id: spearman-correlation, value: 0.373, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 32; bootstrap SE of difference from the best model: 0.012.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: rita-xl, metric_id: spearman-correlation, value: 0.372, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 33; bootstrap SE of difference from the best model: 0.009.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: carp-640m, metric_id: spearman-correlation, value: 0.368, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 34; bootstrap SE of difference from the best model: 0.011.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: rita-l, metric_id: spearman-correlation, value: 0.365, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 35; bootstrap SE of difference from the best model: 0.009.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: site-independent, metric_id: spearman-correlation, value: 0.359, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 36; bootstrap SE of difference from the best model: 0.010.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: rita-m, metric_id: spearman-correlation, value: 0.350, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 37; bootstrap SE of difference from the best model: 0.010.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: tranception-m-no-retrieval, metric_id: spearman-correlation, value: 0.348, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 38; bootstrap SE of difference from the best model: 0.009.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: unirep-evotuned, metric_id: spearman-correlation, value: 0.347, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 39; bootstrap SE of difference from the best model: 0.009.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: progen2-s, metric_id: spearman-correlation, value: 0.336, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 40; bootstrap SE of difference from the best model: 0.012.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: carp-76m, metric_id: spearman-correlation, value: 0.328, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 41; bootstrap SE of difference from the best model: 0.012.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: esm2-35m, metric_id: spearman-correlation, value: 0.321, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 42; bootstrap SE of difference from the best model: 0.015.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: rita-s, metric_id: spearman-correlation, value: 0.304, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 43; bootstrap SE of difference from the best model: 0.011.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: tranception-s-no-retrieval, metric_id: spearman-correlation, value: 0.303, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 44; bootstrap SE of difference from the best model: 0.012.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: carp-38m, metric_id: spearman-correlation, value: 0.279, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 45; bootstrap SE of difference from the best model: 0.014.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: proteinmpnn, metric_id: spearman-correlation, value: 0.258, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 46; bootstrap SE of difference from the best model: 0.011.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: esm2-8m, metric_id: spearman-correlation, value: 0.226, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 47; bootstrap SE of difference from the best model: 0.015.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: unirep, metric_id: spearman-correlation, value: 0.190, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 48; bootstrap SE of difference from the best model: 0.016.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: protgpt2, metric_id: spearman-correlation, value: 0.188, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 49; bootstrap SE of difference from the best model: 0.011.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+  - {model_id: carp-600k, metric_id: spearman-correlation, value: 0.106, ci_low: null, ci_high: null, n: null, notes: 'Table A5 rank 50; bootstrap SE of difference from the best model: 0.016.', status: verified, confidence: high, evidence_ids: [proteingym-eval-results]}
+comparability_group: proteingym-v10-dms-substitutions-zero-shot
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Creator-paper v1.0 zero-shot DMS substitution setting; all five reported metrics, corrected-average aggregation, and all 50 Table A5 Spearman result rows are registered.'}
+evidence:
+  - id: proteingym-eval-scope-protocol
+    source_type: work
+    source_id: proteingym-paper
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'pp. 5–8 and 29, Table 1, Sections 3.3–4.1, and Table A1', note: 'Defines v1.0, 217 substitution assays, zero-shot label access, baselines, and official scoring.'}
+    supports: [/scope, /protocol]
+  - id: proteingym-eval-metrics
+    source_type: work
+    source_id: proteingym-paper
+    accessed_date: '2026-07-21'
+    locator: {type: table, value: 'pp. 3, 6, 9, 35, and 38; Figure 1, Section 4.1, Table 2, Appendix A.5.1, and Table A5', note: 'Defines Spearman, AUC, MCC, NDCG@10%, top-10% recall, corrected-average aggregation, and 10,000-sample bootstrap comparisons.'}
+    supports: [/metrics, /protocol/statistical]
+  - id: proteingym-eval-results
+    source_type: work
+    source_id: proteingym-paper
+    accessed_date: '2026-07-21'
+    locator: {type: table, value: 'p. 38, Table A5', note: 'All 50 zero-shot DMS substitution Spearman values and bootstrap standard errors of model-to-best differences.'}
+    supports: [/results]

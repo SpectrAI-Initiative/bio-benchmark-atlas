@@ -1,0 +1,88 @@
+entity_type: benchmark
+id: proteingym-clinical-indels
+name: ProteinGym Clinical Indels
+aliases: [ProteinGym clinical indel benchmark]
+summary: ProteinGym track for classifying short human clinical insertion and deletion variants against ClinVar and gnomAD-derived labels.
+kind: track
+parent_id: proteingym
+organizations: [University of Oxford, Harvard Medical School]
+release_date: '2023-12-08'
+latest_version: '1.3'
+domains: [protein-sequence, clinical-translational]
+capabilities: [prediction, classification]
+modalities: [protein-sequence, table]
+task_formats: [clinical variant classification]
+task_counts: {total: 1555, basis: clinical proteins, reporting_status: reported, subsets: []}
+coverage_notes: []
+access: {level: fully-open, tasks: 'The processed clinical indel benchmark is publicly downloadable.', artifacts: 'Reference files, processed/raw variants, model scores, and MSAs are public.', grader: 'Official deterministic scoring reports full-dataset AUROC and AUPRC because many proteins lack both classes.', license: MIT, biosafety_notes: 'Clinical labels require careful interpretation; the creator paper notes insufficient validation can limit medical use.'}
+resources:
+  - id: proteingym-clinical-indel-paper-resource
+    type: paper
+    url: https://proceedings.neurips.cc/paper_files/paper/2023/file/cac723e5ff29f65e3fcbb0739ae91bee-Paper-Datasets_and_Benchmarks.pdf
+    license: null
+    access_notes: Final creator paper for v1.0.
+    last_checked: '2026-07-21'
+    pin: {kind: snapshot, value: 'sha256:a3b08cc4a6befd64620cf0f287d78d55a36dc2639955f52c5655f83833c50104', url: 'https://proceedings.neurips.cc/paper_files/paper/2023/file/cac723e5ff29f65e3fcbb0739ae91bee-Paper-Datasets_and_Benchmarks.pdf'}
+  - id: proteingym-clinical-indel-repository-resource
+    type: repository
+    url: https://github.com/OATML-Markslab/ProteinGym
+    license: MIT
+    access_notes: Official code and release index.
+    last_checked: '2026-07-21'
+    pin: {kind: tag, value: PG_v1.3, url: 'https://github.com/OATML-Markslab/ProteinGym/tree/1f8de974dead8ff7501eff087b725d14a965e9f9'}
+  - id: proteingym-clinical-indel-v13-resource
+    type: dataset
+    url: https://doi.org/10.5281/zenodo.15293562
+    license: MIT
+    access_notes: Official v1.3 archive.
+    last_checked: '2026-07-21'
+    pin: {kind: version, value: '1.3', url: 'https://zenodo.org/records/15293562'}
+implementations:
+  - {framework: ProteinGym clinical scoring pipeline, status: official, url: 'https://github.com/OATML-Markslab/ProteinGym/tree/1f8de974dead8ff7501eff087b725d14a965e9f9/proteingym/clinical_benchmark_notebooks', commit: 1f8de974dead8ff7501eff087b725d14a965e9f9, notes: 'Official clinical processing and evaluation notebooks.'}
+versions:
+  - id: proteingym-clinical-indel-v10
+    label: '1.0'
+    status: superseded
+    release_date: '2023-12-08'
+    as_of: '2023-12-08'
+    task_counts: {total: 1555, basis: clinical proteins, reporting_status: reported, subsets: []}
+    formal_tracks: []
+    notes: 'Creator-paper snapshot reporting approximately 3,000 short indel variants.'
+    evidence_ids: [proteingym-clinical-indel-evidence-v10]
+  - id: proteingym-clinical-indel-v13
+    label: '1.3'
+    status: current
+    release_date: '2025-04-27'
+    as_of: '2025-04-27'
+    task_counts: {total: 1555, basis: clinical proteins, reporting_status: reported, subsets: []}
+    formal_tracks: []
+    notes: 'Current reference file has one row per clinical protein.'
+    evidence_ids: [proteingym-clinical-indel-evidence-v13]
+audit: {status: audited, audited_date: '2026-07-21', unresolved_fields: 0, notes: 'Protein counts were checked against the final paper and v1.3 reference file.'}
+field_status: []
+verification: {status: verified, last_verified: '2026-07-21', notes: Field-level track audit complete.}
+evidence:
+  - id: proteingym-clinical-indel-evidence-identity
+    source_type: work
+    source_id: proteingym-paper
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'pp. 1–10 and 31, Sections 3–5 and Appendix A.3.2', note: 'Track definition, identity, domains, modalities, classification format, metric, and access.'}
+    supports: [/name, /organizations, /release_date, /latest_version, /kind, /summary, /domains, /capabilities, /modalities, /task_formats]
+  - id: proteingym-clinical-indel-evidence-v10
+    source_type: work
+    source_id: proteingym-paper
+    accessed_date: '2026-07-21'
+    locator: {type: table, value: 'pp. 6 and 29, Tables 1 and A1', note: '1,555 clinical indel proteins in v1.0.'}
+    supports: [/versions/0/task_counts/total, /versions/0/task_counts/basis, /versions/0/task_counts/subsets]
+  - id: proteingym-clinical-indel-evidence-v13
+    source_type: resource
+    source_id: proteingym-clinical-indel-v13-resource
+    accessed_date: '2026-07-21'
+    locator: {type: repository-path, value: 'clinical_indels.csv in Zenodo record 15293562', note: '1,555 reference rows, one per clinical protein.'}
+    supports: [/task_counts/total, /task_counts/basis, /task_counts/subsets, /versions/1/task_counts/total, /versions/1/task_counts/basis, /versions/1/task_counts/subsets]
+  - id: proteingym-clinical-indel-evidence-access
+    source_type: resource
+    source_id: proteingym-clinical-indel-repository-resource
+    accessed_date: '2026-07-21'
+    locator: {type: repository-path, value: 'README.md Overview, Results, Resources, Usage and reproducibility, and License', note: 'Current version, downloads, scoring, implementation, and MIT license.'}
+    supports: [/latest_version, /access/level, /access/tasks, /access/artifacts, /access/grader, /access/license, /access/biosafety_notes, /resources, /implementations]

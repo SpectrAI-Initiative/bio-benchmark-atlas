@@ -1,0 +1,9 @@
+entity_type: model
+id: deepsequence-ensemble
+name: DeepSequence (ensemble)
+provider: Harvard University
+release_date: null
+version_string: DeepSequence ensemble
+version_status: reported
+aliases: []
+verification: {status: verified, last_verified: '2026-07-21', notes: Exact result variant in ProteinGym v1.0 Table A5.}

@@ -1,0 +1,9 @@
+entity_type: model
+id: tranception-m
+name: Tranception M
+provider: University of Oxford
+release_date: null
+version_string: Tranception M with retrieval
+version_status: reported
+aliases: [Tranception M]
+verification: {status: verified, last_verified: '2026-07-21', notes: Table A5 label; retrieval is the default unless explicitly marked no retrieval.}

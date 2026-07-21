@@ -1,0 +1,114 @@
+entity_type: benchmark
+id: proteingym-dms-indels
+name: ProteinGym DMS Indels
+aliases: [ProteinGym indel DMS benchmark]
+summary: ProteinGym track for predicting experimental fitness measurements of insertion and deletion mutants across deep-mutational-scanning assays.
+kind: track
+parent_id: proteingym
+organizations: [University of Oxford, Harvard Medical School]
+release_date: '2023-12-08'
+latest_version: '1.3'
+domains: [protein-sequence, protein-design]
+capabilities: [prediction, regression, classification, design, optimization]
+modalities: [protein-sequence, table]
+task_formats: [zero-shot mutation-effect prediction, supervised mutation-effect prediction]
+task_counts:
+  total: 66
+  basis: DMS assays
+  reporting_status: reported
+  subsets:
+    - {id: binding-function-assays, label: Binding function category, count: 0, basis: assays, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Neither Table A2 nor the v1.3 coarse_selection_type field contains an indel Binding assay.'}
+coverage_notes:
+  - {tag: protein-design, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: 'The track uses fitness-prediction and design-oriented metrics, but design is not a separately counted subset.'}
+  - {tag: protein-protein-binding, coverage: not-in-scope, count: 0, reporting_status: reported, notes: 'The official generic Binding function category contains zero indel assays in the paper and current reference file.'}
+  - {tag: protein-ligand-binding, coverage: not-in-scope, count: 0, reporting_status: reported, notes: 'The official generic Binding function category contains zero indel assays in the paper and current reference file.'}
+access: {level: fully-open, tasks: 'The versioned v1.3 archive exposes 66 processed indel assay files.', artifacts: 'Reference files, raw/processed assays, model scores, MSAs, and CV folds are public.', grader: 'Official deterministic scoring scripts compute zero-shot and supervised indel metrics.', license: MIT, biosafety_notes: 'The creator paper discusses dual-use risk for protein design and fitness models; this registry mirrors metadata and links only.'}
+resources:
+  - id: proteingym-dms-indel-paper-resource
+    type: paper
+    url: https://proceedings.neurips.cc/paper_files/paper/2023/file/cac723e5ff29f65e3fcbb0739ae91bee-Paper-Datasets_and_Benchmarks.pdf
+    license: null
+    access_notes: Final creator paper for v1.0.
+    last_checked: '2026-07-21'
+    pin: {kind: snapshot, value: 'sha256:a3b08cc4a6befd64620cf0f287d78d55a36dc2639955f52c5655f83833c50104', url: 'https://proceedings.neurips.cc/paper_files/paper/2023/file/cac723e5ff29f65e3fcbb0739ae91bee-Paper-Datasets_and_Benchmarks.pdf'}
+  - id: proteingym-dms-indel-repository-resource
+    type: repository
+    url: https://github.com/OATML-Markslab/ProteinGym
+    license: MIT
+    access_notes: Official scoring code, README, and release index.
+    last_checked: '2026-07-21'
+    pin: {kind: tag, value: PG_v1.3, url: 'https://github.com/OATML-Markslab/ProteinGym/tree/1f8de974dead8ff7501eff087b725d14a965e9f9'}
+  - id: proteingym-dms-indel-v13-resource
+    type: dataset
+    url: https://doi.org/10.5281/zenodo.15293562
+    license: MIT
+    access_notes: Official v1.3 archive.
+    last_checked: '2026-07-21'
+    pin: {kind: version, value: '1.3', url: 'https://zenodo.org/records/15293562'}
+implementations:
+  - {framework: ProteinGym DMS indel scoring pipeline, status: official, url: 'https://github.com/OATML-Markslab/ProteinGym/tree/1f8de974dead8ff7501eff087b725d14a965e9f9/scripts/scoring_DMS_zero_shot', commit: 1f8de974dead8ff7501eff087b725d14a965e9f9, notes: 'Includes the official indel performance script.'}
+versions:
+  - id: proteingym-dms-indel-v10
+    label: '1.0'
+    status: superseded
+    release_date: '2023-12-08'
+    as_of: '2023-12-08'
+    task_counts:
+      total: 66
+      basis: DMS assays
+      reporting_status: reported
+      subsets:
+        - {id: binding-function-assays, label: Binding function category, count: 0, basis: assays, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Table A2 value.'}
+    formal_tracks: []
+    notes: 'Creator-paper snapshot with 289,000 indel mutants.'
+    evidence_ids: [proteingym-dms-indel-evidence-v10]
+  - id: proteingym-dms-indel-v13
+    label: '1.3'
+    status: current
+    release_date: '2025-04-27'
+    as_of: '2025-04-27'
+    task_counts:
+      total: 66
+      basis: DMS assays
+      reporting_status: reported
+      subsets:
+        - {id: binding-function-assays, label: Binding function category, count: 0, basis: assays, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'No v1.3 coarse_selection_type=Binding row.'}
+    formal_tracks: []
+    notes: 'The archive has 66 assays; the pinned README says 74 and is preserved as a conflict.'
+    evidence_ids: [proteingym-dms-indel-evidence-v13, proteingym-dms-indel-evidence-readme]
+audit: {status: audited-with-caveats, audited_date: '2026-07-21', unresolved_fields: 2, notes: 'The versioned release archive takes precedence, while the README disagreement remains visible.'}
+field_status:
+  - {path: /task_counts/total, status: conflicted, confidence: medium, reason: 'The v1.3 archive/reference file contains 66 assays while the official PG_v1.3 README states 74.', evidence_ids: [proteingym-dms-indel-evidence-v13, proteingym-dms-indel-evidence-readme]}
+  - {path: /versions/1/task_counts/total, status: conflicted, confidence: medium, reason: 'The v1.3 archive/reference file contains 66 assays while the official PG_v1.3 README states 74.', evidence_ids: [proteingym-dms-indel-evidence-v13, proteingym-dms-indel-evidence-readme]}
+verification: {status: verified, last_verified: '2026-07-21', notes: Field-level track audit complete with an unresolved official-source count conflict.}
+evidence:
+  - id: proteingym-dms-indel-evidence-identity
+    source_type: work
+    source_id: proteingym-paper
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'pp. 1–10, Figure 1 and Sections 3–5', note: 'Track definition, parent relationship, domains, modalities, formats, capabilities, and access.'}
+    supports: [/name, /organizations, /release_date, /latest_version, /kind, /summary, /domains, /capabilities, /modalities, /task_formats]
+  - id: proteingym-dms-indel-evidence-v10
+    source_type: work
+    source_id: proteingym-paper
+    accessed_date: '2026-07-21'
+    locator: {type: table, value: 'pp. 6, 29–30; Tables 1, A1, and A2', note: '66 v1.0 indel assays and zero Binding indel assays.'}
+    supports: [/versions/0/task_counts/total, /versions/0/task_counts/basis, /versions/0/task_counts/subsets]
+  - id: proteingym-dms-indel-evidence-v13
+    source_type: resource
+    source_id: proteingym-dms-indel-v13-resource
+    accessed_date: '2026-07-21'
+    locator: {type: repository-path, value: 'DMS_indels.csv and DMS_ProteinGym_indels.zip in Zenodo record 15293562', note: 'Both expose 66 assay records; no coarse_selection_type=Binding row.'}
+    supports: [/task_counts/total, /task_counts/basis, /task_counts/subsets, /versions/1/task_counts/total, /versions/1/task_counts/basis, /versions/1/task_counts/subsets]
+  - id: proteingym-dms-indel-evidence-readme
+    source_type: resource
+    source_id: proteingym-dms-indel-repository-resource
+    accessed_date: '2026-07-21'
+    locator: {type: repository-path, value: 'README.md Overview at tag PG_v1.3', note: 'States 74 DMS indel assays.'}
+    supports: [/task_counts/total, /versions/1/task_counts/total]
+  - id: proteingym-dms-indel-evidence-access
+    source_type: resource
+    source_id: proteingym-dms-indel-repository-resource
+    accessed_date: '2026-07-21'
+    locator: {type: repository-path, value: 'README.md Resources, Results, Usage and reproducibility, Releases, and License', note: 'Current version, downloads, public scoring, implementation pin, and MIT license.'}
+    supports: [/latest_version, /access/level, /access/tasks, /access/artifacts, /access/grader, /access/license, /access/biosafety_notes, /resources, /implementations]

@@ -1,5 +1,9 @@
 - date: '2026-07-21'
   type: audit
+  entity_ids: [proteingym, proteingym-dms-substitutions, proteingym-dms-indels, proteingym-clinical-substitutions, proteingym-clinical-indels, proteingym-paper, proteingym-v10-dms-substitutions-zero-shot]
+  summary: Audited ProteinGym v1.0-v1.3, separated assay/protein/variant count units into four formal tracks, recorded the Binding function category change from 14 to 13 DMS substitution assays, retained the official v1.3 indel count conflict (66 in the release archive versus 74 in the README), and normalized the 50-model v1.0 zero-shot DMS substitution evaluation.
+- date: '2026-07-21'
+  type: audit
   entity_ids: [lifescibench, lifescibench-preprint, lifescibench-official-full]
   summary: Completed the LifeSciBench field-level audit; preserved 750/136/62, retained binding counts as Not reported, replaced an unsupported numbered version with an initial-release snapshot, and corrected unreported shot/repeat/grader settings.
 - date: '2026-07-21'

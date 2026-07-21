@@ -1,0 +1,9 @@
+entity_type: model
+id: rita-s
+name: RITA S
+provider: LightOn
+release_date: null
+version_string: RITA S
+version_status: reported
+aliases: []
+verification: {status: verified, last_verified: '2026-07-21', notes: Exact size variant in ProteinGym v1.0 Table A5.}

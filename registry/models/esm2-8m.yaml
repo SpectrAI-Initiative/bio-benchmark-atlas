@@ -1,0 +1,9 @@
+entity_type: model
+id: esm2-8m
+name: ESM2 (8M)
+provider: Meta AI
+release_date: null
+version_string: ESM2 8M
+version_status: reported
+aliases: [ESM-2 8M]
+verification: {status: verified, last_verified: '2026-07-21', notes: Exact size variant in ProteinGym v1.0 Table A5.}

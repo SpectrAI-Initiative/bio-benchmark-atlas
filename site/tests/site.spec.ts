@@ -12,11 +12,11 @@ test('explorer restores and updates URL filter state', async ({ page }) => {
   await page.goto('/bio-benchmark-atlas/benchmarks/?domain=protein-design&access=fully-open');
   await expect(page.locator('#domain')).toHaveValue('protein-design');
   await expect(page.locator('#access')).toHaveValue('fully-open');
-  await expect(page.getByRole('link', { name: 'ProteinGym' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'ProteinGym', exact: true })).toBeVisible();
   await page.locator('#q').fill('FLIP');
   await expect(page).toHaveURL(/q=FLIP/);
   await expect(page.getByRole('link', { name: 'FLIP' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'ProteinGym' })).toBeHidden();
+  await expect(page.getByRole('link', { name: 'ProteinGym', exact: true })).toBeHidden();
 });
 
 test('LifeSciBench shows audited protein and binding counts', async ({ page }) => {
@@ -30,6 +30,27 @@ test('LifeSciBench shows audited protein and binding counts', async ({ page }) =
   await expect(run.locator('.tag.accent')).toHaveText('lifescibench-initial-release-full-official');
   await expect(run.getByText('Scope', { exact: true }).locator('..')).toContainText('full · n=750');
   await expect(run.getByText('Repeats', { exact: true }).locator('..')).toContainText('Not reported');
+});
+
+test('ProteinGym separates formal tracks, versions, conflicts, and comparable results', async ({ page }) => {
+  await page.goto('/bio-benchmark-atlas/benchmarks/proteingym/');
+  await expect(page.getByText(/v1\.3 release archive contains 66 DMS indel assay records/)).toBeVisible();
+  await expect(page.getByText('Conflicted', { exact: true }).first()).toBeVisible();
+  for (const name of [
+    'ProteinGym DMS Substitutions',
+    'ProteinGym DMS Indels',
+    'ProteinGym Clinical Substitutions',
+    'ProteinGym Clinical Indels',
+  ]) {
+    await expect(page.getByRole('link', { name, exact: true }).first()).toBeVisible();
+  }
+
+  await page.goto('/bio-benchmark-atlas/benchmarks/proteingym-dms-substitutions/');
+  const run = page.locator('#proteingym-v10-dms-substitutions-zero-shot');
+  await expect(run.getByText('Scope', { exact: true }).locator('..')).toContainText('full · n=217');
+  await expect(page.locator('.chart-card details tbody tr')).toHaveCount(50);
+  await expect(page.locator('.plot-host svg[viewBox]')).toBeVisible();
+  await expect(page.locator('.plot-host svg[viewBox]').getByText('TranceptEVE L', { exact: true })).toBeVisible();
 });
 
 test('BioMysteryBench separates the human subsets and repeats', async ({ page }) => {
@@ -68,6 +89,16 @@ test('dark mode and mobile navigation remain usable', async ({ page }) => {
     () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
   );
   expect(hasPageOverflow).toBe(false);
+
+  await page.goto('/bio-benchmark-atlas/benchmarks/proteingym-dms-substitutions/');
+  const proteinGymOverflow = await page.evaluate(() => ({
+    page: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+    resourceLabelsWrap: [...document.querySelectorAll('.sidebar .small')]
+      .filter((node) => node.textContent?.includes('sha256'))
+      .every((node) => getComputedStyle(node).overflowWrap === 'anywhere'),
+  }));
+  expect(proteinGymOverflow.page).toBe(false);
+  expect(proteinGymOverflow.resourceLabelsWrap).toBe(true);
 });
 
 test('critical pages have no serious or critical axe violations', async ({ page }, testInfo) => {

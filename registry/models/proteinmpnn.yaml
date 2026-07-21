@@ -1,0 +1,9 @@
+entity_type: model
+id: proteinmpnn
+name: ProteinMPNN
+provider: University of Washington Institute for Protein Design
+release_date: null
+version_string: ProteinMPNN
+version_status: reported
+aliases: [Protein MPNN]
+verification: {status: verified, last_verified: '2026-07-21', notes: Exact label in ProteinGym v1.0 Table A5.}

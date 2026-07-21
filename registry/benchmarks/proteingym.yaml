@@ -2,42 +2,241 @@ entity_type: benchmark
 id: proteingym
 name: ProteinGym
 aliases: [Protein Gym]
-summary: Large-scale mutation-effect benchmarks spanning deep mutational scanning and clinical variants for protein fitness prediction and design.
+summary: Versioned deep-mutational-scanning and clinical-variant benchmarks for protein fitness prediction and design in zero-shot and supervised regimes.
 kind: suite
 parent_id: null
-organizations: [University of Oxford, Harvard Medical School]
-release_date: '2023-09-22'
+organizations: [University of Oxford, Harvard Medical School, Seismic Therapeutic, Harvard University, Centre for Genomic Regulation, Universitat Pompeu Fabra, Broad Institute]
+release_date: '2023-12-08'
 latest_version: '1.3'
-domains: [protein-sequence, protein-design]
-capabilities: [prediction, regression, classification, design]
-modalities: [protein-sequence, table]
-task_formats: [mutation-effect prediction, supervised prediction]
+domains: [protein-sequence, protein-design, protein-ligand-binding, clinical-translational]
+capabilities: [prediction, regression, classification, design, optimization]
+modalities: [protein-sequence, structure-3d, table]
+task_formats: [zero-shot mutation-effect prediction, supervised mutation-effect prediction, clinical variant classification]
 task_counts:
   total: null
-  basis: heterogeneous assays, proteins, and mutant measurements
+  basis: heterogeneous DMS assays, clinical proteins, and mutant measurements
   reporting_status: not_reported
   subsets:
-    - {id: dms-substitution-assays, label: DMS substitution assays, count: 217, basis: assays, exclusive: false, exhaustive: false, reporting_status: reported, notes: Approximately 2.7 million missense variants.}
-    - {id: dms-indel-assays, label: DMS indel assays, count: 74, basis: assays, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Approximately 300,000 mutants.'}
-    - {id: clinical-substitution-proteins, label: Clinical substitution proteins, count: 2525, basis: proteins, exclusive: false, exhaustive: false, reporting_status: reported, notes: Clinical benchmark.}
-    - {id: clinical-indel-proteins, label: Clinical indel proteins, count: 1555, basis: proteins, exclusive: false, exhaustive: false, reporting_status: reported, notes: Clinical benchmark.}
+    - {id: dms-substitution-assays, label: DMS substitution assays, count: 217, basis: assays, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'The v1.3 reference file has 217 assay rows; assay count is distinct from the README description of approximately 2.7 million missense variants.'}
+    - {id: dms-indel-assays, label: DMS indel assays, count: 66, basis: assays, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'The v1.3 versioned archive has 66 assay records; the pinned repository README says 74, so this value is marked Conflicted.'}
+    - {id: clinical-substitution-proteins, label: Clinical substitution proteins, count: 2525, basis: proteins, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'The v1.3 clinical reference file has one row per protein.'}
+    - {id: clinical-indel-proteins, label: Clinical indel proteins, count: 1555, basis: proteins, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'The v1.3 clinical indel reference file has one row per protein.'}
+    - {id: dms-substitution-binding-assays, label: DMS substitution assays in the Binding function category, count: 13, basis: assays, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'The v1.3 reference file contains 13 rows with coarse_selection_type=Binding; target type is not split into protein-protein versus protein-ligand counts.'}
 coverage_notes:
-  - {tag: protein-design, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: 'The benchmark is intended for fitness prediction and design, but design is not a separately counted task subset.'}
+  - {tag: protein-design, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: 'NDCG@10% and top-10% recall evaluate design-oriented ranking, but design is not a separately counted task subset.'}
+  - {tag: protein-ligand-binding, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: 'The paper explicitly includes ligand binding and reports a generic Binding function category: 14 substitution assays in v1.0 and 13 in v1.1-v1.3. It does not publish a target-type split, so no protein-ligand-only count is inferred.'}
+  - {tag: protein-protein-binding, coverage: observed, count: null, reporting_status: not_reported, notes: 'Some source assays concern protein-protein binding, but the official function category is generic Binding and no protein-protein-only count is published.'}
 access:
   level: fully-open
-  tasks: Processed benchmark tables are public.
-  artifacts: DMS and clinical data are distributed with source-specific attribution.
-  grader: Public scoring scripts and benchmark result files.
+  tasks: Processed DMS assay tables and clinical benchmark files are publicly downloadable in versioned archives.
+  artifacts: Official releases include reference files, model scores, MSAs, predicted structures, cross-validation folds, and raw/processed benchmark data.
+  grader: Public deterministic scoring scripts compute the official DMS and clinical metrics.
   license: MIT
-  biosafety_notes: Individual source assay licenses and citations must also be respected.
+  biosafety_notes: 'The creator paper explicitly discusses dual-use risk for protein fitness and design models, including harmful optimization; this registry mirrors metadata and links only.'
 resources:
-  - {type: paper, url: 'https://papers.nips.cc/paper_files/paper/2023/hash/cac723e5ff29f65e3fcbb0739ae91bee-Abstract-Datasets_and_Benchmarks.html', license: null, access_notes: Peer-reviewed creator paper.}
-  - {type: website, url: 'https://proteingym.org/', license: null, access_notes: Official benchmark site.}
-  - {type: repository, url: 'https://github.com/OATML-Markslab/ProteinGym', license: MIT, access_notes: 'Official code, data links, and releases.'}
+  - id: proteingym-paper-resource
+    type: paper
+    url: https://proceedings.neurips.cc/paper_files/paper/2023/file/cac723e5ff29f65e3fcbb0739ae91bee-Paper-Datasets_and_Benchmarks.pdf
+    license: null
+    access_notes: Final NeurIPS 2023 Datasets and Benchmarks paper for ProteinGym v1.0.
+    last_checked: '2026-07-21'
+    pin: {kind: snapshot, value: 'sha256:a3b08cc4a6befd64620cf0f287d78d55a36dc2639955f52c5655f83833c50104', url: 'https://proceedings.neurips.cc/paper_files/paper/2023/file/cac723e5ff29f65e3fcbb0739ae91bee-Paper-Datasets_and_Benchmarks.pdf'}
+  - id: proteingym-website-resource
+    type: website
+    url: https://www.proteingym.org/
+    license: null
+    access_notes: Official living leaderboards and per-assay performance views.
+    last_checked: '2026-07-21'
+    pin: null
+  - id: proteingym-repository-resource
+    type: repository
+    url: https://github.com/OATML-Markslab/ProteinGym
+    license: MIT
+    access_notes: Official code, release links, reference files, model scores, and scoring pipeline.
+    last_checked: '2026-07-21'
+    pin: {kind: tag, value: PG_v1.3, url: 'https://github.com/OATML-Markslab/ProteinGym/tree/1f8de974dead8ff7501eff087b725d14a965e9f9'}
+  - id: proteingym-v10-dataset-resource
+    type: dataset
+    url: https://doi.org/10.5281/zenodo.13932633
+    license: MIT
+    access_notes: Official versioned v1.0 archive.
+    last_checked: '2026-07-21'
+    pin: {kind: version, value: '1.0', url: 'https://zenodo.org/records/13932633'}
+  - id: proteingym-v11-dataset-resource
+    type: dataset
+    url: https://doi.org/10.5281/zenodo.13936340
+    license: MIT
+    access_notes: Official versioned v1.1 archive.
+    last_checked: '2026-07-21'
+    pin: {kind: version, value: '1.1', url: 'https://zenodo.org/records/13936340'}
+  - id: proteingym-v12-dataset-resource
+    type: dataset
+    url: https://doi.org/10.5281/zenodo.14997691
+    license: MIT
+    access_notes: Official versioned v1.2 archive.
+    last_checked: '2026-07-21'
+    pin: {kind: version, value: '1.2', url: 'https://zenodo.org/records/14997691'}
+  - id: proteingym-v13-dataset-resource
+    type: dataset
+    url: https://doi.org/10.5281/zenodo.15293562
+    license: MIT
+    access_notes: Official versioned v1.3 archive and current registry snapshot.
+    last_checked: '2026-07-21'
+    pin: {kind: version, value: '1.3', url: 'https://zenodo.org/records/15293562'}
 implementations:
-  - {framework: ProteinGym scoring pipeline, status: official, url: 'https://github.com/OATML-Markslab/ProteinGym/tree/144fe22b07dfaeec2b366f2346203a9838a55b4c', commit: 144fe22b07dfaeec2b366f2346203a9838a55b4c, notes: Commit captured at verification time.}
-verification: {status: verified, last_verified: '2026-07-21', notes: 'Current v1.3 counts come from the official repository, which supersedes some older website copy.'}
+  - framework: ProteinGym scoring pipeline
+    status: official
+    url: https://github.com/OATML-Markslab/ProteinGym/tree/1f8de974dead8ff7501eff087b725d14a965e9f9
+    commit: 1f8de974dead8ff7501eff087b725d14a965e9f9
+    notes: Commit referenced by the official PG_v1.3 tag; scoring scripts are baseline- and track-specific.
+versions:
+  - id: proteingym-v10
+    label: '1.0'
+    status: superseded
+    release_date: '2023-12-08'
+    as_of: '2023-12-08'
+    task_counts:
+      total: null
+      basis: heterogeneous DMS assays, clinical proteins, and mutant measurements
+      reporting_status: not_reported
+      subsets:
+        - {id: dms-substitution-assays, label: DMS substitution assays, count: 217, basis: assays, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Table A1 reports 2.4 million substitution mutants.'}
+        - {id: dms-indel-assays, label: DMS indel assays, count: 66, basis: assays, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Table A1 reports 289,000 indel mutants.'}
+        - {id: clinical-substitution-proteins, label: Clinical substitution proteins, count: 2525, basis: proteins, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Table A1 reports 63,000 clinical substitution mutants.'}
+        - {id: clinical-indel-proteins, label: Clinical indel proteins, count: 1555, basis: proteins, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Table A1 reports 3,000 clinical indel mutants.'}
+        - {id: dms-substitution-binding-assays, label: DMS substitution assays in the Binding function category, count: 14, basis: assays, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Table A2 reports 14 substitution and zero indel assays in the generic Binding category.'}
+    formal_tracks: [proteingym-dms-substitutions, proteingym-dms-indels, proteingym-clinical-substitutions, proteingym-clinical-indels]
+    notes: Initial creator-paper release; the paper explicitly identifies its benchmark as ProteinGym v1.0.
+    evidence_ids: [proteingym-evidence-v10-counts, proteingym-evidence-v10-release]
+  - id: proteingym-v11
+    label: '1.1'
+    status: superseded
+    release_date: '2024-10-15'
+    as_of: '2024-10-15'
+    task_counts:
+      total: null
+      basis: heterogeneous DMS assays, clinical proteins, and mutant measurements
+      reporting_status: not_reported
+      subsets:
+        - {id: dms-substitution-assays, label: DMS substitution assays, count: 217, basis: assays, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Counted from DMS_substitutions.csv in the versioned archive.'}
+        - {id: dms-indel-assays, label: DMS indel assays, count: 66, basis: assays, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Counted from DMS_indels.csv in the versioned archive.'}
+        - {id: clinical-substitution-proteins, label: Clinical substitution proteins, count: 2525, basis: proteins, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Counted from clinical_substitutions.csv in the versioned archive.'}
+        - {id: clinical-indel-proteins, label: Clinical indel proteins, count: 1555, basis: proteins, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Counted from clinical_indels.csv in the versioned archive.'}
+        - {id: dms-substitution-binding-assays, label: DMS substitution assays in the Binding function category, count: 13, basis: assays, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'The reference file has 13 rows with coarse_selection_type=Binding.'}
+    formal_tracks: [proteingym-dms-substitutions, proteingym-dms-indels, proteingym-clinical-substitutions, proteingym-clinical-indels]
+    notes: Official release notes describe reference-file updates and the addition of ProtSSN and SaProt baselines.
+    evidence_ids: [proteingym-evidence-v11-counts, proteingym-evidence-releases]
+  - id: proteingym-v12
+    label: '1.2'
+    status: superseded
+    release_date: '2025-03-10'
+    as_of: '2025-03-10'
+    task_counts:
+      total: null
+      basis: heterogeneous DMS assays, clinical proteins, and mutant measurements
+      reporting_status: not_reported
+      subsets:
+        - {id: dms-substitution-assays, label: DMS substitution assays, count: 217, basis: assays, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Counted from the versioned DMS_substitutions.csv reference file.'}
+        - {id: dms-indel-assays, label: DMS indel assays, count: 66, basis: assays, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Counted from the versioned DMS_indels.csv reference file.'}
+        - {id: clinical-substitution-proteins, label: Clinical substitution proteins, count: 2525, basis: proteins, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Counted from the versioned clinical_substitutions.csv reference file.'}
+        - {id: clinical-indel-proteins, label: Clinical indel proteins, count: 1555, basis: proteins, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Counted from the versioned clinical_indels.csv reference file.'}
+        - {id: dms-substitution-binding-assays, label: DMS substitution assays in the Binding function category, count: 13, basis: assays, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'The reference file has 13 rows with coarse_selection_type=Binding.'}
+    formal_tracks: [proteingym-dms-substitutions, proteingym-dms-indels, proteingym-clinical-substitutions, proteingym-clinical-indels]
+    notes: Official release notes describe added zero-shot substitution baselines and mutation-level supervised predictions.
+    evidence_ids: [proteingym-evidence-v12-counts, proteingym-evidence-releases]
+  - id: proteingym-v13
+    label: '1.3'
+    status: current
+    release_date: '2025-04-27'
+    as_of: '2025-04-27'
+    task_counts:
+      total: null
+      basis: heterogeneous DMS assays, clinical proteins, and mutant measurements
+      reporting_status: not_reported
+      subsets:
+        - {id: dms-substitution-assays, label: DMS substitution assays, count: 217, basis: assays, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'The v1.3 reference file has 217 assay rows; assay count is distinct from the README description of approximately 2.7 million missense variants.'}
+        - {id: dms-indel-assays, label: DMS indel assays, count: 66, basis: assays, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'The v1.3 versioned archive has 66 assay records; the pinned repository README says 74, so this value is marked Conflicted.'}
+        - {id: clinical-substitution-proteins, label: Clinical substitution proteins, count: 2525, basis: proteins, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'The v1.3 clinical reference file has one row per protein.'}
+        - {id: clinical-indel-proteins, label: Clinical indel proteins, count: 1555, basis: proteins, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'The v1.3 clinical indel reference file has one row per protein.'}
+        - {id: dms-substitution-binding-assays, label: DMS substitution assays in the Binding function category, count: 13, basis: assays, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'The v1.3 reference file contains 13 rows with coarse_selection_type=Binding; target type is not split into protein-protein versus protein-ligand counts.'}
+    formal_tracks: [proteingym-dms-substitutions, proteingym-dms-indels, proteingym-clinical-substitutions, proteingym-clinical-indels]
+    notes: Current official dataset release; release notes add 16 zero-shot substitution baselines without announcing a benchmark-data expansion.
+    evidence_ids: [proteingym-evidence-v13-counts, proteingym-evidence-releases, proteingym-evidence-current-readme]
+audit:
+  status: audited-with-caveats
+  audited_date: '2026-07-21'
+  unresolved_fields: 2
+  notes: 'Versioned release archives take precedence for task counts. The current indel-assay count remains marked conflicted because the v1.3 archive/reference file contains 66 assays while the pinned official README says 74.'
+field_status:
+  - path: /task_counts/subsets/1/count
+    status: conflicted
+    confidence: medium
+    reason: 'The versioned v1.3 archive contains 66 DMS indel assay records, while the official PG_v1.3 README states 74. The archive value is retained under the source-priority policy.'
+    evidence_ids: [proteingym-evidence-v13-counts, proteingym-evidence-current-readme]
+  - path: /versions/3/task_counts/subsets/1/count
+    status: conflicted
+    confidence: medium
+    reason: 'The versioned v1.3 archive contains 66 DMS indel assay records, while the official PG_v1.3 README states 74. The archive value is retained under the source-priority policy.'
+    evidence_ids: [proteingym-evidence-v13-counts, proteingym-evidence-current-readme]
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Field-level audit completed against the final creator paper, official versioned Zenodo archives, official repository tag PG_v1.3, and official website.'}
 evidence:
-  - work_id: proteingym-paper
-    locator: 'Abstract; official repository Overview and Releases'
-    supports: [summary, task_counts, domains, capabilities, access, implementations]
+  - id: proteingym-evidence-identity
+    source_type: work
+    source_id: proteingym-paper
+    accessed_date: '2026-07-21'
+    locator: {type: page, value: 'pp. 1–6, title, author affiliations, abstract, Figure 1, and Sections 3–4', note: 'Official identity, creator affiliations, benchmark scope, modalities, task formats, and evaluation regimes.'}
+    supports: [/name, /organizations, /release_date, /kind, /summary, /domains, /capabilities, /modalities, /task_formats]
+  - id: proteingym-evidence-taxonomy
+    source_type: work
+    source_id: proteingym-paper
+    accessed_date: '2026-07-21'
+    locator: {type: table, value: 'pp. 5–6 and 30, Table 1, Section 4.1, and Table A2', note: 'DMS/clinical regimes, design-oriented metrics, ligand-binding scope, and the generic Binding function category.'}
+    supports: [/domains, /capabilities, /modalities, /task_formats, /coverage_notes]
+  - id: proteingym-evidence-v10-counts
+    source_type: work
+    source_id: proteingym-paper
+    accessed_date: '2026-07-21'
+    locator: {type: table, value: 'pp. 6, 29–30; Tables 1, A1, and A2', note: 'v1.0 reports 217 substitution assays, 66 indel assays, 2,525/1,555 clinical proteins, and 14 generic Binding substitution assays.'}
+    supports: [/versions/0/task_counts/total, /versions/0/task_counts/basis, /versions/0/task_counts/subsets]
+  - id: proteingym-evidence-v10-release
+    source_type: resource
+    source_id: proteingym-v10-dataset-resource
+    accessed_date: '2026-07-21'
+    locator: {type: dataset-card, value: 'Zenodo record 13932633 metadata: version 1.0, publication date 2023-12, open access, MIT license', note: 'The benchmark release date is anchored to the creator preprint posted on 2023-12-08 because the dataset record only reports month precision.'}
+    supports: [/release_date, /versions/0/release_date, /resources]
+  - id: proteingym-evidence-v11-counts
+    source_type: resource
+    source_id: proteingym-v11-dataset-resource
+    accessed_date: '2026-07-21'
+    locator: {type: repository-path, value: 'ProteinGym_v1.1.zip: DMS_substitutions.csv, DMS_indels.csv, clinical_substitutions.csv, clinical_indels.csv', note: 'CSV row counts are 217, 66, 2,525, and 1,555; coarse_selection_type has 13 Binding rows.'}
+    supports: [/versions/1/task_counts/total, /versions/1/task_counts/basis, /versions/1/task_counts/subsets]
+  - id: proteingym-evidence-v12-counts
+    source_type: resource
+    source_id: proteingym-v12-dataset-resource
+    accessed_date: '2026-07-21'
+    locator: {type: repository-path, value: 'Zenodo record 14997691: DMS_substitutions.csv, DMS_indels.csv, clinical_substitutions.csv, clinical_indels.csv', note: 'CSV row counts are 217, 66, 2,525, and 1,555; coarse_selection_type has 13 Binding rows.'}
+    supports: [/versions/2/task_counts/total, /versions/2/task_counts/basis, /versions/2/task_counts/subsets]
+  - id: proteingym-evidence-v13-counts
+    source_type: resource
+    source_id: proteingym-v13-dataset-resource
+    accessed_date: '2026-07-21'
+    locator: {type: repository-path, value: 'Zenodo record 15293562: DMS_substitutions.csv, DMS_indels.csv, clinical_substitutions.csv, clinical_indels.csv and DMS_ProteinGym_indels.zip', note: 'Reference/archive row counts are 217, 66, 2,525, and 1,555; coarse_selection_type has 13 Binding rows.'}
+    supports: [/task_counts/total, /task_counts/basis, /task_counts/subsets, /task_counts/subsets/1/count, /versions/3/task_counts/total, /versions/3/task_counts/basis, /versions/3/task_counts/subsets, /versions/3/task_counts/subsets/1/count]
+  - id: proteingym-evidence-releases
+    source_type: resource
+    source_id: proteingym-repository-resource
+    accessed_date: '2026-07-21'
+    locator: {type: release, value: 'PG_v1.0–PG_v1.3 tags and README Releases section at commit 1f8de974dead8ff7501eff087b725d14a965e9f9', note: 'The README identifies v1.3 as latest and links all four immutable Zenodo releases.'}
+    supports: [/latest_version, /versions/1/release_date, /versions/2/release_date, /versions/3/release_date, /resources, /implementations]
+  - id: proteingym-evidence-current-readme
+    source_type: resource
+    source_id: proteingym-repository-resource
+    accessed_date: '2026-07-21'
+    locator: {type: repository-path, value: 'README.md, Overview and Results at tag PG_v1.3', note: 'README reports 217 DMS substitution assays, 74 DMS indel assays, 2,525/1,555 clinical proteins, metrics, aggregation, downloads, and MIT license.'}
+    supports: [/task_counts/subsets/1/count, /versions/3/task_counts/subsets/1/count, /access/level, /access/tasks, /access/artifacts, /access/grader, /access/license, /resources, /implementations]
+  - id: proteingym-evidence-access-safety
+    source_type: work
+    source_id: proteingym-paper
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'pp. 11 and 28–29, Section 6 and Appendices A.1 and A.3.3–A.3.4', note: 'Public code/data/model-score resources, MIT code license, and explicit dual-use discussion.'}
+    supports: [/access/level, /access/tasks, /access/artifacts, /access/grader, /access/license, /access/biosafety_notes, /resources, /implementations]

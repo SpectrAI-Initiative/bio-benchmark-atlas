@@ -1,4 +1,8 @@
 - date: '2026-07-21'
+  type: audit
+  entity_ids: [lifescibench, lifescibench-preprint, lifescibench-official-full]
+  summary: Completed the LifeSciBench field-level audit; preserved 750/136/62, retained binding counts as Not reported, replaced an unsupported numbered version with an initial-release snapshot, and corrected unreported shot/repeat/grader settings.
+- date: '2026-07-21'
   type: development
   entity_ids: [registry-schema]
   summary: Began the v1.1 field-level audit cycle with compatible versions, resource pins, structured evidence, audit status, provisional/conflicted claims, result confidence, and expanded source monitoring.

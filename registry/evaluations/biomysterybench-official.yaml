@@ -2,33 +2,167 @@ entity_type: evaluation_run
 id: biomysterybench-official-run
 work_id: biomysterybench-official
 benchmark_id: biomysterybench
-benchmark_version: '1.0'
-scope: {type: full, n: 99, subset_id: null, filter: Four unusable questions excluded before the reported 99-question evaluation., reporting_status: reported}
+benchmark_version: v8
+model_ids:
+- claude-haiku-4-5
+- claude-sonnet-4-6
+- claude-opus-4-6
+- claude-opus-4-7
+- claude-mythos-preview
+scope:
+  type: full
+  n: 99
+  subset_id: null
+  filter: Initial v8 release used by the April report; four failed-QC human-difficult candidates had already been excluded before the 99-problem benchmark was formed.
+  reporting_status: reported
 protocol:
-  shots: &nr {value: null, reporting_status: not_reported, notes: Not reported.}
-  turns: {value: multi-turn, reporting_status: reported, notes: Each episode is an open-ended Claude Code investigation.}
-  system_prompt_public: *nr
-  reasoning: *nr
+  shots:
+    value: null
+    reporting_status: not_reported
+    notes: The report does not characterize the agent setup using a zero-shot or few-shot convention.
+  turns:
+    value: multi-turn agent episode
+    reporting_status: reported
+    notes: Each run is an open-ended tool-using trajectory ending in a final answer.
+  system_prompt_public:
+    value: null
+    reporting_status: not_reported
+    notes: Problem questions and v11 answer rubrics are released, but the report does not publish or state the availability of the evaluation system prompt.
+  reasoning:
+    value: null
+    reporting_status: not_reported
+    notes: Model-specific reasoning or effort settings are not reported.
   tools:
-    browser: *nr
-    internet: *nr
-    databases: {value: canonical bioinformatics databases, reporting_status: reported, notes: Database access is part of the environment.}
-    code_execution: {value: true, reporting_status: reported, notes: 'Python, R, and shell workflows are supported.'}
-    container: {value: true, reporting_status: reported, notes: Isolated container initialized with canonical tools.}
-    external_tools: {value: installable packages via pip and conda, reporting_status: reported, notes: Agents can add tools during an episode.}
-  token_budget: *nr
-  time_budget: *nr
-  temperature: *nr
-  seed: *nr
-  repeats: {value: 5, reporting_status: reported, notes: Five independent episodes per question.}
-  grader: {type: expert answer adjudication, model: null, human_review: true, reporting_status: reported}
-  statistical: {value: accuracy and cross-episode consistency, reporting_status: reported, notes: Human-solvable and human-difficult subsets are analyzed separately.}
-  contamination: *nr
+    browser:
+      value: null
+      reporting_status: not_reported
+      notes: A browser interface is not reported.
+    internet:
+      value: allowlisted external access
+      reporting_status: reported
+      notes: Agents could access canonical bioinformatics databases and download references; reverse-identifying source datasets through accession lookup was prohibited.
+    databases:
+      value:
+      - NCBI
+      - Ensembl
+      - other canonical bioinformatics databases allowed per problem
+      reporting_status: reported
+      notes: Standard database uses such as gene lookup, sequence annotation, reference-genome download, and BLAST were permitted.
+    code_execution:
+      value: true
+      reporting_status: reported
+      notes: The environment supports analysis code and command-line bioinformatics workflows.
+    container:
+      value: true
+      reporting_status: reported
+      notes: Every model episode ran in a container initialized with a minimal canonical tool set.
+    external_tools:
+      value: preinstalled canonical bioinformatics tools plus packages installable through pip and conda
+      reporting_status: reported
+      notes: The exact base image and complete package inventory are not published.
+  token_budget:
+    value: null
+    reporting_status: not_reported
+    notes: Not reported.
+  time_budget:
+    value: null
+    reporting_status: not_reported
+    notes: Not reported.
+  temperature:
+    value: null
+    reporting_status: not_reported
+    notes: Not reported.
+  seed:
+    value: null
+    reporting_status: not_reported
+    notes: Not reported.
+  repeats:
+    value: 5
+    reporting_status: reported
+    notes: Each model attempted every problem in five independent episodes.
+  grader:
+    type: objective final-answer scoring against an expert-authored answer rubric
+    model: null
+    human_review: null
+    reporting_status: reported
+  statistical:
+    value: accuracy averaged over five episodes per problem with error bars from bootstrap sampling within problems; per-problem reliability analyzed by 0-of-5 through 5-of-5 solve counts
+    reporting_status: reported
+    notes: The report does not publish numeric confidence bounds, the number of bootstrap resamples, or the exact grader implementation.
+  contamination:
+    value: source-dataset reverse identification prohibited; accession-ID leaks scrubbed from 16 v8 problems
+    reporting_status: reported
+    notes: This is an anti-cheating/data-leak control, not a reported pretraining-contamination analysis.
 metrics:
-  - {metric_id: accuracy, source_label: Accuracy, unit: percent, range: [0, 100], higher_is_better: true, aggregation: episode and question summaries, pass_threshold: null, tolerance: expert adjudication}
-  - {metric_id: consistency, source_label: Consistency, unit: percent, range: [0, 100], higher_is_better: true, aggregation: agreement across five episodes, pass_threshold: null, tolerance: null}
+- metric_id: episode-accuracy
+  source_label: Accuracy
+  unit: percent
+  range: [0, 100]
+  higher_is_better: true
+  aggregation: mean over five trials per problem, then mean over the selected problems
+  pass_threshold: null
+  tolerance: expert-authored answer rubric
 results: []
-comparability_group: biomysterybench-v1-full-five-episodes
-verification: {status: verified, last_verified: '2026-07-21', notes: The official page presents charts; numeric model rows are omitted until machine-readable values can be verified.}
+comparability_group: biomysterybench-v8-full-five-episodes-protocol
+verification:
+  status: verified
+  last_verified: '2026-07-21'
+  notes: Full v8 scope and common protocol are retained here; numeric results are split into separate 76- and 23-problem runs because the report publishes those subsets separately.
 evidence:
-  - {work_id: biomysterybench-official, locator: 'Benchmark construction, agent environment, human comparison, and consistency sections', supports: [scope, protocol.tools, protocol.repeats, protocol.grader, metrics]}
+- id: biomysterybench-evidence-run-scope
+  source_type: work
+  source_id: biomysterybench-official
+  accessed_date: '2026-07-21'
+  locator:
+    type: section
+    value: “Benchmarking models on verifiable biological tasks,” “Human-solvable,” and “Human-difficult”
+    note: Reports 99 problems partitioned into 76 and 23 after four failed-QC candidates were removed.
+  supports:
+  - /benchmark_version
+  - /scope
+- id: biomysterybench-evidence-run-protocol
+  source_type: work
+  source_id: biomysterybench-official
+  accessed_date: '2026-07-21'
+  locator:
+    type: section
+    value: Environment description, method-agnostic property, Figures 1–3 captions, and continuing reliability analysis
+    note: Reports containers, databases, package installation, final-answer grading, five episodes, bootstrap-within-problem error bars, and solve-count reliability profiles.
+  supports:
+  - /protocol/turns
+  - /protocol/tools/internet
+  - /protocol/tools/databases
+  - /protocol/tools/code_execution
+  - /protocol/tools/container
+  - /protocol/tools/external_tools
+  - /protocol/repeats
+  - /protocol/grader
+  - /protocol/statistical
+  - /metrics
+- id: biomysterybench-evidence-run-leak-control
+  source_type: resource
+  source_id: biomysterybench-preview-resource
+  accessed_date: '2026-07-21'
+  locator:
+    type: repository-path
+    value: README.md Rules and CHANGELOG.md v8 entry at commit 51c9024021b8989a0cb06ae623b02f90d14c2da3
+    note: Documents prohibited accession/reverse lookup, permitted standard database use, and 16 scrubbed v8 problems.
+  supports:
+  - /protocol/contamination
+- id: biomysterybench-evidence-run-unreported
+  source_type: work
+  source_id: biomysterybench-official
+  accessed_date: '2026-07-21'
+  locator:
+    type: section
+    value: Complete public report and figure captions
+    note: The public protocol does not report shots, a browser, a system prompt, effort, budgets, temperature, seed, human-review status, exact grader implementation, bootstrap count, or numeric confidence bounds.
+  supports:
+  - /protocol/shots
+  - /protocol/system_prompt_public
+  - /protocol/reasoning
+  - /protocol/tools/browser
+  - /protocol/token_budget
+  - /protocol/time_budget
+  - /protocol/temperature
+  - /protocol/seed

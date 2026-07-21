@@ -1,13 +1,18 @@
 entity_type: work
 id: biomysterybench-official
 title: Evaluating Claude's bioinformatics research capabilities with BioMysteryBench
-authors: [Anthropic Discovery Team]
-organizations: [Anthropic]
+authors:
+- Brianna
+organizations:
+- Anthropic
 work_type: official-release
 source_class: benchmark_creator
 publication_date: '2026-04-29'
-canonical_url: 'https://www.anthropic.com/research/Evaluating-Claude-For-Bioinformatics-With-BioMysteryBench'
+canonical_url: https://www.anthropic.com/research/Evaluating-Claude-For-Bioinformatics-With-BioMysteryBench
 doi: null
 arxiv: null
-status: published
-verification: {status: verified, last_verified: '2026-07-21', notes: Official Anthropic research report.}
+status: living
+verification:
+  status: verified
+  last_verified: '2026-07-21'
+  notes: Official Anthropic creator report. The page identifies Brianna, a Discovery Team researcher, as the writer; no surname or formal author list is supplied.

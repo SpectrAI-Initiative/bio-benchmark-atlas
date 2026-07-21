@@ -1,40 +1,298 @@
 entity_type: benchmark
 id: biomysterybench
 name: BioMysteryBench
-aliases: [Bio Mystery Bench]
-summary: Open-ended bioinformatics investigations over real-world omics datasets, evaluated through repeated agent episodes and expert-created mysteries.
+aliases:
+- Bio Mystery Bench
+summary: An agentic bioinformatics benchmark of objective, expert-authored mysteries over anonymized real-world biological data, scored on final answers rather than prescribed analysis paths.
 kind: agentic-eval
 parent_id: null
-organizations: [Anthropic]
+organizations:
+- Anthropic
 release_date: '2026-04-29'
-latest_version: '1.0'
-domains: [genomics, transcriptomics, epigenomics, single-cell, proteomics, metabolomics, microbiome, multiomics, bioinformatics]
-capabilities: [data-analysis, coding, tool-use, scientific-reasoning]
-modalities: [text, raw-omics, database, code]
-task_formats: [open-ended investigation, containerized analysis]
+latest_version: v11
+domains:
+- protein-structure
+- genomics
+- transcriptomics
+- epigenomics
+- single-cell
+- proteomics
+- metabolomics
+- microbiome
+- multiomics
+- bioinformatics
+capabilities:
+- data-analysis
+- coding
+- tool-use
+- scientific-reasoning
+modalities:
+- text
+- table
+- dna-rna-sequence
+- structure-3d
+- raw-omics
+- database
+- code
+task_formats:
+- open-ended bioinformatics investigation
+- containerized agent episode
 task_counts:
-  total: 99
-  basis: benchmark questions after four exclusions
+  total: 90
+  basis: v11 mystery-bioinformatics problems after the June 2026 answer-key audit
   reporting_status: reported
   subsets:
-    - {id: human-solvable, label: Human-solvable, count: 76, basis: questions, exclusive: true, exhaustive: true, reporting_status: reported, notes: Solved by at least one expert panelist.}
-    - {id: human-difficult, label: Human-difficult, count: 23, basis: questions, exclusive: true, exhaustive: true, reporting_status: reported, notes: Not solved by the expert panel.}
+  - id: human-solvable
+    label: Human-solvable (v11)
+    count: 73
+    basis: problems solved by at least one human benchmarker
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: The v11 changelog reports 73 human-solvable problems.
+  - id: human-difficult
+    label: Human-hard (v11)
+    count: 17
+    basis: problems not solved by the human panel
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: The v11 changelog calls this split human-hard; the April evaluation report used human-difficult for its 23-problem predecessor.
 coverage_notes:
-  - {tag: proteomics, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: Modality listed; standalone question count not reported.}
-  - {tag: metabolomics, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: Modality listed; standalone question count not reported.}
+- tag: protein-structure
+  coverage: explicitly-in-scope
+  count: null
+  reporting_status: not_reported
+  notes: The official report gives crystal-structure organism identification as an example, but no standalone structure-task count.
+- tag: single-cell
+  coverage: explicitly-in-scope
+  count: null
+  reporting_status: not_reported
+  notes: The official report explicitly lists scRNA-seq and gives a single-cell organ-identification example; no standalone count is published.
+- tag: proteomics
+  coverage: explicitly-in-scope
+  count: null
+  reporting_status: not_reported
+  notes: The official report says several questions use proteomics, but does not publish a standalone count.
+- tag: metabolomics
+  coverage: explicitly-in-scope
+  count: null
+  reporting_status: not_reported
+  notes: The official report says several questions use metabolomics, but does not publish a standalone count.
 access:
-  level: private-internal
-  tasks: The complete mystery set is not publicly released.
-  artifacts: Data modalities are described, but benchmark inputs are not published as a runnable set.
-  grader: Human expert answers and adjudication are described but not released as a harness.
-  license: null
-  biosafety_notes: Metadata only; no biological datasets are copied.
+  level: partially-open
+  tasks: A five-problem preview is open; the current 90-problem full set is gated behind evaluation-only terms that prohibit training, fine-tuning, reinforcement, or distillation use.
+  artifacts: The preview includes 11 MB of anonymized data. The gated full release lists per-problem archives totaling about 155 GB and permits inference-time evaluation after accepting its conditions.
+  grader: Answer rubrics are included in the released problem tables and v11 specifies all-or-nothing scoring, but no executable official grading harness is published.
+  license: CC BY 4.0 for problem statements, answer rubrics, and task formulation; data archives retain the original repositories' data-use policies and the full set has evaluation-only access conditions
+  biosafety_notes: This registry mirrors no biological data, answers, or task files. The official materials describe anonymization and anti-lookup rules but do not publish a separate biosafety classification.
 resources:
-  - {type: website, url: 'https://www.anthropic.com/research/Evaluating-Claude-For-Bioinformatics-With-BioMysteryBench', license: null, access_notes: Official research report.}
+- id: biomysterybench-report-resource
+  type: website
+  url: https://www.anthropic.com/research/Evaluating-Claude-For-Bioinformatics-With-BioMysteryBench
+  license: null
+  access_notes: Official creator report describing the original 99-problem v8 evaluation, environment, human baseline, results, and reliability analysis.
+  last_checked: '2026-07-21'
+  pin:
+    kind: snapshot
+    value: sha256:cb8b5d2e4a006dacfebbc53fd204a39b75e0e637343527c50518414db371eb6f
+    url: https://www.anthropic.com/research/Evaluating-Claude-For-Bioinformatics-With-BioMysteryBench
+- id: biomysterybench-preview-resource
+  type: dataset
+  url: https://huggingface.co/datasets/Anthropic/BioMysteryBench-preview
+  license: CC BY 4.0
+  access_notes: Open five-problem v11 preview with problem table, answer rubrics, allowed domains, human-solvability flags, and anonymized data.
+  last_checked: '2026-07-21'
+  pin:
+    kind: commit
+    value: 51c9024021b8989a0cb06ae623b02f90d14c2da3
+    url: https://huggingface.co/datasets/Anthropic/BioMysteryBench-preview/tree/51c9024021b8989a0cb06ae623b02f90d14c2da3
+- id: biomysterybench-full-resource
+  type: dataset
+  url: https://huggingface.co/datasets/Anthropic/BioMysteryBench-full
+  license: CC BY 4.0 for benchmark materials; source-repository policies for data archives
+  access_notes: Gated 90-problem v11 full set; access requires accepting evaluation-only and no-training conditions.
+  last_checked: '2026-07-21'
+  pin:
+    kind: commit
+    value: b5a889c4757214ec9a6ade876b734f920a7799db
+    url: https://huggingface.co/datasets/Anthropic/BioMysteryBench-full/tree/b5a889c4757214ec9a6ade876b734f920a7799db
+- id: biomysterybench-figure-one-resource
+  type: documentation
+  url: https://www-cdn.anthropic.com/images/4zrzovbb/website/291077c3785708a54dbb4421db3751b1d1c4ba84-1920x1080.png
+  license: null
+  access_notes: Official Figure 1 image with printed human-solvable scores and bootstrap error bars.
+  last_checked: '2026-07-21'
+  pin:
+    kind: snapshot
+    value: sha256:aa3f7b8a7f84c5fad6f9a1adb9e884687800ca93017083de72ae06da637f7a1b
+    url: https://www-cdn.anthropic.com/images/4zrzovbb/website/291077c3785708a54dbb4421db3751b1d1c4ba84-1920x1080.png
+- id: biomysterybench-figure-two-resource
+  type: documentation
+  url: https://www-cdn.anthropic.com/images/4zrzovbb/website/0aed26a846ccd67d813a2c14f78069216671c8e3-1920x1080.png
+  license: null
+  access_notes: Official Figure 2 image with printed human-difficult scores and bootstrap error bars.
+  last_checked: '2026-07-21'
+  pin:
+    kind: snapshot
+    value: sha256:fa2066f08f54b4ca55500a022b8661fc3cd5af495770462edd1ed2358e7067e7
+    url: https://www-cdn.anthropic.com/images/4zrzovbb/website/0aed26a846ccd67d813a2c14f78069216671c8e3-1920x1080.png
+- id: biomysterybench-figure-three-resource
+  type: documentation
+  url: https://www-cdn.anthropic.com/images/4zrzovbb/website/3840cd87380589c9f00c31d5b9334639ebfb5303-1920x1080.png
+  license: null
+  access_notes: Official Figure 3 image showing the per-problem 0-of-5 through 5-of-5 solve-count distributions.
+  last_checked: '2026-07-21'
+  pin:
+    kind: snapshot
+    value: sha256:5da53558196ce4bc1493bd59e80acac72c9360a79aaf0aeb1b001cf11ad28ab9
+    url: https://www-cdn.anthropic.com/images/4zrzovbb/website/3840cd87380589c9f00c31d5b9334639ebfb5303-1920x1080.png
 implementations:
-  - {framework: Claude Code in isolated container, status: not-available, url: null, commit: null, notes: Evaluation environment is described but not released.}
-verification: {status: verified, last_verified: '2026-07-21', notes: 'Scope, repetitions, modalities, and human split verified from the official report.'}
+- framework: official containerized agent environment
+  status: not-available
+  url: null
+  commit: null
+  notes: The benchmark inputs and rubrics are released, but no runner, environment image, or executable grader was identified in the official repositories.
+versions:
+- id: biomysterybench-v8
+  label: v8
+  status: superseded
+  release_date: '2026-04-28'
+  as_of: '2026-04-28'
+  task_counts:
+    total: 99
+    basis: initial public-release problems after pre-release QC exclusions
+    reporting_status: reported
+    subsets:
+    - id: human-solvable
+      label: Human-solvable (v8)
+      count: 76
+      basis: problems solved by at least one human benchmarker
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: Up to five domain experts attempted each question; the split includes questions solved by at least one.
+    - id: human-difficult
+      label: Human-difficult (v8)
+      count: 23
+      basis: problems unsolved by the expert panel after removing four failed-QC questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: Four malformed, broken, or inherently unsolvable candidates were removed before this 23-problem split was reported.
+  formal_tracks: []
+  notes: Initial public release used by the April creator evaluation. The v11 changelog identifies it as v8 and notes that 16 problems had accession-ID leaks scrubbed.
+  evidence_ids:
+  - biomysterybench-evidence-v8-counts
+- id: biomysterybench-v11
+  label: v11
+  status: current
+  release_date: '2026-07-06'
+  as_of: '2026-07-06'
+  task_counts:
+    total: 90
+    basis: v11 mystery-bioinformatics problems after the June 2026 answer-key audit
+    reporting_status: reported
+    subsets:
+    - id: human-solvable
+      label: Human-solvable (v11)
+      count: 73
+      basis: problems solved by at least one human benchmarker
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: The v11 changelog reports 73 human-solvable problems.
+    - id: human-difficult
+      label: Human-hard (v11)
+      count: 17
+      basis: problems not solved by the human panel
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: The v11 changelog calls this split human-hard; the April evaluation report used human-difficult for its 23-problem predecessor.
+  formal_tracks: []
+  notes: Nine problems were removed and 24 were modified after an answer-key audit with expert reruns, model reruns, and underlying-data checks; the data files for modified problems did not change.
+  evidence_ids:
+  - biomysterybench-evidence-v11
+audit:
+  status: audited
+  audited_date: '2026-07-21'
+  unresolved_fields: 0
+  notes: The current v11 data release is separated from the superseded v8 evaluation snapshot. Counts, access terms, printed result labels, and unreported protocol fields are not inferred across versions.
+field_status: []
+verification:
+  status: verified
+  last_verified: '2026-07-21'
+  notes: Field-level audit completed against the official Anthropic report and commit-pinned Hugging Face v11 releases.
 evidence:
-  - work_id: biomysterybench-official
-    locator: 'Sections "A benchmark for agents" and "Comparing Claude to humans"; methodology footnotes'
-    supports: [summary, task_counts, domains, modalities, access]
+- id: biomysterybench-evidence-identity
+  source_type: work
+  source_id: biomysterybench-official
+  accessed_date: '2026-07-21'
+  locator:
+    type: section
+    value: Title, publication date, and “Benchmarking models on verifiable biological tasks with BioMysteryBench”
+    note: Identifies Anthropic as creator and defines the method-agnostic, objective-answer agent benchmark.
+  supports:
+  - /name
+  - /organizations
+  - /release_date
+  - /kind
+  - /summary
+  - /capabilities
+  - /task_formats
+- id: biomysterybench-evidence-v8-counts
+  source_type: work
+  source_id: biomysterybench-official
+  accessed_date: '2026-07-21'
+  locator:
+    type: section
+    value: “Benchmarking models on verifiable biological tasks,” “Human-solvable,” and “Human-difficult”; v8 entry in the official dataset changelog
+    note: Reports the original 99 total, 76 human-solvable, 23 human-difficult, and four pre-release QC exclusions.
+  supports:
+  - /versions/0/task_counts/total
+  - /versions/0/task_counts/basis
+  - /versions/0/task_counts/subsets
+- id: biomysterybench-evidence-v11
+  source_type: resource
+  source_id: biomysterybench-preview-resource
+  accessed_date: '2026-07-21'
+  locator:
+    type: repository-path
+    value: CHANGELOG.md, v11 (2026-07-06), at commit 51c9024021b8989a0cb06ae623b02f90d14c2da3
+    note: Reports 99 to 90, the 73/17 partition, nine removals, 24 modified problems, and revised all-or-nothing rubric language.
+  supports:
+  - /latest_version
+  - /task_counts/total
+  - /task_counts/basis
+  - /task_counts/subsets
+  - /versions/1/task_counts/total
+  - /versions/1/task_counts/basis
+  - /versions/1/task_counts/subsets
+- id: biomysterybench-evidence-taxonomy
+  source_type: work
+  source_id: biomysterybench-official
+  accessed_date: '2026-07-21'
+  locator:
+    type: section
+    value: “Example questions” and the environment/property list
+    note: Explicitly lists WGS, RNA-seq, scRNA-seq, methylation, ChIP-seq, metagenomics, Hi-C, proteomics, metabolomics, crystal structures, databases, and coding/tool use.
+  supports:
+  - /domains
+  - /modalities
+  - /coverage_notes/0
+  - /coverage_notes/1
+  - /coverage_notes/2
+  - /coverage_notes/3
+- id: biomysterybench-evidence-access
+  source_type: resource
+  source_id: biomysterybench-full-resource
+  accessed_date: '2026-07-21'
+  locator:
+    type: dataset-card
+    value: Access conditions, Contents, Rules, and License and terms of use at commit b5a889c4757214ec9a6ade876b734f920a7799db
+    note: Documents the gated 90-problem release, evaluation-only restriction, CC BY 4.0 benchmark materials, source-policy data archives, and answer-rubric fields.
+  supports:
+  - /access/level
+  - /access/license
+  - /resources

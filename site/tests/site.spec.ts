@@ -212,11 +212,18 @@ test('GeneBench-Pro separates release strata, effort settings, repeats, and all 
 
 test('BioMysteryBench separates the human subsets and repeats', async ({ page }) => {
   await page.goto('/bio-benchmark-atlas/benchmarks/biomysterybench/');
-  await expect(page.getByRole('cell', { name: 'Human-solvable' })).toBeVisible();
-  await expect(page.getByRole('cell', { name: '76' })).toBeVisible();
-  await expect(page.getByRole('cell', { name: 'Human-difficult' })).toBeVisible();
-  await expect(page.getByRole('cell', { name: '23' })).toBeVisible();
-  await expect(page.getByText('5', { exact: true })).toBeVisible();
+  await expect(page.getByText('the current v11 release has 90 problems')).toBeVisible();
+  await expect(page.getByRole('cell', { name: 'Human-solvable (v11)' })).toBeVisible();
+  await expect(page.getByRole('cell', { name: '73', exact: true })).toBeVisible();
+  await expect(page.getByRole('cell', { name: 'Human-hard (v11)' })).toBeVisible();
+  await expect(page.getByRole('cell', { name: '17', exact: true })).toBeVisible();
+  await expect(page.locator('#biomysterybench-official-run')).toContainText('full · n=99');
+  await expect(page.locator('#biomysterybench-v8-human-solvable')).toContainText('subset · n=76');
+  await expect(page.locator('#biomysterybench-v8-human-solvable')).toContainText('82.6');
+  await expect(page.locator('#biomysterybench-v8-human-difficult')).toContainText('subset · n=23');
+  await expect(page.locator('#biomysterybench-v8-human-difficult')).toContainText('29.6');
+  await expect(page.locator('.run-card')).toHaveCount(3);
+  await expect(page.locator('.chart-card')).toHaveCount(2);
 });
 
 test('work, domain, archive, and Chinese guide routes render', async ({ page }) => {

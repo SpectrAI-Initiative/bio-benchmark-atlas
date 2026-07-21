@@ -7,6 +7,7 @@ domains:
   - {id: protein-protein-binding, label: Protein-protein binding, label_zh: 蛋白-蛋白结合, parent_id: protein-science, definition: Protein-protein interaction, complex formation, or binding prediction., deprecated_aliases: []}
   - {id: protein-ligand-binding, label: Protein-ligand binding, label_zh: 蛋白-配体结合, parent_id: protein-science, definition: Binding between proteins and small molecules or other ligands., deprecated_aliases: []}
   - {id: antibody-antigen, label: Antibody-antigen, label_zh: 抗体-抗原, parent_id: protein-protein-binding, definition: Antibody specificity, affinity, epitope, or antigen interaction., deprecated_aliases: []}
+  - {id: rna-protein-binding, label: RNA-protein binding, label_zh: RNA-蛋白结合, parent_id: life-science, definition: Interaction, association, or binding prediction between RNA and protein molecules., deprecated_aliases: [rna-protein-interaction]}
   - {id: genomics, label: Genomics, label_zh: 基因组学, parent_id: life-science, definition: Genome variation, sequencing, regulation, and genetic mechanisms., deprecated_aliases: []}
   - {id: transcriptomics, label: Transcriptomics, label_zh: 转录组学, parent_id: life-science, definition: Bulk and other transcriptome-level measurements and analyses., deprecated_aliases: []}
   - {id: epigenomics, label: Epigenomics, label_zh: 表观组学, parent_id: life-science, definition: DNA methylation, chromatin, histone marks, and related assays., deprecated_aliases: []}
@@ -61,4 +62,3 @@ access_levels:
   - {id: partially-open, label: Partially open, label_zh: 部分公开, parent_id: null, definition: Some tasks, artifacts, labels, or graders are restricted., deprecated_aliases: []}
   - {id: metadata-only, label: Metadata only, label_zh: 仅元数据, parent_id: null, definition: Public descriptions exist but runnable evaluation materials are unavailable., deprecated_aliases: []}
   - {id: private-internal, label: Private or internal, label_zh: 私有或内部, parent_id: null, definition: The benchmark is reported but not publicly released., deprecated_aliases: [internal]}
-

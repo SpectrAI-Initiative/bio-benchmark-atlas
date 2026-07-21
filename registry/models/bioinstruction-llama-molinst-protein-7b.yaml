@@ -1,0 +1,9 @@
+entity_type: model
+id: bioinstruction-llama-molinst-protein-7b
+name: "Llama-molinst-protein-7B (Mol-Ins)"
+provider: "Mol-Instructions creators"
+release_date: null
+version_string: "Llama-molinst-protein-7B"
+version_status: reported
+aliases: ["Llama-molinst-protein-7B (Mol-Ins)","Mol-Ins"]
+verification: {status: verified, last_verified: '2026-07-21', notes: "Exact upstream checkpoint revision is not reported."}

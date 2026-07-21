@@ -333,6 +333,84 @@ def test_proteinlmbench_pins_release_resolves_choice_counts_and_registers_table3
     assert next(item for item in entities["model"] if item["id"] == "proteinlmbench-gpt4-turbo")["version_status"] == "not_reported"
 
 
+def test_biology_instructions_separates_21_tasks_splits_prompts_and_results() -> None:
+    entities = load_entities()
+    benchmarks = {item["id"]: item for item in entities["benchmark"]}
+    runs = {
+        item["id"]: item
+        for item in entities["evaluation_run"]
+        if item["benchmark_id"].startswith("bioinstruction-")
+    }
+    root = benchmarks["bioinstruction"]
+    work = next(item for item in entities["work"] if item["id"] == "bioinstructions-paper")
+    current = next(item for item in root["versions"] if item["label"] == "emnlp-2025")
+    groups = {item["id"]: item["count"] for item in root["task_counts"]["subsets"]}
+
+    assert root["name"] == "Biology-Instructions"
+    assert root["audit"]["status"] == "audited-with-caveats"
+    assert root["latest_version"] == "emnlp-2025"
+    assert root["task_counts"]["total"] == 21
+    assert groups == {
+        "bioinstruction-dna-tasks": 6,
+        "bioinstruction-rna-tasks": 6,
+        "bioinstruction-protein-tasks": 5,
+        "bioinstruction-multi-molecule-tasks": 4,
+    }
+    assert len(current["formal_tracks"]) == 21
+    assert set(current["formal_tracks"]) == {
+        item_id for item_id, item in benchmarks.items() if item.get("parent_id") == "bioinstruction"
+    }
+    assert root["access"]["level"] == "partially-open"
+    assert root["access"]["license"] is None
+    assert {item["path"] for item in root["field_status"]} == {
+        "/access/artifacts", "/implementations",
+    }
+    assert "8,002" in root["access"]["artifacts"]
+    assert "244,681" in current["notes"]
+    assert work["publication_date"] == "2025-11-04"
+    assert "Yuan Dong" in work["authors"]
+
+    child_tracks = [benchmarks[item_id] for item_id in current["formal_tracks"]]
+    assert all(item["audit"]["status"] == "audited" for item in child_tracks)
+    assert all(item["task_counts"]["total"] == sum(
+        split["count"] for split in item["task_counts"]["subsets"]
+    ) for item in child_tracks)
+    test_counts = {
+        item["id"]: next(
+            split["count"] for split in item["task_counts"]["subsets"]
+            if split["id"] == f"{item['id']}-test"
+        )
+        for item in child_tracks
+    }
+    assert sum(test_counts.values()) == 243_227
+    assert test_counts["bioinstruction-emp"] == 28_741
+    assert test_counts["bioinstruction-aan"] == 3_301
+    assert test_counts["bioinstruction-rpi"] == 4_164
+
+    assert len(runs) == 63
+    assert sum(len(run["results"]) for run in runs.values()) == 345
+    assert all(run["scope"]["type"] == "subset" for run in runs.values())
+    assert all(run["scope"]["n"] == test_counts[run["benchmark_id"]] for run in runs.values())
+    assert len({run["comparability_group"] for run in runs.values()}) == 63
+    assert sum(run["id"].endswith("-open-baselines") for run in runs.values()) == 21
+    assert sum(run["id"].endswith("-closed-baselines") for run in runs.values()) == 21
+    assert sum(run["id"].endswith("-creator-systems") for run in runs.values()) == 21
+    assert runs["bioinstruction-emp-open-baselines"]["protocol"]["system_prompt_public"]["value"] is False
+    assert runs["bioinstruction-emp-closed-baselines"]["protocol"]["system_prompt_public"]["value"] is True
+    assert runs["bioinstruction-emp-creator-systems"]["protocol"]["system_prompt_public"]["value"] is True
+    assert {(row["model_id"], row["value"]) for row in runs["bioinstruction-rpi-creator-systems"]["results"]} >= {
+        ("bioinstruction-chatmultiomics-stage12", 70.80),
+        ("bioinstruction-chatmultiomics-stage123", 74.26),
+    }
+    assert {(row["model_id"], row["metric_id"], row["value"]) for row in runs["bioinstruction-ea-closed-baselines"]["results"]} >= {
+        ("bioinstruction-gpt4o", "pcc-housekeeping", -1.17),
+        ("bioinstruction-gpt4o", "pcc-developmental", -1.49),
+    }
+    assert {row["status"] for run in runs.values() for row in run["results"]} == {"verified"}
+    assert {row["confidence"] for run in runs.values() for row in run["results"]} == {"high"}
+    assert next(item for item in entities["model"] if item["id"] == "bioinstruction-gpt4o")["version_status"] == "not_reported"
+
+
 def test_biomysterybench_scope_and_repeats() -> None:
     entities = load_entities()
     benchmark = next(item for item in entities["benchmark"] if item["id"] == "biomysterybench")

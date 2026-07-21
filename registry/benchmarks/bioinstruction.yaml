@@ -1,39 +1,91 @@
 entity_type: benchmark
 id: bioinstruction
-name: Biology-Instructions Evaluation
-aliases: [Biology Instructions]
-summary: Multi-omics biological sequence benchmark spanning DNA, RNA, protein, and cross-molecule prediction tasks for language models.
+name: Biology-Instructions
+aliases: [Biology Instructions, Biology-Instructions Evaluation]
+summary: A multi-omics sequence-instruction suite with 21 formal predictive tasks across DNA, RNA, protein, and multi-molecule inputs; the final paper reports task-specific held-out evaluations rather than a single aggregate score.
 kind: suite
 parent_id: null
-organizations: [Shanghai AI Laboratory, Chinese University of Hong Kong]
+organizations: [Shanghai Artificial Intelligence Laboratory, University of Science and Technology of China, University of Sydney, University of Toronto, Chinese University of Hong Kong, Shanghai Jiao Tong University, Fudan University, Shanghai Innovation Institute]
 release_date: '2024-12-26'
-latest_version: '1.0'
-domains: [genomics, transcriptomics, protein-sequence, protein-design, protein-protein-binding, multiomics]
+latest_version: emnlp-2025
+domains: [genomics, transcriptomics, epigenomics, protein-sequence, protein-protein-binding, antibody-antigen, rna-protein-binding, multiomics]
 capabilities: [prediction, classification, regression, scientific-reasoning]
 modalities: [text, dna-rna-sequence, protein-sequence]
-task_formats: [sequence-conditioned instruction response]
-task_counts:
+task_formats: [sequence-conditioned classification and regression instructions]
+task_counts: &biology-instructions-counts
   total: 21
-  basis: evaluation tasks
+  basis: formal evaluation tasks in the final creator paper; sample counts are tracked on child records and never added to this task count
   reporting_status: reported
-  subsets: []
+  subsets:
+    - {id: bioinstruction-dna-tasks, label: DNA tasks, count: 6, basis: formal tasks, exclusive: true, exhaustive: true, reporting_status: reported, notes: 'EMP, EA, PD300, CPD, TB-H, and TB-M.'}
+    - {id: bioinstruction-rna-tasks, label: RNA tasks, count: 6, basis: formal tasks, exclusive: true, exhaustive: true, reporting_status: reported, notes: 'APA, ncRNA, Modif, MRL, PRS, and CRI-On.'}
+    - {id: bioinstruction-protein-tasks, label: Protein tasks, count: 5, basis: formal tasks, exclusive: true, exhaustive: true, reporting_status: reported, notes: 'EC, Stability, Fluorescence, Solubility, and Thermostability.'}
+    - {id: bioinstruction-multi-molecule-tasks, label: Multi-molecule tasks, count: 4, basis: formal tasks, exclusive: true, exhaustive: true, reporting_status: reported, notes: 'AAN, RPI, EPI, and siRNA.'}
 coverage_notes:
-  - {tag: protein-design, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: Protein property and engineering tasks are included; canonical paper does not report this atlas-specific count.}
-  - {tag: protein-protein-binding, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: Antibody-antigen and RNA-protein interaction tasks are included; no single binding count is asserted.}
+  - {tag: protein-sequence, coverage: explicitly-in-scope, count: 5, reporting_status: reported, notes: 'Five protein-primary formal tasks; protein-containing interaction tasks are tracked separately.'}
+  - {tag: antibody-antigen, coverage: explicitly-in-scope, count: 1, reporting_status: reported, notes: 'Antibody-Antigen Neutralization is one formal multi-molecule task.'}
+  - {tag: rna-protein-binding, coverage: explicitly-in-scope, count: 1, reporting_status: reported, notes: 'RNA-Protein Interaction Prediction is one formal multi-molecule task.'}
+  - {tag: protein-design, coverage: not-in-scope, count: 0, reporting_status: reported, notes: 'Section 3.2.1 explicitly leaves generative applications such as sequence design for future work; property prediction is not relabeled as design.'}
 access:
-  level: fully-open
-  tasks: Evaluation and instruction data are public in the creator repository.
-  artifacts: Sequence-based task files are public subject to upstream licenses.
-  grader: Task-specific evaluation code is included by the creators.
-  license: Apache-2.0
-  biosafety_notes: Do not use or redistribute upstream sequence data outside its stated terms.
+  level: partially-open
+  tasks: The final paper publishes task definitions, source datasets, split counts, prompts, and metrics; the creator repository does not include the complete evaluation inputs and labels.
+  artifacts: The pinned repository exposes the Stage-3 workbook and evaluator, but not the complete 21-task evaluation splits or published model outputs. Its Stage-3 workbook has 8,002 non-empty data rows, while the paper describes 8,000 final AI-polished examples.
+  grader: The official evaluator is public, including numeric/label extraction, task-specific metrics, and a sentiment-model fallback for some textual classifications.
+  license: null
+  biosafety_notes: The suite includes antibody-antigen and RNA-protein interaction prediction. BioBench Atlas stores only metadata and aggregate results and does not mirror sequences.
 resources:
-  - {type: paper, url: 'https://aclanthology.org/2025.findings-emnlp.978/', license: CC-BY-4.0, access_notes: Peer-reviewed creator paper.}
-  - {type: repository, url: 'https://github.com/hhnqqq/Biology-Instructions', license: Apache-2.0, access_notes: Official code and data links.}
+  - {id: bioinstruction-final-paper-resource, type: paper, url: 'https://aclanthology.org/2025.findings-emnlp.978.pdf', license: CC-BY-4.0, access_notes: 'Final peer-reviewed creator paper; SHA256 3bc92905728242b59bc660372f16c768433d69b64639e801e58e63f4e2b84d4a.', last_checked: '2026-07-21', pin: {kind: snapshot, value: 'sha256:3bc92905728242b59bc660372f16c768433d69b64639e801e58e63f4e2b84d4a', url: 'https://aclanthology.org/2025.findings-emnlp.978.pdf'}}
+  - {id: bioinstruction-preprint-resource, type: paper, url: 'https://arxiv.org/abs/2412.19191', license: null, access_notes: 'Initial public preprint record.', last_checked: '2026-07-21', pin: null}
+  - {id: bioinstruction-repository-resource, type: repository, url: 'https://github.com/hhnqqq/Biology-Instructions', license: null, access_notes: 'Official repository has no LICENSE file at the pinned commit. register_tasks.json contains 24 keys, including duplicate or obsolete names, rather than the final paper taxonomy of 21 tasks.', last_checked: '2026-07-21', pin: {kind: commit, value: 600acaa08c0302e8f5ce86de0fe041f21c13b53e, url: 'https://github.com/hhnqqq/Biology-Instructions/tree/600acaa08c0302e8f5ce86de0fe041f21c13b53e'}}
+  - {id: bioinstruction-stage3-resource, type: dataset, url: 'https://github.com/hhnqqq/Biology-Instructions/blob/600acaa08c0302e8f5ce86de0fe041f21c13b53e/stage3.xlsx', license: null, access_notes: 'Pinned workbook SHA256 116ecfe14e55b4a746aa83ae350a6da76635d2892ef2d35d188d1eeb00b60b47; 8,002 non-empty rows across 17 released Stage-3 task labels.', last_checked: '2026-07-21', pin: {kind: commit, value: 600acaa08c0302e8f5ce86de0fe041f21c13b53e, url: 'https://github.com/hhnqqq/Biology-Instructions/blob/600acaa08c0302e8f5ce86de0fe041f21c13b53e/stage3.xlsx'}}
 implementations:
-  - {framework: Biology-Instructions evaluation code, status: official, url: 'https://github.com/hhnqqq/Biology-Instructions/tree/600acaa08c0302e8f5ce86de0fe041f21c13b53e', commit: 600acaa08c0302e8f5ce86de0fe041f21c13b53e, notes: Commit captured at verification time.}
-verification: {status: verified, last_verified: '2026-07-21', notes: Canonical name retained; BioInstruction is an alias used by some evaluation frameworks.}
+  - {framework: Biology-Instructions official evaluator, status: official, url: 'https://github.com/hhnqqq/Biology-Instructions/tree/600acaa08c0302e8f5ce86de0fe041f21c13b53e/evaluation', commit: 600acaa08c0302e8f5ce86de0fe041f21c13b53e, notes: 'Public post-processing and scoring code; its 24 registration keys must not be treated as the final formal-task count.'}
+versions:
+  - id: bioinstruction-preprint-v1
+    label: preprint-v1
+    status: superseded
+    release_date: '2024-12-26'
+    as_of: '2024-12-26'
+    task_counts: *biology-instructions-counts
+    formal_tracks: &biology-instructions-tracks [bioinstruction-emp, bioinstruction-ea, bioinstruction-pd300, bioinstruction-cpd, bioinstruction-tb-human, bioinstruction-tb-mouse, bioinstruction-apa, bioinstruction-ncrna, bioinstruction-modification, bioinstruction-mrl, bioinstruction-prs, bioinstruction-crispr-on-target, bioinstruction-ec, bioinstruction-stability, bioinstruction-fluorescence, bioinstruction-solubility, bioinstruction-thermostability, bioinstruction-aan, bioinstruction-rpi, bioinstruction-epi, bioinstruction-sirna]
+    notes: Initial creator preprint.
+    evidence_ids: [bioinstruction-evidence-preprint]
+  - id: bioinstruction-emnlp-2025
+    label: emnlp-2025
+    status: current
+    release_date: '2025-11-04'
+    as_of: '2026-07-21'
+    task_counts: *biology-instructions-counts
+    formal_tracks: *biology-instructions-tracks
+    notes: Final EMNLP 2025 Findings paper. Table 2 prints 244,681 total test examples, while its 21 task rows sum to 243,227; child records preserve the row-level counts without silently forcing the printed aggregate.
+    evidence_ids: [bioinstruction-evidence-paper]
+audit: {status: audited-with-caveats, audited_date: '2026-07-21', unresolved_fields: 2, notes: 'The final paper defines the canonical 21 tasks. Two official-artifact conflicts remain visible: 8,000 versus 8,002 Stage-3 rows, and 21 paper tasks versus 24 evaluator registration keys.'}
+field_status:
+  - {path: /access/artifacts, status: conflicted, confidence: high, reason: 'The paper reports 8,000 final AI-polished Stage-3 examples; the pinned official stage3.xlsx contains 8,002 non-empty data rows.', evidence_ids: [bioinstruction-evidence-paper, bioinstruction-evidence-stage3]}
+  - {path: /implementations, status: conflicted, confidence: high, reason: 'The final paper defines 21 formal tasks, while the pinned evaluator register_tasks.json contains 24 keys including duplicated or obsolete registrations.', evidence_ids: [bioinstruction-evidence-paper, bioinstruction-evidence-repository]}
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Canonical name, task taxonomy, row-level split counts, release artifacts, and evaluator were checked against the final paper and pinned official repository.'}
 evidence:
-  - work_id: bioinstructions-paper
-    locator: 'Abstract; dataset statistics; evaluation task tables; official repository'
-    supports: [summary, task_counts, domains, modalities, access, implementations]
+  - id: bioinstruction-evidence-paper
+    source_type: work
+    source_id: bioinstructions-paper
+    accessed_date: '2026-07-21'
+    locator: {type: table, value: 'pp. 17984, 17987-17989, 17992, 17997-18009; Figure 2; Tables 2 and 4-9', note: 'Canonical name, affiliations, 21-task taxonomy, explicit exclusion of sequence design, split counts, metrics, prompts, model results, and 8,000-example Stage-3 claim.'}
+    supports: [/name, /aliases, /summary, /organizations, /release_date, /latest_version, /kind, /domains, /capabilities, /modalities, /task_formats, /task_counts/total, /task_counts/basis, /task_counts/subsets, /coverage_notes, /access/level, /access/tasks, /access/artifacts, /access/grader, /access/license, /access/biosafety_notes, /resources, /implementations, /versions/1/release_date, /versions/1/as_of, /versions/1/task_counts/total, /versions/1/task_counts/basis, /versions/1/task_counts/subsets, /versions/1/formal_tracks]
+  - id: bioinstruction-evidence-preprint
+    source_type: resource
+    source_id: bioinstruction-preprint-resource
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'arXiv metadata for 2412.19191 v1', note: 'Initial public date and preprint title.'}
+    supports: [/release_date, /versions/0/release_date, /versions/0/as_of, /versions/0/task_counts/total, /versions/0/task_counts/basis, /versions/0/task_counts/subsets, /versions/0/formal_tracks]
+  - id: bioinstruction-evidence-repository
+    source_type: resource
+    source_id: bioinstruction-repository-resource
+    accessed_date: '2026-07-21'
+    locator: {type: repository-path, value: 'README.md, evaluation/register_tasks.json, evaluation/evaluate.py at 600acaa08c0302e8f5ce86de0fe041f21c13b53e', note: 'Partial release, absent repository license, 24 evaluator registration keys, prompt-independent grader implementation, and public code pin.'}
+    supports: [/access/level, /access/tasks, /access/artifacts, /access/grader, /access/license, /resources, /implementations]
+  - id: bioinstruction-evidence-stage3
+    source_type: resource
+    source_id: bioinstruction-stage3-resource
+    accessed_date: '2026-07-21'
+    locator: {type: repository-path, value: 'stage3.xlsx at 600acaa08c0302e8f5ce86de0fe041f21c13b53e', note: 'One worksheet, used range A1:F8003, and 8,002 non-empty data rows; workbook read without modification.'}
+    supports: [/access/artifacts, /resources]

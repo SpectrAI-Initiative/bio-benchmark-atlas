@@ -1,0 +1,9 @@
+entity_type: model
+id: bioinstruction-gpt4o
+name: "GPT-4o (Biology-Instructions snapshot not reported)"
+provider: "OpenAI"
+release_date: null
+version_string: null
+version_status: not_reported
+aliases: ["GPT-4o"]
+verification: {status: verified, last_verified: '2026-07-21', notes: "The creator paper reports no dated API snapshot or exact provider version."}

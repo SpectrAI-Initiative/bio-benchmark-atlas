@@ -1,0 +1,9 @@
+entity_type: model
+id: bioinstruction-glm4-9b-chat
+name: "GLM-4-9B-Chat (Biology-Instructions label)"
+provider: "Zhipu AI"
+release_date: null
+version_string: "GLM-4-9B-Chat"
+version_status: reported
+aliases: ["GLM-4-9B-Chat","ChatGLM4"]
+verification: {status: verified, last_verified: '2026-07-21', notes: "The paper uses GLM-4-9B-Chat in text/tables and ChatGLM4 in Figure 5."}

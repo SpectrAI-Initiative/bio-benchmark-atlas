@@ -1,0 +1,61 @@
+entity_type: benchmark
+id: bioinstruction-epi
+name: "Biology-Instructions Enhancer-Promoter Interaction Prediction"
+aliases: [EPI]
+summary: "Binary interaction prediction for enhancer and promoter DNA sequences, evaluated with Matthews correlation coefficient."
+kind: track
+parent_id: bioinstruction
+organizations: [Shanghai Artificial Intelligence Laboratory, University of Science and Technology of China, University of Sydney, University of Toronto, Chinese University of Hong Kong, Shanghai Jiao Tong University, Fudan University, Shanghai Innovation Institute]
+release_date: '2024-12-26'
+latest_version: emnlp-2025
+domains: [genomics, epigenomics, molecular-cell-biology]
+capabilities: [prediction, classification]
+modalities: [text, dna-rna-sequence]
+task_formats: ["paired DNA-sequence binary classification"]
+task_counts: &counts
+  total: 16368
+  basis: distinct examples across the published train, validation, and test splits
+  reporting_status: reported
+  subsets:
+    - {id: bioinstruction-epi-train, label: Training split, count: 14288, basis: examples, exclusive: true, exhaustive: true, reporting_status: reported, notes: "Published training split."}
+    - {id: bioinstruction-epi-validation, label: Validation split, count: 1772, basis: examples, exclusive: true, exhaustive: true, reporting_status: reported, notes: "Published validation split."}
+    - {id: bioinstruction-epi-test, label: Test split, count: 308, basis: examples, exclusive: true, exhaustive: true, reporting_status: reported, notes: "Held-out split used for creator-paper Tables 4-7."}
+coverage_notes: []
+access:
+  level: partially-open
+  tasks: "The final paper publishes this task's source, definition, and split counts; the creator repository does not include the complete evaluation inputs and labels."
+  artifacts: "The official post-processing evaluator is public, but the published test examples, labels, and model outputs are not included in the official repository."
+  grader: "keyword/sentiment-assisted binary-label parser followed by Matthews correlation coefficient."
+  license: null
+  biosafety_notes: "BioBench Atlas stores task metadata and aggregate results only and does not mirror the upstream biological sequences."
+resources:
+  - {id: bioinstruction-epi-paper-resource, type: paper, url: "https://aclanthology.org/2025.findings-emnlp.978.pdf", license: CC-BY-4.0, access_notes: "Creator paper Table 2 and EPI task/result sections; PDF SHA256 3bc92905728242b59bc660372f16c768433d69b64639e801e58e63f4e2b84d4a.", last_checked: '2026-07-21', pin: {kind: snapshot, value: 'sha256:3bc92905728242b59bc660372f16c768433d69b64639e801e58e63f4e2b84d4a', url: "https://aclanthology.org/2025.findings-emnlp.978.pdf"}}
+  - {id: bioinstruction-epi-repository-resource, type: repository, url: "https://github.com/hhnqqq/Biology-Instructions", license: null, access_notes: "Official evaluator repository; no LICENSE file and no complete evaluation split at the pinned commit.", last_checked: '2026-07-21', pin: {kind: commit, value: 600acaa08c0302e8f5ce86de0fe041f21c13b53e, url: "https://github.com/hhnqqq/Biology-Instructions/tree/600acaa08c0302e8f5ce86de0fe041f21c13b53e"}}
+implementations:
+  - {framework: Biology-Instructions official evaluator, status: official, url: "https://github.com/hhnqqq/Biology-Instructions/tree/600acaa08c0302e8f5ce86de0fe041f21c13b53e/evaluation", commit: 600acaa08c0302e8f5ce86de0fe041f21c13b53e, notes: "Task-specific EPI output parsing and scoring."}
+versions:
+  - id: bioinstruction-epi-emnlp-2025
+    label: emnlp-2025
+    status: current
+    release_date: '2025-11-04'
+    as_of: '2026-07-21'
+    task_counts: *counts
+    formal_tracks: []
+    notes: "Final paper split: 14288 train / 1772 validation / 308 test examples."
+    evidence_ids: [bioinstruction-epi-evidence-paper]
+audit: {status: audited, audited_date: '2026-07-21', unresolved_fields: 0, notes: "Row-level split counts, task type, metric, prompt, and reported results were checked against the final creator paper."}
+field_status: []
+verification: {status: verified, last_verified: '2026-07-21', notes: "Task-level audit complete."}
+evidence:
+  - id: bioinstruction-epi-evidence-paper
+    source_type: work
+    source_id: bioinstructions-paper
+    accessed_date: '2026-07-21'
+    locator: {type: table, value: "Table 2 (EPI row); Appendix A.2-A.3; Table 8; Tables 4-7", note: "Task definition, split counts, input/output format, metric, and creator evaluation."}
+    supports: [/name, /aliases, /summary, /kind, /parent_id, /organizations, /release_date, /latest_version, /domains, /capabilities, /modalities, /task_formats, /task_counts/total, /task_counts/basis, /task_counts/subsets, /access/level, /access/tasks, /access/artifacts, /access/grader, /access/license, /access/biosafety_notes, /resources, /implementations, /versions/0/release_date, /versions/0/as_of, /versions/0/task_counts/total, /versions/0/task_counts/basis, /versions/0/task_counts/subsets]
+  - id: bioinstruction-epi-evidence-repository
+    source_type: resource
+    source_id: bioinstruction-epi-repository-resource
+    accessed_date: '2026-07-21'
+    locator: {type: repository-path, value: "evaluation/evaluate.py and evaluation/register_tasks.json at 600acaa08c0302e8f5ce86de0fe041f21c13b53e", note: "Public grader implementation, partial artifact release, and absent repository license."}
+    supports: [/access/level, /access/tasks, /access/artifacts, /access/grader, /access/license, /resources, /implementations]

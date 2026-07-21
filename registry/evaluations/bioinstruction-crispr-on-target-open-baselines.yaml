@@ -1,0 +1,55 @@
+entity_type: evaluation_run
+id: bioinstruction-crispr-on-target-open-baselines
+work_id: bioinstructions-paper
+benchmark_id: bioinstruction-crispr-on-target
+benchmark_version: emnlp-2025
+model_ids: [bioinstruction-llama31-8b-instruct, bioinstruction-qwen2-7b, bioinstruction-llama2-7b-chat, bioinstruction-alpaca-7b, bioinstruction-glm4-9b-chat, bioinstruction-vicuna15-7b, bioinstruction-galactica-13b, bioinstruction-instructprotein-13b, bioinstruction-llama-molinst-protein-7b, bioinstruction-biomedgpt-lm-7b]
+scope: {type: subset, n: 416, subset_id: bioinstruction-crispr-on-target-test, filter: "Published held-out test split in Table 2.", reporting_status: reported}
+protocol:
+  shots: {value: 0, reporting_status: reported, notes: "The published prompt contains no demonstrations."}
+  turns: {value: single-turn, reporting_status: reported, notes: "One sequence-conditioned prompt produces one answer."}
+  system_prompt_public: {value: false, reporting_status: reported, notes: "Table 9 publishes a user-prompt template and shows no system prompt for open-source models."}
+  reasoning: {value: "The prompt requests the task-formatted answer and says not to explain or repeat.", reporting_status: reported, notes: null}
+  tools:
+    browser: &no-tool {value: false, reporting_status: reported, notes: "Direct model inference over supplied sequence prompts; no agent tool calls are part of the protocol."}
+    internet: *no-tool
+    databases: *no-tool
+    code_execution: *no-tool
+    container: {value: null, reporting_status: not_reported, notes: "No common evaluation container is reported."}
+    external_tools: *no-tool
+  token_budget: &nr {value: null, reporting_status: not_reported, notes: "Not reported."}
+  time_budget: *nr
+  temperature: *nr
+  seed: *nr
+  repeats: *nr
+  grader: {type: "first-number extraction followed by Spearman rank correlation", model: null, human_review: false, reporting_status: reported}
+  statistical: {value: "Point metric over the complete published test split, scaled by 100 and rounded to two decimals; no confidence interval is reported.", reporting_status: reported, notes: "Metrics are never averaged across tasks."}
+  contamination: {value: null, reporting_status: not_reported, notes: "No suite-level decontamination analysis is reported."}
+metrics:
+  - {metric_id: spearman-rho, source_label: "Spearman's ρ", unit: percent, range: [-100,100], higher_is_better: true, aggregation: "Spearman rank correlation across held-out test examples, scaled by 100", pass_threshold: null, tolerance: null}
+results:
+  - {model_id: bioinstruction-llama31-8b-instruct, metric_id: spearman-rho, value: -0.09, ci_low: null, ci_high: null, n: 416, notes: "CRI-On creator-paper result; metric scaled by 100.", status: verified, confidence: high, evidence_ids: [bioinstruction-crispr-on-target-open-baselines-results]}
+  - {model_id: bioinstruction-qwen2-7b, metric_id: spearman-rho, value: -6.21, ci_low: null, ci_high: null, n: 416, notes: "CRI-On creator-paper result; metric scaled by 100.", status: verified, confidence: high, evidence_ids: [bioinstruction-crispr-on-target-open-baselines-results]}
+  - {model_id: bioinstruction-llama2-7b-chat, metric_id: spearman-rho, value: 0.92, ci_low: null, ci_high: null, n: 416, notes: "CRI-On creator-paper result; metric scaled by 100.", status: verified, confidence: high, evidence_ids: [bioinstruction-crispr-on-target-open-baselines-results]}
+  - {model_id: bioinstruction-alpaca-7b, metric_id: spearman-rho, value: -3.55, ci_low: null, ci_high: null, n: 416, notes: "CRI-On creator-paper result; metric scaled by 100.", status: verified, confidence: high, evidence_ids: [bioinstruction-crispr-on-target-open-baselines-results]}
+  - {model_id: bioinstruction-glm4-9b-chat, metric_id: spearman-rho, value: -0.02, ci_low: null, ci_high: null, n: 416, notes: "CRI-On creator-paper result; metric scaled by 100.", status: verified, confidence: high, evidence_ids: [bioinstruction-crispr-on-target-open-baselines-results]}
+  - {model_id: bioinstruction-vicuna15-7b, metric_id: spearman-rho, value: 1.88, ci_low: null, ci_high: null, n: 416, notes: "CRI-On creator-paper result; metric scaled by 100.", status: verified, confidence: high, evidence_ids: [bioinstruction-crispr-on-target-open-baselines-results]}
+  - {model_id: bioinstruction-galactica-13b, metric_id: spearman-rho, value: -5.56, ci_low: null, ci_high: null, n: 416, notes: "CRI-On creator-paper result; metric scaled by 100.", status: verified, confidence: high, evidence_ids: [bioinstruction-crispr-on-target-open-baselines-results]}
+  - {model_id: bioinstruction-instructprotein-13b, metric_id: spearman-rho, value: 0, ci_low: null, ci_high: null, n: 416, notes: "CRI-On creator-paper result; metric scaled by 100.", status: verified, confidence: high, evidence_ids: [bioinstruction-crispr-on-target-open-baselines-results]}
+  - {model_id: bioinstruction-llama-molinst-protein-7b, metric_id: spearman-rho, value: -0.1, ci_low: null, ci_high: null, n: 416, notes: "CRI-On creator-paper result; metric scaled by 100.", status: verified, confidence: high, evidence_ids: [bioinstruction-crispr-on-target-open-baselines-results]}
+  - {model_id: bioinstruction-biomedgpt-lm-7b, metric_id: spearman-rho, value: 0.12, ci_low: null, ci_high: null, n: 416, notes: "CRI-On creator-paper result; metric scaled by 100.", status: verified, confidence: high, evidence_ids: [bioinstruction-crispr-on-target-open-baselines-results]}
+comparability_group: bioinstruction-crispr-on-target-open-baselines-emnlp-2025
+verification: {status: verified, last_verified: '2026-07-21', notes: "Prompt-distinct model groups are separate runs. Literature-SOTA rows are excluded because they do not use this evaluation prompt."}
+evidence:
+  - id: bioinstruction-crispr-on-target-open-baselines-scope-protocol
+    source_type: work
+    source_id: bioinstructions-paper
+    accessed_date: '2026-07-21'
+    locator: {type: table, value: "Table 2 (CRI-On test split); Appendix A.3; Table 8; Table 9 open-source prompt", note: "Scope, prompt, output parser, grader, scaling, and aggregation."}
+    supports: [/scope, /benchmark_version, /model_ids, /protocol, /metrics]
+  - id: bioinstruction-crispr-on-target-open-baselines-results
+    source_type: work
+    source_id: bioinstructions-paper
+    accessed_date: '2026-07-21'
+    locator: {type: table, value: "Table 5 (CRI-On column)", note: "All registered model values; literature-SOTA row omitted."}
+    supports: [/results]

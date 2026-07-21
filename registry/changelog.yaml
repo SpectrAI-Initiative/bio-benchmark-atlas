@@ -1,5 +1,9 @@
 - date: '2026-07-21'
   type: audit
+  entity_ids: [bioinstruction, bioinstructions-paper, bioinstruction-emp, bioinstruction-ea, bioinstruction-pd300, bioinstruction-cpd, bioinstruction-tb-human, bioinstruction-tb-mouse, bioinstruction-apa, bioinstruction-ncrna, bioinstruction-modification, bioinstruction-mrl, bioinstruction-prs, bioinstruction-crispr-on-target, bioinstruction-ec, bioinstruction-stability, bioinstruction-fluorescence, bioinstruction-solubility, bioinstruction-thermostability, bioinstruction-aan, bioinstruction-rpi, bioinstruction-epi, bioinstruction-sirna]
+  summary: Audited Biology-Instructions as 21 formal tasks rather than 21 questions; registered 6 DNA, 6 RNA, 5 protein, and 4 multi-molecule child tracks with train/validation/test counts, separated open-source, closed-source, and creator prompts into 63 runs, captured 345 creator-paper results, kept protein design out of scope, corrected access and license claims, and preserved the paper/repository conflicts over aggregate test totals, Stage-3 rows, and evaluator registration keys.
+- date: '2026-07-21'
+  type: audit
   entity_ids: [proteinlmbench, proteinlmbench-paper, proteinlmbench-creator-full, toursynbio-7b]
   summary: Audited ProteinLMBench against arXiv v2, its complete commit-pinned Hugging Face history and current JSON, and the official runner; corrected the release date to 2024-04-29, recorded the 2-to-10-option distribution and official license conflicts, kept topical design/binding counts unreported, and registered all 18 creator-evaluated systems with 36 accuracy and inference-time results.
 - date: '2026-07-21'

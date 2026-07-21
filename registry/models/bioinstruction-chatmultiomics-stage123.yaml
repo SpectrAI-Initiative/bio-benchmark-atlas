@@ -1,0 +1,9 @@
+entity_type: model
+id: bioinstruction-chatmultiomics-stage123
+name: "ChatMultiOmics"
+provider: "Biology-Instructions creators"
+release_date: "2024-12-26"
+version_string: "ours (stage 1 + stage 2 + stage 3)"
+version_status: reported
+aliases: ["ours (stage 1 + stage 2 + stage 3)","ChatMultiOmics"]
+verification: {status: verified, last_verified: '2026-07-21', notes: "Final three-stage creator system. The official README says its Hugging Face checkpoint will be released but provides no checkpoint link at the audited commit."}

@@ -1,0 +1,9 @@
+entity_type: model
+id: bioinstruction-vicuna15-7b
+name: "Vicuna-v1.5-7B (Biology-Instructions label)"
+provider: "LMSYS Org"
+release_date: null
+version_string: "Vicuna-v1.5-7B"
+version_status: reported
+aliases: ["Vicuna-v1.5-7B","Vicuna"]
+verification: {status: verified, last_verified: '2026-07-21', notes: "Exact upstream checkpoint revision is not reported."}

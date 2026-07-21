@@ -1,0 +1,9 @@
+entity_type: model
+id: bioinstruction-qwen2-7b
+name: "Qwen2-7B (Biology-Instructions label)"
+provider: "Qwen"
+release_date: null
+version_string: "Qwen2-7B"
+version_status: reported
+aliases: ["Qwen2-7B"]
+verification: {status: verified, last_verified: '2026-07-21', notes: "The creator paper does not disambiguate base versus instruct checkpoint beyond this label."}

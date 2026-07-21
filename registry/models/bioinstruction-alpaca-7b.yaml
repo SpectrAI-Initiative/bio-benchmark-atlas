@@ -1,0 +1,9 @@
+entity_type: model
+id: bioinstruction-alpaca-7b
+name: "Alpaca-7B (Biology-Instructions label)"
+provider: "Stanford CRFM"
+release_date: null
+version_string: "Alpaca-7B"
+version_status: reported
+aliases: ["Alpaca-7B"]
+verification: {status: verified, last_verified: '2026-07-21', notes: "Exact upstream checkpoint revision is not reported."}

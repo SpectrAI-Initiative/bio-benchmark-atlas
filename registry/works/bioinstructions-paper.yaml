@@ -1,13 +1,13 @@
 entity_type: work
 id: bioinstructions-paper
 title: 'Biology-Instructions: A Dataset and Benchmark for Multi-Omics Sequence Understanding Capability of Large Language Models'
-authors: [Haonan He, Yuchen Ren, Yining Tang, Ziyang Xu, Junxian Li, Minghao Yang, Di Zhang, Dong Yuan, Tao Chen, Shufei Zhang, Yuqiang Li, Nanqing Dong, Wanli Ouyang, Dongzhan Zhou, Peng Ye]
-organizations: [Shanghai AI Laboratory, Chinese University of Hong Kong]
+authors: [Haonan He, Yuchen Ren, Yining Tang, Ziyang Xu, Junxian Li, Minghao Yang, Di Zhang, Yuan Dong, Tao Chen, Shufei Zhang, Yuqiang Li, Nanqing Dong, Wanli Ouyang, Dongzhan Zhou, Peng Ye]
+organizations: [Shanghai Artificial Intelligence Laboratory, University of Science and Technology of China, University of Sydney, University of Toronto, Chinese University of Hong Kong, Shanghai Jiao Tong University, Fudan University, Shanghai Innovation Institute]
 work_type: paper
 source_class: benchmark_creator
-publication_date: '2025-11-08'
+publication_date: '2025-11-04'
 canonical_url: 'https://aclanthology.org/2025.findings-emnlp.978/'
 doi: '10.18653/v1/2025.findings-emnlp.978'
 arxiv: '2412.19191'
 status: published
-verification: {status: verified, last_verified: '2026-07-21', notes: Peer-reviewed canonical publication.}
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Final ACL Anthology record and paper footer report EMNLP 2025, November 4-9; the first conference date is used as the publication date.'}

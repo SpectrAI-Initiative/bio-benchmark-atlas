@@ -1,0 +1,9 @@
+entity_type: model
+id: bioinstruction-biomedgpt-lm-7b
+name: "BioMedGPT-LM-7B (Biology-Instructions label)"
+provider: "BioMedGPT creators"
+release_date: null
+version_string: "BioMedGPT-LM-7B"
+version_status: reported
+aliases: ["BioMedGPT-LM-7B"]
+verification: {status: verified, last_verified: '2026-07-21', notes: "Reported for RNA, protein, and multi-molecule tasks; no DNA result row is published."}

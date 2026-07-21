@@ -1,0 +1,12 @@
+entity_type: model
+id: claude-opus-4-7
+name: Claude Opus 4.7
+provider: Anthropic
+release_date: '2026-04-16'
+version_string: Claude Opus 4.7
+version_status: reported
+aliases: []
+verification:
+  status: verified
+  last_verified: '2026-07-21'
+  notes: Exact BioMysteryBench Figure 1–3 label; release date verified from Anthropic's official model announcement.

@@ -616,13 +616,76 @@ def test_genebench_pro_partitions_release_strata_and_all_sixty_configurations() 
 def test_biomysterybench_scope_and_repeats() -> None:
     entities = load_entities()
     benchmark = next(item for item in entities["benchmark"] if item["id"] == "biomysterybench")
-    run = next(item for item in entities["evaluation_run"] if item["id"] == "biomysterybench-official-run")
+    runs = {
+        item["id"]: item
+        for item in entities["evaluation_run"]
+        if item["benchmark_id"] == "biomysterybench"
+    }
     subsets = {item["id"]: item["count"] for item in benchmark["task_counts"]["subsets"]}
-    assert benchmark["task_counts"]["total"] == 99
-    assert subsets == {"human-solvable": 76, "human-difficult": 23}
-    assert run["scope"]["type"] == "full"
-    assert run["protocol"]["repeats"]["value"] == 5
-    assert {metric["metric_id"] for metric in run["metrics"]} == {"accuracy", "consistency"}
+    assert benchmark["audit"]["status"] == "audited"
+    assert benchmark["latest_version"] == "v11"
+    assert benchmark["access"]["level"] == "partially-open"
+    assert benchmark["task_counts"]["total"] == 90
+    assert subsets == {"human-solvable": 73, "human-difficult": 17}
+    versions = {item["label"]: item for item in benchmark["versions"]}
+    assert set(versions) == {"v8", "v11"}
+    assert versions["v8"]["status"] == "superseded"
+    assert versions["v8"]["task_counts"]["total"] == 99
+    assert {item["id"]: item["count"] for item in versions["v8"]["task_counts"]["subsets"]} == {
+        "human-solvable": 76,
+        "human-difficult": 23,
+    }
+    assert versions["v11"]["status"] == "current"
+
+    assert set(runs) == {
+        "biomysterybench-official-run",
+        "biomysterybench-v8-human-solvable",
+        "biomysterybench-v8-human-difficult",
+    }
+    full = runs["biomysterybench-official-run"]
+    assert full["benchmark_version"] == "v8"
+    assert full["scope"]["type"] == "full"
+    assert full["scope"]["n"] == 99
+    assert full["protocol"]["repeats"]["value"] == 5
+    assert full["protocol"]["tools"]["internet"]["value"] == "allowlisted external access"
+    assert full["protocol"]["tools"]["code_execution"]["value"] is True
+    assert full["protocol"]["tools"]["container"]["value"] is True
+    assert full["protocol"]["grader"]["human_review"] is None
+    assert "0-of-5 through 5-of-5" in full["protocol"]["statistical"]["value"]
+    assert full["results"] == []
+
+    solvable = runs["biomysterybench-v8-human-solvable"]
+    difficult = runs["biomysterybench-v8-human-difficult"]
+    assert (solvable["scope"]["type"], solvable["scope"]["n"], solvable["scope"]["subset_id"]) == (
+        "subset",
+        76,
+        "human-solvable",
+    )
+    assert (difficult["scope"]["type"], difficult["scope"]["n"], difficult["scope"]["subset_id"]) == (
+        "subset",
+        23,
+        "human-difficult",
+    )
+    assert {item["model_id"]: item["value"] for item in solvable["results"]} == {
+        "claude-haiku-4-5": 36.8,
+        "claude-sonnet-4-6": 71.8,
+        "claude-opus-4-6": 77.4,
+        "claude-opus-4-7": 78.9,
+        "claude-mythos-preview": 82.6,
+    }
+    assert {item["model_id"]: item["value"] for item in difficult["results"]} == {
+        "claude-haiku-4-5": 5.2,
+        "claude-sonnet-4-6": 19.1,
+        "claude-opus-4-6": 23.5,
+        "claude-opus-4-7": 27.0,
+        "claude-mythos-preview": 29.6,
+    }
+    for run in (solvable, difficult):
+        assert run["protocol"]["repeats"]["value"] == 5
+        assert {metric["metric_id"] for metric in run["metrics"]} == {"episode-accuracy"}
+        assert {result["status"] for result in run["results"]} == {"verified"}
+        assert {result["confidence"] for result in run["results"]} == {"high"}
+        assert all(result["ci_low"] is None and result["ci_high"] is None for result in run["results"])
 
 
 def test_public_registry_contains_no_local_absolute_paths() -> None:

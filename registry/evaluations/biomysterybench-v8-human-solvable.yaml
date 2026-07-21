@@ -1,0 +1,85 @@
+entity_type: evaluation_run
+id: biomysterybench-v8-human-solvable
+work_id: biomysterybench-official
+benchmark_id: biomysterybench
+benchmark_version: v8
+model_ids:
+- claude-haiku-4-5
+- claude-sonnet-4-6
+- claude-opus-4-6
+- claude-opus-4-7
+- claude-mythos-preview
+scope:
+  type: subset
+  n: 76
+  subset_id: human-solvable
+  filter: Problems solved by at least one of up to five domain-expert human benchmarkers.
+  reporting_status: reported
+protocol:
+  shots: {value: null, reporting_status: not_reported, notes: Not reported.}
+  turns: {value: multi-turn agent episode, reporting_status: reported, notes: Open-ended tool-using trajectory ending in a final answer.}
+  system_prompt_public: {value: null, reporting_status: not_reported, notes: Not reported.}
+  reasoning: {value: null, reporting_status: not_reported, notes: Model-specific reasoning or effort settings are not reported.}
+  tools:
+    browser: {value: null, reporting_status: not_reported, notes: A browser interface is not reported.}
+    internet: {value: allowlisted external access, reporting_status: reported, notes: Canonical bioinformatics resources were allowed; source-dataset reverse lookup was prohibited.}
+    databases: {value: canonical bioinformatics databases including NCBI and Ensembl, reporting_status: reported, notes: Reference downloads and standard bioinformatics queries were permitted.}
+    code_execution: {value: true, reporting_status: reported, notes: Analysis code and command-line workflows were supported.}
+    container: {value: true, reporting_status: reported, notes: Each episode used a container with canonical bioinformatics tools.}
+    external_tools: {value: preinstalled tools plus packages installable through pip and conda, reporting_status: reported, notes: Exact inventory not reported.}
+  token_budget: {value: null, reporting_status: not_reported, notes: Not reported.}
+  time_budget: {value: null, reporting_status: not_reported, notes: Not reported.}
+  temperature: {value: null, reporting_status: not_reported, notes: Not reported.}
+  seed: {value: null, reporting_status: not_reported, notes: Not reported.}
+  repeats: {value: 5, reporting_status: reported, notes: Five independent episodes per model and problem.}
+  grader: {type: objective final-answer scoring against an expert-authored answer rubric, model: null, human_review: null, reporting_status: reported}
+  statistical: {value: accuracy averaged over five trials per problem with error bars from bootstrap sampling within problems; per-problem reliability also reported by 0-of-5 through 5-of-5 solve counts, reporting_status: reported, notes: Numeric confidence bounds and bootstrap-resample count are not published.}
+  contamination: {value: source-dataset reverse identification prohibited; accession-ID leaks scrubbed from 16 v8 problems, reporting_status: reported, notes: Anti-cheating control; no pretraining-contamination analysis is reported.}
+metrics:
+- metric_id: episode-accuracy
+  source_label: Accuracy — human-solvable
+  unit: percent
+  range: [0, 100]
+  higher_is_better: true
+  aggregation: mean over five trials per problem, then mean over 76 problems
+  pass_threshold: null
+  tolerance: expert-authored answer rubric
+results:
+- {model_id: claude-haiku-4-5, metric_id: episode-accuracy, value: 36.8, ci_low: null, ci_high: null, n: 76, notes: 380 model episodes; official figure labels the point estimate and draws unlabeled bootstrap error bars., status: verified, confidence: high, evidence_ids: [biomysterybench-evidence-solvable-results]}
+- {model_id: claude-sonnet-4-6, metric_id: episode-accuracy, value: 71.8, ci_low: null, ci_high: null, n: 76, notes: 380 model episodes; official figure labels the point estimate and draws unlabeled bootstrap error bars., status: verified, confidence: high, evidence_ids: [biomysterybench-evidence-solvable-results]}
+- {model_id: claude-opus-4-6, metric_id: episode-accuracy, value: 77.4, ci_low: null, ci_high: null, n: 76, notes: 380 model episodes; official figure labels the point estimate and draws unlabeled bootstrap error bars., status: verified, confidence: high, evidence_ids: [biomysterybench-evidence-solvable-results]}
+- {model_id: claude-opus-4-7, metric_id: episode-accuracy, value: 78.9, ci_low: null, ci_high: null, n: 76, notes: 380 model episodes; official figure labels the point estimate and draws unlabeled bootstrap error bars., status: verified, confidence: high, evidence_ids: [biomysterybench-evidence-solvable-results]}
+- {model_id: claude-mythos-preview, metric_id: episode-accuracy, value: 82.6, ci_low: null, ci_high: null, n: 76, notes: 380 model episodes; official figure labels the point estimate and draws unlabeled bootstrap error bars., status: verified, confidence: high, evidence_ids: [biomysterybench-evidence-solvable-results]}
+comparability_group: biomysterybench-v8-human-solvable-five-episodes
+verification: {status: verified, last_verified: '2026-07-21', notes: All five printed Figure 1 labels transcribed from the immutable official image; error-bar bounds are intentionally left null.}
+evidence:
+- id: biomysterybench-evidence-solvable-scope
+  source_type: work
+  source_id: biomysterybench-official
+  accessed_date: '2026-07-21'
+  locator: {type: section, value: “Human-solvable” and Figure 1 caption, note: 'Defines the 76-problem subset, five trials, and within-problem bootstrap.'}
+  supports: [/scope, /protocol/repeats, /protocol/statistical, /metrics]
+- id: biomysterybench-evidence-solvable-results
+  source_type: resource
+  source_id: biomysterybench-figure-one-resource
+  accessed_date: '2026-07-21'
+  locator: {type: figure, value: 'Figure 1: BioMysteryBench human-solvable set (76 problems)', note: 'Printed labels report 36.8, 71.8, 77.4, 78.9, and 82.6 percent.'}
+  supports: [/results]
+- id: biomysterybench-evidence-solvable-protocol
+  source_type: work
+  source_id: biomysterybench-official
+  accessed_date: '2026-07-21'
+  locator: {type: section, value: Environment description and method-agnostic property, note: 'Reports the agent trajectory, container, databases, code/tool access, package installation, and final-answer rubric grading.'}
+  supports: [/protocol/turns, /protocol/tools/internet, /protocol/tools/databases, /protocol/tools/code_execution, /protocol/tools/container, /protocol/tools/external_tools, /protocol/grader]
+- id: biomysterybench-evidence-solvable-leak-control
+  source_type: resource
+  source_id: biomysterybench-preview-resource
+  accessed_date: '2026-07-21'
+  locator: {type: repository-path, value: README.md Rules and CHANGELOG.md v8 entry at commit 51c9024021b8989a0cb06ae623b02f90d14c2da3, note: 'Documents prohibited reverse lookup, permitted standard database use, and 16 scrubbed v8 problems.'}
+  supports: [/protocol/contamination]
+- id: biomysterybench-evidence-solvable-unreported
+  source_type: work
+  source_id: biomysterybench-official
+  accessed_date: '2026-07-21'
+  locator: {type: section, value: Complete public report and Figure 1 caption, note: 'Does not report shots, browser interface, system prompt, effort, budgets, temperature, seed, human-review status, bootstrap count, or numeric confidence bounds.'}
+  supports: [/protocol/shots, /protocol/system_prompt_public, /protocol/reasoning, /protocol/tools/browser, /protocol/token_budget, /protocol/time_budget, /protocol/temperature, /protocol/seed]

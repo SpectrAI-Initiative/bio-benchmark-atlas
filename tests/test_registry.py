@@ -688,6 +688,100 @@ def test_biomysterybench_scope_and_repeats() -> None:
         assert all(result["ci_low"] is None and result["ci_high"] is None for result in run["results"])
 
 
+def test_compbiobench_counts_access_and_creator_protocols() -> None:
+    entities = load_entities()
+    benchmark = next(item for item in entities["benchmark"] if item["id"] == "compbiobench")
+    work = next(item for item in entities["work"] if item["id"] == "compbiobench-preprint")
+    runs = {
+        item["id"]: item
+        for item in entities["evaluation_run"]
+        if item["benchmark_id"] == "compbiobench"
+    }
+    models = {item["id"]: item for item in entities["model"]}
+    subsets = {item["id"]: item["count"] for item in benchmark["task_counts"]["subsets"]}
+
+    assert benchmark["audit"]["status"] == "audited"
+    assert benchmark["latest_version"] == "v1"
+    assert benchmark["task_counts"]["total"] == 100
+    assert benchmark["versions"][0]["task_counts"] == benchmark["task_counts"]
+    assert sum(value for key, value in subsets.items() if key.startswith("compbiobench-domain-")) == 100
+    assert sum(value for key, value in subsets.items() if key.startswith("compbiobench-style-")) == 100
+    assert sum(value for key, value in subsets.items() if key.startswith("compbiobench-difficulty-")) == 100
+    assert subsets["compbiobench-internet-required"] == 78
+    assert subsets["compbiobench-internet-not-required"] == 22
+    protein = next(item for item in benchmark["coverage_notes"] if item["tag"] == "protein-structure")
+    assert protein["count"] == 1 and protein["reporting_status"] == "reported"
+    binding = [item for item in benchmark["coverage_notes"] if "binding" in item["tag"]]
+    assert all(item["count"] is None and item["reporting_status"] == "not_reported" for item in binding)
+    assert benchmark["access"]["level"] == "partially-open"
+    assert "private" in benchmark["access"]["grader"]
+    assert {item["license"] for item in benchmark["resources"]} == {
+        "CC BY-NC 4.0", "CC BY 4.0", "MIT", "Apache-2.0",
+    }
+    assert work["publication_date"] == "2026-04-09"
+    assert work["doi"] == "10.64898/2026.04.06.716850"
+
+    assert set(runs) == {
+        "compbiobench-creator-full", "compbiobench-opus-full",
+        "compbiobench-sonnet-full", "compbiobench-haiku-full",
+        "compbiobench-codex-hardest", "compbiobench-opus-hardest",
+        "compbiobench-sonnet-hardest", "compbiobench-haiku-hardest",
+        "compbiobench-nonagentic-baselines",
+    }
+    agent_full = [
+        runs["compbiobench-creator-full"], runs["compbiobench-opus-full"],
+        runs["compbiobench-sonnet-full"], runs["compbiobench-haiku-full"],
+    ]
+    assert all(run["scope"]["type"] == "full" and run["scope"]["n"] == 100 for run in agent_full)
+    assert all(run["protocol"]["tools"]["internet"]["value"] is True for run in agent_full)
+    assert all(run["protocol"]["tools"]["code_execution"]["value"] is True for run in agent_full)
+    assert all(run["protocol"]["tools"]["container"]["value"] is False for run in agent_full)
+    assert all(run["protocol"]["grader"]["human_review"] is True for run in agent_full)
+    assert {
+        run["id"]: run["protocol"]["repeats"]["value"] for run in agent_full
+    } == {
+        "compbiobench-creator-full": 3, "compbiobench-opus-full": 3,
+        "compbiobench-sonnet-full": 1, "compbiobench-haiku-full": 1,
+    }
+
+    def values(run_id: str) -> dict[str, float]:
+        return {item["metric_id"]: item["value"] for item in runs[run_id]["results"]}
+
+    assert values("compbiobench-creator-full") == {
+        "accuracy": 83.3, "mean-wall-clock-time": 679.0, "mean-cost": 1.0,
+    }
+    assert values("compbiobench-opus-full")["accuracy"] == 81.0
+    assert values("compbiobench-sonnet-full")["accuracy"] == 70.0
+    assert values("compbiobench-haiku-full")["accuracy"] == 34.0
+    hardest = {
+        run_id: run["results"][0]["value"]
+        for run_id, run in runs.items()
+        if run_id.endswith("-hardest")
+    }
+    assert hardest == {
+        "compbiobench-codex-hardest": 59.0,
+        "compbiobench-opus-hardest": 69.0,
+        "compbiobench-sonnet-hardest": 53.0,
+        "compbiobench-haiku-hardest": 12.0,
+    }
+    assert all(
+        run["scope"]["subset_id"] == "compbiobench-difficulty-levels-4-5"
+        and run["scope"]["n"] == 17
+        for run_id, run in runs.items() if run_id.endswith("-hardest")
+    )
+    baseline = runs["compbiobench-nonagentic-baselines"]
+    assert baseline["protocol"]["repeats"]["value"] == 3
+    assert all(setting["value"] is False for setting in baseline["protocol"]["tools"].values())
+    assert {item["model_id"]: item["value"] for item in baseline["results"]} == {
+        "chatgpt-5-2": 5.3, "claude-opus-4-6": 3.7,
+    }
+    assert models["codex-cli-gpt-5-4"]["version_string"] == "Codex CLI v0.115.0 + gpt-5.4"
+    assert models["claude-code-opus-4-6"]["version_string"].startswith("Claude Code v2.1.87")
+    all_results = [result for run in runs.values() for result in run["results"]]
+    assert {result["status"] for result in all_results} == {"verified"}
+    assert {result["confidence"] for result in all_results} == {"high"}
+
+
 def test_public_registry_contains_no_local_absolute_paths() -> None:
     for path in ROOT.glob("registry/**/*.yaml"):
         text = path.read_text(encoding="utf-8")

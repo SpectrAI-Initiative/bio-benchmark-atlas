@@ -1,0 +1,9 @@
+entity_type: model
+id: chatgpt-5-2
+name: ChatGPT 5.2
+provider: OpenAI
+release_date: null
+version_string: ChatGPT 5.2
+version_status: reported
+aliases: []
+verification: {status: verified, last_verified: '2026-07-21', notes: Exact non-agentic API baseline label in CompBioBench; endpoint snapshot and release date are not reported.}

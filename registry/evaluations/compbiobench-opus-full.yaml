@@ -1,0 +1,50 @@
+entity_type: evaluation_run
+id: compbiobench-opus-full
+work_id: compbiobench-preprint
+benchmark_id: compbiobench
+benchmark_version: v1
+model_ids: [claude-code-opus-4-6]
+scope: {type: full, n: 100, subset_id: null, filter: All 100 v1 tasks., reporting_status: reported}
+protocol:
+  shots: {value: zero-shot, reporting_status: reported, notes: The published wrapper prompt contains no worked examples.}
+  turns: {value: multi-turn agent trajectory, reporting_status: reported, notes: 'Claude Code could use the shell, code, tools, and web before returning one answer.'}
+  system_prompt_public: {value: false, reporting_status: reported, notes: The benchmark wrapper prompt is public; the vendor system prompt is not.}
+  reasoning: {value: max, reporting_status: reported, notes: Claude Code --effort max.}
+  tools:
+    browser: {value: web access through the agent environment, reporting_status: reported, notes: No distinct browser UI is specified.}
+    internet: {value: true, reporting_status: reported, notes: Web access was enabled and encouraged.}
+    databases: {value: true, reporting_status: reported, notes: External biological resources were permitted.}
+    code_execution: {value: true, reporting_status: reported, notes: Claude Code ran commands with --dangerously-skip-permissions.}
+    container: {value: false, reporting_status: reported, notes: 'Per-question Conda clone, not a hard sandbox or container.'}
+    external_tools: {value: true, reporting_status: reported, notes: Agents could install and retrieve tools.}
+  token_budget: {value: null, reporting_status: not_reported, notes: No token ceiling is reported.}
+  time_budget: {value: '120 minutes initially; timed-out questions rerun clean once with 240 minutes', reporting_status: reported, notes: A second timeout was incorrect.}
+  temperature: {value: null, reporting_status: not_reported, notes: Not reported.}
+  seed: {value: null, reporting_status: not_reported, notes: Not reported.}
+  repeats: {value: 3, reporting_status: reported, notes: Three independent full-benchmark runs.}
+  grader: {type: whitespace-stripped exact string match with occasional manual format-only correction, model: null, human_review: true, reporting_status: reported}
+  statistical: {value: mean over three independent runs; consistency reported as correct in all three and at least once, reporting_status: reported, notes: Wall time/cost display clipping at 7200 seconds/USD 10; no CI published.}
+  contamination: {value: synthetic/augmented inputs and scrubbed identifiers reduce lookup shortcuts, reporting_status: reported, notes: No pretraining decontamination analysis.}
+metrics:
+- {metric_id: accuracy, source_label: Accuracy, unit: percent, range: [0, 100], higher_is_better: true, aggregation: mean problem accuracy over three runs, pass_threshold: null, tolerance: whitespace-stripped exact match}
+- {metric_id: mean-wall-clock-time, source_label: Wall-clock time per question, unit: seconds, range: null, higher_is_better: false, aggregation: mean after 7200-second display clipping, pass_threshold: null, tolerance: null}
+- {metric_id: mean-cost, source_label: Cost per question, unit: USD, range: null, higher_is_better: false, aggregation: mean after USD-10 display clipping, pass_threshold: null, tolerance: null}
+results:
+- {model_id: claude-code-opus-4-6, metric_id: accuracy, value: 81.0, ci_low: null, ci_high: null, n: 100, notes: Mean of three full runs; 73% solved all three and 86% at least once., status: verified, confidence: high, evidence_ids: [compbiobench-evidence-opus-results]}
+- {model_id: claude-code-opus-4-6, metric_id: mean-wall-clock-time, value: 1101.0, ci_low: null, ci_high: null, n: 100, notes: Printed Figure 2 label., status: verified, confidence: high, evidence_ids: [compbiobench-evidence-opus-results]}
+- {model_id: claude-code-opus-4-6, metric_id: mean-cost, value: 1.7, ci_low: null, ci_high: null, n: 100, notes: Printed Figure 2 label., status: verified, confidence: high, evidence_ids: [compbiobench-evidence-opus-results]}
+comparability_group: compbiobench-v1-opus-max-three-runs
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Full scope, exact Claude Code/model/effort, repeat protocol, and Figure 2 values verified.'}
+evidence:
+- id: compbiobench-evidence-opus-scope-protocol
+  source_type: work
+  source_id: compbiobench-preprint
+  accessed_date: '2026-07-21'
+  locator: {type: page, value: 'PDF pp. 13–14, Methods: agent execution and model configurations', note: 'Reports Claude Code v2.1.87, claude-opus-4-6 1M, max effort, three runs, tools, and timeout policy.'}
+  supports: [/benchmark_version, /scope, /protocol]
+- id: compbiobench-evidence-opus-results
+  source_type: work
+  source_id: compbiobench-preprint
+  accessed_date: '2026-07-21'
+  locator: {type: figure, value: 'PDF pp. 3–4, Figure 2A–C and Results', note: 'Reports 81.0% accuracy, 1101.0 seconds, USD 1.7, and consistency.'}
+  supports: [/metrics, /results]

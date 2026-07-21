@@ -1,13 +1,26 @@
 entity_type: work
 id: compbiobench-preprint
 title: Agentic systems are adept at solving well-scoped, verifiable problems in computational biology
-authors: [Genentech Computational Sciences]
-organizations: [Genentech, Roche]
+authors:
+- Surag Nair
+- Laura Gunsalus
+- Brian Orcutt-Jahns
+- Jordan Rossen
+- Avantika Lal
+- Carlo De Donno
+- Muhammed Hasan Çelik
+- Kipper Fletez-Brant
+- Xiaoman Xie
+- Hector Corrada Bravo
+- Gokcen Eraslan
+organizations:
+- Genentech
+- Roche
 work_type: preprint
 source_class: benchmark_creator
-publication_date: '2026-04-06'
-canonical_url: 'https://www.biorxiv.org/content/10.64898/2026.04.06.716850v1'
-doi: '10.64898/2026.04.06.716850'
+publication_date: '2026-04-09'
+canonical_url: https://www.biorxiv.org/content/10.64898/2026.04.06.716850v1
+doi: 10.64898/2026.04.06.716850
 arxiv: null
 status: preprint
-verification: {status: verified, last_verified: '2026-07-21', notes: Creator preprint and official code links.}
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Author list, posting date, DOI, v1 status, and official data/code links verified from bioRxiv v1.'}

@@ -1,0 +1,50 @@
+entity_type: evaluation_run
+id: compbiobench-haiku-full
+work_id: compbiobench-preprint
+benchmark_id: compbiobench
+benchmark_version: v1
+model_ids: [claude-code-haiku-4-5]
+scope: {type: full, n: 100, subset_id: null, filter: All 100 v1 tasks., reporting_status: reported}
+protocol:
+  shots: {value: zero-shot, reporting_status: reported, notes: Public wrapper prompt has no worked examples.}
+  turns: {value: multi-turn agent trajectory, reporting_status: reported, notes: Tool-using Claude Code trajectory.}
+  system_prompt_public: {value: false, reporting_status: reported, notes: Benchmark wrapper is public; vendor system prompt is not.}
+  reasoning: {value: unsupported, reporting_status: reported, notes: The --effort setting was not supported for Haiku.}
+  tools:
+    browser: {value: web access through the agent environment, reporting_status: reported, notes: No distinct browser UI specified.}
+    internet: {value: true, reporting_status: reported, notes: Web access enabled and encouraged.}
+    databases: {value: true, reporting_status: reported, notes: External biological resources permitted.}
+    code_execution: {value: true, reporting_status: reported, notes: Commands auto-approved.}
+    container: {value: false, reporting_status: reported, notes: 'Per-question Conda clone, not a hard sandbox/container.'}
+    external_tools: {value: true, reporting_status: reported, notes: Tool installation and retrieval permitted.}
+  token_budget: {value: null, reporting_status: not_reported, notes: Not reported.}
+  time_budget: {value: '120 minutes; no 240-minute timeout rerun', reporting_status: reported, notes: Haiku was the explicit exception to timeout reruns.}
+  temperature: {value: null, reporting_status: not_reported, notes: Not reported.}
+  seed: {value: null, reporting_status: not_reported, notes: Not reported.}
+  repeats: {value: 1, reporting_status: reported, notes: One full-benchmark run.}
+  grader: {type: whitespace-stripped exact string match with occasional manual format-only correction, model: null, human_review: true, reporting_status: reported}
+  statistical: {value: single full-benchmark run, reporting_status: reported, notes: Wall time/cost display clipping at 7200 seconds/USD 10; no CI.}
+  contamination: {value: synthetic/augmented inputs and scrubbed identifiers reduce lookup shortcuts, reporting_status: reported, notes: No pretraining decontamination analysis.}
+metrics:
+- {metric_id: accuracy, source_label: Accuracy, unit: percent, range: [0, 100], higher_is_better: true, aggregation: problem-weighted mean, pass_threshold: null, tolerance: whitespace-stripped exact match}
+- {metric_id: mean-wall-clock-time, source_label: Wall-clock time per question, unit: seconds, range: null, higher_is_better: false, aggregation: mean after 7200-second display clipping, pass_threshold: null, tolerance: null}
+- {metric_id: mean-cost, source_label: Cost per question, unit: USD, range: null, higher_is_better: false, aggregation: mean after USD-10 display clipping, pass_threshold: null, tolerance: null}
+results:
+- {model_id: claude-code-haiku-4-5, metric_id: accuracy, value: 34.0, ci_low: null, ci_high: null, n: 100, notes: One full run., status: verified, confidence: high, evidence_ids: [compbiobench-evidence-haiku-results]}
+- {model_id: claude-code-haiku-4-5, metric_id: mean-wall-clock-time, value: 809.3, ci_low: null, ci_high: null, n: 100, notes: Printed Figure 2 label., status: verified, confidence: high, evidence_ids: [compbiobench-evidence-haiku-results]}
+- {model_id: claude-code-haiku-4-5, metric_id: mean-cost, value: 0.3, ci_low: null, ci_high: null, n: 100, notes: Printed Figure 2 label., status: verified, confidence: high, evidence_ids: [compbiobench-evidence-haiku-results]}
+comparability_group: compbiobench-v1-haiku-one-run-120m
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Exact one-run Haiku setting, timeout exception, and Figure 2 values verified.'}
+evidence:
+- id: compbiobench-evidence-haiku-scope-protocol
+  source_type: work
+  source_id: compbiobench-preprint
+  accessed_date: '2026-07-21'
+  locator: {type: page, value: 'PDF pp. 13–14, Methods', note: 'Reports Claude Code v2.1.87, dated Haiku identifier, unsupported effort, one run, and no timeout rerun.'}
+  supports: [/benchmark_version, /scope, /protocol]
+- id: compbiobench-evidence-haiku-results
+  source_type: work
+  source_id: compbiobench-preprint
+  accessed_date: '2026-07-21'
+  locator: {type: figure, value: 'PDF pp. 3–4, Figure 2A–C', note: 'Printed labels report 34.0%, 809.3 seconds, and USD 0.3.'}
+  supports: [/metrics, /results]

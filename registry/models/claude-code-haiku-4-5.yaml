@@ -1,0 +1,9 @@
+entity_type: model
+id: claude-code-haiku-4-5
+name: Claude Code (Haiku 4.5)
+provider: Anthropic
+release_date: null
+version_string: Claude Code v2.1.87 + claude-haiku-4-5-20251001
+version_status: reported
+aliases: [Claude Code (Haiku 4.5)]
+verification: {status: verified, last_verified: '2026-07-21', notes: Exact CLI version and dated model identifier reported in the CompBioBench Methods; effort was unsupported.}

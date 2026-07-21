@@ -226,6 +226,33 @@ test('BioMysteryBench separates the human subsets and repeats', async ({ page })
   await expect(page.locator('.chart-card')).toHaveCount(2);
 });
 
+test('CompBioBench separates access, agents, repeats, and hardest subset settings', async ({ page }) => {
+  await page.goto('/bio-benchmark-atlas/benchmarks/compbiobench/');
+  await expect(page.getByText(/v1 contains 100 tasks/)).toBeVisible();
+  await expect(page.getByText(/only one Structure task uses a protein PDB/)).toBeVisible();
+  await expect(page.getByText(/answer key and grader backend are private/)).toBeVisible();
+  await expect(page.getByRole('cell', { name: 'Domain — Structure' })).toBeVisible();
+  await expect(page.getByRole('cell', { name: 'Contributor difficulty — Levels 4–5' })).toBeVisible();
+
+  const codex = page.locator('#compbiobench-creator-full');
+  await expect(codex).toContainText('full · n=100');
+  await expect(codex.getByText('Repeats', { exact: true }).locator('..')).toContainText('3');
+  await expect(codex.getByText('Container', { exact: true }).locator('..')).toContainText('No');
+  await expect(codex).toContainText('83.3');
+  await expect(codex).toContainText('679');
+
+  const hardest = page.locator('#compbiobench-opus-hardest');
+  await expect(hardest).toContainText('subset · n=17');
+  await expect(hardest).toContainText('69');
+
+  const baseline = page.locator('#compbiobench-nonagentic-baselines');
+  await expect(baseline).toContainText('single-turn API call');
+  await expect(baseline).toContainText('5.3');
+  await expect(baseline).toContainText('3.7');
+  await expect(page.locator('.run-card')).toHaveCount(9);
+  await expect(page.locator('.chart-card')).toHaveCount(17);
+});
+
 test('work, domain, archive, and Chinese guide routes render', async ({ page }) => {
   for (const [path, heading] of [
     ['/bio-benchmark-atlas/works/lifescibench-preprint/', 'LifeSciBench'],

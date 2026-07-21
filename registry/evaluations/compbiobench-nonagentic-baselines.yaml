@@ -1,0 +1,47 @@
+entity_type: evaluation_run
+id: compbiobench-nonagentic-baselines
+work_id: compbiobench-preprint
+benchmark_id: compbiobench
+benchmark_version: v1
+model_ids: [chatgpt-5-2, claude-opus-4-6]
+scope: {type: full, n: 100, subset_id: null, filter: 'All 100 v1 questions, presented without associated files.', reporting_status: reported}
+protocol:
+  shots: {value: zero-shot, reporting_status: reported, notes: Full public prompt with no demonstrations.}
+  turns: {value: single-turn API call, reporting_status: reported, notes: Non-agentic baselines did not run an iterative tool-using trajectory.}
+  system_prompt_public: {value: null, reporting_status: not_reported, notes: The creator prompt is public; provider system prompts are not reported.}
+  reasoning: {value: default API parameters, reporting_status: reported, notes: No explicit reasoning-effort setting reported.}
+  tools:
+    browser: {value: false, reporting_status: reported, notes: No browser.}
+    internet: {value: false, reporting_status: reported, notes: No web access.}
+    databases: {value: false, reporting_status: reported, notes: No database access.}
+    code_execution: {value: false, reporting_status: reported, notes: No code execution.}
+    container: {value: false, reporting_status: reported, notes: Direct API calls.}
+    external_tools: {value: false, reporting_status: reported, notes: No tools or input files.}
+  token_budget: {value: null, reporting_status: not_reported, notes: Not reported.}
+  time_budget: {value: null, reporting_status: not_reported, notes: Not reported.}
+  temperature: {value: default, reporting_status: reported, notes: Source says default API parameters but does not report a numeric temperature.}
+  seed: {value: null, reporting_status: not_reported, notes: Not reported.}
+  repeats: {value: 3, reporting_status: reported, notes: Every question was sent three times to each model.}
+  grader: {type: whitespace-stripped exact string match, model: null, human_review: null, reporting_status: reported}
+  statistical: {value: mean accuracy over three calls per question, reporting_status: reported, notes: No CI reported.}
+  contamination: {value: benchmark construction reduces lookup shortcuts, reporting_status: reported, notes: No pretraining decontamination analysis.}
+metrics:
+- {metric_id: accuracy, source_label: Accuracy, unit: percent, range: [0, 100], higher_is_better: true, aggregation: mean over three calls per problem, pass_threshold: null, tolerance: whitespace-stripped exact match}
+results:
+- {model_id: chatgpt-5-2, metric_id: accuracy, value: 5.3, ci_low: null, ci_high: null, n: 100, notes: ChatGPT 5.2 non-agentic API baseline; three calls per question., status: verified, confidence: high, evidence_ids: [compbiobench-evidence-nonagentic-results]}
+- {model_id: claude-opus-4-6, metric_id: accuracy, value: 3.7, ci_low: null, ci_high: null, n: 100, notes: Claude Opus 4.6 non-agentic API baseline; three calls per question., status: verified, confidence: high, evidence_ids: [compbiobench-evidence-nonagentic-results]}
+comparability_group: compbiobench-v1-nonagentic-api-three-calls-no-files
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Both full-set baseline results and the no-files, no-tools, three-call API protocol verified.'}
+evidence:
+- id: compbiobench-evidence-nonagentic-protocol
+  source_type: work
+  source_id: compbiobench-preprint
+  accessed_date: '2026-07-21'
+  locator: {type: page, value: 'PDF p. 13, Methods: LLM-only baselines', note: 'Default API parameters, three calls per question, no files, public prompt, and full benchmark.'}
+  supports: [/benchmark_version, /scope, /protocol]
+- id: compbiobench-evidence-nonagentic-results
+  source_type: work
+  source_id: compbiobench-preprint
+  accessed_date: '2026-07-21'
+  locator: {type: figure, value: 'PDF pp. 3–4, Figure 2A and Results', note: 'Figure labels and text report ChatGPT 5.2 at 5.3% and Claude Opus 4.6 at 3.7%.'}
+  supports: [/metrics, /results]

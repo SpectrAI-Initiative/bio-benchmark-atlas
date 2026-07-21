@@ -3,7 +3,7 @@ id: claude-code-opus-4-6
 name: Claude Code (Opus 4.6)
 provider: Anthropic
 release_date: null
-version_string: Claude Code (Opus 4.6)
+version_string: Claude Code v2.1.87 + claude-opus-4-6 (1M context)
 version_status: reported
-aliases: []
-verification: {status: verified, last_verified: '2026-07-21', notes: Agent-and-model label reported by the CompBioBench creators.}
+aliases: ['Claude Code (Opus 4.6) [max]']
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Exact CLI version, model identifier, context variant, and max effort reported in the CompBioBench Methods.'}

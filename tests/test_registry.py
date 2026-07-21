@@ -889,6 +889,99 @@ def test_bixbench_versions_units_and_creator_protocols() -> None:
     assert {result["confidence"] for result in all_results} == {"high"}
 
 
+def test_blade_separates_source_tasks_decisions_mcqs_and_agent_protocols() -> None:
+    entities = load_entities()
+    benchmarks = {item["id"]: item for item in entities["benchmark"]}
+    runs = {
+        item["id"]: item
+        for item in entities["evaluation_run"]
+        if item["benchmark_id"] in {"blade-mcq", "blade-analysis-generation"}
+    }
+    models = {item["id"]: item for item in entities["model"]}
+    work = next(item for item in entities["work"] if item["id"] == "blade-paper")
+
+    root = benchmarks["blade"]
+    root_counts = {item["id"]: item["count"] for item in root["task_counts"]["subsets"]}
+    assert root["kind"] == "suite"
+    assert root["audit"]["status"] == "audited"
+    assert root["latest_version"] == "arXiv v3"
+    assert root["task_counts"]["total"] == 12
+    assert root_counts == {
+        "blade-mcq-items": 188,
+        "blade-mcq-conceptual": 20,
+        "blade-mcq-transform": 168,
+        "blade-ground-truth-decisions": 536,
+        "blade-ground-truth-conceptual": 118,
+        "blade-ground-truth-transform": 246,
+        "blade-ground-truth-modeling": 172,
+    }
+    assert root["versions"][0]["task_counts"] == root["task_counts"]
+    assert set(root["versions"][0]["formal_tracks"]) == {
+        "blade-mcq", "blade-analysis-generation",
+    }
+    coverage = {item["tag"]: item for item in root["coverage_notes"]}
+    assert coverage["life-science"]["count"] == 4
+    assert coverage["protein-protein-binding"]["count"] == 0
+    assert coverage["protein-ligand-binding"]["count"] == 0
+
+    mcq_track = benchmarks["blade-mcq"]
+    generation_track = benchmarks["blade-analysis-generation"]
+    assert mcq_track["parent_id"] == "blade" and mcq_track["task_counts"]["total"] == 188
+    assert {item["id"]: item["count"] for item in mcq_track["task_counts"]["subsets"]} == {
+        "blade-mcq-conceptual-items": 20,
+        "blade-mcq-transform-items": 168,
+        "blade-mcq-source-datasets": 11,
+    }
+    assert generation_track["parent_id"] == "blade"
+    assert generation_track["task_counts"]["total"] == 12
+    assert next(
+        item["count"] for item in generation_track["task_counts"]["subsets"]
+        if item["id"] == "blade-generation-ground-truth-decisions"
+    ) == 536
+
+    assert set(runs) == {"blade-creator-paper", "blade-creator-react", "blade-creator-decision-mcq"}
+    direct = runs["blade-creator-paper"]
+    react = runs["blade-creator-react"]
+    mcq = runs["blade-creator-decision-mcq"]
+    assert direct["benchmark_version"] == "arXiv v3"
+    assert direct["scope"]["n"] == 12
+    assert direct["protocol"]["shots"]["value"] == "one-shot"
+    assert direct["protocol"]["turns"]["value"] == "single-turn"
+    assert direct["protocol"]["tools"]["code_execution"]["value"] is False
+    assert direct["protocol"]["temperature"]["value"] == 0.8
+    assert direct["protocol"]["repeats"]["value"] == 40
+    assert len(direct["results"]) == 9
+    assert {(item["model_id"], item["value"], item["ci_low"], item["ci_high"]) for item in direct["results"]} >= {
+        ("blade-codellama-7b-instruct", 16.8, 15.2, 18.5),
+        ("blade-claude-3-5-sonnet-20240620", 43.9, 42.6, 44.9),
+    }
+
+    assert react["scope"]["n"] == 12
+    assert react["protocol"]["turns"]["value"] == "multi-turn"
+    assert react["protocol"]["tools"]["code_execution"]["value"] is True
+    assert react["protocol"]["time_budget"]["value"] == "maximum 10 agent steps"
+    assert react["protocol"]["repeats"]["value"] == 20
+    assert {item["model_id"]: item["value"] for item in react["results"]} == {
+        "blade-mixtral-8x22b-unversioned": 40.8,
+        "blade-gpt35-turbo-unversioned": 37.2,
+        "blade-gpt4o-unversioned": 44.8,
+        "blade-gemini-1-5-pro-unversioned": 40.1,
+        "blade-claude-3-5-sonnet-20240620": 43.1,
+    }
+    assert mcq["scope"]["n"] == 188
+    assert mcq["protocol"]["temperature"]["value"] == 0
+    assert mcq["protocol"]["repeats"]["value"] == 1
+    assert mcq["results"] == []
+
+    assert models["blade-codellama-7b-instruct"]["version_status"] == "reported"
+    assert models["blade-gpt4o-unversioned"]["version_status"] == "not_reported"
+    assert models["blade-claude-3-5-sonnet-20240620"]["version_string"] == "claude-3-5-sonnet-20240620"
+    assert set(work["organizations"]) == {
+        "University of Washington", "UC Berkeley", "New York University", "Stanford University",
+        "University of British Columbia", "Microsoft", "George Washington University",
+    }
+
+
 def test_public_registry_contains_no_local_absolute_paths() -> None:
     for path in ROOT.glob("registry/**/*.yaml"):
         text = path.read_text(encoding="utf-8")

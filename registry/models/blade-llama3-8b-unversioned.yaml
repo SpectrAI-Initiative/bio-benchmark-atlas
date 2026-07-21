@@ -1,0 +1,9 @@
+entity_type: model
+id: blade-llama3-8b-unversioned
+name: Llama 3 8B (BLADE snapshot not reported)
+provider: Meta
+release_date: null
+version_string: null
+version_status: not_reported
+aliases: [Llama3 8B, Llama 3 8B]
+verification: {status: verified, last_verified: '2026-07-21', notes: 'The paper reports the Llama 3 8B family and size but does not identify a fixed checkpoint revision or unambiguously tie the run to one of the provider aliases in the code config.'}

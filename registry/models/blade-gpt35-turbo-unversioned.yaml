@@ -1,0 +1,9 @@
+entity_type: model
+id: blade-gpt35-turbo-unversioned
+name: GPT-3.5 Turbo (BLADE snapshot not reported)
+provider: OpenAI
+release_date: null
+version_string: null
+version_status: not_reported
+aliases: [GPT-3.5 Turbo, gpt-3.5-turbo]
+verification: {status: verified, last_verified: '2026-07-21', notes: 'The paper and official configuration use an undated GPT-3.5 Turbo alias; no dated endpoint snapshot is reported.'}

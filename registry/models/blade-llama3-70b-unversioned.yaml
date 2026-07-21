@@ -1,0 +1,9 @@
+entity_type: model
+id: blade-llama3-70b-unversioned
+name: Llama 3 70B (BLADE snapshot not reported)
+provider: Meta
+release_date: null
+version_string: null
+version_status: not_reported
+aliases: [Llama3 70B, Llama 3 70B]
+verification: {status: verified, last_verified: '2026-07-21', notes: 'The paper reports the Llama 3 70B family and size, but the official config contains more than one provider route and the evaluated route/checkpoint revision is not stated.'}

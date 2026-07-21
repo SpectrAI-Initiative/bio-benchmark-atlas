@@ -1,0 +1,9 @@
+entity_type: model
+id: blade-gemini-1-5-pro-unversioned
+name: Gemini 1.5 Pro (BLADE snapshot not reported)
+provider: Google
+release_date: null
+version_string: null
+version_status: not_reported
+aliases: [Gemini 1.5 Pro, gemini-1.5-pro-latest]
+verification: {status: verified, last_verified: '2026-07-21', notes: 'The paper reports Gemini 1.5 Pro and the code uses the moving latest alias; no immutable endpoint snapshot is reported.'}

@@ -2,38 +2,122 @@ entity_type: benchmark
 id: blade
 name: BLADE
 aliases: [Benchmarking Language Model Agents for Data-Driven Science]
-summary: Open-ended data-analysis benchmark comparing agent decisions and executable analyses with expert ground truth from scientific questions.
-kind: agentic-eval
+summary: A cross-domain suite for discerning defensible analysis decisions and generating executable end-to-end analyses for open-ended scientific research questions; four of its twelve source questions are explicitly biological or ecological.
+kind: suite
 parent_id: null
-organizations: [University of Washington]
+organizations: [University of Washington, UC Berkeley, New York University, Stanford University, University of British Columbia, Microsoft, George Washington University]
 release_date: '2024-08-19'
-latest_version: '1.0'
-domains: [life-science, clinical-translational]
-capabilities: [data-analysis, coding, scientific-reasoning]
+latest_version: arXiv v3
+domains: [life-science]
+capabilities: [knowledge, classification, data-analysis, coding, tool-use, scientific-reasoning]
 modalities: [text, table, code]
-task_formats: [open-ended research analysis]
-task_counts:
+task_formats: [multiple choice, open-ended end-to-end scientific analysis]
+task_counts: &current-counts
   total: 12
-  basis: paired research questions and datasets
+  basis: paired real-world research questions and datasets used as the source units for BLADE
   reporting_status: reported
   subsets:
-    - {id: analysis-decisions, label: Annotated analysis decisions, count: 500, basis: approximate decisions across tasks, exclusive: false, exhaustive: false, reporting_status: reported, notes: More than 500 decisions; encoded as the conservative reported lower bound.}
-coverage_notes: []
+  - {id: blade-mcq-items, label: Multiple-choice questions, count: 188, basis: individual decision-discrimination questions across the source datasets, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'A separate question unit, not a partition of the 12 research-question/dataset pairs.'}
+  - {id: blade-mcq-conceptual, label: Conceptual-variable MCQs, count: 20, basis: individual conceptual-variable discrimination questions, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'One component of the 188-question MCQ track.'}
+  - {id: blade-mcq-transform, label: Transformation MCQs, count: 168, basis: individual transformation-decision discrimination questions, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'One component of the 188-question MCQ track.'}
+  - {id: blade-ground-truth-decisions, label: Ground-truth analysis decisions, count: 536, basis: unique defensible decisions in the expert ground-truth decision space, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'A grader-reference unit, not a count of benchmark tasks.'}
+  - {id: blade-ground-truth-conceptual, label: Ground-truth conceptual-variable decisions, count: 118, basis: conceptual-variable decisions in the ground-truth decision space, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Together with transform and modeling decisions, partitions the 536 decision references rather than the 12 source tasks.'}
+  - {id: blade-ground-truth-transform, label: Ground-truth transform decisions, count: 246, basis: discrete data-transformation decisions in the ground-truth decision space, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Together with conceptual-variable and modeling decisions, partitions the 536 decision references.'}
+  - {id: blade-ground-truth-modeling, label: Ground-truth modeling decisions, count: 172, basis: statistical-model and model-formula decisions in the ground-truth decision space, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Together with conceptual-variable and transform decisions, partitions the 536 decision references.'}
+coverage_notes:
+- {tag: life-science, coverage: observed, count: 4, reporting_status: reported, notes: 'Registry mapping of four explicitly biological or ecological source questions in paper Table 3: AMTL, Crofoot, Panda_nuts, and Fish. BLADE itself is cross-domain.'}
+- {tag: protein-design, coverage: not-in-scope, count: 0, reporting_status: reported, notes: None of the twelve official research questions concerns protein design or optimization.}
+- {tag: protein-protein-binding, coverage: not-in-scope, count: 0, reporting_status: reported, notes: None of the twelve official research questions concerns protein-protein binding.}
+- {tag: protein-ligand-binding, coverage: not-in-scope, count: 0, reporting_status: reported, notes: None of the twelve official research questions concerns protein-ligand binding.}
+- {tag: genomics, coverage: not-in-scope, count: 0, reporting_status: reported, notes: The official question inventory contains no genomics or omics-analysis task.}
+- {tag: transcriptomics, coverage: not-in-scope, count: 0, reporting_status: reported, notes: The official question inventory contains no transcriptomics task.}
+- {tag: single-cell, coverage: not-in-scope, count: 0, reporting_status: reported, notes: The official question inventory contains no single-cell task.}
 access:
   level: fully-open
-  tasks: Public research questions and datasets.
-  artifacts: Public data and annotations in the official repository.
-  grader: Public matching and analysis-evaluation code.
-  license: MIT
-  biosafety_notes: BLADE spans general data-driven science; not every task is biological.
+  tasks: The official repository publishes the twelve research questions, data tables, 188 MCQs, and associated dataset descriptions.
+  artifacts: The repository publishes expert annotations and grader inputs; code is Apache-2.0 and the benchmark data directory is ODC-By-1.0.
+  grader: Public code performs executable-code checks, value and graph matching for transformations, and GPT-4o-assisted semantic conversion and matching for conceptual variables and statistical models.
+  license: Apache-2.0 for code; ODC-By-1.0 for the benchmark data and annotations; CC BY 4.0 for the ACL paper
+  biosafety_notes: Four source questions concern ecology, primate behavior, or evolutionary biology, but BLADE contains no protein, omics, pathogen, intervention, or wet-lab task and the creators publish no separate biosafety restriction.
 resources:
-  - {type: paper, url: 'https://aclanthology.org/2024.findings-emnlp.815/', license: null, access_notes: Peer-reviewed creator paper.}
-  - {type: website, url: 'https://blade-bench.github.io/', license: null, access_notes: Official project site.}
-  - {type: repository, url: 'https://github.com/behavioral-data/BLADE', license: MIT, access_notes: Official code and data.}
+- id: blade-paper-resource
+  type: paper
+  url: https://aclanthology.org/2024.findings-emnlp.815/
+  license: CC BY 4.0
+  access_notes: Peer-reviewed Findings of EMNLP 2024 creator paper.
+  last_checked: '2026-07-21'
+  pin: null
+- id: blade-arxiv-v3-resource
+  type: paper
+  url: https://arxiv.org/abs/2408.09667
+  license: CC BY 4.0
+  access_notes: Current creator manuscript, arXiv v3 dated 2025-11-10; the official source-archive response exposes the recorded SHA256 ETag.
+  last_checked: '2026-07-21'
+  pin: {kind: snapshot, value: 'sha256:8f37f27a5ca94540bf1eb8475c9dc838220a085788c402ba65fee980af807488', url: 'https://arxiv.org/src/2408.09667'}
+- id: blade-website-resource
+  type: website
+  url: https://blade-bench.github.io/
+  license: null
+  access_notes: Official project overview and result figures; captured HTML SHA256 eb90e6c54d830fdc2736c2e45d739359f455fc186a2845d880779a93ca8f554c.
+  last_checked: '2026-07-21'
+  pin: {kind: snapshot, value: 'sha256:eb90e6c54d830fdc2736c2e45d739359f455fc186a2845d880779a93ca8f554c', url: 'https://blade-bench.github.io/'}
+- id: blade-repository-resource
+  type: repository
+  url: https://github.com/behavioral-data/BLADE
+  license: Apache-2.0 for code; ODC-By-1.0 for data
+  access_notes: Official package version 0.1.1, benchmark data, prompts, baselines, and grader implementation; the repository has no release tags.
+  last_checked: '2026-07-21'
+  pin: {kind: commit, value: 6118fa8d5007b91aa8c91c518182db82446a4547, url: 'https://github.com/behavioral-data/BLADE/tree/6118fa8d5007b91aa8c91c518182db82446a4547'}
 implementations:
-  - {framework: BLADE Python evaluator, status: official, url: 'https://github.com/behavioral-data/BLADE/tree/6118fa8d5007b91aa8c91c518182db82446a4547', commit: 6118fa8d5007b91aa8c91c518182db82446a4547, notes: Commit captured at verification time.}
-verification: {status: verified, last_verified: '2026-07-21', notes: Biological relevance is tagged conservatively because the suite also includes non-biological scientific questions.}
+- {framework: BLADE Python evaluator 0.1.1, status: official, url: 'https://github.com/behavioral-data/BLADE/tree/6118fa8d5007b91aa8c91c518182db82446a4547', commit: 6118fa8d5007b91aa8c91c518182db82446a4547, notes: 'Official MCQ runner, one-turn and ReAct baselines, executable-analysis evaluator, prompts, and data.'}
+versions:
+- id: blade-arxiv-v3
+  label: arXiv v3
+  status: current
+  release_date: '2025-11-10'
+  as_of: '2026-07-21'
+  task_counts: *current-counts
+  formal_tracks: [blade-mcq, blade-analysis-generation]
+  notes: Current creator manuscript snapshot. It explicitly defines 188 MCQs and 536 ground-truth decisions across 12 source research-question/dataset pairs; the independently versioned code remains package 0.1.1 at the pinned commit.
+  evidence_ids: [blade-evidence-current-counts]
+audit:
+  status: audited
+  audited_date: '2026-07-21'
+  unresolved_fields: 0
+  notes: Identity, counts, formal task types, taxonomy, licenses, runnable implementation, grader, protocols, and printed generation results were checked against creator sources. Distinct count units are retained instead of being summed into a synthetic suite total.
+field_status: []
+verification:
+  status: verified
+  last_verified: '2026-07-21'
+  notes: Audited against the peer-reviewed paper, current arXiv v3, official project site, and commit-pinned official repository.
 evidence:
-  - work_id: blade-paper
-    locator: 'Abstract; Sections 3 and 5; official project site'
-    supports: [summary, task_counts, domains, capabilities, access, implementations]
+- id: blade-evidence-identity
+  source_type: work
+  source_id: blade-paper
+  accessed_date: '2026-07-21'
+  locator: {type: section, value: 'Title, abstract, and §§1–4', note: 'Defines BLADE, the twelve source research questions/datasets, its decision-based purpose, and the two task types.'}
+  supports: [/name, /aliases, /summary, /organizations, /release_date, /kind, /capabilities, /modalities, /task_formats]
+- id: blade-evidence-current-counts
+  source_type: resource
+  source_id: blade-arxiv-v3-resource
+  accessed_date: '2026-07-21'
+  locator: {type: section, value: 'arXiv v3 §§1, 4.1–4.2, 6 and Appendix A.2', note: 'Reports 12 paired questions/datasets, 188 MCQs (20 conceptual-variable and 168 transform), and 536 ground-truth decisions (118 conceptual-variable, 246 transform, and 172 modeling).'}
+  supports: [/latest_version, /task_counts, /task_counts/total, /task_counts/basis, /task_counts/subsets, /versions/0/task_counts, /versions/0/formal_tracks]
+- id: blade-evidence-taxonomy
+  source_type: resource
+  source_id: blade-arxiv-v3-resource
+  accessed_date: '2026-07-21'
+  locator: {type: table, value: 'Table 3, complete twelve-question inventory', note: 'AMTL, Crofoot, and Panda_nuts are labeled Evolutionary Biology; Fish is ecological/health-and-well-being. No official question is a protein, binding, genomics, transcriptomics, or single-cell task.'}
+  supports: [/domains, /coverage_notes, /access/biosafety_notes]
+- id: blade-evidence-access-license
+  source_type: resource
+  source_id: blade-repository-resource
+  accessed_date: '2026-07-21'
+  locator: {type: repository-path, value: 'README.md, pyproject.toml, LICENSE, blade_bench/datasets/LICENSE, blade_bench/datasets/*, and blade_bench/eval/* at commit 6118fa8d5007b91aa8c91c518182db82446a4547', note: 'Package 0.1.1; Apache-2.0 code; ODC-By-1.0 data; public task, annotation, baseline, and grader files.'}
+  supports: [/access/level, /access/tasks, /access/artifacts, /access/grader, /access/license, /resources, /implementations]
+- id: blade-evidence-mcq-files
+  source_type: resource
+  source_id: blade-repository-resource
+  accessed_date: '2026-07-21'
+  locator: {type: repository-path, value: 'blade_bench/datasets/*/mcq_dataset.json and run_mcq.py at commit 6118fa8d5007b91aa8c91c518182db82446a4547', note: 'The public files contain 20 conceptual-variable and 168 transformation MCQs across 11 source datasets, totaling 188.'}
+  supports: [/task_counts/subsets/0/count, /task_counts/subsets/1/count, /task_counts/subsets/2/count]

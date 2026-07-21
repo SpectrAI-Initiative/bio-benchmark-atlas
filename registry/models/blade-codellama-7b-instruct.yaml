@@ -1,0 +1,9 @@
+entity_type: model
+id: blade-codellama-7b-instruct
+name: CodeLlama Instruct 7B (BLADE)
+provider: Meta
+release_date: null
+version_string: meta-llama/CodeLlama-7b-Instruct-hf
+version_status: reported
+aliases: [CodeLlama 7B, CodeLlama Instruct 7B]
+verification: {status: verified, last_verified: '2026-07-21', notes: 'The creator paper supplies the model family/size and the official BLADE config pins the Hugging Face checkpoint string; no inference-server revision is reported.'}

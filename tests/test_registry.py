@@ -12,7 +12,7 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from registry_io import load_entities  # noqa: E402
+from registry_io import load_entities, load_meta  # noqa: E402
 from check_sources import _sources  # noqa: E402
 import validate_registry as validator_module  # noqa: E402
 from validate_registry import RegistryValidationError, _resolve_pointer, validate_registry  # noqa: E402
@@ -1112,7 +1112,30 @@ def test_v11_exports_surface_audit_and_result_status_columns() -> None:
     payload = json.loads((ROOT / "exports" / "registry.json").read_text(encoding="utf-8"))
     audit_statuses = {benchmark["audit"]["status"] for benchmark in payload["benchmarks"]}
     assert audit_statuses <= {"legacy", "audited", "audited-with-caveats"}
-    assert "legacy" in audit_statuses
+    legacy_ids = {
+        benchmark["id"]
+        for benchmark in payload["benchmarks"]
+        if benchmark["audit"]["status"] == "legacy"
+    }
+    exemption_ids = {
+        exemption["benchmark_id"] for exemption in payload["meta"]["audit_exemptions"]
+    }
+    assert legacy_ids == exemption_ids == {"virbench"}
+    root_benchmarks = [benchmark for benchmark in payload["benchmarks"] if benchmark["parent_id"] is None]
+    assert sum(benchmark["audit"]["status"] != "legacy" for benchmark in root_benchmarks) == 14
+
+
+def test_unapproved_legacy_record_is_rejected(monkeypatch) -> None:
+    meta = copy.deepcopy(load_meta())
+    meta["audit_exemptions"] = []
+    monkeypatch.setattr(validator_module, "load_meta", lambda: meta)
+    try:
+        validator_module.validate_registry()
+    except RegistryValidationError as error:
+        assert "legacy benchmarks require an explicit" in str(error)
+        assert "virbench" in str(error)
+    else:
+        raise AssertionError("an undeclared legacy record unexpectedly passed validation")
 
 
 def _audited_lifescibench_entities() -> dict[str, list[dict[str, object]]]:

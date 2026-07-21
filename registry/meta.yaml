@@ -7,3 +7,7 @@ maintainer: wang422003
 published_source_classes:
   - benchmark_creator
   - official_model_provider
+audit_exemptions:
+  - benchmark_id: virbench
+    decision_date: '2026-07-21'
+    reason: Detailed field-level auditing was intentionally deferred by the maintainer; the verified v1 record remains available with legacy status.

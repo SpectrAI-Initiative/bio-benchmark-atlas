@@ -23,6 +23,7 @@ import Layout from '../../components/Layout.astro';
     <p>只在显式 <code>comparability_group</code> 内比较模型。换了工具、subset、prompt、budget、grader 或 reasoning setting，必须拆成新的 run。</p>
     <h2>v1.1 字段级审计</h2>
     <p>每个 family 会从 <code>legacy</code> 独立升级为 <code>audited</code> 或 <code>audited-with-caveats</code>。低置信度或来源冲突的值继续显示在正常字段中，但旁边必须有 Provisional/Conflicted 警告，JSON 与 CSV 也保留机器可读状态。</p>
+    <div class="callout info"><strong>当前审计边界：</strong>首发 15 个 family 中已有 14 个完成字段级审计。维护者决定暂缓 VirBench 的细化，因此其已核验的 v1 record 继续明确标记为 <code>legacy</code>。CI 要求每个 legacy record 都必须在 registry 元数据中存在对应的机器可读例外。</div>
     <div class="callout"><strong>保守比较：</strong>provisional/conflicted 总数不能证明全量评测；相同状态的结果行可以下载核查，但不会进入模型比较图。</div>
     <h2>证据</h2>
     <p>关键 setting 和公开结果需要永久 evidence ID、官方 work/resource、访问日期、精确 locator，以及能解析到真实字段的路径。第三方题目、附件和论文全文不镜像。</p>

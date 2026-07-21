@@ -346,6 +346,16 @@ test('work, domain, archive, and Chinese guide routes render', async ({ page }) 
   }
 });
 
+test('methodology discloses the deferred VirBench audit', async ({ page }) => {
+  await page.goto('/bio-benchmark-atlas/methodology/');
+  await expect(page.locator('main')).toContainText('14 of the 15 launch families');
+  await expect(page.locator('main')).toContainText("VirBench's detailed audit was intentionally deferred");
+
+  await page.goto('/bio-benchmark-atlas/zh/methodology/');
+  await expect(page.locator('main')).toContainText('15 个 family 中已有 14 个完成字段级审计');
+  await expect(page.locator('main')).toContainText('暂缓 VirBench 的细化');
+});
+
 test('alias redirects to permanent benchmark id', async ({ page }) => {
   await page.goto('/bio-benchmark-atlas/benchmarks/protein-gym/');
   await expect(page).toHaveURL(/\/benchmarks\/proteingym\/$/);

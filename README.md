@@ -4,7 +4,7 @@ BioBench Atlas is a source-grounded registry of benchmarks for protein science, 
 
 The website is published at **https://spectrai-initiative.github.io/bio-benchmark-atlas/**.
 
-The immutable `v1.0.0` release remains available while the registry is upgraded family by family under the development version `1.1.0-dev`. Production entities expose an audit status so downstream users can distinguish legacy records from completed field-level audits.
+The immutable `v1.0.0` release remains available while the registry is upgraded family by family under the development version `1.1.0-dev`. Fourteen of the fifteen launch families have completed field-level review. VirBench's detailed audit is intentionally deferred and its verified v1 record remains visibly marked `legacy`; this exception is declared in registry metadata and enforced by CI. Production entities expose an audit status so downstream users can distinguish legacy records from completed field-level audits.
 
 ## Principles
 

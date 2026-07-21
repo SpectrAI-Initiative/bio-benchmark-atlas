@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import sys
 from collections import defaultdict
+from datetime import date
 from pathlib import Path
 from typing import Any
 
@@ -120,6 +121,70 @@ def _check_parent_cycles(benchmarks: dict[str, dict[str, Any]]) -> None:
                 raise RegistryValidationError(f"benchmark parent cycle includes {current}")
             seen.add(current)
             current = benchmarks.get(current, {}).get("parent_id")
+
+
+def _validate_audit_exemptions(
+    meta: dict[str, Any], benchmarks: dict[str, dict[str, Any]]
+) -> None:
+    """Require every remaining legacy record to be an explicit, current exception."""
+    exemptions = meta.get("audit_exemptions")
+    if not isinstance(exemptions, list):
+        raise RegistryValidationError("meta.audit_exemptions must be a list")
+
+    exemption_ids: list[str] = []
+    for index, exemption in enumerate(exemptions):
+        if not isinstance(exemption, dict):
+            raise RegistryValidationError(f"meta.audit_exemptions[{index}] must be a mapping")
+        benchmark_id = exemption.get("benchmark_id")
+        if not isinstance(benchmark_id, str) or not benchmark_id:
+            raise RegistryValidationError(
+                f"meta.audit_exemptions[{index}].benchmark_id must be a non-empty string"
+            )
+        decision_date = exemption.get("decision_date")
+        if not isinstance(decision_date, str) or not decision_date:
+            raise RegistryValidationError(
+                f"meta.audit_exemptions[{index}].decision_date must be a non-empty date string"
+            )
+        try:
+            date.fromisoformat(decision_date)
+        except ValueError as error:
+            raise RegistryValidationError(
+                f"meta.audit_exemptions[{index}].decision_date must use YYYY-MM-DD"
+            ) from error
+        if not isinstance(exemption.get("reason"), str) or not exemption["reason"].strip():
+            raise RegistryValidationError(
+                f"meta.audit_exemptions[{index}].reason must be a non-empty string"
+            )
+        benchmark = benchmarks.get(benchmark_id)
+        if benchmark is None:
+            raise RegistryValidationError(
+                f"meta.audit_exemptions references missing benchmark {benchmark_id}"
+            )
+        if benchmark["parent_id"] is not None:
+            raise RegistryValidationError(
+                f"meta.audit_exemptions may only reference a root family: {benchmark_id}"
+            )
+        exemption_ids.append(benchmark_id)
+
+    if len(exemption_ids) != len(set(exemption_ids)):
+        raise RegistryValidationError("meta.audit_exemptions contains duplicate benchmark IDs")
+
+    legacy_ids = {
+        benchmark_id
+        for benchmark_id, benchmark in benchmarks.items()
+        if benchmark.get("audit", {"status": "legacy"})["status"] == "legacy"
+    }
+    declared_ids = set(exemption_ids)
+    undeclared = sorted(legacy_ids - declared_ids)
+    if undeclared:
+        raise RegistryValidationError(
+            f"legacy benchmarks require an explicit meta.audit_exemptions entry: {undeclared}"
+        )
+    resolved = sorted(declared_ids - legacy_ids)
+    if resolved:
+        raise RegistryValidationError(
+            f"audit exemptions must be removed after records leave legacy status: {resolved}"
+        )
 
 
 def validate_registry() -> dict[str, list[dict[str, Any]]]:
@@ -306,6 +371,7 @@ def validate_registry() -> dict[str, list[dict[str, Any]]]:
             raise RegistryValidationError(f"{benchmark['id']}: legacy audit must not have audited_date")
 
     _check_parent_cycles(by_type["benchmark"])
+    _validate_audit_exemptions(meta, by_type["benchmark"])
 
     published_classes = set(meta["published_source_classes"])
     for work in entities["work"]:

@@ -46,6 +46,7 @@ pnpm --dir site test
 - `audited` means there are no unresolved field claims. Use `audited-with-caveats` plus `field_status` for every provisional or conflicted value.
 - A repository or dataset resource must be pinned to a commit, tag, release, version, or immutable snapshot.
 - Every published numeric result in an audited family needs `status`, `confidence`, and one or more run evidence IDs.
+- Production validation rejects undeclared legacy records. A deliberately deferred root family must have a dated, reasoned entry in `registry/meta.yaml` under `audit_exemptions`; remove that entry in the same pull request that completes its audit.
 - Attach the completed field audit table from `docs/audit-playbook.md` to the pull request.
 
 ## Rights and safety

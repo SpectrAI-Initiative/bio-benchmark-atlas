@@ -1,40 +1,133 @@
 entity_type: benchmark
 id: scigym
-name: SciGym
+name: SCIGYM
 aliases: [SciGym SBML]
-summary: Interactive dry-lab benchmark in which agents design experiments and recover hidden biological mechanisms from simulated SBML systems.
-kind: agentic-eval
+summary: An agentic systems-biology suite in which language models iteratively perturb simulated SBML systems, analyze time-series observations in Python, and reconstruct hidden biological reactions.
+kind: suite
 parent_id: null
-organizations: [University of Toronto, SickKids, Vector Institute]
-release_date: '2025-07-02'
-latest_version: '1.0'
-domains: [molecular-cell-biology, bioinformatics]
+organizations: [University of Toronto, SickKids, Axiom, Mila, Vector Institute]
+release_date: '2025-05-16'
+latest_version: 2025 release
+domains: [life-science, molecular-cell-biology, bioinformatics]
 capabilities: [experiment-planning, data-analysis, coding, tool-use, scientific-reasoning]
-modalities: [text, table, code, wet-lab-output]
-task_formats: [interactive simulated experiment]
-task_counts:
+modalities: [text, table, code]
+task_formats: [interactive simulated experiment, SBML reaction-network reconstruction]
+task_counts: &current-counts
   total: 350
-  basis: SBML biological systems
+  basis: distinct curated BioModels systems released as SBML benchmark instances
   reporting_status: reported
   subsets:
-    - {id: small, label: Small systems, count: 137, basis: systems with fewer than 10 reactions, exclusive: true, exhaustive: true, reporting_status: reported, notes: Paper evaluation split.}
-    - {id: large, label: Large systems, count: 213, basis: systems with up to 400 reactions, exclusive: true, exhaustive: true, reporting_status: reported, notes: Released but not evaluated in the paper.}
-coverage_notes: []
+  - {id: scigym-small-systems, label: Small systems, count: 137, basis: systems with fewer than 10 reactions in the evaluated small split, exclusive: true, exhaustive: true, reporting_status: reported, notes: 'All six creator-paper models were evaluated on this split.'}
+  - {id: scigym-large-systems, label: Large systems, count: 213, basis: remaining released systems with up to 400 reactions in the large split, exclusive: true, exhaustive: true, reporting_status: reported, notes: 'Released by the creators but not evaluated in the paper.'}
+coverage_notes:
+- {tag: molecular-cell-biology, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: 'The source systems include signaling, metabolic, regulatory, and other biological processes, but the creators do not publish a mutually exclusive molecular/cell-biology count.'}
+- {tag: genomics, coverage: unknown, count: null, reporting_status: not_reported, notes: 'Gene-regulatory networks are named as an example system class, but no official task-level genomics count is published and the benchmark does not use genomic sequence data.'}
+- {tag: transcriptomics, coverage: not-in-scope, count: 0, reporting_status: reported, notes: 'The paper motivates the task by analogy to Perturb-seq and spatial transcriptomics, but SCIGYM inputs are SBML systems and simulated concentration trajectories rather than transcriptomic measurements.'}
+- {tag: single-cell, coverage: not-in-scope, count: 0, reporting_status: reported, notes: 'No single-cell measurement is an official benchmark input or target.'}
+- {tag: protein-design, coverage: not-in-scope, count: 0, reporting_status: reported, notes: 'Agents reconstruct reaction networks; they do not design or optimize protein sequences or structures.'}
+- {tag: protein-protein-binding, coverage: not-in-scope, count: 0, reporting_status: reported, notes: 'Species can represent proteins, but no task evaluates protein-protein binding prediction or affinity.'}
+- {tag: protein-ligand-binding, coverage: not-in-scope, count: 0, reporting_status: reported, notes: 'No task evaluates protein-ligand binding prediction or affinity.'}
 access:
   level: fully-open
-  tasks: Both small and large splits are public.
-  artifacts: SBML models and evaluation data are public on Hugging Face.
-  grader: Public topology, reaction-recovery, and simulation-error evaluators.
-  license: MIT
-  biosafety_notes: The benchmark uses simulations rather than live biological materials.
+  tasks: All 350 partial/reference SBML systems and SED-ML simulation configurations are publicly downloadable in 137-system small and 213-system large splits.
+  artifacts: The creators publish the benchmark data, 2,466 main-evaluation trajectories/final models, prompts, agent environment, and metric code; the repositories and dataset cards do not state redistribution licenses.
+  grader: Public deterministic code computes network-topology F1, reaction-matching precision/recall/F1 with and without modifiers, and SMAPE-based simulation trajectory error.
+  license: null
+  biosafety_notes: SCIGYM exposes de-identified computational models and simulated concentration trajectories, not live materials, pathogen sequences, or wet-lab execution instructions; no separate creator biosafety restriction is reported.
 resources:
-  - {type: paper, url: 'https://arxiv.org/abs/2507.02083', license: null, access_notes: Creator preprint.}
-  - {type: repository, url: 'https://github.com/h4duan/SciGym', license: MIT, access_notes: Official code.}
-  - {type: dataset, url: 'https://huggingface.co/datasets/h4duan/scigym-sbml', license: null, access_notes: Official data.}
+- id: scigym-paper-resource
+  type: paper
+  url: https://proceedings.neurips.cc/paper_files/paper/2025/hash/a23760ba51036d530a2656c3835f826c-Abstract-Datasets_and_Benchmarks_Track.html
+  license: null
+  access_notes: Final NeurIPS 2025 Datasets and Benchmarks Track creator paper with the complete appendix.
+  last_checked: '2026-07-21'
+  pin: null
+- id: scigym-website-resource
+  type: website
+  url: https://h4duan.github.io/scigym-benchmark/
+  license: null
+  access_notes: Official project page; captured HTML SHA256 a4594c7b165676f6f9b9c9bfb89379339355f36ec91006e1ab9a557eca013e17.
+  last_checked: '2026-07-21'
+  pin: {kind: commit, value: 5af9c5d542cdda3640706efebb4ffd46f6416f94, url: 'https://github.com/h4duan/scigym-benchmark/tree/5af9c5d542cdda3640706efebb4ffd46f6416f94'}
+- id: scigym-repository-resource
+  type: repository
+  url: https://github.com/h4duan/SciGym
+  license: null
+  access_notes: Current official Python package 0.0.1, prompts, environment, evaluator, and download scripts; the one-commit repository has no LICENSE file or releases.
+  last_checked: '2026-07-21'
+  pin: {kind: commit, value: 88a7b93609e35b6ecb4eb343d816d6ff09256c6a, url: 'https://github.com/h4duan/SciGym/tree/88a7b93609e35b6ecb4eb343d816d6ff09256c6a'}
+- id: scigym-evaluation-code-resource
+  type: repository
+  url: https://github.com/h4duan/scigym-neurips
+  license: null
+  access_notes: Creator's evaluation-era implementation with all six exact API model identifiers, main and ablation prompts, simulator, controller, and grader; no LICENSE file is present.
+  last_checked: '2026-07-21'
+  pin: {kind: commit, value: d290bb04bf54aad1c473c4701e0d0d88013c4f91, url: 'https://github.com/h4duan/scigym-neurips/tree/d290bb04bf54aad1c473c4701e0d0d88013c4f91'}
+- id: scigym-dataset-resource
+  type: dataset
+  url: https://huggingface.co/datasets/h4duan/scigym-sbml
+  license: null
+  access_notes: Official 350-row release. The pinned Parquet files contain 137 unique small and 213 unique large folder IDs; SHA256 values are 7e7e33afd953a6eedb8a43548c4a41ab1b9077b5c7f729484aae6a9aa41e5b76 and ef4a0f53a23d40579f4b23308f8def7164ae6a20ea05acb80fad4afdc8673fe9. The card declares no license.
+  last_checked: '2026-07-21'
+  pin: {kind: commit, value: dbb10c12a33427e8e05ebbac66de690c65b6acae, url: 'https://huggingface.co/datasets/h4duan/scigym-sbml/tree/dbb10c12a33427e8e05ebbac66de690c65b6acae'}
+- id: scigym-results-resource
+  type: dataset
+  url: https://huggingface.co/datasets/h4duan/scigym-eval
+  license: null
+  access_notes: Official 2,466-row main-evaluation artifact containing chat histories and final SBML models. It covers 137 systems, six exact model identifiers, and three rows per model-system pair; Parquet SHA256 94750cff79e142a0a5142f1abc8d827b104338b7337e082bde641fb05ee83177. The card is empty and declares no license.
+  last_checked: '2026-07-21'
+  pin: {kind: commit, value: 7d472c12855d46702c4915892578290355894c1a, url: 'https://huggingface.co/datasets/h4duan/scigym-eval/tree/7d472c12855d46702c4915892578290355894c1a'}
 implementations:
-  - {framework: SciGym Python agent environment, status: official, url: 'https://github.com/h4duan/SciGym/tree/88a7b93609e35b6ecb4eb343d816d6ff09256c6a', commit: 88a7b93609e35b6ecb4eb343d816d6ff09256c6a, notes: Commit captured at verification time.}
-verification: {status: verified, last_verified: '2026-07-21', notes: 'Split sizes, tasks, metrics, and code checked against the paper and repository.'}
+- {framework: SCIGYM Python package 0.0.1, status: official, url: 'https://github.com/h4duan/SciGym/tree/88a7b93609e35b6ecb4eb343d816d6ff09256c6a', commit: 88a7b93609e35b6ecb4eb343d816d6ff09256c6a, notes: 'Python 3.10 environment with Tellurium/libRoadRunner, libSBML, public prompts, model adapters, and deterministic evaluator; upstream supplies no software license.'}
+- {framework: SCIGYM NeurIPS evaluation harness, status: official, url: 'https://github.com/h4duan/scigym-neurips/tree/d290bb04bf54aad1c473c4701e0d0d88013c4f91', commit: d290bb04bf54aad1c473c4701e0d0d88013c4f91, notes: 'Evaluation-era controller and exact six-model API adapters used with the public trajectory release; upstream supplies no software license.'}
+versions:
+- id: scigym-2025-release
+  label: 2025 release
+  status: current
+  release_date: '2025-05-16'
+  as_of: '2026-07-21'
+  task_counts: *current-counts
+  formal_tracks: [scigym-small, scigym-large]
+  notes: First public code/data release. The small and large Parquet splits remain at 137 and 213 systems in their pinned official repositories, and no later version or tag has been published.
+  evidence_ids: [scigym-evidence-release-counts]
+audit:
+  status: audited
+  audited_date: '2026-07-21'
+  unresolved_fields: 0
+  notes: Identity, release history, split rows, task protocol, exact model versions, public trajectories, metrics, and Table 1 results were audited. The code and repackaged benchmark data are public but neither upstream source states a license.
+field_status: []
+verification:
+  status: verified
+  last_verified: '2026-07-21'
+  notes: Audited against the final NeurIPS paper, official website, two commit-pinned creator code repositories, and immutable benchmark/evaluation data snapshots.
 evidence:
-  - work_id: scigym-paper
-    locator: 'Sections 1, 3 and 5; official repository README'
-    supports: [summary, task_counts, capabilities, modalities, access, implementations]
+- id: scigym-evidence-identity
+  source_type: work
+  source_id: scigym-paper
+  accessed_date: '2026-07-21'
+  locator: {type: page, value: 'NeurIPS paper pp. 1–5, title, author affiliations, abstract, and §§1–3.2', note: 'Defines SCIGYM, all five represented organizations, end-to-end simulated discovery, SBML inputs, ReAct agent actions, and the reconstruction task.'}
+  supports: [/name, /aliases, /summary, /organizations, /kind, /domains, /capabilities, /modalities, /task_formats]
+- id: scigym-evidence-release-counts
+  source_type: resource
+  source_id: scigym-dataset-resource
+  accessed_date: '2026-07-21'
+  locator: {type: dataset-card, value: 'README.md and data/{small,large}-00000-of-00001.parquet at commit dbb10c12a33427e8e05ebbac66de690c65b6acae', note: 'The first public release commit is dated 2025-05-16; the files contain 137 and 213 unique system rows, totaling 350.'}
+  supports: [/release_date, /latest_version, /task_counts/total, /task_counts/basis, /task_counts/subsets, /versions/0/task_counts, /versions/0/formal_tracks]
+- id: scigym-evidence-taxonomy
+  source_type: work
+  source_id: scigym-paper
+  accessed_date: '2026-07-21'
+  locator: {type: section, value: 'NeurIPS paper §§1–3, 5–6 and Appendix C.3', note: 'Describes signaling, metabolic, regulatory, and epidemiological system classes; the released tasks use SBML and simulated time series, not sequence, omics, binding, or protein-design targets.'}
+  supports: [/domains, /coverage_notes, /access/biosafety_notes]
+- id: scigym-evidence-access-license
+  source_type: resource
+  source_id: scigym-repository-resource
+  accessed_date: '2026-07-21'
+  locator: {type: repository-path, value: 'Complete tree, README.md, pyproject.toml, scigym/prompts/, scigym/eval/, and absence of LICENSE at commit 88a7b93609e35b6ecb4eb343d816d6ff09256c6a', note: 'The environment, prompts, and grader are public, but no software license is stated. The two pinned Hugging Face cards likewise have no license field.'}
+  supports: [/access/level, /access/tasks, /access/artifacts, /access/grader, /access/license, /resources, /implementations]
+- id: scigym-evidence-results-artifact
+  source_type: resource
+  source_id: scigym-results-resource
+  accessed_date: '2026-07-21'
+  locator: {type: dataset-card, value: 'data/small-00000-of-00001.parquet at commit 7d472c12855d46702c4915892578290355894c1a', note: '2,466 public rows comprise 137 systems × 6 exact models × 3 episodes; each row includes chat_history and final_model.'}
+  supports: [/access/artifacts]

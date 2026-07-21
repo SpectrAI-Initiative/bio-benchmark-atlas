@@ -1,0 +1,9 @@
+entity_type: model
+id: scigym-gemini-2-5-flash-preview-04-17
+name: Gemini 2.5 Flash Preview 04-17 (SCIGYM)
+provider: Google
+release_date: '2025-04-17'
+version_string: gemini-2.5-flash-preview-04-17
+version_status: reported
+aliases: [Gemini-2.5-Flash]
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Exact lowercase API string in the creator paper and immutable SCIGYM evaluation artifact.'}

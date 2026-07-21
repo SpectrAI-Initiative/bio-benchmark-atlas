@@ -1,0 +1,9 @@
+entity_type: model
+id: scigym-gpt-4-1-2025-04-14
+name: GPT-4.1 2025-04-14 (SCIGYM)
+provider: OpenAI
+release_date: '2025-04-14'
+version_string: gpt-4.1-2025-04-14
+version_status: reported
+aliases: [GPT-4.1]
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Exact dated API string in the creator paper and immutable SCIGYM evaluation artifact.'}

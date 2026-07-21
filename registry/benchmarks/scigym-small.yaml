@@ -1,0 +1,89 @@
+entity_type: benchmark
+id: scigym-small
+name: SCIGYM Small
+aliases: [SCIGYM small split]
+summary: The formally released and creator-evaluated SCIGYM track containing biological systems with fewer than ten reactions.
+kind: track
+parent_id: scigym
+organizations: [University of Toronto, SickKids, Axiom, Mila, Vector Institute]
+release_date: '2025-05-16'
+latest_version: 2025 release
+domains: [life-science, molecular-cell-biology, bioinformatics]
+capabilities: [experiment-planning, data-analysis, coding, tool-use, scientific-reasoning]
+modalities: [text, table, code]
+task_formats: [interactive simulated experiment, SBML reaction-network reconstruction]
+task_counts: &small-counts
+  total: 137
+  basis: unique SBML systems with fewer than 10 reactions in the official small Parquet split
+  reporting_status: reported
+  subsets: []
+coverage_notes:
+- {tag: genomics, coverage: unknown, count: null, reporting_status: not_reported, notes: 'The official split does not publish a task-level genomics classification.'}
+- {tag: transcriptomics, coverage: not-in-scope, count: 0, reporting_status: reported, notes: 'Tasks consume SBML and simulated trajectories rather than transcriptomic measurements.'}
+- {tag: protein-design, coverage: not-in-scope, count: 0, reporting_status: reported, notes: 'The task reconstructs reaction networks rather than proteins.'}
+- {tag: protein-protein-binding, coverage: not-in-scope, count: 0, reporting_status: reported, notes: 'No task evaluates protein-protein binding.'}
+- {tag: protein-ligand-binding, coverage: not-in-scope, count: 0, reporting_status: reported, notes: 'No task evaluates protein-ligand binding.'}
+access:
+  level: fully-open
+  tasks: All 137 partial/reference SBML and SED-ML instances are public.
+  artifacts: All 2,466 main creator-evaluation trajectories and final models are public; upstream does not state a data license.
+  grader: Public deterministic SCIGYM evaluator computes structural and simulation metrics.
+  license: null
+  biosafety_notes: This track contains de-identified computational models and simulated outputs, with no live materials or wet-lab execution.
+resources:
+- id: scigym-small-paper-resource
+  type: paper
+  url: https://proceedings.neurips.cc/paper_files/paper/2025/hash/a23760ba51036d530a2656c3835f826c-Abstract-Datasets_and_Benchmarks_Track.html
+  license: null
+  access_notes: Final creator paper and appendix.
+  last_checked: '2026-07-21'
+  pin: null
+- id: scigym-small-dataset-resource
+  type: dataset
+  url: https://huggingface.co/datasets/h4duan/scigym-sbml
+  license: null
+  access_notes: Official 137-row small split; Parquet SHA256 7e7e33afd953a6eedb8a43548c4a41ab1b9077b5c7f729484aae6a9aa41e5b76.
+  last_checked: '2026-07-21'
+  pin: {kind: commit, value: dbb10c12a33427e8e05ebbac66de690c65b6acae, url: 'https://huggingface.co/datasets/h4duan/scigym-sbml/tree/dbb10c12a33427e8e05ebbac66de690c65b6acae'}
+- id: scigym-small-results-resource
+  type: dataset
+  url: https://huggingface.co/datasets/h4duan/scigym-eval
+  license: null
+  access_notes: Official 2,466-row six-model, three-episode-per-pair evaluation artifact; Parquet SHA256 94750cff79e142a0a5142f1abc8d827b104338b7337e082bde641fb05ee83177.
+  last_checked: '2026-07-21'
+  pin: {kind: commit, value: 7d472c12855d46702c4915892578290355894c1a, url: 'https://huggingface.co/datasets/h4duan/scigym-eval/tree/7d472c12855d46702c4915892578290355894c1a'}
+- id: scigym-small-evaluation-code-resource
+  type: repository
+  url: https://github.com/h4duan/scigym-neurips
+  license: null
+  access_notes: Evaluation-era environment, prompts, exact model adapters, and deterministic grader; no LICENSE file.
+  last_checked: '2026-07-21'
+  pin: {kind: commit, value: d290bb04bf54aad1c473c4701e0d0d88013c4f91, url: 'https://github.com/h4duan/scigym-neurips/tree/d290bb04bf54aad1c473c4701e0d0d88013c4f91'}
+implementations:
+- {framework: SCIGYM NeurIPS evaluation harness, status: official, url: 'https://github.com/h4duan/scigym-neurips/tree/d290bb04bf54aad1c473c4701e0d0d88013c4f91', commit: d290bb04bf54aad1c473c4701e0d0d88013c4f91, notes: 'Public small-track runner, simulator, agent loop, prompts, and evaluator; upstream license not reported.'}
+versions:
+- id: scigym-small-2025-release
+  label: 2025 release
+  status: current
+  release_date: '2025-05-16'
+  as_of: '2026-07-21'
+  task_counts: *small-counts
+  formal_tracks: []
+  notes: Current 137-system small split used by the creator paper.
+  evidence_ids: [scigym-small-evidence-count]
+audit: {status: audited, audited_date: '2026-07-21', unresolved_fields: 0, notes: 'Count, scope, access, protocol, models, trajectories, metrics, and results were audited; code and data licenses remain unreported upstream.'}
+field_status: []
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Audited against the final creator paper and immutable official data/code snapshots.'}
+evidence:
+- id: scigym-small-evidence-count
+  source_type: resource
+  source_id: scigym-small-dataset-resource
+  accessed_date: '2026-07-21'
+  locator: {type: dataset-card, value: 'README.md and data/small-00000-of-00001.parquet at commit dbb10c12a33427e8e05ebbac66de690c65b6acae', note: '137 unique systems; the paper defines small as systems with fewer than ten reactions.'}
+  supports: [/name, /summary, /kind, /parent_id, /organizations, /release_date, /latest_version, /domains, /capabilities, /modalities, /task_formats, /task_counts/total, /task_counts/basis, /task_counts/subsets, /versions/0/task_counts]
+- id: scigym-small-evidence-access
+  source_type: resource
+  source_id: scigym-small-evaluation-code-resource
+  accessed_date: '2026-07-21'
+  locator: {type: repository-path, value: 'README.md, configs/, scigym/system_prompts/, scigym/controller.py, scigym/evaluator.py, and absence of LICENSE at commit d290bb04bf54aad1c473c4701e0d0d88013c4f91', note: 'Public runnable harness and grader with no stated software license; public dataset/evaluation cards also state no license.'}
+  supports: [/access/level, /access/tasks, /access/artifacts, /access/grader, /access/license, /access/biosafety_notes, /resources, /implementations, /coverage_notes]

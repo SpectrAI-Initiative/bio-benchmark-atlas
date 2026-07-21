@@ -1,0 +1,9 @@
+entity_type: model
+id: scigym-gemini-2-5-pro-preview-03-25
+name: Gemini 2.5 Pro Preview 03-25 (SCIGYM)
+provider: Google
+release_date: '2025-03-25'
+version_string: gemini-2.5-pro-preview-03-25
+version_status: reported
+aliases: [Gemini-2.5-Pro]
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Exact lowercase API string in the creator paper and immutable SCIGYM evaluation artifact.'}

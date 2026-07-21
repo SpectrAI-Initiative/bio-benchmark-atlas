@@ -1,13 +1,13 @@
 entity_type: work
 id: scigym-paper
 title: Measuring Scientific Capabilities of Language Models with a Systems Biology Dry Lab
-authors: [Haonan Duan, Stephen Zhewen Lu, Caitlin Fiona Harrigan, Nishkrit Desai, Jiarui Lu, Michał Koziarski, Leonardo Cotta, Chris J. Maddison]
-organizations: [University of Toronto, SickKids, Vector Institute]
-work_type: preprint
+authors: [Haonan Duan, Stephen Zhewen Lu, Caitlin F. Harrigan, Nishkrit Desai, Jiarui Lu, Michał Koziarski, Leonardo Cotta, Chris J. Maddison]
+organizations: [University of Toronto, SickKids, Axiom, Mila, Vector Institute]
+work_type: paper
 source_class: benchmark_creator
-publication_date: '2025-07-02'
-canonical_url: 'https://arxiv.org/abs/2507.02083'
+publication_date: '2025-11-30'
+canonical_url: https://proceedings.neurips.cc/paper_files/paper/2025/hash/a23760ba51036d530a2656c3835f826c-Abstract-Datasets_and_Benchmarks_Track.html
 doi: null
 arxiv: '2507.02083'
-status: preprint
-verification: {status: verified, last_verified: '2026-07-21', notes: Creator preprint and official repository.}
+status: published
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Final Advances in Neural Information Processing Systems 38 Datasets and Benchmarks Track paper. The publication date is normalized to the first official NeurIPS 2025 meeting date; the benchmark was first publicly released on 2025-05-16.'}

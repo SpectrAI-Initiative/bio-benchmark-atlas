@@ -1,0 +1,9 @@
+entity_type: model
+id: scigym-claude-3-7-sonnet-20250219
+name: Claude 3.7 Sonnet 20250219 (SCIGYM)
+provider: Anthropic
+release_date: '2025-02-19'
+version_string: claude-3-7-sonnet-20250219
+version_status: reported
+aliases: [Claude-3.7-Sonnet]
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Exact dated API string in the creator paper and immutable SCIGYM evaluation artifact.'}

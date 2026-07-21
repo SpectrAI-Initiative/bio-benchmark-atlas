@@ -1,0 +1,82 @@
+entity_type: benchmark
+id: scigym-large
+name: SCIGYM Large
+aliases: [SCIGYM large split]
+summary: The formally released SCIGYM track containing the 213 systems not included in the creator paper's model evaluation, with systems reaching up to 400 reactions.
+kind: track
+parent_id: scigym
+organizations: [University of Toronto, SickKids, Axiom, Mila, Vector Institute]
+release_date: '2025-05-16'
+latest_version: 2025 release
+domains: [life-science, molecular-cell-biology, bioinformatics]
+capabilities: [experiment-planning, data-analysis, coding, tool-use, scientific-reasoning]
+modalities: [text, table, code]
+task_formats: [interactive simulated experiment, SBML reaction-network reconstruction]
+task_counts: &large-counts
+  total: 213
+  basis: unique SBML systems in the official large Parquet split, containing the remaining systems with up to 400 reactions
+  reporting_status: reported
+  subsets: []
+coverage_notes:
+- {tag: genomics, coverage: unknown, count: null, reporting_status: not_reported, notes: 'The official split does not publish a task-level genomics classification.'}
+- {tag: transcriptomics, coverage: not-in-scope, count: 0, reporting_status: reported, notes: 'Tasks consume SBML and simulated trajectories rather than transcriptomic measurements.'}
+- {tag: protein-design, coverage: not-in-scope, count: 0, reporting_status: reported, notes: 'The task reconstructs reaction networks rather than proteins.'}
+- {tag: protein-protein-binding, coverage: not-in-scope, count: 0, reporting_status: reported, notes: 'No task evaluates protein-protein binding.'}
+- {tag: protein-ligand-binding, coverage: not-in-scope, count: 0, reporting_status: reported, notes: 'No task evaluates protein-ligand binding.'}
+access:
+  level: fully-open
+  tasks: All 213 partial/reference SBML and SED-ML instances are public.
+  artifacts: The released track includes reference and partial systems but no creator model trajectories; upstream does not state a data license.
+  grader: The public SCIGYM deterministic evaluator supports this track, although the creator paper did not run model evaluations on it.
+  license: null
+  biosafety_notes: This track contains de-identified computational models and simulated outputs, with no live materials or wet-lab execution.
+resources:
+- id: scigym-large-paper-resource
+  type: paper
+  url: https://proceedings.neurips.cc/paper_files/paper/2025/hash/a23760ba51036d530a2656c3835f826c-Abstract-Datasets_and_Benchmarks_Track.html
+  license: null
+  access_notes: Final creator paper and appendix.
+  last_checked: '2026-07-21'
+  pin: null
+- id: scigym-large-dataset-resource
+  type: dataset
+  url: https://huggingface.co/datasets/h4duan/scigym-sbml
+  license: null
+  access_notes: Official 213-row large split; Parquet SHA256 ef4a0f53a23d40579f4b23308f8def7164ae6a20ea05acb80fad4afdc8673fe9.
+  last_checked: '2026-07-21'
+  pin: {kind: commit, value: dbb10c12a33427e8e05ebbac66de690c65b6acae, url: 'https://huggingface.co/datasets/h4duan/scigym-sbml/tree/dbb10c12a33427e8e05ebbac66de690c65b6acae'}
+- id: scigym-large-repository-resource
+  type: repository
+  url: https://github.com/h4duan/SciGym
+  license: null
+  access_notes: Current public runner and grader; no LICENSE file.
+  last_checked: '2026-07-21'
+  pin: {kind: commit, value: 88a7b93609e35b6ecb4eb343d816d6ff09256c6a, url: 'https://github.com/h4duan/SciGym/tree/88a7b93609e35b6ecb4eb343d816d6ff09256c6a'}
+implementations:
+- {framework: SCIGYM Python package 0.0.1, status: official, url: 'https://github.com/h4duan/SciGym/tree/88a7b93609e35b6ecb4eb343d816d6ff09256c6a', commit: 88a7b93609e35b6ecb4eb343d816d6ff09256c6a, notes: 'The same public environment and grader can load the large split; the creators report no paper evaluation for it.'}
+versions:
+- id: scigym-large-2025-release
+  label: 2025 release
+  status: current
+  release_date: '2025-05-16'
+  as_of: '2026-07-21'
+  task_counts: *large-counts
+  formal_tracks: []
+  notes: Current 213-system large split; released but not evaluated in the creator paper.
+  evidence_ids: [scigym-large-evidence-count]
+audit: {status: audited, audited_date: '2026-07-21', unresolved_fields: 0, notes: 'Count, access, runnable path, and non-evaluated status were audited; code and data licenses remain unreported upstream.'}
+field_status: []
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Audited against the final creator paper and immutable official dataset/repository snapshots.'}
+evidence:
+- id: scigym-large-evidence-count
+  source_type: resource
+  source_id: scigym-large-dataset-resource
+  accessed_date: '2026-07-21'
+  locator: {type: dataset-card, value: 'README.md and data/large-00000-of-00001.parquet at commit dbb10c12a33427e8e05ebbac66de690c65b6acae', note: '213 unique large-split systems; the paper describes them as the remaining released systems with up to 400 reactions and says they were not evaluated.'}
+  supports: [/name, /summary, /kind, /parent_id, /organizations, /release_date, /latest_version, /domains, /capabilities, /modalities, /task_formats, /task_counts/total, /task_counts/basis, /task_counts/subsets, /versions/0/task_counts]
+- id: scigym-large-evidence-access
+  source_type: resource
+  source_id: scigym-large-repository-resource
+  accessed_date: '2026-07-21'
+  locator: {type: repository-path, value: 'README.md, data/download.py, scigym/, and absence of LICENSE at commit 88a7b93609e35b6ecb4eb343d816d6ff09256c6a', note: 'Public large-split download path, environment, and grader with no stated software or data license.'}
+  supports: [/access/level, /access/tasks, /access/artifacts, /access/grader, /access/license, /access/biosafety_notes, /resources, /implementations, /coverage_notes]

@@ -1,0 +1,58 @@
+entity_type: benchmark
+id: flip-gb1
+name: FLIP GB1
+aliases: [FLIP protein G domain B1 landscape]
+summary: Five supervised splits over a downsampled, highly epistatic four-site GB1 immunoglobulin-binding landscape, designed to test mutation-depth and low-to-high-fitness generalization.
+kind: track
+parent_id: flip
+organizations: [Technical University of Munich, Microsoft Research New England, California Institute of Technology, University of California Berkeley, Massachusetts Institute of Technology, Salesforce Research]
+release_date: '2021-10-11'
+latest_version: original-2021
+domains: [protein-sequence, protein-protein-binding, protein-design]
+capabilities: [prediction, regression]
+modalities: [protein-sequence, table]
+task_formats: [sequence-to-immunoglobulin-binding-fitness regression]
+task_counts: &flip-gb1-counts
+  total: 8733
+  basis: downsampled sequence-fitness examples retained for FLIP
+  reporting_status: reported
+  subsets:
+    - {id: gb1-one-vs-rest-test, label: 1-vs-rest test set, count: 8704, basis: test examples, exclusive: false, exhaustive: false, reporting_status: reported, notes: '29 training examples: wild type and single mutants.'}
+    - {id: gb1-two-vs-rest-test, label: 2-vs-rest test set, count: 8306, basis: test examples, exclusive: false, exhaustive: false, reporting_status: reported, notes: '427 training examples: wild type, single, and double mutants.'}
+    - {id: gb1-three-vs-rest-test, label: 3-vs-rest test set, count: 5765, basis: test examples, exclusive: false, exhaustive: false, reporting_status: reported, notes: '2,968 training examples through triple mutants.'}
+    - {id: gb1-low-vs-high-test, label: low-vs-high test set, count: 3644, basis: test examples, exclusive: false, exhaustive: false, reporting_status: reported, notes: '5,089 training examples at or below wild-type fitness.'}
+    - {id: gb1-sampled-test, label: Sampled test set, count: 1772, basis: test examples, exclusive: false, exhaustive: false, reporting_status: reported, notes: '6,961 random training examples; discourse-only split not recommended for performance comparison.'}
+coverage_notes:
+  - {tag: protein-protein-binding, coverage: explicitly-in-scope, count: 8733, reporting_status: reported, notes: 'Every retained GB1 example has an immunoglobulin-binding fitness value; this is an example count, while the parent suite reports five binding tasks.'}
+access: {level: fully-open, tasks: 'All five regression split CSVs are public.', artifacts: 'Processed splits, original-data archive, reference sequence, and baselines are public.', grader: 'Deterministic Spearman correlation and MSE.', license: 'Original Wu et al. GB1 data are CC BY 4.0; FLIP-modified task files are AFL-3.0.', biosafety_notes: 'No additional restriction is asserted; this registry stores metadata and aggregate results only.'}
+resources:
+  - {id: flip-gb1-paper-resource, type: paper, url: 'https://flip.protein.properties/assets/FLIP_2021_manuscript.pdf', license: CC BY 4.0, access_notes: 'Creator-authorized manuscript, especially Section 3.1 and Tables 2, 4, and 7.', last_checked: '2026-07-21', pin: {kind: snapshot, value: 'sha256:afcf360c88a7a4ae153b3c2d8d4fa6d4ac0abe84f2131b94409abff6447ce363', url: 'https://flip.protein.properties/assets/FLIP_2021_manuscript.pdf'}}
+  - {id: flip-gb1-repository-resource, type: repository, url: 'https://github.com/J-SNACKKB/FLIP/tree/62cace8735f5610e2743cf06ce0f944b37fffaa6/splits/gb1', license: 'CC BY 4.0 raw data; AFL-3.0 derivatives', access_notes: 'Official GB1 split archive and documentation.', last_checked: '2026-07-21', pin: {kind: commit, value: 62cace8735f5610e2743cf06ce0f944b37fffaa6, url: 'https://github.com/J-SNACKKB/FLIP/tree/62cace8735f5610e2743cf06ce0f944b37fffaa6/splits/gb1'}}
+implementations:
+  - {framework: FLIP GB1 baselines, status: official, url: 'https://github.com/J-SNACKKB/FLIP/tree/62cace8735f5610e2743cf06ce0f944b37fffaa6/baselines', commit: 62cace8735f5610e2743cf06ce0f944b37fffaa6, notes: 'Use dataset gb1 and the documented split-name mappings.'}
+versions:
+  - id: flip-gb1-original-2021
+    label: original-2021
+    status: current
+    release_date: '2021-10-11'
+    as_of: '2026-07-21'
+    task_counts: *flip-gb1-counts
+    formal_tracks: []
+    notes: 'The five task splits overlap and therefore are not summed as sample partitions.'
+    evidence_ids: [flip-gb1-evidence-paper]
+audit: {status: audited, audited_date: '2026-07-21', unresolved_fields: 0, notes: 'Downsampling, binding scope, train/test counts, and the sampled-split warning were verified.'}
+field_status: []
+verification: {status: verified, last_verified: '2026-07-21', notes: Field-level track audit complete.}
+evidence:
+  - id: flip-gb1-evidence-paper
+    source_type: work
+    source_id: flip-paper
+    accessed_date: '2026-07-21'
+    locator: {type: table, value: 'pp. 4–5, 8–9; Table 2, Section 3.1, Tables 4 and 7', note: 'GB1 binding definition, downsampling to 8,733 examples, five splits, exact train/test counts, and results.'}
+    supports: [/name, /summary, /kind, /organizations, /release_date, /latest_version, /domains, /capabilities, /modalities, /task_formats, /task_counts/total, /task_counts/basis, /task_counts/subsets, /coverage_notes, /access/level, /access/tasks, /access/artifacts, /access/grader, /access/license, /access/biosafety_notes, /versions/0/release_date, /versions/0/as_of, /versions/0/task_counts/total, /versions/0/task_counts/basis, /versions/0/task_counts/subsets]
+  - id: flip-gb1-evidence-repository
+    source_type: resource
+    source_id: flip-gb1-repository-resource
+    accessed_date: '2026-07-21'
+    locator: {type: repository-path, value: 'splits/gb1/README.md and splits/gb1/splits.zip at commit 62cace8735f5610e2743cf06ce0f944b37fffaa6', note: 'Confirms assay semantics, active versus sampled status, public data, and licenses.'}
+    supports: [/access/tasks, /access/artifacts, /access/license, /resources, /implementations]

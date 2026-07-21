@@ -1,0 +1,9 @@
+entity_type: model
+id: flip-esm1b-per-aa
+name: ESM-1b (per AA; FLIP head)
+provider: Meta AI / FLIP creators
+release_date: null
+version_string: ESM-1b (per AA)
+version_status: reported
+aliases: []
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Frozen 750M ESM-1b embeddings with a learned 1D-attention pooling/regression head; exact creator-paper label.'}

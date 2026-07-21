@@ -1,0 +1,60 @@
+entity_type: evaluation_run
+id: flip-gb1-low-vs-high
+work_id: flip-paper
+benchmark_id: flip-gb1
+benchmark_version: original-2021
+model_ids: [flip-esm1b-per-aa, flip-esm1b-mean, flip-esm1b-mut-mean, flip-esm1v-per-aa, flip-esm1v-mean, flip-esm1v-mut-mean, flip-esm-untrained-per-aa, flip-esm-untrained-mean, flip-esm-untrained-mut-mean, flip-ridge, flip-cnn, flip-levenshtein, flip-blosum62]
+scope: {type: subset, n: 3644, subset_id: gb1-low-vs-high-test, filter: "Train on 5,089 examples at or below wild-type fitness; test on 3,644 examples above wild-type fitness.", reporting_status: reported}
+protocol:
+  shots: &na {value: null, reporting_status: not_applicable, notes: "Supervised protein regression; no in-context examples."}
+  turns: {value: not-applicable, reporting_status: not_applicable, notes: "Batch supervised training and inference."}
+  system_prompt_public: *na
+  reasoning: *na
+  tools:
+    browser: *na
+    internet: *na
+    databases: *na
+    code_execution: {value: null, reporting_status: not_applicable, notes: "Training code is part of the evaluation implementation, not an affordance granted to an agent."}
+    container: {value: null, reporting_status: not_reported, notes: "No common container is reported."}
+    external_tools: {value: "model-specific frozen embeddings or one-hot sequence encoding", reporting_status: reported, notes: "ESM representations are frozen; supervised heads or baselines train on the split."}
+  token_budget: *na
+  time_budget: {value: null, reporting_status: not_reported, notes: "No common runtime budget; the paper reports Nvidia Quadro RTX A6000 hardware and omits selected infeasible per-AA runs."}
+  temperature: *na
+  seed: {value: null, reporting_status: not_reported, notes: "A common random seed is not reported in the main paper."}
+  repeats: {value: null, reporting_status: not_reported, notes: "A common repeat count for the published table value is not reported."}
+  grader: {type: deterministic regression scorer, model: null, human_review: false, reporting_status: reported}
+  statistical: {value: "Spearman correlation over held-out test examples; the main table reports point values without confidence intervals.", reporting_status: reported, notes: "Mean-squared error is also evaluated in supplementary analyses and supported by the public scorer."}
+  contamination: {value: "Fitness extrapolation above wild-type fitness.", reporting_status: reported, notes: null}
+metrics:
+  - {metric_id: spearman-correlation, source_label: Spearman correlation, unit: correlation, range: [-1, 1], higher_is_better: true, aggregation: "computed across all examples in this held-out test split", pass_threshold: null, tolerance: null}
+  - {metric_id: mean-squared-error, source_label: Mean squared error, unit: squared fitness units, range: null, higher_is_better: false, aggregation: "mean across all examples in this held-out test split", pass_threshold: null, tolerance: null}
+results:
+  - {model_id: flip-esm1b-per-aa, metric_id: spearman-correlation, value: 0.59, ci_low: null, ci_high: null, n: 3644, notes: "Held-out test-set Spearman from the creator paper.", status: verified, confidence: high, evidence_ids: [flip-gb1-low-vs-high-results]}
+  - {model_id: flip-esm1b-mean, metric_id: spearman-correlation, value: 0.13, ci_low: null, ci_high: null, n: 3644, notes: "Held-out test-set Spearman from the creator paper.", status: verified, confidence: high, evidence_ids: [flip-gb1-low-vs-high-results]}
+  - {model_id: flip-esm1b-mut-mean, metric_id: spearman-correlation, value: 0.45, ci_low: null, ci_high: null, n: 3644, notes: "Held-out test-set Spearman from the creator paper.", status: verified, confidence: high, evidence_ids: [flip-gb1-low-vs-high-results]}
+  - {model_id: flip-esm1v-per-aa, metric_id: spearman-correlation, value: 0.51, ci_low: null, ci_high: null, n: 3644, notes: "Held-out test-set Spearman from the creator paper.", status: verified, confidence: high, evidence_ids: [flip-gb1-low-vs-high-results]}
+  - {model_id: flip-esm1v-mean, metric_id: spearman-correlation, value: 0.1, ci_low: null, ci_high: null, n: 3644, notes: "Held-out test-set Spearman from the creator paper.", status: verified, confidence: high, evidence_ids: [flip-gb1-low-vs-high-results]}
+  - {model_id: flip-esm1v-mut-mean, metric_id: spearman-correlation, value: 0.49, ci_low: null, ci_high: null, n: 3644, notes: "Held-out test-set Spearman from the creator paper.", status: verified, confidence: high, evidence_ids: [flip-gb1-low-vs-high-results]}
+  - {model_id: flip-esm-untrained-per-aa, metric_id: spearman-correlation, value: 0.23, ci_low: null, ci_high: null, n: 3644, notes: "Held-out test-set Spearman from the creator paper.", status: verified, confidence: high, evidence_ids: [flip-gb1-low-vs-high-results]}
+  - {model_id: flip-esm-untrained-mean, metric_id: spearman-correlation, value: 0.1, ci_low: null, ci_high: null, n: 3644, notes: "Held-out test-set Spearman from the creator paper.", status: verified, confidence: high, evidence_ids: [flip-gb1-low-vs-high-results]}
+  - {model_id: flip-esm-untrained-mut-mean, metric_id: spearman-correlation, value: 0.13, ci_low: null, ci_high: null, n: 3644, notes: "Held-out test-set Spearman from the creator paper.", status: verified, confidence: high, evidence_ids: [flip-gb1-low-vs-high-results]}
+  - {model_id: flip-ridge, metric_id: spearman-correlation, value: 0.34, ci_low: null, ci_high: null, n: 3644, notes: "Held-out test-set Spearman from the creator paper.", status: verified, confidence: high, evidence_ids: [flip-gb1-low-vs-high-results]}
+  - {model_id: flip-cnn, metric_id: spearman-correlation, value: 0.51, ci_low: null, ci_high: null, n: 3644, notes: "Held-out test-set Spearman from the creator paper.", status: verified, confidence: high, evidence_ids: [flip-gb1-low-vs-high-results]}
+  - {model_id: flip-levenshtein, metric_id: spearman-correlation, value: -0.1, ci_low: null, ci_high: null, n: 3644, notes: "Held-out test-set Spearman from the creator paper.", status: verified, confidence: high, evidence_ids: [flip-gb1-low-vs-high-results]}
+  - {model_id: flip-blosum62, metric_id: spearman-correlation, value: -0.13, ci_low: null, ci_high: null, n: 3644, notes: "Held-out test-set Spearman from the creator paper.", status: verified, confidence: high, evidence_ids: [flip-gb1-low-vs-high-results]}
+comparability_group: flip-gb1-low-vs-high-spearman
+verification: {status: verified, last_verified: '2026-07-21', notes: "Creator-paper split setting and all published main-table Spearman values are registered."}
+evidence:
+  - id: flip-gb1-low-vs-high-scope-protocol
+    source_type: work
+    source_id: flip-paper
+    accessed_date: '2026-07-21'
+    locator: {type: table, value: "pp. 4–7, Table 2 and Sections 3–4", note: "Exact train/test counts, split rule, baseline identities, pooling, optimizer, batch sizes, early stopping, and hardware."}
+    supports: [/scope, /protocol, /model_ids]
+  - id: flip-gb1-low-vs-high-results
+    source_type: work
+    source_id: flip-paper
+    accessed_date: '2026-07-21'
+    locator: {type: table, value: "p. 8, Table 4 (low-vs-high column)", note: "Published held-out Spearman values; em dashes and NA entries are omitted rather than encoded as zeros."}
+    supports: [/metrics, /results]
+

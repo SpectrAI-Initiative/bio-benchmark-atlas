@@ -1,0 +1,58 @@
+entity_type: benchmark
+id: flip-meltome
+name: FLIP Meltome Thermostability
+aliases: [FLIP Thermostability]
+summary: Three supervised sequence-to-melting-temperature splits spanning all species, human proteins, and a single human cell line, with sequence-cluster-aware train/test separation.
+kind: track
+parent_id: flip
+organizations: [Technical University of Munich, Microsoft Research New England, California Institute of Technology, University of California Berkeley, Massachusetts Institute of Technology, Salesforce Research]
+release_date: '2021-10-11'
+latest_version: original-2021
+domains: [protein-sequence, protein-design, proteomics]
+capabilities: [prediction, regression]
+modalities: [protein-sequence, table]
+task_formats: [sequence-to-melting-temperature regression]
+task_counts: &flip-meltome-counts
+  total: 27951
+  basis: sequence-temperature examples in the Mixed split universe
+  reporting_status: reported
+  subsets:
+    - {id: meltome-mixed-test, label: Mixed test set, count: 3134, basis: test examples, exclusive: false, exhaustive: false, reporting_status: reported, notes: '24,817 training examples; test contains representatives from held-out 20%-identity clusters.'}
+    - {id: meltome-human-all, label: Human split total, count: 10093, basis: sequence-temperature examples, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Human-only subset of the landscape.'}
+    - {id: meltome-human-test, label: Human test set, count: 1945, basis: test examples, exclusive: false, exhaustive: false, reporting_status: reported, notes: '8,148 training examples.'}
+    - {id: meltome-human-cell-all, label: Human-cell split total, count: 7158, basis: sequence-temperature examples, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Pinned official CSV has 7,158 rows (5,792 train + 1,366 test); paper Table 2 prints 7,156.'}
+    - {id: meltome-human-cell-test, label: Human-cell test set, count: 1366, basis: test examples, exclusive: false, exhaustive: false, reporting_status: reported, notes: '5,792 training examples in the pinned CSV and paper.'}
+coverage_notes:
+  - {tag: proteomics, coverage: explicitly-in-scope, count: 27951, reporting_status: reported, notes: 'The benchmark uses Meltome Atlas thermal-proteome measurements; count is the Mixed split universe, not independent assays.'}
+access: {level: fully-open, tasks: 'All three active regression split CSVs are public.', artifacts: 'Processed splits, Meltome source archive, FASTA, clustering file, and baselines are public.', grader: 'Deterministic Spearman correlation and MSE.', license: 'Meltome creators state the original data are free to use with acknowledgement; FLIP-modified task files are AFL-3.0.', biosafety_notes: 'No additional restriction is asserted; this registry stores metadata and aggregate results only.'}
+resources:
+  - {id: flip-meltome-paper-resource, type: paper, url: 'https://flip.protein.properties/assets/FLIP_2021_manuscript.pdf', license: CC BY 4.0, access_notes: 'Creator-authorized manuscript, especially Section 3.3 and Tables 2 and 6.', last_checked: '2026-07-21', pin: {kind: snapshot, value: 'sha256:afcf360c88a7a4ae153b3c2d8d4fa6d4ac0abe84f2131b94409abff6447ce363', url: 'https://flip.protein.properties/assets/FLIP_2021_manuscript.pdf'}}
+  - {id: flip-meltome-repository-resource, type: repository, url: 'https://github.com/J-SNACKKB/FLIP/tree/62cace8735f5610e2743cf06ce0f944b37fffaa6/splits/meltome', license: AFL-3.0, access_notes: 'Official Meltome split archive and documentation; the pinned CSV row counts resolve the Table 2 total mismatch.', last_checked: '2026-07-21', pin: {kind: commit, value: 62cace8735f5610e2743cf06ce0f944b37fffaa6, url: 'https://github.com/J-SNACKKB/FLIP/tree/62cace8735f5610e2743cf06ce0f944b37fffaa6/splits/meltome'}}
+implementations:
+  - {framework: FLIP Meltome baselines, status: official, url: 'https://github.com/J-SNACKKB/FLIP/tree/62cace8735f5610e2743cf06ce0f944b37fffaa6/baselines', commit: 62cace8735f5610e2743cf06ce0f944b37fffaa6, notes: 'Use dataset meltome with mixed, human, or human_cell.'}
+versions:
+  - id: flip-meltome-original-2021
+    label: original-2021
+    status: current
+    release_date: '2021-10-11'
+    as_of: '2026-07-21'
+    task_counts: *flip-meltome-counts
+    formal_tracks: []
+    notes: 'The versioned repository CSV is authoritative for the Human-cell total; the creator-paper discrepancy remains explicit in notes and evidence.'
+    evidence_ids: [flip-meltome-evidence-paper, flip-meltome-evidence-repository]
+audit: {status: audited, audited_date: '2026-07-21', unresolved_fields: 0, notes: 'The paper-versus-CSV Human-cell total conflict is resolved by the higher-priority commit-pinned official dataset: 7,158.'}
+field_status: []
+verification: {status: verified, last_verified: '2026-07-21', notes: Field-level track audit complete.}
+evidence:
+  - id: flip-meltome-evidence-paper
+    source_type: work
+    source_id: flip-paper
+    accessed_date: '2026-07-21'
+    locator: {type: table, value: 'pp. 4, 6, 9; Table 2, Section 3.3, Table 6', note: 'Defines three splits, train/test counts, 20%-identity clustering, metric, and baseline results; Table 2 prints Human-cell total 7,156.'}
+    supports: [/name, /summary, /kind, /organizations, /release_date, /latest_version, /domains, /capabilities, /modalities, /task_formats, /task_counts/total, /task_counts/basis, /task_counts/subsets, /coverage_notes, /access/level, /access/tasks, /access/artifacts, /access/grader, /access/license, /access/biosafety_notes, /versions/0/release_date, /versions/0/as_of, /versions/0/task_counts/total, /versions/0/task_counts/basis, /versions/0/task_counts/subsets]
+  - id: flip-meltome-evidence-repository
+    source_type: resource
+    source_id: flip-meltome-repository-resource
+    accessed_date: '2026-07-21'
+    locator: {type: repository-path, value: 'splits/meltome/README.md and splits/meltome/splits.zip at commit 62cace8735f5610e2743cf06ce0f944b37fffaa6', note: 'CSV counts: Mixed 27,951=24,817+3,134; Human 10,093=8,148+1,945; Human-cell 7,158=5,792+1,366.'}
+    supports: [/task_counts/subsets, /access/tasks, /access/artifacts, /access/license, /resources, /implementations, /versions/0/task_counts/subsets]

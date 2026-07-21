@@ -1,0 +1,9 @@
+entity_type: model
+id: flip-esm1v-per-aa
+name: ESM-1v (per AA; FLIP head)
+provider: Meta AI / FLIP creators
+release_date: null
+version_string: ESM-1v (per AA; one ensemble member)
+version_status: reported
+aliases: []
+verification: {status: verified, last_verified: '2026-07-21', notes: 'One 750M ESM-1v ensemble member with learned 1D-attention pooling/regression head, as reported due to compute constraints.'}

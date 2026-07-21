@@ -195,6 +195,83 @@ def test_cameo_uses_a_dated_rolling_snapshot_and_common_subsets() -> None:
     }
 
 
+def test_flip_separates_task_counts_landscape_samples_and_all_split_protocols() -> None:
+    entities = load_entities()
+    benchmarks = {item["id"]: item for item in entities["benchmark"]}
+    runs = {
+        item["id"]: item
+        for item in entities["evaluation_run"]
+        if item["benchmark_id"].startswith("flip-")
+    }
+    root = benchmarks["flip"]
+    root_subsets = {item["id"]: item["count"] for item in root["task_counts"]["subsets"]}
+
+    assert root["audit"]["status"] == "audited"
+    assert root["latest_version"] == "original-2021"
+    assert root["versions"][0]["task_counts"] == root["task_counts"]
+    assert root["task_counts"]["total"] == 15
+    assert root_subsets == {
+        "flip-aav-tasks": 7,
+        "flip-gb1-tasks": 5,
+        "flip-meltome-tasks": 3,
+        "flip-active-comparison-tasks": 13,
+        "flip-discourse-sampled-tasks": 2,
+    }
+    assert root["versions"][0]["formal_tracks"] == ["flip-aav", "flip-gb1", "flip-meltome"]
+    assert root["capabilities"] == ["prediction", "regression"]
+    binding = next(item for item in root["coverage_notes"] if item["tag"] == "protein-protein-binding")
+    assert binding["count"] == 5
+
+    aav = benchmarks["flip-aav"]
+    gb1 = benchmarks["flip-gb1"]
+    meltome = benchmarks["flip-meltome"]
+    assert aav["task_counts"]["total"] == 284009
+    assert gb1["task_counts"]["total"] == 8733
+    assert meltome["task_counts"]["total"] == 27951
+    assert {item["id"]: item["count"] for item in aav["task_counts"]["subsets"]} == {
+        "aav-mut-des-test": 201426,
+        "aav-des-mut-test": 82583,
+        "aav-one-vs-rest-test": 81413,
+        "aav-two-vs-rest-test": 50776,
+        "aav-seven-vs-rest-test": 12581,
+        "aav-low-vs-high-test": 35037,
+        "aav-sampled-test": 16517,
+    }
+    assert {item["id"]: item["count"] for item in gb1["task_counts"]["subsets"]} == {
+        "gb1-one-vs-rest-test": 8704,
+        "gb1-two-vs-rest-test": 8306,
+        "gb1-three-vs-rest-test": 5765,
+        "gb1-low-vs-high-test": 3644,
+        "gb1-sampled-test": 1772,
+    }
+    meltome_counts = {item["id"]: item["count"] for item in meltome["task_counts"]["subsets"]}
+    assert meltome_counts["meltome-human-cell-all"] == 7158
+    assert meltome_counts["meltome-human-cell-test"] == 1366
+    assert meltome["field_status"] == []
+    assert "paper Table 2 prints 7,156" in next(
+        item["notes"] for item in meltome["task_counts"]["subsets"]
+        if item["id"] == "meltome-human-cell-all"
+    )
+
+    assert len(runs) == 15
+    assert all(run["scope"]["type"] == "subset" for run in runs.values())
+    assert all({metric["metric_id"] for metric in run["metrics"]} == {
+        "spearman-correlation", "mean-squared-error",
+    } for run in runs.values())
+    assert len({run["comparability_group"] for run in runs.values()}) == 15
+    assert runs["flip-aav-mut-des"]["scope"]["n"] == 201426
+    assert runs["flip-meltome-human-cell"]["scope"]["n"] == 1366
+    assert len(runs["flip-aav-des-mut"]["model_ids"]) == 9
+    assert {(row["model_id"], row["value"]) for row in runs["flip-gb1-three-vs-rest"]["results"]} >= {
+        ("flip-cnn", 0.83), ("flip-esm1v-per-aa", 0.82),
+    }
+    assert {(row["model_id"], row["value"]) for row in runs["flip-meltome-human-cell"]["results"]} >= {
+        ("flip-esm1v-per-aa", 0.78), ("flip-ridge", 0.24),
+    }
+    assert {row["status"] for run in runs.values() for row in run["results"]} == {"verified"}
+    assert {row["confidence"] for run in runs.values() for row in run["results"]} == {"high"}
+
+
 def test_biomysterybench_scope_and_repeats() -> None:
     entities = load_entities()
     benchmark = next(item for item in entities["benchmark"] if item["id"] == "biomysterybench")

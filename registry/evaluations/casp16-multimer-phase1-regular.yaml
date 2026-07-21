@@ -1,0 +1,49 @@
+entity_type: evaluation_run
+id: casp16-multimer-phase1-regular
+work_id: casp16-multimer-assessment
+benchmark_id: casp-protein-multimers
+benchmark_version: CASP16
+scope: {type: full, n: 40, subset_id: null, filter: 'All 40 unique protein-complex targets in the Phase-1 main assessment, where experimental stoichiometry was provided.', reporting_status: reported}
+protocol:
+  shots: &na {value: null, reporting_status: not_applicable, notes: No natural-language in-context examples.}
+  turns: *na
+  system_prompt_public: *na
+  reasoning: *na
+  tools:
+    browser: {value: method-specific, reporting_status: reported, notes: Regular groups may combine human and computational workflows.}
+    internet: {value: method-specific, reporting_status: reported, notes: No common internet restriction is imposed.}
+    databases: {value: method-specific, reporting_status: reported, notes: Public sequence/structure databases may be used while target structures remain blind.}
+    code_execution: {value: allowed, reporting_status: reported, notes: Participant prediction pipelines execute code.}
+    container: {value: null, reporting_status: not_reported, notes: No common container is specified.}
+    external_tools: {value: method-specific, reporting_status: reported, notes: 'Participant methods commonly use AFM/AF3-derived pipelines, enhanced MSAs, sampling, and model selection.'}
+  token_budget: *na
+  time_budget: {value: approximately three weeks per target for regular groups, reporting_status: reported, notes: Phase-1 regular predictions are separated from short-deadline server settings.}
+  temperature: *na
+  seed: {value: null, reporting_status: not_reported, notes: Method-specific stochastic settings are not normalized.}
+  repeats: {value: up to five standard models per target, reporting_status: reported, notes: Official analyses distinguish first submitted and best submitted models.}
+  grader: {type: official CASP/OpenStructure and CAPRI-compatible scoring plus independent complex assessor team, model: null, human_review: true, reporting_status: reported}
+  statistical: {value: cumulative per-target z-scores and head-to-head comparisons; rankings reported for first and best models, reporting_status: reported, notes: Metrics capture both overall folds and interfaces.}
+  contamination: {value: experimental complex structures withheld until prediction closes, reporting_status: reported, notes: Template availability and homologous information are analyzed by assessors rather than treated as identical across targets.}
+metrics:
+  - {metric_id: dockq, source_label: DockQ, unit: proportion, range: [0, 1], higher_is_better: true, aggregation: per target followed by cumulative z-score ranking, pass_threshold: 0.5, tolerance: 'The assessor paper uses DockQ >= 0.5 as a medium-or-better complex model threshold in summary analyses.'}
+  - {metric_id: tm-score, source_label: TM-score, unit: proportion, range: [0, 1], higher_is_better: true, aggregation: per target followed by cumulative z-score ranking, pass_threshold: null, tolerance: null}
+  - {metric_id: lddt, source_label: lDDT, unit: proportion, range: [0, 1], higher_is_better: true, aggregation: per target followed by cumulative z-score ranking, pass_threshold: null, tolerance: null}
+  - {metric_id: interface-contact-score, source_label: ICS, unit: F1 score, range: [0, 1], higher_is_better: true, aggregation: per target followed by cumulative z-score ranking, pass_threshold: null, tolerance: null}
+  - {metric_id: interface-patch-score, source_label: IPS, unit: Jaccard score, range: [0, 1], higher_is_better: true, aggregation: per target followed by cumulative z-score ranking, pass_threshold: null, tolerance: null}
+  - {metric_id: qs-best, source_label: QSbest, unit: Jaccard score, range: [0, 1], higher_is_better: true, aggregation: per target followed by cumulative z-score ranking, pass_threshold: null, tolerance: null}
+results: []
+comparability_group: casp16-multimer-phase1-regular
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Phase 1 is isolated from the stoichiometry-free Phase 0 and MassiveFold Phase 2 settings; individual group rows are not ingested here.'}
+evidence:
+  - id: casp16-multimer-run-evidence-scope
+    source_type: work
+    source_id: casp16-multimer-assessment
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'Overview of targets; Phase 1 Ranking; Performance Evaluation and Ranking', note: '40 Phase-1 targets, supplied stoichiometry, overall/interface metrics, first/best model analyses, and group ranking aggregation.'}
+    supports: [/benchmark_version, /scope, /protocol/grader, /protocol/statistical, /metrics]
+  - id: casp16-multimer-run-evidence-protocol
+    source_type: resource
+    source_id: casp-multimer-casp16-home-resource
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'Protein Complexes; Registration; Model submission/format; Assessment', note: 'Blind regular-group protocol, participant method freedom, deadlines, and assessors.'}
+    supports: [/protocol/shots, /protocol/turns, /protocol/system_prompt_public, /protocol/reasoning, /protocol/tools, /protocol/token_budget, /protocol/time_budget, /protocol/temperature, /protocol/seed, /protocol/repeats, /protocol/contamination]

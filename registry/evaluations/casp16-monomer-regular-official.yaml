@@ -1,0 +1,48 @@
+entity_type: evaluation_run
+id: casp16-monomer-regular-official
+work_id: casp16-monomer-assessment
+benchmark_id: casp-protein-monomers
+benchmark_version: CASP16
+scope: {type: full, n: 54, subset_id: null, filter: 'All 54 monomer evaluation units in the final CASP16 assessor analysis; regular-group rankings are distinguished from server-only rankings.', reporting_status: reported}
+protocol:
+  shots: &na {value: null, reporting_status: not_applicable, notes: No natural-language in-context examples.}
+  turns: *na
+  system_prompt_public: *na
+  reasoning: *na
+  tools:
+    browser: {value: method-specific, reporting_status: reported, notes: Regular groups may combine human knowledge and computational methods; no common browser setting is imposed.}
+    internet: {value: method-specific, reporting_status: reported, notes: No common internet restriction is reported for regular groups.}
+    databases: {value: method-specific, reporting_status: reported, notes: Methods may use public sequence and structure databases subject to target blindness.}
+    code_execution: {value: allowed, reporting_status: reported, notes: Computational structure-prediction pipelines are the evaluated methods.}
+    container: {value: null, reporting_status: not_reported, notes: No common container is specified.}
+    external_tools: {value: method-specific, reporting_status: reported, notes: Each participant documents its own modeling pipeline.}
+  token_budget: *na
+  time_budget: {value: approximately three weeks per target for regular groups, reporting_status: reported, notes: Server predictions use a separate approximately 72-hour setting and are not silently pooled into the regular-group ranking.}
+  temperature: *na
+  seed: {value: null, reporting_status: not_reported, notes: Method-specific stochastic settings are not normalized.}
+  repeats: {value: up to five submitted models per target, reporting_status: reported, notes: 'These are ranked model submissions, not repeated stochastic episodes; assessment reports first-model and best-model views.'}
+  grader: {type: official CASP structure-comparison pipeline plus independent monomer assessor team, model: null, human_review: true, reporting_status: reported}
+  statistical: {value: per-evaluation-unit scores converted to group ranking summaries including cumulative clipped z-scores, reporting_status: reported, notes: The official site exposes both raw per-model measures and group-level z-score rankings.}
+  contamination: {value: experimental structures withheld until prediction closes, reporting_status: reported, notes: Blind target handling is the core decontamination mechanism; training-set similarity is analyzed separately by assessors.}
+metrics:
+  - {metric_id: gdt-ts, source_label: GDT_TS, unit: score, range: [0, 100], higher_is_better: true, aggregation: 'computed per evaluation unit; official group rankings use first/best model views and z-score summaries', pass_threshold: null, tolerance: null}
+  - {metric_id: gdt-ha, source_label: GDT_HA, unit: score, range: [0, 100], higher_is_better: true, aggregation: per evaluation unit, pass_threshold: null, tolerance: null}
+  - {metric_id: lddt, source_label: lDDT, unit: proportion, range: [0, 1], higher_is_better: true, aggregation: per evaluation unit, pass_threshold: null, tolerance: null}
+  - {metric_id: tm-score, source_label: TM-score, unit: proportion, range: [0, 1], higher_is_better: true, aggregation: per evaluation unit, pass_threshold: null, tolerance: null}
+  - {metric_id: cumulative-z-score, source_label: SUM Z-score (> -2.0), unit: z-score sum, range: null, higher_is_better: true, aggregation: sum across eligible evaluation units after clipping values below -2.0, pass_threshold: null, tolerance: null}
+results: []
+comparability_group: casp16-monomer-regular-official
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Scope and metrics are normalized; individual group result rows are intentionally not ingested in this audit PR.'}
+evidence:
+  - id: casp16-monomer-run-evidence-scope
+    source_type: work
+    source_id: casp16-monomer-assessment
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'Results and Discussion; performance evaluation and ranking', note: '54 evaluation units, model-1/best-model analyses, metrics, and assessor interpretation.'}
+    supports: [/benchmark_version, /scope, /protocol/grader, /protocol/statistical, /metrics]
+  - id: casp16-monomer-run-evidence-protocol
+    source_type: resource
+    source_id: casp-monomer-casp16-home-resource
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'Registration; Targets; Model submission/format; Assessment', note: 'Blind targets, regular versus server settings, deadlines, and independent assessment.'}
+    supports: [/protocol/shots, /protocol/turns, /protocol/system_prompt_public, /protocol/reasoning, /protocol/tools, /protocol/token_budget, /protocol/time_budget, /protocol/temperature, /protocol/seed, /protocol/repeats, /protocol/contamination]

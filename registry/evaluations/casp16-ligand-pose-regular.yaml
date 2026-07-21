@@ -1,0 +1,41 @@
+entity_type: evaluation_run
+id: casp16-ligand-pose-regular
+work_id: casp16-ligand-assessment
+benchmark_id: casp-protein-ligands
+benchmark_version: CASP16
+scope: {type: subset, n: 229, subset_id: casp16-pharma-pose-assessed, filter: 'Final pharmaceutical pose assessment set; four of 233 released pose cases were not part of the paper assessment.', reporting_status: reported}
+protocol:
+  shots: &na {value: null, reporting_status: not_applicable, notes: No natural-language in-context examples.}
+  turns: *na
+  system_prompt_public: *na
+  reasoning: *na
+  tools:
+    browser: {value: method-specific, reporting_status: reported, notes: Participant methods are unrestricted beyond the blind-target protocol.}
+    internet: {value: method-specific, reporting_status: reported, notes: No common internet restriction is reported.}
+    databases: {value: method-specific, reporting_status: reported, notes: Template and structure databases may be used; assessors analyze template similarity.}
+    code_execution: {value: allowed, reporting_status: reported, notes: Docking/cofolding pipelines execute participant code.}
+    container: {value: null, reporting_status: not_reported, notes: No common container is specified.}
+    external_tools: {value: method-specific, reporting_status: reported, notes: 'Template-based, docking, cofolding, and hybrid workflows were submitted.'}
+  token_budget: *na
+  time_budget: {value: target-specific CASP submission windows, reporting_status: reported, notes: The assessment does not normalize a compute or cost budget across groups.}
+  temperature: *na
+  seed: {value: null, reporting_status: not_reported, notes: Method-specific stochastic settings are not normalized.}
+  repeats: {value: up to five pose models per target, reporting_status: reported, notes: Assessment emphasizes Model 1 while also inspecting best submitted poses.}
+  grader: {type: official OpenStructure ligand and binding-pocket scoring plus independent ligand assessor team, model: null, human_review: true, reporting_status: reported}
+  statistical: {value: mean per-group pose accuracy with explicit handling of skipped targets; Model 1 is the primary ranking view, reporting_status: reported, notes: The paper analyzes both participant groups and separate post hoc baselines.}
+  contamination: {value: experimental complex poses withheld during Stage 1 prediction; structural template similarity analyzed post hoc, reporting_status: reported, notes: Baseline predictions such as AlphaFold 3 are kept distinct from official participant submissions.}
+metrics:
+  - {metric_id: lddt-pli, source_label: LDDT-PLI, unit: proportion, range: [0, 1], higher_is_better: true, aggregation: mean across eligible pose targets with missing-prediction handling, pass_threshold: null, tolerance: 'CASP16 modified the CASP15 definition to penalize erroneous non-native contacts.'}
+  - {metric_id: bisyrmsd, source_label: BiSyRMSD, unit: angstrom, range: null, higher_is_better: false, aggregation: per pose then group summary, pass_threshold: null, tolerance: symmetry-corrected after binding-site superposition}
+  - {metric_id: lddt-lp, source_label: LDDT-lp, unit: proportion, range: [0, 1], higher_is_better: true, aggregation: per binding pocket then group summary, pass_threshold: null, tolerance: null}
+  - {metric_id: bb-rmsd, source_label: BB-RMSD, unit: angstrom, range: null, higher_is_better: false, aggregation: binding-site C-alpha RMSD then group summary, pass_threshold: null, tolerance: null}
+results: []
+comparability_group: casp16-ligand-pose-regular
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Released (233) and assessed (229) counts remain distinct; participant rows and post hoc baseline rows are not normalized in this PR.'}
+evidence:
+  - id: casp16-ligand-pose-run-evidence
+    source_type: work
+    source_id: casp16-ligand-assessment
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'Abstract; Sections 2.1–2.5 and 3.1–3.2', note: '229 assessed pose cases, participant protocol, Model 1 handling, pose metrics, missing submissions, and separate baselines.'}
+    supports: [/benchmark_version, /scope, /protocol, /metrics]

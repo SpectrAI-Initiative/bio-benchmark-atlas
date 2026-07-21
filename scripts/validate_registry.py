@@ -456,7 +456,8 @@ def validate_registry() -> dict[str, list[dict[str, Any]]]:
                     )
         if scope["n"] is not None and benchmark_total is not None and scope["n"] > benchmark_total:
             raise RegistryValidationError(f"{run['id']}: scope n exceeds benchmark total")
-        subset_ids = {item["id"] for item in benchmark["task_counts"]["subsets"]}
+        subset_counts = run_version["task_counts"] if run_version is not None else benchmark["task_counts"]
+        subset_ids = {item["id"] for item in subset_counts["subsets"]}
         if scope["subset_id"] is not None and scope["subset_id"] not in subset_ids:
             raise RegistryValidationError(f"{run['id']}: scope references missing subset {scope['subset_id']}")
         if scope["type"] == "subset" and (scope["subset_id"] is None or scope["n"] is None):

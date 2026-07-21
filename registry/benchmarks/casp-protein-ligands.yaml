@@ -1,0 +1,75 @@
+entity_type: benchmark
+id: casp-protein-ligands
+name: CASP Protein-Ligand Prediction
+aliases: [CASP ligand track, CASP pharmaceutical ligand challenge]
+summary: Formal CASP track for blind prediction of protein-ligand binding poses, binding affinity or rank, binding pockets, and pose confidence.
+kind: track
+parent_id: casp
+organizations: [Prediction Center, CASP organizing committee]
+release_date: '2024-05-01'
+latest_version: CASP17
+domains: [protein-structure, protein-ligand-binding, medchem]
+capabilities: [prediction, regression]
+modalities: [protein-sequence, structure-3d]
+task_formats: [blind protein-ligand pose prediction, blind binding affinity prediction]
+task_counts: {total: null, basis: CASP17 evaluated protein-ligand targets, reporting_status: not_reported, subsets: []}
+coverage_notes:
+  - {tag: protein-ligand-binding, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: 'The dedicated CASP17 category is active, but the official in-numbers page does not yet publish a ligand-only target count.'}
+access: {level: partially-open, tasks: 'Active ligand/target information is released through the target list; reference poses and affinities remain blind during prediction.', artifacts: 'CASP16 pose and affinity result tables and assessment papers are public; some pharmaceutical source data may retain provider terms.', grader: 'OpenStructure ligand and pocket metrics plus independent ligand-assessor analysis.', license: 'CC BY 4.0 for Prediction Center website content; pharmaceutical datasets and linked structures may have separate terms', biosafety_notes: 'No ligand sets, target structures, affinities, or submitted models are mirrored.'}
+resources:
+  - {id: casp-ligand-casp16-results-resource, type: leaderboard, url: 'https://predictioncenter.org/casp16/results.cgi?tr_type=ligand&view=targets', license: 'CC BY 4.0 (website)', access_notes: Official per-target ligand results., last_checked: '2026-07-21', pin: {kind: snapshot, value: CASP16-ligand-results, url: 'https://predictioncenter.org/casp16/results.cgi?tr_type=ligand&view=targets'}}
+  - {id: casp-ligand-casp16-paper-resource, type: paper, url: 'https://doi.org/10.1002/prot.70061', license: 'CC BY 4.0', access_notes: Final pharmaceutical pose and affinity assessor paper., last_checked: '2026-07-21', pin: {kind: version, value: 'Proteins 94(1):249-266', url: 'https://doi.org/10.1002/prot.70061'}}
+  - {id: casp-ligand-casp17-resource, type: website, url: 'https://predictioncenter.org/casp17/', license: 'CC BY 4.0 (website)', access_notes: Active Organic Ligand-Protein Complexes category., last_checked: '2026-07-21', pin: {kind: snapshot, value: '2026-07-21', url: 'https://predictioncenter.org/casp17/'}}
+implementations:
+  - {framework: Prediction Center/OpenStructure ligand assessment, status: official, url: 'https://predictioncenter.org/casp16/results.cgi?tr_type=ligand&view=targets', commit: null, notes: 'Official results expose LDDT-PLI, BiSyRMSD, pocket measures, and affinity rankings; no public source commit is asserted.'}
+versions:
+  - id: casp-ligand-casp16
+    label: CASP16
+    status: superseded
+    release_date: '2024-05-01'
+    as_of: '2025-10-04'
+    task_counts:
+      total: null
+      basis: evaluated protein-ligand cases across overlapping pose and affinity tasks
+      reporting_status: not_reported
+      subsets:
+        - {id: casp16-pharma-pose-assessed, label: Pharmaceutical pose targets assessed, count: 229, basis: protein-ligand complexes, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'The in-numbers page lists 233 released pose targets; 229 were included in the final pharmaceutical assessment.'}
+        - {id: casp16-pharma-affinity-original, label: Original pharmaceutical affinity targets, count: 140, basis: protein-ligand affinity cases, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Original 17 chymase plus 123 autotaxin cases; 18 disclosed affinities were removed from the ranking analysis.'}
+        - {id: casp16-affinity-stage1-analysis, label: Stage-1 affinity cases retained for ranking analysis, count: 122, basis: undisclosed affinity cases, exclusive: false, exhaustive: false, reporting_status: reported, notes: '14 chymase plus 108 autotaxin cases after removing 18 affinities already disclosed in patents.'}
+        - {id: casp16-affinity-stage2-releases, label: Stage-2 affinity target releases, count: 110, basis: target releases with experimental structures, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Official in-numbers release count: 17 chymase plus 93 autotaxin.'}
+        - {id: casp16-affinity-stage2-analysis, label: Stage-2 affinity cases retained for ranking analysis, count: 103, basis: undisclosed affinity cases with experimental structures, exclusive: false, exhaustive: false, reporting_status: reported, notes: '14 chymase plus 89 autotaxin cases after disclosure filtering.'}
+        - {id: casp16-ligand-protein-systems, label: Protein systems in the pharmaceutical assessment, count: 5, basis: protein systems, exclusive: false, exhaustive: false, reporting_status: reported, notes: null}
+    formal_tracks: []
+    notes: 'Released and assessed counts are stored separately; no synthetic pose-plus-affinity total is computed.'
+    evidence_ids: [casp-ligand-evidence-casp16, casp-ligand-evidence-casp16-protocol]
+  - id: casp-ligand-casp17
+    label: CASP17
+    status: rolling
+    release_date: '2026-04-27'
+    as_of: '2026-07-21'
+    task_counts: {total: null, basis: evaluated protein-ligand targets, reporting_status: not_reported, subsets: []}
+    formal_tracks: []
+    notes: Active round; final ligand target and assessed-case counts are not yet published.
+    evidence_ids: [casp-ligand-evidence-casp17]
+audit: {status: audited, audited_date: '2026-07-21', unresolved_fields: 0, notes: 'CASP16 released pose targets (233) and assessed pose targets (229) are distinct quantities, not a source conflict.'}
+field_status: []
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Audited against official results, creator-assessor paper, and active CASP17 protocol.'}
+evidence:
+  - id: casp-ligand-evidence-casp16
+    source_type: work
+    source_id: casp16-ligand-assessment
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'Abstract; Sections 2.2–2.5 and 3.3; Figures 8–10', note: 'Reports 229 pose targets, 140 original affinity targets, disclosure filtering to 122 Stage-1 and 103 Stage-2 analysis cases, five systems, and pose/affinity evaluation.'}
+    supports: [/name, /aliases, /summary, /kind, /organizations, /domains, /capabilities, /modalities, /task_formats, /versions/0/task_counts/total, /versions/0/task_counts/basis, /versions/0/task_counts/subsets, /access/grader, /resources, /implementations]
+  - id: casp-ligand-evidence-casp16-protocol
+    source_type: work
+    source_id: casp-official
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'CASP16 Timetable and Organic Ligands', note: 'Establishes the 2024 round start and official ligand category.'}
+    supports: [/release_date, /versions/0/release_date]
+  - id: casp-ligand-evidence-casp17
+    source_type: work
+    source_id: casp17-official
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'Organic Ligand-Protein Complexes; Timetable; Assessment', note: 'Defines the active category and confirms that final evaluation is not yet available.'}
+    supports: [/latest_version, /task_counts/total, /task_counts/basis, /task_counts/subsets, /coverage_notes, /versions/1/release_date, /versions/1/as_of, /versions/1/task_counts/total, /versions/1/task_counts/basis, /versions/1/task_counts/subsets, /access/level, /access/tasks, /access/artifacts, /access/license, /access/biosafety_notes]

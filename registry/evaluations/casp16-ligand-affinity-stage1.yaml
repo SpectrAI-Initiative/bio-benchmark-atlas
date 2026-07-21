@@ -1,0 +1,38 @@
+entity_type: evaluation_run
+id: casp16-ligand-affinity-stage1
+work_id: casp16-ligand-assessment
+benchmark_id: casp-protein-ligands
+benchmark_version: CASP16
+scope: {type: subset, n: 122, subset_id: casp16-affinity-stage1-analysis, filter: '14 chymase and 108 autotaxin cases retained after removing 18 affinities disclosed in patents from the original 140.', reporting_status: reported}
+protocol:
+  shots: &na {value: null, reporting_status: not_applicable, notes: No natural-language in-context examples.}
+  turns: *na
+  system_prompt_public: *na
+  reasoning: *na
+  tools:
+    browser: {value: method-specific, reporting_status: reported, notes: No common browser constraint.}
+    internet: {value: method-specific, reporting_status: reported, notes: No common internet constraint.}
+    databases: {value: method-specific, reporting_status: reported, notes: Participant methods may use public chemical and structural data.}
+    code_execution: {value: allowed, reporting_status: reported, notes: Affinity prediction pipelines execute participant code.}
+    container: {value: null, reporting_status: not_reported, notes: No common container is specified.}
+    external_tools: {value: method-specific, reporting_status: reported, notes: 'Participants could report absolute affinity, relative affinity, or within-system ligand ranks.'}
+  token_budget: *na
+  time_budget: {value: target-specific CASP submission windows before experimental poses were released, reporting_status: reported, notes: No common compute/cost budget.}
+  temperature: *na
+  seed: {value: null, reporting_status: not_reported, notes: Method-specific stochastic settings are not normalized.}
+  repeats: {value: Model 1 affinity submission per group and case, reporting_status: reported, notes: Not a repeated-episode benchmark.}
+  grader: {type: official affinity ranking analysis plus independent ligand assessor team, model: null, human_review: true, reporting_status: reported}
+  statistical: {value: N-weighted Kendall tau across the two protein systems after disclosure filtering, reporting_status: reported, notes: Per-system Kendall tau is weighted by the number of retained affinity cases.}
+  contamination: {value: 'experimental poses and affinities withheld, with 18 previously disclosed affinities removed from analysis', reporting_status: reported, notes: Explicit patent-disclosure filtering is part of the final analysis set.}
+metrics:
+  - {metric_id: n-weighted-kendall-tau, source_label: N-weighted Kendall's tau, unit: rank correlation, range: [-1, 1], higher_is_better: true, aggregation: case-count-weighted mean of per-protein-system Kendall tau after disclosure filtering, pass_threshold: null, tolerance: null}
+results: []
+comparability_group: casp16-ligand-affinity-stage1
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Stage 1 is isolated from Stage 2 because experimental co-crystal structures were unavailable in this setting.'}
+evidence:
+  - id: casp16-ligand-affinity-stage1-evidence
+    source_type: work
+    source_id: casp16-ligand-assessment
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'Sections 2.2–2.5 and 3.3; Figure 8A', note: 'Original 140 cases, 18 disclosure exclusions, Stage-1 setting, Model 1, and N-weighted Kendall tau.'}
+    supports: [/benchmark_version, /scope, /protocol, /metrics]

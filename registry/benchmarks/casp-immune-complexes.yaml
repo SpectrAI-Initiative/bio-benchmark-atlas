@@ -1,0 +1,49 @@
+entity_type: benchmark
+id: casp-immune-complexes
+name: CASP17 Immune Complexes
+aliases: [CASP17 antibody-antigen category]
+summary: Dedicated CASP17 category for blind prediction of antibody-antigen, nanobody-antigen, and T-cell receptor complex structures.
+kind: track
+parent_id: casp-protein-multimers
+organizations: [Prediction Center, CASP organizing committee]
+release_date: '2026-04-28'
+latest_version: CASP17
+domains: [protein-structure, protein-protein-binding, antibody-antigen]
+capabilities: [prediction]
+modalities: [protein-sequence, structure-3d]
+task_formats: [blind immune complex structure prediction]
+task_counts: {total: null, basis: CASP17 immune-complex targets, reporting_status: not_reported, subsets: []}
+coverage_notes:
+  - {tag: antibody-antigen, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: 'The category is official, but no category-only count is published on the rolling CASP17 in-numbers page.'}
+access: {level: partially-open, tasks: 'Target sequences and deadlines are public; experimental complex structures remain blind until target closure.', artifacts: 'Predictions and numerical assessment are scheduled for public release before the December 2026 meeting.', grader: 'Dedicated independent immune-complex assessor; final metric set may be extended during assessment.', license: 'CC BY 4.0 for Prediction Center website content; linked structures and predictions may have separate terms', biosafety_notes: 'Targets include immune and viral-host systems; this registry stores metadata only and mirrors no sequences or structures.'}
+resources:
+  - {id: casp-immune-casp17-home-resource, type: website, url: 'https://predictioncenter.org/casp17/', license: 'CC BY 4.0 (website)', access_notes: Official category description and assessor., last_checked: '2026-07-21', pin: {kind: snapshot, value: '2026-07-21', url: 'https://predictioncenter.org/casp17/'}}
+  - {id: casp-immune-casp17-target-list-resource, type: dataset, url: 'https://predictioncenter.org/casp17/targetlist.cgi', license: 'CC BY 4.0 (website metadata)', access_notes: Living target table; immune complexes are released as standard assembly targets., last_checked: '2026-07-21', pin: {kind: snapshot, value: '2026-07-21', url: 'https://predictioncenter.org/casp17/targetlist.cgi'}}
+implementations:
+  - {framework: CASP17 immune-complex assessment, status: not-available, url: null, commit: null, notes: 'The round is active and final scoring tables/pipeline are not yet published.'}
+versions:
+  - id: casp-immune-casp17
+    label: CASP17
+    status: rolling
+    release_date: '2026-04-28'
+    as_of: '2026-07-21'
+    task_counts: {total: null, basis: immune-complex targets, reporting_status: not_reported, subsets: []}
+    formal_tracks: []
+    notes: 'First dedicated CASP immune-complex category; targets are released through the assembly stream and category-only count is not reported.'
+    evidence_ids: [casp-immune-evidence-category, casp-immune-evidence-target-list]
+audit: {status: audited, audited_date: '2026-07-21', unresolved_fields: 0, notes: 'Missing count and final metrics are explicitly Not reported because CASP17 is ongoing.'}
+field_status: []
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Audited against the official CASP17 category description, target list, and organizer announcement.'}
+evidence:
+  - id: casp-immune-evidence-category
+    source_type: work
+    source_id: casp17-official
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'Immune Complexes; Assessment; Timetable', note: 'Defines antibody-antigen, nanobody-antigen, and T-cell receptor scope and names a dedicated assessor.'}
+    supports: [/name, /aliases, /summary, /kind, /parent_id, /organizations, /latest_version, /domains, /capabilities, /modalities, /task_formats, /task_counts/total, /task_counts/basis, /task_counts/subsets, /coverage_notes, /access/level, /access/grader, /versions/0/as_of, /versions/0/task_counts/total, /versions/0/task_counts/basis, /versions/0/task_counts/subsets]
+  - id: casp-immune-evidence-target-list
+    source_type: resource
+    source_id: casp-immune-casp17-target-list-resource
+    accessed_date: '2026-07-21'
+    locator: {type: table, value: 'Target List, first H1311 release on 2026-04-28; accessed 2026-07-21', note: 'First immune-complex target release and living target metadata.'}
+    supports: [/release_date, /versions/0/release_date, /access/tasks, /access/artifacts, /access/license, /access/biosafety_notes, /resources, /implementations]

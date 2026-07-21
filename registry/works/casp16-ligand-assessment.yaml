@@ -1,0 +1,13 @@
+entity_type: work
+id: casp16-ligand-assessment
+title: Assessment of Pharmaceutical Protein-Ligand Pose and Affinity Predictions in CASP16
+authors: [Michael K. Gilson, Jerome Eberhardt, Peter Škrinjar, Janani Durairaj, Xavier Robin, Andriy Kryshtafovych]
+organizations: [University of California San Diego, University of Basel, University of California Davis]
+work_type: paper
+source_class: benchmark_creator
+publication_date: '2025-10-04'
+canonical_url: 'https://doi.org/10.1002/prot.70061'
+doi: 10.1002/prot.70061
+arxiv: null
+status: published
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Final creator-assessor paper; reports 229 evaluated pose targets and 140 affinity targets across five protein systems.'}

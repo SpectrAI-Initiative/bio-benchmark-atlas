@@ -53,6 +53,28 @@ test('ProteinGym separates formal tracks, versions, conflicts, and comparable re
   await expect(page.locator('.plot-host svg[viewBox]').getByText('TranceptEVE L', { exact: true })).toBeVisible();
 });
 
+test('CASP separates rolling and completed rounds with track-specific protocols', async ({ page }) => {
+  await page.goto('/bio-benchmark-atlas/benchmarks/casp/');
+  await expect(page.getByText(/CASP17 is an active, rolling 2026 round/)).toBeVisible();
+  await expect(page.getByText(/CASP16 is the latest completed round/)).toBeVisible();
+  for (const name of [
+    'CASP Protein Monomers',
+    'CASP Protein Multimers',
+    'CASP Protein-Ligand Prediction',
+  ]) {
+    await expect(page.getByRole('link', { name, exact: true }).first()).toBeVisible();
+  }
+  await expect(page.locator('#casp16-monomer-regular-official')).toContainText('full · n=54');
+  await expect(page.locator('#casp16-multimer-phase1-regular')).toContainText('full · n=40');
+  await expect(page.locator('#casp16-ligand-pose-regular')).toContainText('subset · n=229');
+  await expect(page.locator('#casp16-ligand-affinity-stage1')).toContainText('subset · n=122');
+  await expect(page.locator('#casp16-ligand-affinity-stage2')).toContainText('subset · n=103');
+
+  await page.goto('/bio-benchmark-atlas/benchmarks/casp-immune-complexes/');
+  await expect(page.getByText('Not reported', { exact: true }).first()).toBeVisible();
+  await expect(page.getByText(/No normalized evaluation run is published yet/)).toBeVisible();
+});
+
 test('BioMysteryBench separates the human subsets and repeats', async ({ page }) => {
   await page.goto('/bio-benchmark-atlas/benchmarks/biomysterybench/');
   await expect(page.getByRole('cell', { name: 'Human-solvable' })).toBeVisible();

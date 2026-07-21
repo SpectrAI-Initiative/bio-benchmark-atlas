@@ -1,0 +1,9 @@
+entity_type: model
+id: cameo-multifold-2024
+name: MultiFOLD (CAMEO 2024 participant)
+provider: University of Reading
+release_date: null
+version_string: null
+version_status: not_reported
+aliases: [MultiFOLD]
+verification: {status: verified, last_verified: '2026-07-21', notes: 'The final CAMEO creator paper identifies MultiFOLD but does not provide a release string for the 2024 server.'}

@@ -1,0 +1,9 @@
+entity_type: model
+id: cameo-alphafold3-v301
+name: AlphaFold 3 v3.0.1 (CAMEO baseline)
+provider: Google DeepMind and Isomorphic Labs
+release_date: null
+version_string: '3.0.1'
+version_status: reported
+aliases: [AF3 CAMEO baseline]
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Exact baseline version reported in the final CAMEO creator paper.'}

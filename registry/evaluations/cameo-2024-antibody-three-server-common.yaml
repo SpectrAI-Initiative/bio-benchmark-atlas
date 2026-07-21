@@ -1,0 +1,41 @@
+entity_type: evaluation_run
+id: cameo-2024-antibody-three-server-common
+work_id: cameo-paper
+benchmark_id: cameo
+benchmark_version: 2024-complex-study
+model_ids: [cameo-alphafold3-v301, cameo-multifold-2024, cameo-swissmodel-2024]
+scope: {type: subset, n: 83, subset_id: cameo-2024-antibody-three-server-common, filter: 'SAbDab-mapped antibody targets in the AlphaFold 3, MultiFOLD, and SWISS-MODEL common subset.', reporting_status: reported}
+protocol:
+  shots: &na {value: null, reporting_status: not_applicable, notes: No natural-language in-context examples.}
+  turns: *na
+  system_prompt_public: *na
+  reasoning: *na
+  tools:
+    browser: {value: method-specific, reporting_status: reported, notes: No common interactive-browser setting applies.}
+    internet: {value: allowed before each weekly deadline, reporting_status: reported, notes: All servers use the same weekly public-information cutoff.}
+    databases: {value: method-specific public structure and sequence data, reporting_status: reported, notes: SAbDab is used post hoc to classify targets; experimental targets remain blind during prediction.}
+    code_execution: {value: allowed, reporting_status: reported, notes: Registered server pipelines execute prediction code.}
+    container: {value: null, reporting_status: not_reported, notes: No common container is reported.}
+    external_tools: {value: method-specific server pipeline, reporting_status: reported, notes: 'AlphaFold 3 v3.0.1, MultiFOLD, and SWISS-MODEL.'}
+  token_budget: *na
+  time_budget: {value: approximately 3.5 days per weekly target, reporting_status: reported, notes: Saturday post-pre-release submission through Wednesday 00:00 UTC.}
+  temperature: *na
+  seed: {value: null, reporting_status: not_reported, notes: Method-specific stochastic settings are not normalized.}
+  repeats: {value: up to five submitted models per target, reporting_status: reported, notes: Creator analysis uses the top-ranked/model-1 prediction.}
+  grader: {type: fully automated OpenStructure complex LDDT scoring, model: null, human_review: false, reporting_status: reported}
+  statistical: {value: median Complex LDDT across 83 common-subset antibody targets, reporting_status: reported, notes: 'Sixty-one of 83 targets contain one protein chain per entity; the paper reports medians for AlphaFold 3 and MultiFOLD.'}
+  contamination: {value: experimental antibody-complex structures withheld until PDB release, reporting_status: reported, notes: Stoichiometry is not supplied in the PDB pre-release.}
+metrics:
+  - {metric_id: median-lddt, source_label: Median Complex LDDT, unit: proportion, range: [0, 1], higher_is_better: true, aggregation: median across 83 antibody common-subset targets, pass_threshold: null, tolerance: missing chains are penalized}
+results:
+  - {model_id: cameo-alphafold3-v301, metric_id: median-lddt, value: 0.83, ci_low: null, ci_high: null, n: 83, notes: 'Median reported in creator-paper Section 2.4.2.', status: verified, confidence: high, evidence_ids: [cameo-2024-antibody-result-evidence]}
+  - {model_id: cameo-multifold-2024, metric_id: median-lddt, value: 0.76, ci_low: null, ci_high: null, n: 83, notes: 'Median reported in creator-paper Section 2.4.2.', status: verified, confidence: high, evidence_ids: [cameo-2024-antibody-result-evidence]}
+comparability_group: cameo-2024-antibody-three-server-common
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Only two explicitly reported medians are ingested; no value is inferred for SWISS-MODEL from the plot.'}
+evidence:
+  - id: cameo-2024-antibody-result-evidence
+    source_type: work
+    source_id: cameo-paper
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'Section 2.4.2 and Figure 2A', note: 'Reports 83 antibody common-subset targets, AF3 median LDDT 0.83, MultiFOLD median LDDT 0.76, and the model-1 comparison protocol.'}
+    supports: [/benchmark_version, /model_ids, /scope, /protocol, /metrics, /results]

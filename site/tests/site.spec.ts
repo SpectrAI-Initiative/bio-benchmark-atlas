@@ -75,6 +75,23 @@ test('CASP separates rolling and completed rounds with track-specific protocols'
   await expect(page.getByText(/No normalized evaluation run is published yet/)).toBeVisible();
 });
 
+test('CAMEO shows rolling scope, bounded study counts, and exact evaluated systems', async ({ page }) => {
+  await page.goto('/bio-benchmark-atlas/benchmarks/cameo/');
+  await expect(page.getByText(/current platform contains one category/)).toBeVisible();
+  await expect(page.getByText(/bounded 2024 creator-paper snapshot contains 7,150 selected targets/)).toBeVisible();
+  await expect(page.getByText('current-complex-3d', { exact: true }).first()).toBeVisible();
+  await expect(page.getByRole('cell').filter({ hasText: /2024-complex-study/ }).first()).toBeVisible();
+  await expect(page.locator('#cameo-2024-ligand-baseline-common')).toContainText('subset · n=2584');
+  await expect(page.locator('#cameo-2024-ligand-baseline-common')).toContainText('AlphaFold 3 v3.0.1');
+  await expect(page.locator('#cameo-2024-ppi-three-server-common')).toContainText('subset · n=392');
+  await expect(page.locator('#cameo-2024-antibody-three-server-common')).toContainText('subset · n=83');
+
+  await page.goto('/bio-benchmark-atlas/models/cameo-swissmodel-glide/');
+  await expect(page.getByRole('heading', { name: 'SWISS-MODEL + Schrödinger Glide' })).toBeVisible();
+  await expect(page.getByText('cameo-2024-ligand-baseline-common', { exact: true })).toBeVisible();
+  await expect(page.getByText(/no normalized numeric result is published/i)).toBeVisible();
+});
+
 test('BioMysteryBench separates the human subsets and repeats', async ({ page }) => {
   await page.goto('/bio-benchmark-atlas/benchmarks/biomysterybench/');
   await expect(page.getByRole('cell', { name: 'Human-solvable' })).toBeVisible();

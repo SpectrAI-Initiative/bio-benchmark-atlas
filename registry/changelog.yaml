@@ -1,5 +1,9 @@
 - date: '2026-07-21'
   type: audit
+  entity_ids: [cameo, cameo-paper, cameo-foundation-paper, cameo-2024-ligand-baseline-common, cameo-2024-ppi-three-server-common, cameo-2024-antibody-three-server-common, cameo-alphafold3-v301, cameo-swissmodel-vina-vina, cameo-swissmodel-vina-ad4, cameo-swissmodel-glide, cameo-multifold-2024, cameo-swissmodel-2024]
+  summary: Audited CAMEO as a weekly rolling service, corrected the creator-paper DOI and 2012 origin, separated the current complex-only category from discontinued legacy categories, preserved the bounded 7,150-target 2024 study and common subsets, and registered exact evaluated systems even where no scalar result is available.
+- date: '2026-07-21'
+  type: audit
   entity_ids: [casp, casp-protein-monomers, casp-protein-multimers, casp-protein-ligands, casp-immune-complexes, casp-official, casp17-official, casp16-monomer-assessment, casp16-multimer-assessment, casp16-ligand-assessment, casp16-monomer-regular-official, casp16-multimer-phase1-regular, casp16-ligand-pose-regular, casp16-ligand-affinity-stage1, casp16-ligand-affinity-stage2]
   summary: Audited CASP as a round-based competition; separated the active CASP17 rolling snapshot from completed CASP16, registered monomer, multimer, ligand, and immune-complex tracks, preserved release/target/evaluation-unit count bases, and normalized five creator-assessor protocols without inventing a cross-category total or leaderboard.
 - date: '2026-07-21'

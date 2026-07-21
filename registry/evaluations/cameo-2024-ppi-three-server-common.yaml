@@ -1,0 +1,42 @@
+entity_type: evaluation_run
+id: cameo-2024-ppi-three-server-common
+work_id: cameo-paper
+benchmark_id: cameo
+benchmark_version: 2024-complex-study
+model_ids: [cameo-alphafold3-v301, cameo-multifold-2024, cameo-swissmodel-2024]
+scope: {type: subset, n: 392, subset_id: cameo-2024-ppi-three-server-common, filter: 'Protein-only medium and hard complexes in the common subset predicted by AlphaFold 3, MultiFOLD, and SWISS-MODEL.', reporting_status: reported}
+protocol:
+  shots: &na {value: null, reporting_status: not_applicable, notes: No natural-language in-context examples.}
+  turns: *na
+  system_prompt_public: *na
+  reasoning: *na
+  tools:
+    browser: {value: method-specific, reporting_status: reported, notes: No common interactive-browser setting applies.}
+    internet: {value: allowed before each weekly deadline, reporting_status: reported, notes: All servers are evaluated simultaneously with the same public information cutoff.}
+    databases: {value: method-specific public structure and sequence data, reporting_status: reported, notes: The experimental complex structure remains withheld.}
+    code_execution: {value: allowed, reporting_status: reported, notes: Registered server pipelines execute their own prediction code.}
+    container: {value: null, reporting_status: not_reported, notes: No common container is reported.}
+    external_tools: {value: method-specific server pipeline, reporting_status: reported, notes: 'The work compares AlphaFold 3 v3.0.1, MultiFOLD, and SWISS-MODEL.'}
+  token_budget: *na
+  time_budget: {value: approximately 3.5 days per weekly target, reporting_status: reported, notes: Saturday post-pre-release submission through Wednesday 00:00 UTC.}
+  temperature: *na
+  seed: {value: null, reporting_status: not_reported, notes: Method-specific stochastic settings are not normalized.}
+  repeats: {value: up to five submitted models per target, reporting_status: reported, notes: Only the top-ranked/model-1 prediction is used in the creator-paper analysis.}
+  grader: {type: fully automated OpenStructure whole-complex and interface scoring, model: null, human_review: false, reporting_status: reported}
+  statistical: {value: score distributions on the three-server common subset, reporting_status: reported, notes: 'Results are stratified into antibody, homomer, and non-antibody heteromer classes; no single ranking is defined.'}
+  contamination: {value: experimental complex structures withheld until the weekly PDB release, reporting_status: reported, notes: Stoichiometry is absent from the PDB pre-release and must be predicted.}
+metrics:
+  - {metric_id: lddt, source_label: Complex LDDT, unit: proportion, range: [0, 1], higher_is_better: true, aggregation: per target distribution with penalties for missing chains, pass_threshold: null, tolerance: null}
+  - {metric_id: mapped-lddt, source_label: Mapped complex LDDT, unit: proportion, range: [0, 1], higher_is_better: true, aggregation: per target distribution over mapped chains, pass_threshold: null, tolerance: removes the missing-chain stoichiometry penalty}
+  - {metric_id: interface-lddt, source_label: Complex iLDDT, unit: proportion, range: [0, 1], higher_is_better: true, aggregation: per target inter-chain-contact distribution with stoichiometry penalties, pass_threshold: null, tolerance: null}
+  - {metric_id: mapped-interface-lddt, source_label: Mapped complex iLDDT, unit: proportion, range: [0, 1], higher_is_better: true, aggregation: per target inter-chain contacts over mapped chains, pass_threshold: null, tolerance: removes the missing-chain stoichiometry penalty}
+results: []
+comparability_group: cameo-2024-ppi-three-server-common
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Figure 2 distributions are not converted into unsupported means or ranks.'}
+evidence:
+  - id: cameo-2024-ppi-run-evidence
+    source_type: work
+    source_id: cameo-paper
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'Sections 2.2, 2.4.2, and 2.5.1; Figure 2', note: 'Reports the 392-target common subset, three systems, blind stoichiometry setting, model-1 analysis, and four metrics.'}
+    supports: [/benchmark_version, /model_ids, /scope, /protocol, /metrics]

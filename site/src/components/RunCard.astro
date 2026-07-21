@@ -40,6 +40,7 @@ const settings = [
     </div>
     <div class="tag-list"><span class="tag accent">{run.comparability_group}</span><span class="tag">v{run.benchmark_version ?? 'Not reported'}</span></div>
   </div>
+  {run.model_ids.length > 0 && <p class="small"><strong>Evaluated models / systems:</strong> {run.model_ids.map((modelId, index) => <>{index > 0 ? ', ' : ''}<a href={withBase(`/models/${modelId}/`)}>{modelMap.get(modelId)?.name ?? modelId}</a></>)}</p>}
   <div class="setting-grid">
     {settings.map(([label, value]) => <div class="setting"><small>{label}</small><strong class:list={{ 'not-reported': value === 'Not reported' }}>{value}</strong></div>)}
   </div>

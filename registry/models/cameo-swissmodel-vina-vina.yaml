@@ -1,0 +1,9 @@
+entity_type: model
+id: cameo-swissmodel-vina-vina
+name: SWISS-MODEL + AutoDock Vina (vina scoring)
+provider: CAMEO and SWISS-MODEL
+release_date: null
+version_string: 'AutoDock Vina 1.2.5; vina scoring function'
+version_status: reported
+aliases: [SM_Vina_vina]
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Creator-paper baseline; receptor preparation and ligand tool versions are documented in Methods 3.2.1.'}

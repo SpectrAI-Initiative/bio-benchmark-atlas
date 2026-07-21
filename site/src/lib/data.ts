@@ -39,7 +39,7 @@ export type EvaluationResult = RawEvaluationRun['results'][number] & {
   confidence?: string;
   evidence_ids?: string[];
 };
-export type EvaluationRun = Omit<RawEvaluationRun, 'results'> & { results: EvaluationResult[] };
+export type EvaluationRun = Omit<RawEvaluationRun, 'results'> & { results: EvaluationResult[]; model_ids: string[] };
 
 export const data = registry as Omit<Registry, 'benchmarks' | 'evaluation_runs'> & {
   benchmarks: Benchmark[];

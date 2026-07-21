@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://wang422003.github.io/bio-benchmark-atlas/schema/registry.schema.json",
+  "$id": "https://spectrai-initiative.github.io/bio-benchmark-atlas/schema/registry.schema.json",
   "title": "BioBench Atlas Registry Entity",
   "oneOf": [
     {"$ref": "#/$defs/Benchmark"},
@@ -169,4 +169,3 @@
     }
   }
 }
-

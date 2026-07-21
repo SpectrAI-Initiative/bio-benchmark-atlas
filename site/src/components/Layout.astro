@@ -16,7 +16,7 @@ const {
   lang = 'en',
 } = Astro.props;
 const fullTitle = title === 'BioBench Atlas' ? title : `${title} · BioBench Atlas`;
-const canonical = new URL(withBase(canonicalPath), 'https://wang422003.github.io').toString();
+const canonical = new URL(withBase(canonicalPath), 'https://spectrai-initiative.github.io').toString();
 ---
 
 <!doctype html>
@@ -32,7 +32,7 @@ const canonical = new URL(withBase(canonicalPath), 'https://wang422003.github.io
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonical} />
-    <meta property="og:image" content={new URL(withBase('/og-card.png'), 'https://wang422003.github.io').toString()} />
+    <meta property="og:image" content={new URL(withBase('/og-card.png'), 'https://spectrai-initiative.github.io').toString()} />
     <title>{fullTitle}</title>
   </head>
   <body>
@@ -62,7 +62,7 @@ const canonical = new URL(withBase(canonicalPath), 'https://wang422003.github.io
       <div class="footer-links">
         <a href={withBase('/contribute/')}>Contribute</a>
         <a href={withBase('/data/registry.json')}>Registry JSON</a>
-        <a href="https://github.com/wang422003/bio-benchmark-atlas">GitHub</a>
+        <a href="https://github.com/SpectrAI-Initiative/bio-benchmark-atlas">GitHub</a>
         <span>Code Apache-2.0 · Metadata CC BY 4.0</span>
       </div>
     </footer>

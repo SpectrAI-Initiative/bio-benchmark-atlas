@@ -1,12 +1,50 @@
 import registry from '../generated/registry.json';
 
 export type Registry = typeof registry;
-export type Benchmark = Registry['benchmarks'][number];
+type RawBenchmark = Registry['benchmarks'][number];
+type RawEvaluationRun = Registry['evaluation_runs'][number];
+export type FieldStatus = {
+  path: string;
+  status: 'provisional' | 'conflicted';
+  confidence: string;
+  reason: string;
+  evidence_ids: string[];
+};
+export type BenchmarkVersion = {
+  id: string;
+  label: string;
+  status: 'current' | 'active' | 'superseded' | 'rolling';
+  release_date: string | null;
+  as_of: string | null;
+  task_counts: RawBenchmark['task_counts'];
+  formal_tracks: string[];
+  notes: string | null;
+  evidence_ids: string[];
+};
+export type Resource = RawBenchmark['resources'][number] & {
+  id?: string;
+  last_checked?: string;
+  pin?: { kind: string; value: string; url?: string | null } | null;
+};
+export type Benchmark = Omit<RawBenchmark, 'audit' | 'field_status' | 'resources'> & {
+  audit: { status: 'legacy' | 'audited' | 'audited-with-caveats'; audited_date: string | null; unresolved_fields: number; notes?: string | null };
+  field_status: FieldStatus[];
+  versions?: BenchmarkVersion[];
+  resources: Resource[];
+};
 export type Work = Registry['works'][number];
 export type Model = Registry['models'][number];
-export type EvaluationRun = Registry['evaluation_runs'][number];
+export type EvaluationResult = RawEvaluationRun['results'][number] & {
+  status?: 'verified' | 'provisional' | 'conflicted';
+  confidence?: string;
+  evidence_ids?: string[];
+};
+export type EvaluationRun = Omit<RawEvaluationRun, 'results'> & { results: EvaluationResult[] };
 
-export const data = registry;
+export const data = registry as Omit<Registry, 'benchmarks' | 'evaluation_runs'> & {
+  benchmarks: Benchmark[];
+  evaluation_runs: EvaluationRun[];
+};
 export const benchmarkMap = new Map(data.benchmarks.map((item) => [item.id, item]));
 export const workMap = new Map(data.works.map((item) => [item.id, item]));
 export const modelMap = new Map(data.models.map((item) => [item.id, item]));
@@ -40,6 +78,19 @@ export function reported(value: { value: unknown; reporting_status: string } | u
 
 export function metricLabel(run: EvaluationRun, metricId: string): string {
   return run.metrics.find((metric) => metric.metric_id === metricId)?.source_label ?? metricId;
+}
+
+export function fieldStatus(benchmark: Benchmark, path: string): FieldStatus | undefined {
+  return (benchmark.field_status as FieldStatus[]).find((item) => item.path === path);
+}
+
+export function evidenceLocator(evidence: { locator: string | { type: string; value: string; note?: string | null } }): string {
+  if (typeof evidence.locator === 'string') return evidence.locator;
+  return `${evidence.locator.type}: ${evidence.locator.value}${evidence.locator.note ? ` (${evidence.locator.note})` : ''}`;
+}
+
+export function evidenceSourceId(evidence: { work_id?: string; source_id?: string }): string | undefined {
+  return evidence.source_id ?? evidence.work_id;
 }
 
 export function familyBenchmarks(): Benchmark[] {

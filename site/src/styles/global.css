@@ -186,6 +186,25 @@ td a { font-weight: 700; text-decoration: none; }
 .setting small { display: block; color: var(--ink-soft); text-transform: uppercase; letter-spacing: .06em; font-size: .65rem; }
 .setting strong { font-size: .86rem; overflow-wrap: anywhere; }
 .not-reported { color: var(--coral-text); font-style: italic; }
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: .35rem;
+  padding: .12rem .42rem;
+  border: 1px solid color-mix(in srgb, var(--coral) 55%, var(--line));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--coral-soft) 72%, var(--panel));
+  color: var(--coral-text);
+  font-size: .72rem;
+  font-style: normal;
+  font-weight: 750;
+  line-height: 1.35;
+  vertical-align: middle;
+}
+.status-badge.conflicted {
+  border-style: double;
+  border-width: 3px;
+}
 
 .callout { border-left: 4px solid var(--coral); background: var(--coral-soft); border-radius: 0 12px 12px 0; padding: 1rem 1.2rem; margin: 1.5rem 0; }
 .callout.info { border-color: var(--mint); background: var(--mint-soft); }

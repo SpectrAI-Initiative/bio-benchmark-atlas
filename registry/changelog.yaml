@@ -1,4 +1,8 @@
 - date: '2026-07-21'
+  type: development
+  entity_ids: [registry-schema]
+  summary: Began the v1.1 field-level audit cycle with compatible versions, resource pins, structured evidence, audit status, provisional/conflicted claims, result confidence, and expanded source monitoring.
+- date: '2026-07-21'
   type: release
   entity_ids: [lifescibench, genebench-pro, biomysterybench, virbench, lab-bench, bixbench, scigym, blade, compbiobench, proteingym, casp, cameo, flip, proteinlmbench, bioinstruction]
   summary: Initial v1.0 registry with fifteen benchmark families, normalized official evaluations, schemas, exports, and the public atlas.

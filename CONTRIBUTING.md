@@ -39,10 +39,19 @@ pnpm --dir site test
 - Never merge similar model names unless the primary source establishes identity.
 - Encode missing values as `null` with `reporting_status: not_reported`.
 
+## v1.1 family audit rules
+
+- One benchmark family is audited per pull request; formal child tracks are audited with their parent family.
+- Use permanent resource, evidence, and version IDs. Audited evidence uses an RFC 6901 field path such as `/task_counts/total` and a typed locator.
+- `audited` means there are no unresolved field claims. Use `audited-with-caveats` plus `field_status` for every provisional or conflicted value.
+- A repository or dataset resource must be pinned to a commit, tag, release, version, or immutable snapshot.
+- Every published numeric result in an audited family needs `status`, `confidence`, and one or more run evidence IDs.
+- Attach the completed field audit table from `docs/audit-playbook.md` to the pull request.
+
 ## Rights and safety
 
 Do not add third-party questions, restricted benchmark artifacts, model outputs, or paper snapshots unless redistribution is explicitly permitted. Metadata contributions are CC BY 4.0; code contributions are Apache-2.0. Upstream assets retain their licenses.
 
 ## Review and publication
 
-All changes use pull requests. The owner reviews registry, schema, taxonomy, and workflow changes. Draft entities are available to PR previews but only verified entities enter production exports. Deprecated records are retained with history and successor links rather than deleted.
+All changes use pull requests. The `@SpectrAI-Initiative/biobench-maintainers` team reviews registry, schema, taxonomy, scripts, and workflow changes. A non-author approval is required. Draft entities are available to PR previews but only verified entities enter production exports. Deprecated records are retained with history and successor links rather than deleted.

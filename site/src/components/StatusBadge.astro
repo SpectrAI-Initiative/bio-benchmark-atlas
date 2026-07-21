@@ -1,0 +1,11 @@
+---
+interface Props {
+  status: 'provisional' | 'conflicted';
+  confidence?: string;
+  reason?: string;
+}
+const { status, confidence, reason } = Astro.props;
+const label = status === 'conflicted' ? 'Conflicted' : 'Provisional';
+const title = [reason, confidence ? `Confidence: ${confidence}` : ''].filter(Boolean).join(' · ');
+---
+<span class:list={['status-badge', status]} title={title}>{label}{confidence ? ` · ${confidence}` : ''}</span>

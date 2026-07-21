@@ -1,0 +1,42 @@
+entity_type: evaluation_run
+id: scigym-small-zero-shot
+work_id: scigym-paper
+benchmark_id: scigym-small
+benchmark_version: 2025 release
+model_ids: [scigym-gemini-2-5-flash-preview-04-17, scigym-gpt-4-1-mini-2025-04-14, scigym-claude-3-5-haiku-20241022, scigym-gemini-2-5-pro-preview-03-25, scigym-gpt-4-1-2025-04-14, scigym-claude-3-7-sonnet-20250219]
+scope: {type: full, n: 137, subset_id: null, filter: 'All 137 small systems in the direct-prompt baseline shown in Figure 5.', reporting_status: reported}
+protocol:
+  shots: {value: zero-shot, reporting_status: reported, notes: 'The creator paper explicitly calls this the zero-shot/direct-prompt baseline.'}
+  turns: {value: 'one direct submission, with up to three debugging responses after invalid submissions', reporting_status: reported, notes: 'This is not the iterative experiment loop.'}
+  system_prompt_public: {value: true, reporting_status: reported, notes: 'A similar ReAct-format prompt is used with experiment and analysis tools removed.'}
+  reasoning: {value: direct prompting without experimental feedback, reporting_status: reported, notes: 'The prompt retains comparable task framing but excludes the dry-lab tool loop.'}
+  tools:
+    browser: {value: false, reporting_status: reported, notes: 'No browser.'}
+    internet: {value: false, reporting_status: reported, notes: 'No internet.'}
+    databases: {value: false, reporting_status: reported, notes: 'No database.'}
+    code_execution: {value: false, reporting_status: reported, notes: 'The model has no code-analysis tool in this baseline; submitted SBML is evaluated after generation.'}
+    container: {value: false, reporting_status: reported, notes: 'No interactive execution environment is exposed to the model.'}
+    external_tools: {value: none, reporting_status: reported, notes: 'Experiment and analysis tools are removed.'}
+  token_budget: {value: 'maximum 8,192 output tokens per model response', reporting_status: reported, notes: 'Evaluation-era wrapper default.'}
+  time_budget: {value: 'one direct submission plus up to 3 invalid-submission debugging iterations', reporting_status: reported, notes: 'Three additional debugging rounds are reported.'}
+  temperature: {value: null, reporting_status: not_reported, notes: 'The baseline temperature is not reported.'}
+  seed: {value: null, reporting_status: not_reported, notes: 'No seed is reported.'}
+  repeats: {value: null, reporting_status: not_reported, notes: 'The number of direct-baseline samples per model-system pair is not reported.'}
+  grader: {type: deterministic SBML structural and simulation evaluator, model: null, human_review: false, reporting_status: reported}
+  statistical: {value: 'Figure 5 plots per-system agent and zero-shot scores; exact aggregate baseline values and confidence intervals are not tabulated.', reporting_status: reported, notes: 'No numeric result rows are registered from unlabeled plot markers.'}
+  contamination: {value: 'The same de-identified small systems are used; no model-training decontamination test is reported.', reporting_status: reported, notes: null}
+metrics:
+- {metric_id: network-topology-f1, source_label: Network Topology Score (NTS) F1, unit: score, range: [0, 1], higher_is_better: true, aggregation: per-system structural F1, pass_threshold: null, tolerance: duplicate relationships counted once}
+- {metric_id: simulation-trajectory-error, source_label: Simulation Trajectory Error (STE), unit: SMAPE error, range: [0, 1], higher_is_better: false, aggregation: species-level SMAPE averaged within system, pass_threshold: null, tolerance: original and perturbed initial conditions}
+- {metric_id: reaction-matching-with-modifiers-f1, source_label: RMS with modifiers — F1, unit: score, range: [0, 1], higher_is_better: true, aggregation: exact-reaction F1, pass_threshold: null, tolerance: reactants products and modifiers must match}
+- {metric_id: reaction-matching-without-modifiers-f1, source_label: RMS without modifiers — F1, unit: score, range: [0, 1], higher_is_better: true, aggregation: exact-reaction F1, pass_threshold: null, tolerance: modifiers ignored}
+results: []
+comparability_group: scigym-2025-small-zero-shot-no-tools
+verification: {status: verified, last_verified: '2026-07-21', notes: 'The official full-small direct baseline and its no-tool/three-debug protocol are registered, but unlabeled Figure 5 values are intentionally not digitized.'}
+evidence:
+- id: scigym-zero-shot-evidence
+  source_type: work
+  source_id: scigym-paper
+  accessed_date: '2026-07-21'
+  locator: {type: figure, value: 'NeurIPS paper Figure 5 and §5.1', note: 'Compares each of the six agents against a zero-shot/direct-prompt baseline across small systems, with experiment and tools removed and three debugging rounds; exact aggregates are not tabulated.'}
+  supports: [/benchmark_version, /model_ids, /scope, /protocol, /metrics, /results, /comparability_group]

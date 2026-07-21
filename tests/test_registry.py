@@ -982,6 +982,99 @@ def test_blade_separates_source_tasks_decisions_mcqs_and_agent_protocols() -> No
     }
 
 
+def test_scigym_separates_released_splits_and_creator_protocols() -> None:
+    entities = load_entities()
+    benchmarks = {item["id"]: item for item in entities["benchmark"]}
+    runs = {
+        item["id"]: item
+        for item in entities["evaluation_run"]
+        if item["benchmark_id"] in {"scigym-small", "scigym-large"}
+    }
+    models = {item["id"]: item for item in entities["model"]}
+    work = next(item for item in entities["work"] if item["id"] == "scigym-paper")
+
+    root = benchmarks["scigym"]
+    counts = {item["id"]: item["count"] for item in root["task_counts"]["subsets"]}
+    assert root["kind"] == "suite"
+    assert root["audit"]["status"] == "audited"
+    assert root["release_date"] == "2025-05-16"
+    assert root["latest_version"] == "2025 release"
+    assert root["task_counts"]["total"] == 350
+    assert counts == {"scigym-small-systems": 137, "scigym-large-systems": 213}
+    assert root["versions"][0]["task_counts"] == root["task_counts"]
+    assert root["versions"][0]["formal_tracks"] == ["scigym-small", "scigym-large"]
+    assert root["access"]["license"] is None
+    assert "wet-lab-output" not in root["modalities"]
+    coverage = {item["tag"]: item for item in root["coverage_notes"]}
+    assert coverage["protein-design"]["count"] == 0
+    assert coverage["protein-protein-binding"]["count"] == 0
+    assert coverage["protein-ligand-binding"]["count"] == 0
+
+    small = benchmarks["scigym-small"]
+    large = benchmarks["scigym-large"]
+    assert small["parent_id"] == "scigym" and small["task_counts"]["total"] == 137
+    assert large["parent_id"] == "scigym" and large["task_counts"]["total"] == 213
+    assert all(run["benchmark_id"] != "scigym-large" for run in entities["evaluation_run"])
+
+    assert set(runs) == {"scigym-small-creator-paper", "scigym-small-zero-shot"}
+    main = runs["scigym-small-creator-paper"]
+    assert main["benchmark_version"] == "2025 release"
+    assert main["scope"] == {
+        "type": "full", "n": 137, "subset_id": None,
+        "filter": "All 137 systems in the official small split, each having fewer than ten reactions.",
+        "reporting_status": "reported",
+    }
+    assert main["protocol"]["turns"]["value"] == "multi-turn"
+    assert main["protocol"]["tools"]["code_execution"]["value"] is True
+    assert main["protocol"]["tools"]["internet"]["value"] is False
+    assert main["protocol"]["tools"]["container"]["value"] is None
+    assert main["protocol"]["tools"]["container"]["reporting_status"] == "not_reported"
+    assert main["protocol"]["time_budget"]["value"] == (
+        "maximum 20 action iterations plus up to 3 invalid-submission debugging iterations"
+    )
+    assert main["protocol"]["temperature"]["value"] is None
+    assert main["protocol"]["temperature"]["reporting_status"] == "not_reported"
+    assert main["protocol"]["repeats"]["value"] == 3
+    assert len(main["model_ids"]) == 6
+    assert {item["metric_id"] for item in main["metrics"]} == {
+        "network-topology-f1",
+        "simulation-trajectory-error",
+        "reaction-matching-with-modifiers-precision",
+        "reaction-matching-with-modifiers-recall",
+        "reaction-matching-with-modifiers-f1",
+        "reaction-matching-without-modifiers-precision",
+        "reaction-matching-without-modifiers-recall",
+        "reaction-matching-without-modifiers-f1",
+    }
+    assert len(main["results"]) == 42
+    assert {item["status"] for item in main["results"]} == {"verified"}
+    assert {item["confidence"] for item in main["results"]} == {"high"}
+    values = {
+        (item["model_id"], item["metric_id"]): item["value"]
+        for item in main["results"]
+    }
+    assert values[("scigym-gemini-2-5-pro-preview-03-25", "simulation-trajectory-error")] == 0.3212
+    assert values[("scigym-claude-3-7-sonnet-20250219", "reaction-matching-without-modifiers-f1")] == 0.3047
+
+    zero_shot = runs["scigym-small-zero-shot"]
+    assert zero_shot["scope"]["type"] == "full" and zero_shot["scope"]["n"] == 137
+    assert zero_shot["protocol"]["shots"]["value"] == "zero-shot"
+    assert all(
+        zero_shot["protocol"]["tools"][tool]["value"] is False
+        for tool in ("browser", "internet", "databases", "code_execution", "container")
+    )
+    assert zero_shot["protocol"]["tools"]["external_tools"]["value"] == "none"
+    assert zero_shot["results"] == []
+
+    assert work["status"] == "published"
+    assert work["publication_date"] == "2025-11-30"
+    assert set(work["organizations"]) == {
+        "University of Toronto", "SickKids", "Axiom", "Mila", "Vector Institute",
+    }
+    assert models["scigym-gpt-4-1-2025-04-14"]["version_string"] == "gpt-4.1-2025-04-14"
+    assert models["scigym-claude-3-7-sonnet-20250219"]["version_string"] == "claude-3-7-sonnet-20250219"
+
+
 def test_public_registry_contains_no_local_absolute_paths() -> None:
     for path in ROOT.glob("registry/**/*.yaml"):
         text = path.read_text(encoding="utf-8")

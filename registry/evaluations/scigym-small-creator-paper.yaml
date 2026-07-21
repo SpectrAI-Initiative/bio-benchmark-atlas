@@ -1,35 +1,106 @@
 entity_type: evaluation_run
 id: scigym-small-creator-paper
 work_id: scigym-paper
-benchmark_id: scigym
-benchmark_version: '1.0'
-scope: {type: subset, n: 137, subset_id: small, filter: Systems with fewer than 10 reactions., reporting_status: reported}
+benchmark_id: scigym-small
+benchmark_version: 2025 release
+model_ids: [scigym-gemini-2-5-flash-preview-04-17, scigym-gpt-4-1-mini-2025-04-14, scigym-claude-3-5-haiku-20241022, scigym-gemini-2-5-pro-preview-03-25, scigym-gpt-4-1-2025-04-14, scigym-claude-3-7-sonnet-20250219]
+scope: {type: full, n: 137, subset_id: null, filter: 'All 137 systems in the official small split, each having fewer than ten reactions.', reporting_status: reported}
 protocol:
-  shots: &nr {value: null, reporting_status: not_reported, notes: Not reported as a shot count.}
-  turns: {value: multi-turn, reporting_status: reported, notes: Iterative experimental loop.}
-  system_prompt_public: {value: true, reporting_status: reported, notes: Prompt is reproduced in the appendix.}
-  reasoning: *nr
+  shots: {value: null, reporting_status: not_reported, notes: 'No benchmark-episode shot count is reported. The public prompt contains SBML and tool-usage examples, not a solved SCIGYM instance.'}
+  turns: {value: multi-turn, reporting_status: reported, notes: 'ReAct-style Thoughts–Actions–Observations loop with code, experiment, and submit actions.'}
+  system_prompt_public: {value: true, reporting_status: reported, notes: 'System prompt, experiment manual, customized function documentation, and output formats are published in the paper appendix and creator repository.'}
+  reasoning: {value: 'ReAct-style Thoughts–Actions–Observations agent; no provider reasoning-effort control is reported.', reporting_status: reported, notes: 'The agent must state thoughts before actions and is not shown the evaluation metrics.'}
   tools:
-    browser: {value: false, reporting_status: reported, notes: Simulated environment.}
-    internet: {value: false, reporting_status: reported, notes: Simulated environment.}
-    databases: {value: false, reporting_status: reported, notes: No live database access.}
-    code_execution: {value: true, reporting_status: reported, notes: Python shell analysis.}
-    container: {value: true, reporting_status: reported, notes: SciGym environment.}
-    external_tools: {value: [SBML simulator, experiment API], reporting_status: reported, notes: Dry-lab tools.}
-  token_budget: *nr
-  time_budget: *nr
-  temperature: *nr
-  seed: *nr
-  repeats: *nr
-  grader: {type: deterministic topology and simulation comparison, model: null, human_review: false, reporting_status: reported}
-  statistical: {value: means across systems with per-system details, reporting_status: reported, notes: null}
-  contamination: {value: SBMLs are de-identified, reporting_status: reported, notes: Curation removes identifying labels.}
+    browser: {value: false, reporting_status: reported, notes: 'No browser is exposed.'}
+    internet: {value: false, reporting_status: reported, notes: 'No network access is exposed during an episode.'}
+    databases: {value: false, reporting_status: reported, notes: 'The BioModels source is curated before evaluation; the agent has no live database tool.'}
+    code_execution: {value: true, reporting_status: reported, notes: 'Stateful Python shell for analysis and SBML construction.'}
+    container: {value: null, reporting_status: not_reported, notes: 'The sources describe a Python execution environment but do not report container isolation.'}
+    external_tools: {value: [Tellurium, libRoadRunner, libSBML, pandas, numpy, SCIGYM experiment API], reporting_status: reported, notes: 'Initial-concentration perturbations are simulated from the hidden reference model and returned as pandas time-series data.'}
+  token_budget: {value: 'maximum 8,192 output tokens per model response', reporting_status: reported, notes: 'The public evaluation-era LLM wrapper initializes max_length=8192.'}
+  time_budget: {value: 'maximum 20 action iterations plus up to 3 invalid-submission debugging iterations', reporting_status: reported, notes: 'An agent may submit earlier; after a malformed or non-simulatable model, up to three additional debugging turns are allowed.'}
+  temperature: {value: null, reporting_status: not_reported, notes: 'The main-run temperature is absent from the paper and released trajectories. Example/default repository configs disagree and are not treated as the experimental value.'}
+  seed: {value: null, reporting_status: not_reported, notes: 'No model-sampling seed is reported.'}
+  repeats: {value: 3, reporting_status: reported, notes: 'The immutable evaluation Parquet contains exactly three rows for every one of the 137 system × 6 model pairs (2,466 total episodes).'}
+  grader: {type: deterministic SBML structural and simulation evaluator, model: null, human_review: false, reporting_status: reported}
+  statistical: {value: 'Table 1 reports arithmetic means across the small benchmark instances. The public artifact supplies three episodes for every model-system pair; Table 1 does not print confidence intervals.', reporting_status: reported, notes: 'NTS and RMS use precision/recall/F1 matching; STE averages species-level SMAPE and evaluates original and perturbed initial conditions.'}
+  contamination: {value: 'Reference models are de-identified by stripping metadata, shuffling components, and replacing component IDs; species names are retained. No model-training decontamination test is reported.', reporting_status: reported, notes: 'This is a task-leakage mitigation, not a formal pretraining-contamination analysis.'}
 metrics:
-  - {metric_id: network-topology-score, source_label: NTS, unit: score, range: [0, 1], higher_is_better: true, aggregation: macro across systems, pass_threshold: null, tolerance: null}
-  - {metric_id: reaction-matching-score, source_label: RMS, unit: score, range: [0, 1], higher_is_better: true, aggregation: macro across systems, pass_threshold: null, tolerance: null}
-  - {metric_id: simulation-trajectory-error, source_label: STE, unit: error, range: null, higher_is_better: false, aggregation: macro across systems, pass_threshold: null, tolerance: SMAPE-based}
-results: []
-comparability_group: scigym-v1-small-agent
-verification: {status: verified, last_verified: '2026-07-21', notes: Exact result rows await extraction from the primary table.}
+- {metric_id: network-topology-f1, source_label: Network Topology Score (NTS) F1, unit: score, range: [0, 1], higher_is_better: true, aggregation: 'pairwise species-interaction F1 with duplicate relationships counted once, then averaged across systems/episodes', pass_threshold: null, tolerance: 'relationship type includes reactant-product, reactant-modifier, and modifier-product'}
+- {metric_id: simulation-trajectory-error, source_label: Simulation Trajectory Error (STE), unit: SMAPE error, range: [0, 1], higher_is_better: false, aggregation: SMAPE averaged across species and benchmark systems/episodes, pass_threshold: null, tolerance: evaluated under original and perturbed initial conditions}
+- {metric_id: reaction-matching-with-modifiers-precision, source_label: RMS with modifiers — Precision, unit: score, range: [0, 1], higher_is_better: true, aggregation: exact reactant/product/modifier reaction matching averaged across systems/episodes, pass_threshold: null, tolerance: 'reactants, products, and modifiers must match'}
+- {metric_id: reaction-matching-with-modifiers-recall, source_label: RMS with modifiers — Recall, unit: score, range: [0, 1], higher_is_better: true, aggregation: exact reactant/product/modifier reaction matching averaged across systems/episodes, pass_threshold: null, tolerance: 'reactants, products, and modifiers must match'}
+- {metric_id: reaction-matching-with-modifiers-f1, source_label: RMS with modifiers — F1, unit: score, range: [0, 1], higher_is_better: true, aggregation: harmonic mean of with-modifier reaction precision and recall averaged across systems/episodes, pass_threshold: null, tolerance: 'reactants, products, and modifiers must match'}
+- {metric_id: reaction-matching-without-modifiers-precision, source_label: RMS without modifiers — Precision, unit: score, range: [0, 1], higher_is_better: true, aggregation: exact reactant/product reaction matching averaged across systems/episodes, pass_threshold: null, tolerance: modifiers are ignored}
+- {metric_id: reaction-matching-without-modifiers-recall, source_label: RMS without modifiers — Recall, unit: score, range: [0, 1], higher_is_better: true, aggregation: exact reactant/product reaction matching averaged across systems/episodes, pass_threshold: null, tolerance: modifiers are ignored}
+- {metric_id: reaction-matching-without-modifiers-f1, source_label: RMS without modifiers — F1, unit: score, range: [0, 1], higher_is_better: true, aggregation: harmonic mean of without-modifier reaction precision and recall averaged across systems/episodes, pass_threshold: null, tolerance: modifiers are ignored}
+results:
+- {model_id: scigym-gemini-2-5-flash-preview-04-17, metric_id: simulation-trajectory-error, value: 0.4181, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-gemini-2-5-flash-preview-04-17, metric_id: reaction-matching-with-modifiers-precision, value: 0.1527, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-gemini-2-5-flash-preview-04-17, metric_id: reaction-matching-with-modifiers-recall, value: 0.1071, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-gemini-2-5-flash-preview-04-17, metric_id: reaction-matching-with-modifiers-f1, value: 0.1217, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-gemini-2-5-flash-preview-04-17, metric_id: reaction-matching-without-modifiers-precision, value: 0.2399, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-gemini-2-5-flash-preview-04-17, metric_id: reaction-matching-without-modifiers-recall, value: 0.1839, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-gemini-2-5-flash-preview-04-17, metric_id: reaction-matching-without-modifiers-f1, value: 0.2005, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-gpt-4-1-mini-2025-04-14, metric_id: simulation-trajectory-error, value: 0.6007, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-gpt-4-1-mini-2025-04-14, metric_id: reaction-matching-with-modifiers-precision, value: 0.1516, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-gpt-4-1-mini-2025-04-14, metric_id: reaction-matching-with-modifiers-recall, value: 0.1253, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-gpt-4-1-mini-2025-04-14, metric_id: reaction-matching-with-modifiers-f1, value: 0.1320, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-gpt-4-1-mini-2025-04-14, metric_id: reaction-matching-without-modifiers-precision, value: 0.2530, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-gpt-4-1-mini-2025-04-14, metric_id: reaction-matching-without-modifiers-recall, value: 0.2313, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-gpt-4-1-mini-2025-04-14, metric_id: reaction-matching-without-modifiers-f1, value: 0.2322, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-claude-3-5-haiku-20241022, metric_id: simulation-trajectory-error, value: 0.6281, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-claude-3-5-haiku-20241022, metric_id: reaction-matching-with-modifiers-precision, value: 0.0858, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-claude-3-5-haiku-20241022, metric_id: reaction-matching-with-modifiers-recall, value: 0.0421, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-claude-3-5-haiku-20241022, metric_id: reaction-matching-with-modifiers-f1, value: 0.0530, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-claude-3-5-haiku-20241022, metric_id: reaction-matching-without-modifiers-precision, value: 0.1454, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-claude-3-5-haiku-20241022, metric_id: reaction-matching-without-modifiers-recall, value: 0.0805, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-claude-3-5-haiku-20241022, metric_id: reaction-matching-without-modifiers-f1, value: 0.0987, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-gemini-2-5-pro-preview-03-25, metric_id: simulation-trajectory-error, value: 0.3212, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-gemini-2-5-pro-preview-03-25, metric_id: reaction-matching-with-modifiers-precision, value: 0.2138, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-gemini-2-5-pro-preview-03-25, metric_id: reaction-matching-with-modifiers-recall, value: 0.1664, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-gemini-2-5-pro-preview-03-25, metric_id: reaction-matching-with-modifiers-f1, value: 0.1817, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-gemini-2-5-pro-preview-03-25, metric_id: reaction-matching-without-modifiers-precision, value: 0.3781, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-gemini-2-5-pro-preview-03-25, metric_id: reaction-matching-without-modifiers-recall, value: 0.3219, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-gemini-2-5-pro-preview-03-25, metric_id: reaction-matching-without-modifiers-f1, value: 0.3383, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-gpt-4-1-2025-04-14, metric_id: simulation-trajectory-error, value: 0.4611, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-gpt-4-1-2025-04-14, metric_id: reaction-matching-with-modifiers-precision, value: 0.2067, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-gpt-4-1-2025-04-14, metric_id: reaction-matching-with-modifiers-recall, value: 0.1597, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-gpt-4-1-2025-04-14, metric_id: reaction-matching-with-modifiers-f1, value: 0.1740, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-gpt-4-1-2025-04-14, metric_id: reaction-matching-without-modifiers-precision, value: 0.3517, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-gpt-4-1-2025-04-14, metric_id: reaction-matching-without-modifiers-recall, value: 0.2888, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-gpt-4-1-2025-04-14, metric_id: reaction-matching-without-modifiers-f1, value: 0.3038, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-claude-3-7-sonnet-20250219, metric_id: simulation-trajectory-error, value: 0.3615, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-claude-3-7-sonnet-20250219, metric_id: reaction-matching-with-modifiers-precision, value: 0.1780, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-claude-3-7-sonnet-20250219, metric_id: reaction-matching-with-modifiers-recall, value: 0.1698, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-claude-3-7-sonnet-20250219, metric_id: reaction-matching-with-modifiers-f1, value: 0.1688, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-claude-3-7-sonnet-20250219, metric_id: reaction-matching-without-modifiers-precision, value: 0.3160, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-claude-3-7-sonnet-20250219, metric_id: reaction-matching-without-modifiers-recall, value: 0.3170, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+- {model_id: scigym-claude-3-7-sonnet-20250219, metric_id: reaction-matching-without-modifiers-f1, value: 0.3047, ci_low: null, ci_high: null, n: 137, notes: 'Table 1; three public episodes per system.', status: verified, confidence: high, evidence_ids: [scigym-run-evidence-main-results]}
+comparability_group: scigym-2025-small-react-initial-concentration-20step-3repeat
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Full small-track scope, six exact model versions, multi-turn environment, 20+3 turn budget, deterministic metrics, three public episodes per pair, and all 42 Table 1 values were verified.'}
 evidence:
-  - {work_id: scigym-paper, locator: 'Sections 3 and 5; Appendix A.1 and B', supports: [scope, protocol, metrics]}
+- id: scigym-run-evidence-main-protocol
+  source_type: work
+  source_id: scigym-paper
+  accessed_date: '2026-07-21'
+  locator: {type: section, value: 'NeurIPS paper §§3.2–3.3 and 5; Appendix A', note: 'Defines the ReAct loop, three action types, public prompt, initial-concentration experiment, 20 action iterations, three debugging iterations, six exact model versions, full 137-system small scope, and NTS/RMS/STE.'}
+  supports: [/benchmark_version, /scope, /model_ids, /protocol/shots, /protocol/turns, /protocol/system_prompt_public, /protocol/reasoning, /protocol/tools, /protocol/time_budget, /protocol/grader, /protocol/statistical, /protocol/contamination, /metrics, /comparability_group]
+- id: scigym-run-evidence-public-episodes
+  source_type: resource
+  source_id: scigym-small-results-resource
+  accessed_date: '2026-07-21'
+  locator: {type: dataset-card, value: 'data/small-00000-of-00001.parquet at commit 7d472c12855d46702c4915892578290355894c1a', note: '2,466 rows; 137 unique systems, six exact model strings, and exactly three rows for every model-system pair.'}
+  supports: [/model_ids, /protocol/repeats, /protocol/statistical]
+- id: scigym-run-evidence-code
+  source_type: resource
+  source_id: scigym-small-evaluation-code-resource
+  accessed_date: '2026-07-21'
+  locator: {type: repository-path, value: 'README.md, scigym/llm.py, scigym/controller.py, scigym/system_prompts/, and scigym/evaluator.py at commit d290bb04bf54aad1c473c4701e0d0d88013c4f91', note: 'Confirms exact API strings, maximum 8,192 response tokens, no browser/network/database tool, public Python/SBML tool loop, and deterministic evaluator.'}
+  supports: [/model_ids, /protocol/system_prompt_public, /protocol/tools, /protocol/token_budget, /protocol/grader, /metrics]
+- id: scigym-run-evidence-main-results
+  source_type: work
+  source_id: scigym-paper
+  accessed_date: '2026-07-21'
+  locator: {type: table, value: 'NeurIPS paper Table 1', note: 'Prints STE and RMS precision/recall/F1 with and without modifiers for all six models; no confidence bounds are printed.'}
+  supports: [/results]

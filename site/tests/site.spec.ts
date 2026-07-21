@@ -306,6 +306,34 @@ test('BLADE separates task units and direct, agent, and MCQ protocols', async ({
   await expect(page.locator('.chart-card')).toHaveCount(2);
 });
 
+test('SCIGYM separates released splits, agent runs, and the no-tool baseline', async ({ page }) => {
+  await page.goto('/bio-benchmark-atlas/benchmarks/scigym/');
+  const audit = page.locator('.callout').filter({ hasText: 'Release, split, and protocol audit' });
+  await expect(audit).toContainText('350 SBML systems');
+  await expect(audit).toContainText('137 small systems');
+  await expect(audit).toContainText('213 large systems');
+  await expect(audit).toContainText('three episodes');
+  await expect(audit).toContainText('no code or data license');
+  await expect(page.getByRole('link', { name: 'SCIGYM Small' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'SCIGYM Large' })).toBeVisible();
+
+  const main = page.locator('#scigym-small-creator-paper');
+  await expect(main).toContainText('full · n=137');
+  await expect(main.getByText('Repeats', { exact: true }).locator('..')).toContainText('3');
+  await expect(main.getByText('Container', { exact: true }).locator('..')).toContainText('Not reported');
+  await expect(main).toContainText('maximum 20 action iterations plus up to 3 invalid-submission debugging iterations');
+  await expect(main).toContainText('0.3212');
+  await expect(main).toContainText('0.3047');
+
+  const zeroShot = page.locator('#scigym-small-zero-shot');
+  await expect(zeroShot).toContainText('full · n=137');
+  await expect(zeroShot.getByText('Shots', { exact: true }).locator('..')).toContainText('zero-shot');
+  await expect(zeroShot.getByText('External tools', { exact: true }).locator('..')).toContainText('none');
+  await expect(zeroShot).toContainText('No numeric result rows are published yet');
+  await expect(page.locator('.run-card')).toHaveCount(2);
+  await expect(page.locator('.chart-card')).toHaveCount(7);
+});
+
 test('work, domain, archive, and Chinese guide routes render', async ({ page }) => {
   for (const [path, heading] of [
     ['/bio-benchmark-atlas/works/lifescibench-preprint/', 'LifeSciBench'],

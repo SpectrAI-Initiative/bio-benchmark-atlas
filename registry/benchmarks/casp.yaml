@@ -1,39 +1,121 @@
 entity_type: benchmark
 id: casp
 name: CASP
-aliases: [Critical Assessment of Structure Prediction]
-summary: Biennial blind community experiment assessing protein and biomolecular structure-prediction methods on unreleased experimental targets.
+aliases: [Critical Assessment of Structure Prediction, Critical Assessment of Techniques for Protein Structure Prediction]
+summary: Biennial blind community experiments that assess macromolecular structure, complex, ligand, and model-accuracy prediction against experimental structures withheld during prediction.
 kind: competition
 parent_id: null
-organizations: [Prediction Center]
-release_date: '1994-05-01'
-latest_version: CASP16
-domains: [protein-structure, protein-protein-binding, protein-ligand-binding]
+organizations: [Prediction Center, CASP organizing committee]
+release_date: '1994-01-01'
+latest_version: CASP17
+domains: [protein-structure, protein-protein-binding, protein-ligand-binding, antibody-antigen]
 capabilities: [prediction]
 modalities: [protein-sequence, dna-rna-sequence, structure-3d]
-task_formats: [blind structure prediction competition]
+task_formats: [blind structure prediction, blind complex prediction, blind ligand pose and affinity prediction, model accuracy estimation]
 task_counts:
   total: null
-  basis: targets and categories vary by CASP round
+  basis: round-specific target releases; categories and repeated phases overlap
   reporting_status: not_reported
-  subsets: []
+  subsets:
+    - {id: casp17-protein-no-stoichiometry, label: CASP17 protein targets released without stoichiometry, count: 75, basis: target releases, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Includes monomers and multimers; it must not be added to the with-stoichiometry count.'}
+    - {id: casp17-protein-with-stoichiometry, label: CASP17 protein targets released with stoichiometry, count: 61, basis: multimer target re-releases, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Multimer targets only; these overlap with targets released earlier without stoichiometry.'}
+    - {id: casp17-rna-targets, label: CASP17 RNA targets, count: 45, basis: target releases, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Includes RNA monomers and multimers.'}
+    - {id: casp17-hybrid-targets, label: CASP17 protein-RNA-DNA hybrid targets, count: 8, basis: target releases, exclusive: false, exhaustive: false, reporting_status: reported, notes: null}
 coverage_notes:
-  - {tag: protein-protein-binding, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: Multimeric and assembly tracks vary by round.}
-  - {tag: protein-ligand-binding, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: Protein-ligand categories are round-specific.}
+  - {tag: protein-protein-binding, coverage: explicitly-in-scope, count: 61, reporting_status: reported, notes: 'CASP17 reports 61 multimer targets re-released with stoichiometry as of 2026-07-21; this is a rolling target-release count, not an evaluated final set.'}
+  - {tag: antibody-antigen, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: 'Immune complexes are a dedicated CASP17 category, but the official in-numbers page does not publish a separate immune-complex count.'}
+  - {tag: protein-ligand-binding, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: 'Organic ligand-protein complexes are a dedicated CASP17 category, but no current ligand-only target count is published on the CASP17 in-numbers page.'}
 access:
   level: partially-open
-  tasks: Targets, predictions, and results are published after each blind round.
-  artifacts: Download tables and structural targets are public after release.
-  grader: Official assessors and category-specific scoring pipelines.
-  license: null
-  biosafety_notes: No benchmark target files are mirrored by this registry.
+  tasks: Target sequences and submission metadata are public during a round; experimental structures are intentionally withheld until prediction closes.
+  artifacts: Completed-round targets, submitted predictions, numerical score tables, rankings, presentations, and round archives are publicly linked; some source structures or pharmaceutical data may retain provider-specific terms.
+  grader: Category-specific numerical pipelines and independent assessor teams; no single round-independent grader or metric exists.
+  license: CC BY 4.0 for Prediction Center website content; linked target and prediction artifacts may have separate terms
+  biosafety_notes: The registry mirrors no target sequences, structures, ligand sets, or submitted models; active targets can include viral, immune, or drug-design systems.
 resources:
-  - {type: website, url: 'https://predictioncenter.org/', license: null, access_notes: Official competition site.}
-  - {type: leaderboard, url: 'https://predictioncenter.org/download_area/CASP16/results/tables/', license: null, access_notes: Official CASP16 result tables.}
+  - {id: casp-series-resource, type: website, url: 'https://predictioncenter.org/', license: 'CC BY 4.0 (website)', access_notes: Official series portal and historical round index., last_checked: '2026-07-21', pin: null}
+  - {id: casp1-history-resource, type: documentation, url: 'https://predictioncenter.org/decoysets2019/description.cgi?casp=CASP1', license: 'CC BY 4.0 (website)', access_notes: Official CASP1 historical description., last_checked: '2026-07-21', pin: {kind: snapshot, value: CASP1-1994, url: 'https://predictioncenter.org/decoysets2019/description.cgi?casp=CASP1'}}
+  - {id: casp16-home-resource, type: website, url: 'https://predictioncenter.org/casp16/', license: 'CC BY 4.0 (website)', access_notes: Completed CASP16 competition portal., last_checked: '2026-07-21', pin: {kind: snapshot, value: CASP16, url: 'https://predictioncenter.org/casp16/'}}
+  - {id: casp16-numbers-resource, type: documentation, url: 'https://predictioncenter.org/casp16/numbers.cgi', license: 'CC BY 4.0 (website)', access_notes: Official released-target and submission counts by category and phase., last_checked: '2026-07-21', pin: {kind: snapshot, value: CASP16-final, url: 'https://predictioncenter.org/casp16/numbers.cgi'}}
+  - {id: casp16-results-resource, type: leaderboard, url: 'https://predictioncenter.org/casp16/index.cgi', license: 'CC BY 4.0 (website)', access_notes: 'Official interactive results, rankings, and parseable-data entry point.', last_checked: '2026-07-21', pin: {kind: snapshot, value: CASP16-results, url: 'https://predictioncenter.org/casp16/index.cgi'}}
+  - {id: casp16-download-resource, type: dataset, url: 'https://predictioncenter.org/download_area/CASP16/', license: null, access_notes: 'Official round archive for targets, predictions, and results; linked artifacts may have separate terms.', last_checked: '2026-07-21', pin: {kind: snapshot, value: CASP16-download-archive, url: 'https://predictioncenter.org/download_area/CASP16/'}}
+  - {id: casp17-home-resource, type: website, url: 'https://predictioncenter.org/casp17/', license: 'CC BY 4.0 (website)', access_notes: Active CASP17 portal and protocol., last_checked: '2026-07-21', pin: null}
+  - {id: casp17-numbers-resource, type: documentation, url: 'https://predictioncenter.org/casp17/numbers.cgi', license: 'CC BY 4.0 (website)', access_notes: Rolling official counts; snapshot date is required for interpretation., last_checked: '2026-07-21', pin: {kind: snapshot, value: '2026-07-21', url: 'https://predictioncenter.org/casp17/numbers.cgi'}}
+  - {id: casp17-target-list-resource, type: dataset, url: 'https://predictioncenter.org/casp17/targetlist.cgi', license: 'CC BY 4.0 (website metadata)', access_notes: Living official target table with release and deadline metadata., last_checked: '2026-07-21', pin: {kind: snapshot, value: '2026-07-21', url: 'https://predictioncenter.org/casp17/targetlist.cgi'}}
 implementations:
-  - {framework: official CASP assessment pipelines, status: not-available, url: null, commit: null, notes: Category-specific downloads exist; no single pinned public harness is asserted.}
-verification: {status: verified, last_verified: '2026-07-21', notes: Treated as a living competition; counts must be attached to a specific round and track.}
+  - {framework: Prediction Center result and assessment system, status: official, url: 'https://predictioncenter.org/casp16/index.cgi', commit: null, notes: 'Official score tables and rankings are public, but no single commit-pinned cross-category harness is published.'}
+versions:
+  - id: casp-suite-casp16
+    label: CASP16
+    status: superseded
+    release_date: '2024-05-01'
+    as_of: '2024-12-04'
+    task_counts:
+      total: null
+      basis: target releases across overlapping categories and phases
+      reporting_status: not_reported
+      subsets:
+        - {id: casp16-tertiary-releases, label: Protein tertiary-structure target releases, count: 156, basis: target releases, exclusive: false, exhaustive: false, reporting_status: reported, notes: '35 Phase 0 multimer subunits, 76 Phase 1 targets, and 45 Phase 2 multimer subunits.'}
+        - {id: casp16-multimer-releases, label: Protein multimer target releases, count: 108, basis: target releases, exclusive: false, exhaustive: false, reporting_status: reported, notes: '30/43/35 Phase 0/1/2 releases; phases repeat biological targets.'}
+        - {id: casp16-incidental-ligand-releases, label: Incidental ligand targets, count: 8, basis: target releases, exclusive: false, exhaustive: false, reporting_status: reported, notes: null}
+        - {id: casp16-pharma-pose-releases, label: Pharmaceutical ligand pose targets, count: 233, basis: target releases, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'The assessment paper reports 229 pose targets after evaluation filtering.'}
+        - {id: casp16-pharma-affinity-releases, label: Pharmaceutical ligand affinity targets, count: 140, basis: target releases, exclusive: false, exhaustive: false, reporting_status: reported, notes: '110 were re-released for stage-2 affinity prediction.'}
+    formal_tracks: [casp-protein-monomers, casp-protein-multimers, casp-protein-ligands]
+    notes: Completed 2024 round. Counts are release events by category/phase and are intentionally not summed.
+    evidence_ids: [casp-evidence-casp16-protocol, casp-evidence-casp16-counts]
+  - id: casp-suite-casp17
+    label: CASP17
+    status: rolling
+    release_date: '2026-04-27'
+    as_of: '2026-07-21'
+    task_counts:
+      total: null
+      basis: round-specific target releases; categories and repeated phases overlap
+      reporting_status: not_reported
+      subsets:
+        - {id: casp17-protein-no-stoichiometry, label: CASP17 protein targets released without stoichiometry, count: 75, basis: target releases, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Includes monomers and multimers; it must not be added to the with-stoichiometry count.'}
+        - {id: casp17-protein-with-stoichiometry, label: CASP17 protein targets released with stoichiometry, count: 61, basis: multimer target re-releases, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Multimer targets only; these overlap with targets released earlier without stoichiometry.'}
+        - {id: casp17-rna-targets, label: CASP17 RNA targets, count: 45, basis: target releases, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Includes RNA monomers and multimers.'}
+        - {id: casp17-hybrid-targets, label: CASP17 protein-RNA-DNA hybrid targets, count: 8, basis: target releases, exclusive: false, exhaustive: false, reporting_status: reported, notes: null}
+    formal_tracks: [casp-protein-monomers, casp-protein-multimers, casp-protein-ligands]
+    notes: Active 2026 round. Target release continues through 2026-07-31 and evaluation is scheduled for August-October; these counts are a dated rolling snapshot, not final evaluation counts.
+    evidence_ids: [casp-evidence-casp17-protocol, casp-evidence-casp17-counts]
+audit:
+  status: audited-with-caveats
+  audited_date: '2026-07-21'
+  unresolved_fields: 1
+  notes: CASP17 is explicitly represented as a dated rolling round and CASP16 as the latest completed round; count units distinguish target releases, unique assessed targets, and evaluation units.
+field_status:
+  - {path: /release_date, status: provisional, confidence: medium, reason: 'The official CASP1 history reports only the year 1994; 1994-01-01 is a machine-readable year-normalized date and not an asserted day of first target release.', evidence_ids: [casp-evidence-origin]}
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Field-level audit completed against official Prediction Center round pages, number tables, target list, archive, and creator assessment papers.'}
 evidence:
-  - work_id: casp-official
-    locator: 'Official Prediction Center overview and CASP16 download tables'
-    supports: [summary, latest_version, domains, task_counts, access]
+  - id: casp-evidence-origin
+    source_type: resource
+    source_id: casp1-history-resource
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'CASP1 description', note: 'Reports the first large-scale experiment in 1994, 33 targets, 35 groups, and independent assessment teams; no exact start day is given.'}
+    supports: [/name, /aliases, /organizations, /release_date, /kind, /summary]
+  - id: casp-evidence-casp16-protocol
+    source_type: work
+    source_id: casp-official
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'Description; Modeling categories; Timetable; Targets; Assessment; Results', note: 'Completed-round scope, blind protocol, categories, independent assessors, access, and first-target date.'}
+    supports: [/domains, /capabilities, /modalities, /task_formats, /access, /access/level, /access/license, /resources, /implementations, /versions/0/release_date, /versions/0/formal_tracks]
+  - id: casp-evidence-casp16-counts
+    source_type: resource
+    source_id: casp16-numbers-resource
+    accessed_date: '2026-07-21'
+    locator: {type: table, value: 'CASP16 in numbers', note: 'Reports 156 tertiary, 108 multimer, 8 incidental ligand, 233 pharma pose, 140 pharma affinity, and 110 stage-2 affinity target releases, plus submission counts.'}
+    supports: [/versions/0/task_counts/total, /versions/0/task_counts/basis, /versions/0/task_counts/subsets]
+  - id: casp-evidence-casp17-protocol
+    source_type: work
+    source_id: casp17-official
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'Description; Modeling categories; Timetable; Targets; Assessment; Results', note: 'Defines the active CASP17 round, dedicated immune and ligand categories, difficult structures/complexes, release schedule, and independent assessors.'}
+    supports: [/latest_version, /domains, /coverage_notes, /versions/1/release_date, /versions/1/as_of, /versions/1/formal_tracks]
+  - id: casp-evidence-casp17-counts
+    source_type: resource
+    source_id: casp17-numbers-resource
+    accessed_date: '2026-07-21'
+    locator: {type: table, value: 'CASP17 in numbers, accessed 2026-07-21', note: 'Rolling counts: 75 protein targets without stoichiometry, 61 multimer re-releases with stoichiometry, 45 RNA targets, and 8 hybrids.'}
+    supports: [/task_counts/total, /task_counts/basis, /task_counts/subsets, /coverage_notes/0, /versions/1/task_counts/total, /versions/1/task_counts/basis, /versions/1/task_counts/subsets]

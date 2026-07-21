@@ -95,6 +95,65 @@ def test_proteingym_versions_counts_binding_and_protocol() -> None:
     assert "Hansen Spinner" in work["authors"]
 
 
+def test_casp_separates_rolling_round_tracks_and_assessment_units() -> None:
+    entities = load_entities()
+    benchmarks = {item["id"]: item for item in entities["benchmark"]}
+    runs = {item["id"]: item for item in entities["evaluation_run"]}
+    root = benchmarks["casp"]
+    versions = {item["label"]: item for item in root["versions"]}
+    current_counts = {item["id"]: item["count"] for item in root["task_counts"]["subsets"]}
+    completed_counts = {
+        item["id"]: item["count"] for item in versions["CASP16"]["task_counts"]["subsets"]
+    }
+
+    assert root["audit"]["status"] == "audited-with-caveats"
+    assert root["latest_version"] == "CASP17"
+    assert versions["CASP17"]["status"] == "rolling"
+    assert versions["CASP17"]["as_of"] == "2026-07-21"
+    assert versions["CASP17"]["task_counts"] == root["task_counts"]
+    assert root["task_counts"]["total"] is None
+    assert current_counts == {
+        "casp17-protein-no-stoichiometry": 75,
+        "casp17-protein-with-stoichiometry": 61,
+        "casp17-rna-targets": 45,
+        "casp17-hybrid-targets": 8,
+    }
+    assert completed_counts["casp16-tertiary-releases"] == 156
+    assert completed_counts["casp16-multimer-releases"] == 108
+    assert completed_counts["casp16-pharma-pose-releases"] == 233
+    assert completed_counts["casp16-pharma-affinity-releases"] == 140
+    assert set(versions["CASP17"]["formal_tracks"]) == {
+        "casp-protein-monomers", "casp-protein-multimers", "casp-protein-ligands",
+    }
+    assert benchmarks["casp-immune-complexes"]["parent_id"] == "casp-protein-multimers"
+    assert benchmarks["casp-immune-complexes"]["task_counts"]["total"] is None
+
+    monomer = benchmarks["casp-protein-monomers"]
+    multimer = benchmarks["casp-protein-multimers"]
+    ligand = benchmarks["casp-protein-ligands"]
+    assert next(v for v in monomer["versions"] if v["label"] == "CASP16")["task_counts"]["total"] == 54
+    assert next(v for v in multimer["versions"] if v["label"] == "CASP16")["task_counts"]["total"] == 40
+    ligand_subsets = {
+        item["id"]: item["count"]
+        for item in next(v for v in ligand["versions"] if v["label"] == "CASP16")["task_counts"]["subsets"]
+    }
+    assert ligand_subsets["casp16-pharma-pose-assessed"] == 229
+    assert ligand_subsets["casp16-affinity-stage1-analysis"] == 122
+    assert ligand_subsets["casp16-affinity-stage2-releases"] == 110
+    assert ligand_subsets["casp16-affinity-stage2-analysis"] == 103
+
+    assert runs["casp16-monomer-regular-official"]["scope"]["n"] == 54
+    assert runs["casp16-multimer-phase1-regular"]["scope"]["n"] == 40
+    assert runs["casp16-ligand-pose-regular"]["scope"]["n"] == 229
+    assert runs["casp16-ligand-affinity-stage1"]["scope"]["n"] == 122
+    assert runs["casp16-ligand-affinity-stage2"]["scope"]["n"] == 103
+    assert runs["casp16-ligand-affinity-stage1"]["scope"]["subset_id"] in ligand_subsets
+    assert runs["casp16-ligand-affinity-stage2"]["comparability_group"] != runs["casp16-ligand-affinity-stage1"]["comparability_group"]
+    assert {metric["metric_id"] for metric in runs["casp16-multimer-phase1-regular"]["metrics"]} == {
+        "dockq", "tm-score", "lddt", "interface-contact-score", "interface-patch-score", "qs-best",
+    }
+
+
 def test_biomysterybench_scope_and_repeats() -> None:
     entities = load_entities()
     benchmark = next(item for item in entities["benchmark"] if item["id"] == "biomysterybench")

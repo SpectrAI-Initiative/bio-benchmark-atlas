@@ -1,0 +1,13 @@
+entity_type: work
+id: casp16-monomer-assessment
+title: CASP16 Protein Monomer Structure Prediction Assessment
+authors: [Rongqing Yuan, Jing Zhang, Andriy Kryshtafovych, R. Dustin Schaeffer, Jian Zhou, Qian Cong, Nick V. Grishin]
+organizations: [University of Texas Southwestern Medical Center, University of California Davis]
+work_type: paper
+source_class: benchmark_creator
+publication_date: '2025-08-17'
+canonical_url: 'https://doi.org/10.1002/prot.70031'
+doi: 10.1002/prot.70031
+arxiv: null
+status: published
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Final creator-assessor paper in the CASP16 special issue.'}

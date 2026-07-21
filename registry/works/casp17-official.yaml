@@ -1,0 +1,13 @@
+entity_type: work
+id: casp17-official
+title: CASP17 official competition
+authors: [CASP organizing committee, Prediction Center]
+organizations: [Prediction Center, CASP organizing committee]
+work_type: competition-site
+source_class: benchmark_creator
+publication_date: '2026-03-31'
+canonical_url: 'https://predictioncenter.org/casp17/'
+doi: null
+arxiv: null
+status: living
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Active 2026 round; targets and counts are rolling and results are not yet final.'}

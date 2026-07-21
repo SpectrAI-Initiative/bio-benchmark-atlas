@@ -1,0 +1,13 @@
+entity_type: work
+id: casp16-multimer-assessment
+title: 'Assessment of Protein Complex Predictions in CASP16: Are We Making Progress?'
+authors: [Jing Zhang, Rongqing Yuan, Andriy Kryshtafovych, Jimin Pei, Rachael C. Kretsch, R. Dustin Schaeffer, Jian Zhou, Rhiju Das, Nick V. Grishin, Qian Cong]
+organizations: [University of Texas Southwestern Medical Center, University of California Davis, Stanford University]
+work_type: paper
+source_class: benchmark_creator
+publication_date: '2025-10-31'
+canonical_url: 'https://doi.org/10.1002/prot.70068'
+doi: 10.1002/prot.70068
+arxiv: null
+status: published
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Final creator-assessor paper; distinguishes 40 unique Phase-1 targets from repeated Phase-0/2 releases.'}

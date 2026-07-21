@@ -1,0 +1,38 @@
+entity_type: evaluation_run
+id: casp16-ligand-affinity-stage2
+work_id: casp16-ligand-assessment
+benchmark_id: casp-protein-ligands
+benchmark_version: CASP16
+scope: {type: subset, n: 103, subset_id: casp16-affinity-stage2-analysis, filter: '14 chymase plus 89 autotaxin cases with experimental co-crystal structures and undisclosed affinities; 110 cases were released before disclosure filtering.', reporting_status: reported}
+protocol:
+  shots: &na {value: null, reporting_status: not_applicable, notes: No natural-language in-context examples.}
+  turns: *na
+  system_prompt_public: *na
+  reasoning: *na
+  tools:
+    browser: {value: method-specific, reporting_status: reported, notes: No common browser constraint.}
+    internet: {value: method-specific, reporting_status: reported, notes: No common internet constraint.}
+    databases: {value: method-specific, reporting_status: reported, notes: Participant methods may use public chemical and structural data.}
+    code_execution: {value: allowed, reporting_status: reported, notes: Affinity scoring pipelines execute participant code.}
+    container: {value: null, reporting_status: not_reported, notes: No common container is specified.}
+    external_tools: {value: method-specific, reporting_status: reported, notes: Experimental protein-ligand co-crystal structures were supplied for the Stage-2 cases.}
+  token_budget: *na
+  time_budget: {value: 2024-08-07 through 2024-08-21 for the main Stage-2 challenge, reporting_status: reported, notes: The late WDR55 pose target is not part of this affinity analysis.}
+  temperature: *na
+  seed: {value: null, reporting_status: not_reported, notes: Method-specific stochastic settings are not normalized.}
+  repeats: {value: Model 1 affinity submission per group and case, reporting_status: reported, notes: Not a repeated-episode benchmark.}
+  grader: {type: official affinity ranking analysis plus independent ligand assessor team, model: null, human_review: true, reporting_status: reported}
+  statistical: {value: per-system Kendall tau and N-weighted cross-system summary after disclosure filtering, reporting_status: reported, notes: 'Direct comparison with Stage 1 is reported, but the tool/input setting is different and therefore has a separate comparability group.'}
+  contamination: {value: experimental co-crystal structures provided while experimental affinities remained withheld; disclosed affinities removed, reporting_status: reported, notes: 103 undisclosed cases remain from 110 Stage-2 releases.}
+metrics:
+  - {metric_id: n-weighted-kendall-tau, source_label: N-weighted Kendall's tau, unit: rank correlation, range: [-1, 1], higher_is_better: true, aggregation: case-count-weighted mean of per-protein-system Kendall tau after disclosure filtering, pass_threshold: null, tolerance: null}
+results: []
+comparability_group: casp16-ligand-affinity-stage2
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Stage 2 is separate from Stage 1 because the experimental co-crystal structures were provided.'}
+evidence:
+  - id: casp16-ligand-affinity-stage2-evidence
+    source_type: work
+    source_id: casp16-ligand-assessment
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'Sections 2.2–2.5 and 3.3; Figures 8B-C and 9', note: '110 releases, 103 retained cases, co-crystal structure access, Stage-2 dates, and Kendall tau analysis.'}
+    supports: [/benchmark_version, /scope, /protocol, /metrics]

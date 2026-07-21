@@ -1,0 +1,73 @@
+entity_type: benchmark
+id: casp-protein-monomers
+name: CASP Protein Monomers
+aliases: [CASP single proteins and domains, CASP protein domains]
+summary: Formal CASP track assessing blind predictions of single-protein structures and post hoc protein evaluation units against withheld experimental coordinates.
+kind: track
+parent_id: casp
+organizations: [Prediction Center, CASP organizing committee]
+release_date: '1994-01-01'
+latest_version: CASP17
+domains: [protein-structure]
+capabilities: [prediction]
+modalities: [protein-sequence, structure-3d]
+task_formats: [blind monomer structure prediction]
+task_counts: {total: null, basis: CASP17 assessed monomer evaluation units, reporting_status: not_reported, subsets: []}
+coverage_notes:
+  - {tag: protein-structure, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: 'CASP17 is active and its final assessed monomer evaluation-unit count is not yet available.'}
+access: {level: partially-open, tasks: 'Active target sequences are public while experimental coordinates are withheld; completed-round targets are archived.', artifacts: 'CASP16 predictions, per-model score tables, rankings, and assessor paper are public.', grader: 'Official structure-comparison scores plus independent assessor review.', license: 'CC BY 4.0 for Prediction Center website content; linked structures and predictions may have separate terms', biosafety_notes: 'No active target sequences, structures, or predictions are mirrored.'}
+resources:
+  - {id: casp-monomer-casp1-history-resource, type: documentation, url: 'https://predictioncenter.org/decoysets2019/description.cgi?casp=CASP1', license: 'CC BY 4.0 (website)', access_notes: Official CASP1 historical description., last_checked: '2026-07-21', pin: {kind: snapshot, value: CASP1-1994, url: 'https://predictioncenter.org/decoysets2019/description.cgi?casp=CASP1'}}
+  - {id: casp-monomer-casp16-home-resource, type: website, url: 'https://predictioncenter.org/casp16/', license: 'CC BY 4.0 (website)', access_notes: Completed CASP16 protocol and timetable., last_checked: '2026-07-21', pin: {kind: snapshot, value: CASP16, url: 'https://predictioncenter.org/casp16/'}}
+  - {id: casp-monomer-casp16-results-resource, type: leaderboard, url: 'https://predictioncenter.org/casp16/results.cgi?groups_id=&model=all&tr_type=all', license: 'CC BY 4.0 (website)', access_notes: Official per-evaluation-unit monomer results., last_checked: '2026-07-21', pin: {kind: snapshot, value: CASP16-protein-monomers, url: 'https://predictioncenter.org/casp16/results.cgi?groups_id=&model=all&tr_type=all'}}
+  - {id: casp-monomer-casp16-paper-resource, type: paper, url: 'https://doi.org/10.1002/prot.70031', license: 'CC BY 4.0', access_notes: Final creator-assessor paper., last_checked: '2026-07-21', pin: {kind: version, value: 'Proteins 94(1):86-105', url: 'https://doi.org/10.1002/prot.70031'}}
+  - {id: casp-monomer-casp17-resource, type: website, url: 'https://predictioncenter.org/casp17/', license: 'CC BY 4.0 (website)', access_notes: Active difficult protein structures and complexes category., last_checked: '2026-07-21', pin: {kind: snapshot, value: '2026-07-21', url: 'https://predictioncenter.org/casp17/'}}
+implementations:
+  - {framework: Prediction Center monomer scoring and ranking system, status: official, url: 'https://predictioncenter.org/casp16/index.cgi', commit: null, notes: 'Official parseable tables expose GDT_TS and related measures; no public source commit is asserted.'}
+versions:
+  - id: casp-monomer-casp16
+    label: CASP16
+    status: superseded
+    release_date: '2024-05-01'
+    as_of: '2025-08-17'
+    task_counts:
+      total: 54
+      basis: assessed protein monomer evaluation units
+      reporting_status: reported
+      subsets:
+        - {id: casp16-complete-protein-monomers, label: Complete protein monomers, count: 42, basis: evaluation units, exclusive: true, exhaustive: false, reporting_status: reported, notes: 'The remaining evaluation units are subdivisions of multi-domain proteins.'}
+    formal_tracks: []
+    notes: 'Assessment units differ from the 156 tertiary target-release events reported by the round-wide in-numbers page.'
+    evidence_ids: [casp-monomer-evidence-casp16]
+  - id: casp-monomer-casp17
+    label: CASP17
+    status: rolling
+    release_date: '2026-04-27'
+    as_of: '2026-07-21'
+    task_counts: {total: null, basis: assessed protein monomer evaluation units, reporting_status: not_reported, subsets: []}
+    formal_tracks: []
+    notes: Active round; final monomer evaluation units and results are not yet defined.
+    evidence_ids: [casp-monomer-evidence-casp17]
+audit: {status: audited-with-caveats, audited_date: '2026-07-21', unresolved_fields: 1, notes: 'CASP16 assessed-unit counts are final; CASP17 remains rolling.'}
+field_status:
+  - {path: /release_date, status: provisional, confidence: medium, reason: 'The official history establishes monomeric protein structure prediction in CASP1 in 1994 but does not report an exact first-target day; the date is year-normalized.', evidence_ids: [casp-monomer-evidence-origin]}
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Audited against official round pages, results, and the final CASP16 assessor paper.'}
+evidence:
+  - id: casp-monomer-evidence-origin
+    source_type: resource
+    source_id: casp-monomer-casp1-history-resource
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'CASP1 description', note: 'The 1994 experiment included comparative modeling, fold recognition, and ab initio folding of protein targets.'}
+    supports: [/name, /aliases, /organizations, /release_date, /kind, /parent_id]
+  - id: casp-monomer-evidence-casp16
+    source_type: work
+    source_id: casp16-monomer-assessment
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'Abstract; Results and Discussion; Figure 1', note: 'Reports 54 assessed evaluation units, including 42 complete protein monomers, and the GDT_TS-based assessment.'}
+    supports: [/summary, /domains, /capabilities, /modalities, /task_formats, /versions/0/task_counts/total, /versions/0/task_counts/basis, /versions/0/task_counts/subsets, /access/grader, /resources, /implementations]
+  - id: casp-monomer-evidence-casp17
+    source_type: work
+    source_id: casp17-official
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'Difficult Protein Structures and Complexes; Timetable; Assessment', note: 'Active track scope and the absence of final 2026 results.'}
+    supports: [/latest_version, /task_counts/total, /task_counts/basis, /task_counts/subsets, /coverage_notes, /versions/1/release_date, /versions/1/as_of, /versions/1/task_counts/total, /versions/1/task_counts/basis, /versions/1/task_counts/subsets, /access/level, /access/tasks, /access/artifacts, /access/license, /access/biosafety_notes]

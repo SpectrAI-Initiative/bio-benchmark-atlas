@@ -1,0 +1,91 @@
+entity_type: benchmark
+id: casp-protein-multimers
+name: CASP Protein Multimers
+aliases: [CASP protein complexes, CASP assembly prediction, CASP oligomer prediction]
+summary: Formal CASP track assessing blind protein-complex predictions, including overall folds, interfaces, stoichiometry-free phases, and model-selection phases.
+kind: track
+parent_id: casp
+organizations: [Prediction Center, CASP organizing committee, CAPRI]
+release_date: '2024-05-01'
+latest_version: CASP17
+domains: [protein-structure, protein-protein-binding, antibody-antigen]
+capabilities: [prediction]
+modalities: [protein-sequence, structure-3d]
+task_formats: [blind protein complex prediction, stoichiometry prediction, complex model selection]
+task_counts:
+  total: 61
+  basis: CASP17 multimer target re-releases with stoichiometry as of 2026-07-21
+  reporting_status: reported
+  subsets: []
+coverage_notes:
+  - {tag: protein-protein-binding, coverage: explicitly-in-scope, count: 61, reporting_status: reported, notes: 'Rolling CASP17 with-stoichiometry releases; this is not the final assessed target count.'}
+  - {tag: antibody-antigen, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: 'Immune complexes are separated into a dedicated CASP17 child track; the in-numbers page does not publish its count.'}
+access: {level: partially-open, tasks: 'Active sequences and phase metadata are public; experimental structures remain blind until target closure.', artifacts: 'Completed-round predictions, OpenStructure-derived scores, rankings, and assessor papers are public.', grader: 'OpenStructure/CASP and CAPRI measures plus independent assessor review.', license: 'CC BY 4.0 for Prediction Center website content; linked structures and predictions may have separate terms', biosafety_notes: 'No target sequences, immune-complex structures, or submitted models are mirrored.'}
+resources:
+  - {id: casp-multimer-casp16-home-resource, type: website, url: 'https://predictioncenter.org/casp16/', license: 'CC BY 4.0 (website)', access_notes: Completed CASP16 protocol and timetable., last_checked: '2026-07-21', pin: {kind: snapshot, value: CASP16, url: 'https://predictioncenter.org/casp16/'}}
+  - {id: casp-multimer-casp16-results-resource, type: leaderboard, url: 'https://predictioncenter.org/casp16/results.cgi?view=targets&tr_type=multimer', license: 'CC BY 4.0 (website)', access_notes: Official per-target protein multimer results., last_checked: '2026-07-21', pin: {kind: snapshot, value: CASP16-protein-multimers, url: 'https://predictioncenter.org/casp16/results.cgi?view=targets&tr_type=multimer'}}
+  - {id: casp-multimer-casp16-paper-resource, type: paper, url: 'https://doi.org/10.1002/prot.70068', license: 'CC BY 4.0', access_notes: Final creator-assessor paper., last_checked: '2026-07-21', pin: {kind: version, value: 'Proteins 94(1):106-130', url: 'https://doi.org/10.1002/prot.70068'}}
+  - {id: casp-multimer-casp17-numbers-resource, type: documentation, url: 'https://predictioncenter.org/casp17/numbers.cgi', license: 'CC BY 4.0 (website)', access_notes: Rolling target releases and submission counts., last_checked: '2026-07-21', pin: {kind: snapshot, value: '2026-07-21', url: 'https://predictioncenter.org/casp17/numbers.cgi'}}
+  - {id: casp-multimer-casp17-target-list-resource, type: dataset, url: 'https://predictioncenter.org/casp17/targetlist.cgi', license: 'CC BY 4.0 (website metadata)', access_notes: Living official target table with release dates., last_checked: '2026-07-21', pin: {kind: snapshot, value: '2026-07-21', url: 'https://predictioncenter.org/casp17/targetlist.cgi'}}
+implementations:
+  - {framework: Prediction Center/OpenStructure multimer assessment, status: official, url: 'https://predictioncenter.org/casp16/index.cgi', commit: null, notes: 'Official results expose overall and interface measures; no public source commit is asserted.'}
+versions:
+  - id: casp-multimer-casp16
+    label: CASP16
+    status: superseded
+    release_date: '2024-05-01'
+    as_of: '2025-10-31'
+    task_counts:
+      total: 40
+      basis: unique protein complex targets in the Phase-1 main assessment
+      reporting_status: reported
+      subsets:
+        - {id: casp16-multimer-phase0, label: Phase 0 without stoichiometry, count: 30, basis: targets reused from Phase 1, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Repeated targets; do not add to the 40 unique Phase-1 targets.'}
+        - {id: casp16-multimer-phase2, label: Phase 2 MassiveFold model-selection targets, count: 35, basis: targets reused from Phase 1, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Repeated targets; do not add to the 40 unique Phase-1 targets.'}
+        - {id: casp16-antibody-antigen-targets, label: Antibody or nanobody-antigen complexes, count: 8, basis: Phase-1 targets, exclusive: false, exhaustive: false, reporting_status: reported, notes: 'Three nanobody-antigen plus five antibody-antigen complexes.'}
+    formal_tracks: []
+    notes: 'The round in-numbers page reports 108 phase-specific multimer target releases (30/43/35); the assessor paper reports 40 unique Phase-1 targets.'
+    evidence_ids: [casp-multimer-evidence-casp16, casp-multimer-evidence-casp16-protocol]
+  - id: casp-multimer-casp17
+    label: CASP17
+    status: rolling
+    release_date: '2026-04-28'
+    as_of: '2026-07-21'
+    task_counts: {total: 61, basis: multimer target re-releases with stoichiometry, reporting_status: reported, subsets: []}
+    formal_tracks: [casp-immune-complexes]
+    notes: Active round; 61 is a dated release count, not a final assessed-set size.
+    evidence_ids: [casp-multimer-evidence-casp17, casp-multimer-evidence-casp17-protocol, casp-multimer-evidence-casp17-date]
+audit: {status: audited, audited_date: '2026-07-21', unresolved_fields: 0, notes: 'Phase-specific release counts and unique assessed targets are stored as different bases.'}
+field_status: []
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Audited against official round counts/results and the final CASP16 complex assessor paper.'}
+evidence:
+  - id: casp-multimer-evidence-casp16
+    source_type: work
+    source_id: casp16-multimer-assessment
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'Overview of CASP16 oligomer targets; Performance Evaluation and Ranking', note: 'Reports 40 Phase-1 targets, 30 reused in Phase 0, 35 in Phase 2, eight antibody/nanobody-antigen targets, and DockQ/TM/lDDT/interface metrics.'}
+    supports: [/name, /aliases, /summary, /kind, /organizations, /domains, /capabilities, /modalities, /task_formats, /access/grader, /resources, /implementations, /versions/0/task_counts/total, /versions/0/task_counts/basis, /versions/0/task_counts/subsets]
+  - id: casp-multimer-evidence-casp16-protocol
+    source_type: work
+    source_id: casp-official
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'CASP16 Timetable and Protein Complexes', note: 'Establishes the 2024 round start and the completed multimer category protocol.'}
+    supports: [/release_date, /versions/0/release_date]
+  - id: casp-multimer-evidence-casp17
+    source_type: resource
+    source_id: casp-multimer-casp17-numbers-resource
+    accessed_date: '2026-07-21'
+    locator: {type: table, value: 'CASP17 in numbers, accessed 2026-07-21', note: 'Reports 61 multimer targets released with stoichiometry.'}
+    supports: [/task_counts/total, /task_counts/basis, /task_counts/subsets, /coverage_notes/0, /versions/1/as_of, /versions/1/task_counts/total, /versions/1/task_counts/basis, /versions/1/task_counts/subsets]
+  - id: casp-multimer-evidence-casp17-protocol
+    source_type: work
+    source_id: casp17-official
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'Difficult Protein Structures and Complexes; Immune Complexes; Timetable; Results', note: 'Defines the active CASP17 complex categories, public target protocol, and scheduled result release.'}
+    supports: [/latest_version, /versions/1/formal_tracks, /access/level, /access/tasks, /access/artifacts, /access/license, /access/biosafety_notes]
+  - id: casp-multimer-evidence-casp17-date
+    source_type: resource
+    source_id: casp-multimer-casp17-target-list-resource
+    accessed_date: '2026-07-21'
+    locator: {type: table, value: 'Target List, first protein-complex target H1311 released 2026-04-28', note: 'Establishes the first release date used for the CASP17 multimer snapshot.'}
+    supports: [/versions/1/release_date]

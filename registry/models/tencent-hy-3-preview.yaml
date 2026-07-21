@@ -1,9 +1,9 @@
 entity_type: model
-id: claude-opus-4-8
-name: Claude Opus 4.8
-provider: Anthropic
+id: tencent-hy-3-preview
+name: Tencent HY 3 Preview
+provider: Tencent
 release_date: null
-version_string: Claude Opus 4.8
+version_string: Tencent HY 3 Preview
 version_status: reported
 aliases: []
 verification:

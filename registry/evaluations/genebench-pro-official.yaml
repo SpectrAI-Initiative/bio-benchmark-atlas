@@ -2,36 +2,368 @@ entity_type: evaluation_run
 id: genebench-pro-official
 work_id: genebench-pro-report
 benchmark_id: genebench-pro
-benchmark_version: '1.0'
-scope: {type: full, n: 129, subset_id: null, filter: null, reporting_status: reported}
+benchmark_version: paper-v1
+model_ids:
+- minimax-m2-7
+- tencent-hy-3-preview
+- minimax-m3
+- mimo-v2-5
+- glm-5-1
+- mimo-v2-5-pro
+- qwen-3-7-plus
+- deepseek-v4-flash
+- deepseek-v4-pro
+- qwen-3-7-max
+- kimi-k2-6
+- gpt-5-2
+- gpt-5-4
+- gpt-5-5
+- gpt-5-6-luna
+- gpt-5-6-terra
+- gpt-5-6-sol
+scope:
+  type: full
+  n: 129
+  subset_id: null
+  filter: Complete formal 129-problem suite, including the 10 public, 50 Artificial Analysis, and 69 internal-holdout problems.
+  reporting_status: reported
 protocol:
-  shots: &nr {value: null, reporting_status: not_reported, notes: Not specified in the public report.}
-  turns: {value: multi-turn, reporting_status: reported, notes: Agents iteratively inspect and analyze workspace data.}
-  system_prompt_public: *nr
-  reasoning: {value: highest available reasoning setting, reporting_status: reported, notes: Pro mode is split into a separate run.}
+  shots:
+    value: null
+    reporting_status: not_reported
+    notes: The report enumerates the initial instructions but does not characterize the setup using a zero/few-shot convention.
+  turns:
+    value: multi-turn agent-container trajectory
+    reporting_status: reported
+    notes: Agents iteratively inspect files, execute analyses, and return a final JSON object.
+  system_prompt_public:
+    value: false
+    reporting_status: reported
+    notes: The task prompts for ten cases are public, but the full harness system message and 119 held-out prompts are not
+      published.
+  reasoning:
+    value: provider-reported xhigh reasoning setting
+    reporting_status: reported
+    notes: Effort labels are provider-native configuration labels; no claim is made that equal labels imply equal token budgets
+      across providers.
   tools:
-    browser: {value: false, reporting_status: reported, notes: Isolated workspace evaluation.}
-    internet: {value: false, reporting_status: reported, notes: Isolated workspace evaluation.}
-    databases: *nr
-    code_execution: {value: true, reporting_status: reported, notes: Python and bioinformatics software are provided.}
-    container: {value: true, reporting_status: reported, notes: Isolated workspace.}
-    external_tools: {value: [PLINK 2.0, Python scientific stack], reporting_status: reported, notes: Problems do not necessarily require domain-specific tools.}
-  token_budget: *nr
-  time_budget: *nr
-  temperature: *nr
-  seed: *nr
-  repeats: *nr
-  grader: {type: deterministic target checker, model: null, human_review: false, reporting_status: reported}
-  statistical: {value: task pass rate, reporting_status: reported, notes: Deterministic grading against known synthetic targets.}
-  contamination: {value: 10 tasks public and remaining tasks held out, reporting_status: reported, notes: Synthetic construction and held-out tasks reduce shortcut risk.}
+    browser:
+      value: false
+      reporting_status: reported
+      notes: The isolated workspace had no internet access.
+    internet:
+      value: false
+      reporting_status: reported
+      notes: Methods explicitly state that the execution environment had no internet access.
+    databases:
+      value: false
+      reporting_status: reported
+      notes: Agents were limited to staged local files, installed software, and model-internal knowledge.
+    code_execution:
+      value: true
+      reporting_status: reported
+      notes: Python and R analysis were available in the Linux environment.
+    container:
+      value: true
+      reporting_status: reported
+      notes: Runs used a Linux Docker container.
+    external_tools:
+      value:
+      - Python/R scientific stacks
+      - PLINK 2.0
+      - bedtools/tabix
+      - pysam/cyvcf2
+      - scanpy/anndata
+      - DESeq2/edgeR/limma
+      reporting_status: reported
+      notes: Representative installed packages; the paper provides the longer exact list.
+  token_budget:
+    value: null
+    reporting_status: not_reported
+    notes: No uniform token budget is reported. Supplementary Table 1 reports observed average tokens only for mainline GPT-family
+      configurations.
+  time_budget:
+    value: No additional uniform wall-clock budget imposed by the harness
+    reporting_status: reported
+    notes: Runs remained subject to provider and platform behavior.
+  temperature:
+    value: null
+    reporting_status: not_reported
+    notes: Not reported.
+  seed:
+    value: null
+    reporting_status: not_reported
+    notes: Not reported.
+  repeats:
+    value: 10
+    reporting_status: reported
+    notes: 10 independent attempts per model–problem pair were scheduled; invalid container, tooling, provider, or response-format
+      attempts were excluded.
+  grader:
+    type: problem-specific Python binary checker requiring every graded field to satisfy exact-match or absolute-tolerance
+      constraints
+    model: null
+    human_review: false
+    reporting_status: reported
+  statistical:
+    value: unweighted mean of 129 per-problem pass rates with a 95% hierarchical bootstrap CI from 20,000 resamples of problems
+      and repeated runs
+    reporting_status: reported
+    notes: Per-problem rates use the final valid attempts; no partial credit. The free-text reasoning field is collected but
+      not graded.
+  contamination:
+    value: constructively simulated suite with disjoint 10 public, 50 Artificial Analysis, and 69 internal-holdout release
+      strata
+    reporting_status: reported
+    notes: The full reported evaluation includes every release stratum.
 metrics:
-  - {metric_id: pass-rate, source_label: Pass rate, unit: percent, range: [0, 100], higher_is_better: true, aggregation: problem-weighted mean, pass_threshold: null, tolerance: task-specific numerical tolerance}
+- metric_id: pass-rate
+  source_label: Eval-level pass rate
+  unit: percent
+  range:
+  - 0
+  - 100
+  higher_is_better: true
+  aggregation: unweighted mean across 129 problem-level pass rates; each problem-level rate is passing valid attempts divided
+    by valid attempts
+  pass_threshold: null
+  tolerance: A problem attempt passes only when all graded fields satisfy their problem-specific exact-match rules or absolute
+    numeric tolerances.
 results:
-  - {model_id: gpt-5-6-sol, metric_id: pass-rate, value: 28.7, ci_low: null, ci_high: null, n: 129, notes: Highest reasoning setting.}
-  - {model_id: gpt-5-5, metric_id: pass-rate, value: 12.0, ci_low: null, ci_high: null, n: 129, notes: null}
-  - {model_id: gpt-5-4, metric_id: pass-rate, value: 8.9, ci_low: null, ci_high: null, n: 129, notes: null}
-  - {model_id: claude-opus-4-8, metric_id: pass-rate, value: 16.0, ci_low: null, ci_high: null, n: 129, notes: null}
-comparability_group: genebench-pro-v1-full-high-reasoning
-verification: {status: verified, last_verified: '2026-07-21', notes: Only values explicitly available in the official report are included.}
+- model_id: minimax-m2-7
+  metric_id: pass-rate
+  value: 0.6
+  ci_low: 0.1
+  ci_high: 1.4
+  n: 129
+  notes: Supplementary Table 1 configuration MiniMaxM2.7 (xhigh); nominal attempts per problem 10, valid-attempt mean 9.9
+    and range 8–10; average tokens not reported; problem regimes 0%=96.1%, 0–10%=2.3%, 10–50%=1.6%, ≥50%=0.0%.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - genebench-pro-official-results
+- model_id: tencent-hy-3-preview
+  metric_id: pass-rate
+  value: 0.9
+  ci_low: 0.2
+  ci_high: 1.7
+  n: 129
+  notes: Supplementary Table 1 configuration TencentHY3Preview (xhigh); nominal attempts per problem 10, valid-attempt mean
+    9.8 and range 8–10; average tokens not reported; problem regimes 0%=92.2%, 0–10%=6.2%, 10–50%=1.6%, ≥50%=0.0%.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - genebench-pro-official-results
+- model_id: minimax-m3
+  metric_id: pass-rate
+  value: 0.9
+  ci_low: 0.1
+  ci_high: 2.0
+  n: 129
+  notes: Supplementary Table 1 configuration MiniMaxM3 (xhigh); nominal attempts per problem 10, valid-attempt mean 9.6 and
+    range 7–10; average tokens not reported; problem regimes 0%=96.1%, 0–10%=1.6%, 10–50%=2.3%, ≥50%=0.0%.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - genebench-pro-official-results
+- model_id: mimo-v2-5
+  metric_id: pass-rate
+  value: 1.2
+  ci_low: 0.4
+  ci_high: 2.2
+  n: 129
+  notes: Supplementary Table 1 configuration MiMoV2.5 (xhigh); nominal attempts per problem 10, valid-attempt mean 9.9 and
+    range 8–10; average tokens not reported; problem regimes 0%=91.5%, 0–10%=6.2%, 10–50%=2.3%, ≥50%=0.0%.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - genebench-pro-official-results
+- model_id: glm-5-1
+  metric_id: pass-rate
+  value: 1.2
+  ci_low: 0.2
+  ci_high: 2.8
+  n: 129
+  notes: Supplementary Table 1 configuration GLM5.1 (xhigh); nominal attempts per problem 10, valid-attempt mean 9.7 and range
+    8–10; average tokens not reported; problem regimes 0%=95.3%, 0–10%=2.3%, 10–50%=1.6%, ≥50%=0.8%.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - genebench-pro-official-results
+- model_id: mimo-v2-5-pro
+  metric_id: pass-rate
+  value: 2.0
+  ci_low: 0.9
+  ci_high: 3.5
+  n: 129
+  notes: Supplementary Table 1 configuration MiMoV2.5Pro (xhigh); nominal attempts per problem 10, valid-attempt mean 9.9
+    and range 8–10; average tokens not reported; problem regimes 0%=86.8%, 0–10%=9.3%, 10–50%=3.1%, ≥50%=0.8%.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - genebench-pro-official-results
+- model_id: qwen-3-7-plus
+  metric_id: pass-rate
+  value: 2.3
+  ci_low: 1.0
+  ci_high: 4.0
+  n: 129
+  notes: Supplementary Table 1 configuration Qwen3.7Plus (xhigh); nominal attempts per problem 10, valid-attempt mean 9.7
+    and range 6–10; average tokens not reported; problem regimes 0%=86.8%, 0–10%=7.0%, 10–50%=5.4%, ≥50%=0.8%.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - genebench-pro-official-results
+- model_id: deepseek-v4-flash
+  metric_id: pass-rate
+  value: 2.4
+  ci_low: 1.0
+  ci_high: 4.2
+  n: 129
+  notes: Supplementary Table 1 configuration DeepSeekV4Flash (xhigh); nominal attempts per problem 10, valid-attempt mean
+    9.9 and range 9–10; average tokens not reported; problem regimes 0%=87.6%, 0–10%=6.2%, 10–50%=4.7%, ≥50%=1.6%.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - genebench-pro-official-results
+- model_id: deepseek-v4-pro
+  metric_id: pass-rate
+  value: 2.4
+  ci_low: 1.2
+  ci_high: 3.9
+  n: 129
+  notes: Supplementary Table 1 configuration DeepSeekV4Pro (xhigh); nominal attempts per problem 10, valid-attempt mean 9.6
+    and range 8–10; average tokens not reported; problem regimes 0%=84.5%, 0–10%=4.7%, 10–50%=10.9%, ≥50%=0.0%.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - genebench-pro-official-results
+- model_id: qwen-3-7-max
+  metric_id: pass-rate
+  value: 4.0
+  ci_low: 2.2
+  ci_high: 6.0
+  n: 129
+  notes: Supplementary Table 1 configuration Qwen3.7Max (xhigh); nominal attempts per problem 10, valid-attempt mean 9.8 and
+    range 9–10; average tokens not reported; problem regimes 0%=79.8%, 0–10%=7.8%, 10–50%=11.6%, ≥50%=0.8%.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - genebench-pro-official-results
+- model_id: kimi-k2-6
+  metric_id: pass-rate
+  value: 4.4
+  ci_low: 2.0
+  ci_high: 7.2
+  n: 129
+  notes: Supplementary Table 1 configuration KimiK2.6 (xhigh); nominal attempts per problem 10, valid-attempt mean 9.9 and
+    range 7–10; average tokens not reported; problem regimes 0%=84.5%, 0–10%=6.2%, 10–50%=6.2%, ≥50%=3.1%.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - genebench-pro-official-results
+- model_id: gpt-5-2
+  metric_id: pass-rate
+  value: 4.9
+  ci_low: 2.7
+  ci_high: 7.4
+  n: 129
+  notes: Supplementary Table 1 configuration GPT-5.2 (xhigh); nominal attempts per problem 10, valid-attempt mean 9.9 and
+    range 9–10; average tokens 52.0k; problem regimes 0%=77.5%, 0–10%=10.1%, 10–50%=10.9%, ≥50%=1.6%.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - genebench-pro-official-results
+- model_id: gpt-5-4
+  metric_id: pass-rate
+  value: 8.9
+  ci_low: 6.0
+  ci_high: 12.1
+  n: 129
+  notes: Supplementary Table 1 configuration GPT-5.4 (xhigh); nominal attempts per problem 10, valid-attempt mean 10.0 and
+    range 9–10; average tokens 44.7k; problem regimes 0%=67.4%, 0–10%=9.3%, 10–50%=18.6%, ≥50%=4.7%.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - genebench-pro-official-results
+- model_id: gpt-5-5
+  metric_id: pass-rate
+  value: 12.0
+  ci_low: 8.2
+  ci_high: 16.1
+  n: 129
+  notes: Supplementary Table 1 configuration GPT-5.5 (xhigh); nominal attempts per problem 10, valid-attempt mean 10.0 and
+    range 9–10; average tokens 28.7k; problem regimes 0%=64.3%, 0–10%=8.5%, 10–50%=18.6%, ≥50%=8.5%.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - genebench-pro-official-results
+- model_id: gpt-5-6-luna
+  metric_id: pass-rate
+  value: 10.8
+  ci_low: 7.0
+  ci_high: 15.0
+  n: 129
+  notes: Supplementary Table 1 configuration GPT-5.6Luna (xhigh); nominal attempts per problem 10, valid-attempt mean 9.8
+    and range 7–10; average tokens 53.1k; problem regimes 0%=70.5%, 0–10%=8.5%, 10–50%=10.1%, ≥50%=10.9%.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - genebench-pro-official-results
+- model_id: gpt-5-6-terra
+  metric_id: pass-rate
+  value: 18.8
+  ci_low: 13.7
+  ci_high: 24.3
+  n: 129
+  notes: Supplementary Table 1 configuration GPT-5.6Terra (xhigh); nominal attempts per problem 10, valid-attempt mean 10.0
+    and range 9–10; average tokens 31.1k; problem regimes 0%=56.6%, 0–10%=7.8%, 10–50%=19.4%, ≥50%=16.3%.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - genebench-pro-official-results
+- model_id: gpt-5-6-sol
+  metric_id: pass-rate
+  value: 26.8
+  ci_low: 20.7
+  ci_high: 33.2
+  n: 129
+  notes: Supplementary Table 1 configuration GPT-5.6Sol (xhigh); nominal attempts per problem 10, valid-attempt mean 9.9 and
+    range 9–10; average tokens 25.7k; problem regimes 0%=50.4%, 0–10%=6.2%, 10–50%=14.0%, ≥50%=29.5%.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - genebench-pro-official-results
+comparability_group: genebench-pro-paper-v1-full-standard-xhigh
+verification:
+  status: verified
+  last_verified: '2026-07-21'
+  notes: 17 configuration result(s), confidence intervals, repeats, valid-attempt summaries, and environment settings were
+    checked against Methods and Supplementary Table 1.
 evidence:
-  - {work_id: genebench-pro-report, locator: 'Evaluation and grading; Results; main model comparison figure', supports: [scope, protocol, metrics, results]}
+- id: genebench-pro-official-protocol
+  source_type: work
+  source_id: genebench-pro-report
+  accessed_date: '2026-07-21'
+  locator:
+    type: section
+    value: Methods — Evaluation and grading, printed page 15
+    note: Full scope, attempts, invalid-run exclusion, Docker environment, installed tools, no internet, response schema,
+      binary grader, and no uniform harness wall-clock budget.
+  supports:
+  - /benchmark_version
+  - /model_ids
+  - /scope
+  - /protocol
+  - /metrics
+- id: genebench-pro-official-results
+  source_type: work
+  source_id: genebench-pro-report
+  accessed_date: '2026-07-21'
+  locator:
+    type: table
+    value: Supplementary Table 1, printed page 21
+    note: Exact configuration labels, pass rates, 95% CI bounds, average tokens where available, valid-attempt summaries,
+      and problem-regime shares.
+  supports:
+  - /results

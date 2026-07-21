@@ -537,6 +537,82 @@ def test_lab_bench_resolves_counts_tracks_creator_results_and_official_runs() ->
     assert {row["confidence"] for row in lab_results} == {"high"}
 
 
+def test_genebench_pro_partitions_release_strata_and_all_sixty_configurations() -> None:
+    entities = load_entities()
+    benchmark = next(item for item in entities["benchmark"] if item["id"] == "genebench-pro")
+    work = next(item for item in entities["work"] if item["id"] == "genebench-pro-report")
+    runs = {
+        item["id"]: item for item in entities["evaluation_run"]
+        if item["benchmark_id"] == "genebench-pro"
+    }
+    subsets = {item["id"]: item for item in benchmark["task_counts"]["subsets"]}
+
+    assert benchmark["audit"]["status"] == "audited-with-caveats"
+    assert benchmark["latest_version"] == "paper-v1"
+    assert benchmark["task_counts"]["total"] == 129
+    assert benchmark["versions"][0]["task_counts"] == benchmark["task_counts"]
+    release_counts = {
+        item_id: subsets[item_id]["count"] for item_id in (
+            "genebench-pro-public-release",
+            "genebench-pro-artificial-analysis",
+            "genebench-pro-internal-holdout",
+        )
+    }
+    assert release_counts == {
+        "genebench-pro-public-release": 10,
+        "genebench-pro-artificial-analysis": 50,
+        "genebench-pro-internal-holdout": 69,
+    }
+    assert all(subsets[item_id]["exclusive"] and subsets[item_id]["exhaustive"] for item_id in release_counts)
+    primary = [item for item in subsets.values() if item["id"].startswith("genebench-pro-primary-")]
+    terminal = [item for item in subsets.values() if item["id"].startswith("genebench-pro-terminal-")]
+    assert len(primary) == 10 and sum(item["count"] for item in primary) == 129
+    assert len(terminal) == 21 and sum(item["count"] for item in terminal) == 129
+    assert subsets["genebench-pro-externally-reviewed"]["count"] == 82
+    assert subsets["genebench-pro-not-externally-reviewed"]["count"] == 47
+    assert "single-cell" in benchmark["domains"]
+    binding = next(item for item in benchmark["coverage_notes"] if item["tag"] == "protein-protein-binding")
+    assert binding["count"] is None and binding["reporting_status"] == "not_reported"
+    assert {item["path"] for item in benchmark["field_status"]} == {"/access/license"}
+    assert "CC-BY-4.0" in benchmark["access"]["license"] and "MIT" in benchmark["access"]["license"]
+    public_resource = next(
+        item for item in benchmark["resources"] if item["id"] == "genebench-pro-public-dataset-resource"
+    )
+    assert public_resource["pin"]["value"] == "9bd2c54a6c0beef041e3504aa7eb65fc77783e18"
+    assert work["authors"] == ["Jeremiah H. Li", "Andrew J. Ho"]
+    assert work["doi"] == "10.64898/2026.06.29.735386"
+
+    assert len(runs) == 13
+    assert sum(len(run["results"]) for run in runs.values()) == 60
+    assert {len(run["results"]) for run in runs.values()} >= {1, 3, 6, 10, 17}
+    assert all(run["benchmark_version"] == "paper-v1" for run in runs.values())
+    assert all(run["scope"]["type"] == "full" and run["scope"]["n"] == 129 for run in runs.values())
+    assert all(run["protocol"]["tools"]["internet"]["value"] is False for run in runs.values())
+    assert all(run["protocol"]["tools"]["code_execution"]["value"] is True for run in runs.values())
+    assert all(run["protocol"]["tools"]["container"]["value"] is True for run in runs.values())
+    assert all(run["protocol"]["grader"]["human_review"] is False for run in runs.values())
+    assert all("20,000 resamples" in run["protocol"]["statistical"]["value"] for run in runs.values())
+    assert all(run["metrics"][0]["aggregation"].startswith("unweighted mean") for run in runs.values())
+    standard_runs = [run for run in runs.values() if not run["id"].startswith("genebench-pro-claude-") and run["id"] != "genebench-pro-pro-mode"]
+    five_attempt_runs = [run for run in runs.values() if run not in standard_runs]
+    assert {run["protocol"]["repeats"]["value"] for run in standard_runs} == {10}
+    assert {run["protocol"]["repeats"]["value"] for run in five_attempt_runs} == {5}
+
+    def result(run_id: str, model_id: str) -> dict[str, object]:
+        return next(row for row in runs[run_id]["results"] if row["model_id"] == model_id)
+
+    assert result("genebench-pro-official", "gpt-5-4")["value"] == 8.9
+    assert result("genebench-pro-official", "gpt-5-5")["ci_high"] == 16.1
+    sol_max = result("genebench-pro-standard-max", "gpt-5-6-sol")
+    assert (sol_max["value"], sol_max["ci_low"], sol_max["ci_high"]) == (28.7, 22.5, 35.1)
+    assert result("genebench-pro-claude-max", "claude-opus-4-8")["value"] == 16.0
+    assert result("genebench-pro-pro-mode", "gpt-5-6-pro")["value"] == 31.5
+    all_results = [row for run in runs.values() for row in run["results"]]
+    assert all(row["ci_low"] is not None and row["ci_high"] is not None for row in all_results)
+    assert {row["status"] for row in all_results} == {"verified"}
+    assert {row["confidence"] for row in all_results} == {"high"}
+
+
 def test_biomysterybench_scope_and_repeats() -> None:
     entities = load_entities()
     benchmark = next(item for item in entities["benchmark"] if item["id"] == "biomysterybench")

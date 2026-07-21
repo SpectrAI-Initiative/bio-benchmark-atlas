@@ -1,9 +1,9 @@
 entity_type: model
-id: claude-opus-4-8
-name: Claude Opus 4.8
-provider: Anthropic
+id: minimax-m3
+name: MiniMax M3
+provider: MiniMax
 release_date: null
-version_string: Claude Opus 4.8
+version_string: MiniMax M3
 version_status: reported
 aliases: []
 verification:

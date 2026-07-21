@@ -1,0 +1,184 @@
+entity_type: evaluation_run
+id: lab-bench-cloning-scenarios-creator-mcq-llama-context
+work_id: lab-bench-paper
+benchmark_id: lab-bench-cloning-scenarios
+benchmark_version: paper-v3
+model_ids:
+- lab-bench-meta-llama-3-70b-instruct
+scope:
+  type: full
+  n: 41
+  subset_id: null
+  filter: Full 41-question metric denominator; only 25 prompts fit the model context limit.
+  reporting_status: reported
+protocol:
+  shots:
+    value: 0
+    reporting_status: reported
+    notes: Public zero-shot prompt.
+  turns:
+    value: single-turn
+    reporting_status: reported
+    notes: One multiple-choice completion per question.
+  system_prompt_public:
+    value: true
+    reporting_status: reported
+    notes: Appendix D.1 publishes the complete prompt template.
+  reasoning:
+    value: zero-shot chain-of-thought
+    reporting_status: reported
+    notes: Prompt includes Think step by step.
+  tools:
+    browser:
+      value: false
+      reporting_status: reported
+      notes: Creator baselines used no tools, including no internet.
+    internet:
+      value: false
+      reporting_status: reported
+      notes: Creator baselines used no tools, including no internet.
+    databases:
+      value: false
+      reporting_status: reported
+      notes: Creator baselines used no tools, including no internet.
+    code_execution:
+      value: false
+      reporting_status: reported
+      notes: Creator baselines used no tools, including no internet.
+    container:
+      value: false
+      reporting_status: reported
+      notes: Creator baselines used no tools, including no internet.
+    external_tools:
+      value: false
+      reporting_status: reported
+      notes: Creator baselines used no tools, including no internet.
+  token_budget:
+    value: null
+    reporting_status: not_reported
+    notes: Only 25 of 41 prompts fit the Llama 3 context limit; the other 16 were counted as insufficient-information responses
+      for accuracy.
+  time_budget:
+    value: null
+    reporting_status: not_reported
+    notes: Not reported.
+  temperature:
+    value: null
+    reporting_status: not_reported
+    notes: Not reported.
+  seed:
+    value: null
+    reporting_status: not_reported
+    notes: Not reported.
+  repeats:
+    value: 3
+    reporting_status: reported
+    notes: Tables 2–4 average three runs per model.
+  grader:
+    type: regex multiple-choice parser with Claude 2 fallback
+    model: Claude 2 fallback parser
+    human_review: false
+    reporting_status: reported
+  statistical:
+    value: mean across three runs per model
+    reporting_status: reported
+    notes: No numeric confidence intervals are reported in Tables 2–4.
+  contamination:
+    value: full pre-release snapshot with 80% later public and 20% private contamination-monitoring splits
+    reporting_status: reported
+    notes: Main results combine both splits.
+metrics:
+- metric_id: accuracy
+  source_label: Accuracy
+  unit: proportion
+  range:
+  - 0
+  - 1
+  higher_is_better: true
+  aggregation: correct / all questions; mean over three runs
+  pass_threshold: null
+  tolerance: exact choice
+- metric_id: precision
+  source_label: Precision (selective accuracy)
+  unit: proportion
+  range:
+  - 0
+  - 1
+  higher_is_better: true
+  aggregation: correct / attempted questions; mean over three runs
+  pass_threshold: null
+  tolerance: insufficient-information responses excluded from denominator
+- metric_id: coverage
+  source_label: Coverage
+  unit: proportion
+  range:
+  - 0
+  - 1
+  higher_is_better: true
+  aggregation: attempted / all questions; mean over three runs
+  pass_threshold: null
+  tolerance: insufficient-information responses treated as not attempted
+results:
+- model_id: lab-bench-meta-llama-3-70b-instruct
+  metric_id: accuracy
+  value: 0.24
+  ci_low: null
+  ci_high: null
+  n: 41
+  notes: Only 25 prompts fit; 16 were counted as insufficient-information responses for accuracy and coverage.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - lab-bench-cloning-scenarios-creator-mcq-llama-context-results
+- model_id: lab-bench-meta-llama-3-70b-instruct
+  metric_id: precision
+  value: 0.34
+  ci_low: null
+  ci_high: null
+  n: 41
+  notes: Only 25 prompts fit; 16 were counted as insufficient-information responses for accuracy and coverage.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - lab-bench-cloning-scenarios-creator-mcq-llama-context-results
+- model_id: lab-bench-meta-llama-3-70b-instruct
+  metric_id: coverage
+  value: 0.72
+  ci_low: null
+  ci_high: null
+  n: 41
+  notes: Only 25 prompts fit; 16 were counted as insufficient-information responses for accuracy and coverage.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - lab-bench-cloning-scenarios-creator-mcq-llama-context-results
+comparability_group: lab-bench-cloning-scenarios-paper-v3-llama-context-limited
+verification:
+  status: verified
+  last_verified: '2026-07-21'
+  notes: Kept separate because the context limit changed realized model calls.
+evidence:
+- id: lab-bench-cloning-scenarios-creator-mcq-llama-context-protocol
+  source_type: work
+  source_id: lab-bench-paper
+  accessed_date: '2026-07-21'
+  locator:
+    type: section
+    value: Appendix D.2–D.4
+    note: Llama context handling, 25 prompted items, 16 insufficient-information treatments, three-run metrics.
+  supports:
+  - /benchmark_version
+  - /model_ids
+  - /scope
+  - /protocol
+  - /metrics
+- id: lab-bench-cloning-scenarios-creator-mcq-llama-context-results
+  source_type: work
+  source_id: lab-bench-paper
+  accessed_date: '2026-07-21'
+  locator:
+    type: table
+    value: Tables 2–4, CloningScenarios row, Meta-Llama-3-70B-Instruct column
+    note: Accuracy, precision, and coverage.
+  supports:
+  - /results

@@ -1,0 +1,14 @@
+entity_type: model
+id: lab-bench-claude-3-opus-20240229
+name: Claude 3 Opus (claude-3-opus-20240229)
+provider: Anthropic
+release_date: null
+version_string: claude-3-opus-20240229
+version_status: reported
+aliases:
+- Claude 3 Opus
+verification:
+  status: verified
+  last_verified: '2026-07-21'
+  notes: Identity follows the exact label or API string reported by the cited official work; no unreported dated snapshot
+    is inferred.

@@ -1,0 +1,387 @@
+entity_type: evaluation_run
+id: lab-bench-suppqa-creator-mcq
+work_id: lab-bench-paper
+benchmark_id: lab-bench-suppqa
+benchmark_version: paper-v3
+model_ids:
+- lab-bench-claude-3-5-sonnet-20240620
+- lab-bench-claude-3-opus-20240229
+- lab-bench-gemini-1-5-pro-001
+- lab-bench-gpt-4o-unversioned
+- lab-bench-gpt-4-turbo-unversioned
+- lab-bench-claude-3-haiku-20240307
+- lab-bench-meta-llama-3-70b-instruct
+scope:
+  type: full
+  n: 102
+  subset_id: null
+  filter: Complete creator snapshot, combining public and private splits.
+  reporting_status: reported
+protocol:
+  shots:
+    value: 0
+    reporting_status: reported
+    notes: Public zero-shot prompt.
+  turns:
+    value: single-turn
+    reporting_status: reported
+    notes: One multiple-choice completion per question.
+  system_prompt_public:
+    value: true
+    reporting_status: reported
+    notes: Appendix D.1 publishes the complete prompt template.
+  reasoning:
+    value: zero-shot chain-of-thought
+    reporting_status: reported
+    notes: Prompt includes Think step by step.
+  tools:
+    browser:
+      value: false
+      reporting_status: reported
+      notes: Creator baselines used no tools, including no internet.
+    internet:
+      value: false
+      reporting_status: reported
+      notes: Creator baselines used no tools, including no internet.
+    databases:
+      value: false
+      reporting_status: reported
+      notes: Creator baselines used no tools, including no internet.
+    code_execution:
+      value: false
+      reporting_status: reported
+      notes: Creator baselines used no tools, including no internet.
+    container:
+      value: false
+      reporting_status: reported
+      notes: Creator baselines used no tools, including no internet.
+    external_tools:
+      value: false
+      reporting_status: reported
+      notes: Creator baselines used no tools, including no internet.
+  token_budget:
+    value: null
+    reporting_status: not_reported
+    notes: No common token budget is reported.
+  time_budget:
+    value: null
+    reporting_status: not_reported
+    notes: Not reported.
+  temperature:
+    value: null
+    reporting_status: not_reported
+    notes: Not reported.
+  seed:
+    value: null
+    reporting_status: not_reported
+    notes: Not reported.
+  repeats:
+    value: 3
+    reporting_status: reported
+    notes: Tables 2–4 average three runs per model.
+  grader:
+    type: regex multiple-choice parser with Claude 2 fallback
+    model: Claude 2 fallback parser
+    human_review: false
+    reporting_status: reported
+  statistical:
+    value: mean across three runs per model
+    reporting_status: reported
+    notes: No numeric confidence intervals are reported in Tables 2–4.
+  contamination:
+    value: full pre-release snapshot with 80% later public and 20% private contamination-monitoring splits
+    reporting_status: reported
+    notes: Main results combine both splits.
+metrics:
+- metric_id: accuracy
+  source_label: Accuracy
+  unit: proportion
+  range:
+  - 0
+  - 1
+  higher_is_better: true
+  aggregation: correct / all questions; mean over three runs
+  pass_threshold: null
+  tolerance: exact choice
+- metric_id: precision
+  source_label: Precision (selective accuracy)
+  unit: proportion
+  range:
+  - 0
+  - 1
+  higher_is_better: true
+  aggregation: correct / attempted questions; mean over three runs
+  pass_threshold: null
+  tolerance: insufficient-information responses excluded from denominator
+- metric_id: coverage
+  source_label: Coverage
+  unit: proportion
+  range:
+  - 0
+  - 1
+  higher_is_better: true
+  aggregation: attempted / all questions; mean over three runs
+  pass_threshold: null
+  tolerance: insufficient-information responses treated as not attempted
+results:
+- model_id: lab-bench-claude-3-5-sonnet-20240620
+  metric_id: accuracy
+  value: 0.02
+  ci_low: null
+  ci_high: null
+  n: 102
+  notes: Creator-paper full-snapshot result; human-baseline row is not encoded as a model result.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - lab-bench-suppqa-creator-mcq-results
+- model_id: lab-bench-claude-3-5-sonnet-20240620
+  metric_id: precision
+  value: 0.75
+  ci_low: null
+  ci_high: null
+  n: 102
+  notes: Creator-paper full-snapshot result; human-baseline row is not encoded as a model result.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - lab-bench-suppqa-creator-mcq-results
+- model_id: lab-bench-claude-3-5-sonnet-20240620
+  metric_id: coverage
+  value: 0.04
+  ci_low: null
+  ci_high: null
+  n: 102
+  notes: Creator-paper full-snapshot result; human-baseline row is not encoded as a model result.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - lab-bench-suppqa-creator-mcq-results
+- model_id: lab-bench-claude-3-opus-20240229
+  metric_id: accuracy
+  value: 0.02
+  ci_low: null
+  ci_high: null
+  n: 102
+  notes: Creator-paper full-snapshot result; human-baseline row is not encoded as a model result.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - lab-bench-suppqa-creator-mcq-results
+- model_id: lab-bench-claude-3-opus-20240229
+  metric_id: precision
+  value: 0.59
+  ci_low: null
+  ci_high: null
+  n: 102
+  notes: Creator-paper full-snapshot result; human-baseline row is not encoded as a model result.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - lab-bench-suppqa-creator-mcq-results
+- model_id: lab-bench-claude-3-opus-20240229
+  metric_id: coverage
+  value: 0.04
+  ci_low: null
+  ci_high: null
+  n: 102
+  notes: Creator-paper full-snapshot result; human-baseline row is not encoded as a model result.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - lab-bench-suppqa-creator-mcq-results
+- model_id: lab-bench-gemini-1-5-pro-001
+  metric_id: accuracy
+  value: 0.01
+  ci_low: null
+  ci_high: null
+  n: 102
+  notes: Creator-paper full-snapshot result; human-baseline row is not encoded as a model result.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - lab-bench-suppqa-creator-mcq-results
+- model_id: lab-bench-gemini-1-5-pro-001
+  metric_id: precision
+  value: 0.32
+  ci_low: null
+  ci_high: null
+  n: 102
+  notes: Creator-paper full-snapshot result; human-baseline row is not encoded as a model result.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - lab-bench-suppqa-creator-mcq-results
+- model_id: lab-bench-gemini-1-5-pro-001
+  metric_id: coverage
+  value: 0.04
+  ci_low: null
+  ci_high: null
+  n: 102
+  notes: Creator-paper full-snapshot result; human-baseline row is not encoded as a model result.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - lab-bench-suppqa-creator-mcq-results
+- model_id: lab-bench-gpt-4o-unversioned
+  metric_id: accuracy
+  value: 0.13
+  ci_low: null
+  ci_high: null
+  n: 102
+  notes: Creator-paper full-snapshot result; human-baseline row is not encoded as a model result.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - lab-bench-suppqa-creator-mcq-results
+- model_id: lab-bench-gpt-4o-unversioned
+  metric_id: precision
+  value: 0.47
+  ci_low: null
+  ci_high: null
+  n: 102
+  notes: Creator-paper full-snapshot result; human-baseline row is not encoded as a model result.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - lab-bench-suppqa-creator-mcq-results
+- model_id: lab-bench-gpt-4o-unversioned
+  metric_id: coverage
+  value: 0.29
+  ci_low: null
+  ci_high: null
+  n: 102
+  notes: Creator-paper full-snapshot result; human-baseline row is not encoded as a model result.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - lab-bench-suppqa-creator-mcq-results
+- model_id: lab-bench-gpt-4-turbo-unversioned
+  metric_id: accuracy
+  value: 0.06
+  ci_low: null
+  ci_high: null
+  n: 102
+  notes: Creator-paper full-snapshot result; human-baseline row is not encoded as a model result.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - lab-bench-suppqa-creator-mcq-results
+- model_id: lab-bench-gpt-4-turbo-unversioned
+  metric_id: precision
+  value: 0.39
+  ci_low: null
+  ci_high: null
+  n: 102
+  notes: Creator-paper full-snapshot result; human-baseline row is not encoded as a model result.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - lab-bench-suppqa-creator-mcq-results
+- model_id: lab-bench-gpt-4-turbo-unversioned
+  metric_id: coverage
+  value: 0.14
+  ci_low: null
+  ci_high: null
+  n: 102
+  notes: Creator-paper full-snapshot result; human-baseline row is not encoded as a model result.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - lab-bench-suppqa-creator-mcq-results
+- model_id: lab-bench-claude-3-haiku-20240307
+  metric_id: accuracy
+  value: 0.18
+  ci_low: null
+  ci_high: null
+  n: 102
+  notes: Creator-paper full-snapshot result; human-baseline row is not encoded as a model result.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - lab-bench-suppqa-creator-mcq-results
+- model_id: lab-bench-claude-3-haiku-20240307
+  metric_id: precision
+  value: 0.35
+  ci_low: null
+  ci_high: null
+  n: 102
+  notes: Creator-paper full-snapshot result; human-baseline row is not encoded as a model result.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - lab-bench-suppqa-creator-mcq-results
+- model_id: lab-bench-claude-3-haiku-20240307
+  metric_id: coverage
+  value: 0.53
+  ci_low: null
+  ci_high: null
+  n: 102
+  notes: Creator-paper full-snapshot result; human-baseline row is not encoded as a model result.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - lab-bench-suppqa-creator-mcq-results
+- model_id: lab-bench-meta-llama-3-70b-instruct
+  metric_id: accuracy
+  value: 0.2
+  ci_low: null
+  ci_high: null
+  n: 102
+  notes: Creator-paper full-snapshot result; human-baseline row is not encoded as a model result.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - lab-bench-suppqa-creator-mcq-results
+- model_id: lab-bench-meta-llama-3-70b-instruct
+  metric_id: precision
+  value: 0.27
+  ci_low: null
+  ci_high: null
+  n: 102
+  notes: Creator-paper full-snapshot result; human-baseline row is not encoded as a model result.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - lab-bench-suppqa-creator-mcq-results
+- model_id: lab-bench-meta-llama-3-70b-instruct
+  metric_id: coverage
+  value: 0.74
+  ci_low: null
+  ci_high: null
+  n: 102
+  notes: Creator-paper full-snapshot result; human-baseline row is not encoded as a model result.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - lab-bench-suppqa-creator-mcq-results
+comparability_group: lab-bench-suppqa-paper-v3-zero-shot-cot-no-tools
+verification:
+  status: verified
+  last_verified: '2026-07-21'
+  notes: All registered values were parsed from creator Tables 2–4 and independently checked against the HTML table rows.
+evidence:
+- id: lab-bench-suppqa-creator-mcq-protocol
+  source_type: work
+  source_id: lab-bench-paper
+  accessed_date: '2026-07-21'
+  locator:
+    type: section
+    value: Appendix D.1–D.4; Table 1 and Appendix Table 6
+    note: Full scope, zero-shot chain-of-thought prompt, no tools, three runs, exact metrics, parser, and model identities.
+  supports:
+  - /benchmark_version
+  - /model_ids
+  - /scope
+  - /protocol
+  - /metrics
+- id: lab-bench-suppqa-creator-mcq-results
+  source_type: work
+  source_id: lab-bench-paper
+  accessed_date: '2026-07-21'
+  locator:
+    type: table
+    value: Tables 2–4, row SuppQA
+    note: Accuracy, precision, and coverage. Human row excluded.
+  supports:
+  - /results

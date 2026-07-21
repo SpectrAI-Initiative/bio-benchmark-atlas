@@ -1,25 +1,531 @@
 entity_type: benchmark
 id: lab-bench-seqqa
 name: LAB-Bench SeqQA
-aliases: [SeqQA]
-summary: LAB-Bench track evaluating manipulation and interpretation of biological DNA, RNA, and protein sequences.
+aliases:
+- SeqQA
+summary: Sequence-comprehension and manipulation category spanning 15 formal tasks involving PCR, restriction digestion, ORFs,
+  translation, GC content, and DNA–protein relationships.
 kind: track
 parent_id: lab-bench
-organizations: [FutureHouse]
+organizations:
+- FutureHouse
 release_date: '2024-07-14'
-latest_version: repository-main
-domains: [genomics, protein-sequence, bioinformatics]
-capabilities: [scientific-reasoning, data-analysis]
-modalities: [text, dna-rna-sequence, protein-sequence]
-task_formats: [multiple choice]
-task_counts: {total: null, basis: questions, reporting_status: not_reported, subsets: []}
+latest_version: repository-998a8e0
+domains:
+- genomics
+- transcriptomics
+- protein-sequence
+- molecular-cell-biology
+capabilities:
+- data-analysis
+- design
+- prediction
+- scientific-reasoning
+- tool-use
+modalities:
+- text
+- dna-rna-sequence
+- protein-sequence
+task_formats:
+- multiple choice
+task_counts:
+  total: 750
+  basis: questions across formal child tasks
+  reporting_status: reported
+  subsets:
+  - id: lab-bench-seqqa-orf-seq-aaid
+    label: ORF amino-acid position
+    count: 50
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: null
+  - id: lab-bench-seqqa-orf-seq-aaseq
+    label: ORF amino-acid sequence
+    count: 50
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: null
+  - id: lab-bench-seqqa-orf-seq-numlen
+    label: ORF count above length
+    count: 50
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: null
+  - id: lab-bench-seqqa-orf-transeff
+    label: Translation efficiency
+    count: 50
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: null
+  - id: lab-bench-seqqa-pcr-gene-enzprimers
+    label: Gene-to-restriction primers
+    count: 50
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: null
+  - id: lab-bench-seqqa-pcr-gene-gibshindprimers
+    label: Gene-to-Gibson primers (HindIII)
+    count: 50
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: null
+  - id: lab-bench-seqqa-pcr-gene-gibssmaprimers
+    label: Gene-to-Gibson primers (SmaI)
+    count: 50
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: null
+  - id: lab-bench-seqqa-pcr-geneprimers-enz
+    label: Primers-to-restriction enzymes
+    count: 50
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: null
+  - id: lab-bench-seqqa-pcr-len-primers
+    label: Amplicon length to primers
+    count: 50
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: null
+  - id: lab-bench-seqqa-pcr-primers-len
+    label: Primers to amplicon length
+    count: 50
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: null
+  - id: lab-bench-seqqa-pcr-seq-enzprimers
+    label: Sequence-to-restriction primers
+    count: 50
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: null
+  - id: lab-bench-seqqa-pcr-seq-primers
+    label: Amplicon sequence to primers
+    count: 50
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: null
+  - id: lab-bench-seqqa-prop-seq-gcpercent
+    label: GC percentage
+    count: 50
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: null
+  - id: lab-bench-seqqa-re-seq-lenfrags
+    label: Restriction-fragment lengths
+    count: 50
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: null
+  - id: lab-bench-seqqa-re-seq-numfrags
+    label: Restriction-fragment count
+    count: 50
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: null
 coverage_notes:
-  - {tag: protein-sequence, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: Track mixes nucleotide and protein sequence questions.}
-access: {level: partially-open, tasks: Approximately 80% of LAB-Bench is public., artifacts: Sequences appear in released task data., grader: Open-source exact-choice evaluator., license: CC-BY-SA-4.0, biosafety_notes: null}
+- tag: protein-sequence
+  coverage: explicitly-in-scope
+  count: null
+  reporting_status: not_reported
+  notes: ORF tasks connect DNA/RNA and amino-acid outputs, but no official protein-only question count is published.
+- tag: protein-design
+  coverage: not-in-scope
+  count: 0
+  reporting_status: reported
+  notes: Primer design is included; protein sequence design is not.
+access:
+  level: partially-open
+  tasks: 600 questions are public and 150 question contents are withheld.
+  artifacts: Public questions and all public/private split IDs are versioned in the official repository.
+  grader: The official harness scores exact single-choice outputs and reports accuracy, precision, coverage, and n.
+  license: CC-BY-SA-4.0
+  biosafety_notes: BioBench Atlas stores metadata and aggregate results only.
 resources:
-  - {type: repository, url: 'https://github.com/Future-House/LAB-Bench/tree/998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838/SeqQA', license: CC-BY-SA-4.0, access_notes: Commit-pinned track directory.}
+- id: lab-bench-seqqa-repository-resource
+  type: repository
+  url: https://github.com/Future-House/LAB-Bench/tree/998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838/SeqQA
+  license: CC-BY-SA-4.0
+  access_notes: Commit-pinned official category directory.
+  last_checked: '2026-07-21'
+  pin:
+    kind: commit
+    value: 998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838
+    url: https://github.com/Future-House/LAB-Bench/tree/998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838/SeqQA
 implementations:
-  - {framework: labbench Python evaluator, status: official, url: 'https://github.com/Future-House/LAB-Bench/tree/998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838', commit: 998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838, notes: null}
-verification: {status: verified, last_verified: '2026-07-21', notes: Canonical suite track.}
+- framework: labbench Python evaluator
+  status: official
+  url: https://github.com/Future-House/LAB-Bench/tree/998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838
+  commit: 998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838
+  notes: Official category loader and evaluator.
+versions:
+- id: lab-bench-seqqa-paper-v3
+  label: paper-v3
+  status: active
+  release_date: '2024-07-17'
+  as_of: '2024-07-17'
+  task_counts:
+    total: 750
+    basis: questions across formal child tasks
+    reporting_status: reported
+    subsets:
+    - id: lab-bench-seqqa-orf-seq-aaid
+      label: ORF amino-acid position
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-seqqa-orf-seq-aaseq
+      label: ORF amino-acid sequence
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-seqqa-orf-seq-numlen
+      label: ORF count above length
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-seqqa-orf-transeff
+      label: Translation efficiency
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-seqqa-pcr-gene-enzprimers
+      label: Gene-to-restriction primers
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-seqqa-pcr-gene-gibshindprimers
+      label: Gene-to-Gibson primers (HindIII)
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-seqqa-pcr-gene-gibssmaprimers
+      label: Gene-to-Gibson primers (SmaI)
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-seqqa-pcr-geneprimers-enz
+      label: Primers-to-restriction enzymes
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-seqqa-pcr-len-primers
+      label: Amplicon length to primers
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-seqqa-pcr-primers-len
+      label: Primers to amplicon length
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-seqqa-pcr-seq-enzprimers
+      label: Sequence-to-restriction primers
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-seqqa-pcr-seq-primers
+      label: Amplicon sequence to primers
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-seqqa-prop-seq-gcpercent
+      label: GC percentage
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-seqqa-re-seq-lenfrags
+      label: Restriction-fragment lengths
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-seqqa-re-seq-numfrags
+      label: Restriction-fragment count
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+  formal_tracks: &id001
+  - lab-bench-seqqa-orf-seq-aaid
+  - lab-bench-seqqa-orf-seq-aaseq
+  - lab-bench-seqqa-orf-seq-numlen
+  - lab-bench-seqqa-orf-transeff
+  - lab-bench-seqqa-pcr-gene-enzprimers
+  - lab-bench-seqqa-pcr-gene-gibshindprimers
+  - lab-bench-seqqa-pcr-gene-gibssmaprimers
+  - lab-bench-seqqa-pcr-geneprimers-enz
+  - lab-bench-seqqa-pcr-len-primers
+  - lab-bench-seqqa-pcr-primers-len
+  - lab-bench-seqqa-pcr-seq-enzprimers
+  - lab-bench-seqqa-pcr-seq-primers
+  - lab-bench-seqqa-prop-seq-gcpercent
+  - lab-bench-seqqa-re-seq-lenfrags
+  - lab-bench-seqqa-re-seq-numfrags
+  notes: Creator-paper full category snapshot.
+  evidence_ids:
+  - lab-bench-seqqa-evidence-paper
+- id: lab-bench-seqqa-repository-998a8e0
+  label: repository-998a8e0
+  status: current
+  release_date: '2025-09-27'
+  as_of: '2026-07-21'
+  task_counts:
+    total: 750
+    basis: questions across formal child tasks
+    reporting_status: reported
+    subsets:
+    - id: lab-bench-seqqa-orf-seq-aaid
+      label: ORF amino-acid position
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-seqqa-orf-seq-aaseq
+      label: ORF amino-acid sequence
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-seqqa-orf-seq-numlen
+      label: ORF count above length
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-seqqa-orf-transeff
+      label: Translation efficiency
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-seqqa-pcr-gene-enzprimers
+      label: Gene-to-restriction primers
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-seqqa-pcr-gene-gibshindprimers
+      label: Gene-to-Gibson primers (HindIII)
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-seqqa-pcr-gene-gibssmaprimers
+      label: Gene-to-Gibson primers (SmaI)
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-seqqa-pcr-geneprimers-enz
+      label: Primers-to-restriction enzymes
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-seqqa-pcr-len-primers
+      label: Amplicon length to primers
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-seqqa-pcr-primers-len
+      label: Primers to amplicon length
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-seqqa-pcr-seq-enzprimers
+      label: Sequence-to-restriction primers
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-seqqa-pcr-seq-primers
+      label: Amplicon sequence to primers
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-seqqa-prop-seq-gcpercent
+      label: GC percentage
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-seqqa-re-seq-lenfrags
+      label: Restriction-fragment lengths
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-seqqa-re-seq-numfrags
+      label: Restriction-fragment count
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+  formal_tracks: *id001
+  notes: Current commit-pinned category snapshot.
+  evidence_ids:
+  - lab-bench-seqqa-evidence-repository
+audit:
+  status: audited
+  audited_date: '2026-07-21'
+  unresolved_fields: 0
+  notes: null
+field_status: []
+verification:
+  status: verified
+  last_verified: '2026-07-21'
+  notes: Counts and child-task relationships independently recomputed from versioned split manifests.
 evidence:
-  - {work_id: lab-bench-paper, locator: 'Official repository SeqQA directory and README', supports: [name, parent_id, domains, modalities, access]}
+- id: lab-bench-seqqa-evidence-paper
+  source_type: work
+  source_id: lab-bench-paper
+  accessed_date: '2026-07-21'
+  locator:
+    type: table
+    value: Table 1 and Appendix Table 6; task-specific Appendix C sections
+    note: Category total, task definitions, domains, modalities, and creator evaluation.
+  supports:
+  - /name
+  - /organizations
+  - /release_date
+  - /kind
+  - /domains
+  - /capabilities
+  - /modalities
+  - /task_counts/total
+  - /task_counts/basis
+  - /task_counts/subsets
+  - /access/level
+  - /access/license
+  - /versions/0/task_counts/total
+  - /versions/0/task_counts/basis
+  - /versions/0/task_counts/subsets
+- id: lab-bench-seqqa-evidence-repository
+  source_type: resource
+  source_id: lab-bench-seqqa-repository-resource
+  accessed_date: '2026-07-21'
+  locator:
+    type: repository-path
+    value: SeqQA/*-splits.json and task.py at 998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838
+    note: Public/private/total 600/150/750; exact child files and evaluator.
+  supports:
+  - /latest_version
+  - /task_counts/total
+  - /task_counts/basis
+  - /task_counts/subsets
+  - /access/level
+  - /access/tasks
+  - /access/artifacts
+  - /access/grader
+  - /access/license
+  - /resources
+  - /versions/1/task_counts/total
+  - /versions/1/task_counts/basis
+  - /versions/1/task_counts/subsets

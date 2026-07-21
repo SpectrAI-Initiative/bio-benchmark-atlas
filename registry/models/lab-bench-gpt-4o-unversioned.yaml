@@ -1,0 +1,15 @@
+entity_type: model
+id: lab-bench-gpt-4o-unversioned
+name: GPT-4o (LAB-Bench snapshot not reported)
+provider: OpenAI
+release_date: null
+version_string: null
+version_status: not_reported
+aliases:
+- GPT-4o
+- gpt-4o
+verification:
+  status: verified
+  last_verified: '2026-07-21'
+  notes: Identity follows the exact label or API string reported by the cited official work; no unreported dated snapshot
+    is inferred.

@@ -1,0 +1,153 @@
+entity_type: evaluation_run
+id: lab-bench-protocolqa-creator-open-response
+work_id: lab-bench-paper
+benchmark_id: lab-bench-protocolqa
+benchmark_version: paper-v3
+model_ids:
+- lab-bench-claude-3-5-sonnet-20240620
+- lab-bench-gpt-4o-unversioned
+scope:
+  type: subset
+  n: 20
+  subset_id: lab-bench-protocolqa-creator-open-response
+  filter: Questions sampled and reworded to remove multiple-choice framing.
+  reporting_status: reported
+protocol:
+  shots:
+    value: null
+    reporting_status: not_reported
+    notes: The paper calls this a small-scale open-answer run but does not restate shot count for the modified prompt.
+  turns:
+    value: single-turn
+    reporting_status: reported
+    notes: One multiple-choice completion per question.
+  system_prompt_public:
+    value: true
+    reporting_status: reported
+    notes: Appendix D.1 publishes the complete prompt template.
+  reasoning:
+    value: zero-shot chain-of-thought
+    reporting_status: reported
+    notes: Prompt includes Think step by step.
+  tools:
+    browser:
+      value: false
+      reporting_status: reported
+      notes: Creator baselines used no tools, including no internet.
+    internet:
+      value: false
+      reporting_status: reported
+      notes: Creator baselines used no tools, including no internet.
+    databases:
+      value: false
+      reporting_status: reported
+      notes: Creator baselines used no tools, including no internet.
+    code_execution:
+      value: false
+      reporting_status: reported
+      notes: Creator baselines used no tools, including no internet.
+    container:
+      value: false
+      reporting_status: reported
+      notes: Creator baselines used no tools, including no internet.
+    external_tools:
+      value: false
+      reporting_status: reported
+      notes: Creator baselines used no tools, including no internet.
+  token_budget:
+    value: null
+    reporting_status: not_reported
+    notes: No common token budget is reported.
+  time_budget:
+    value: null
+    reporting_status: not_reported
+    notes: Not reported.
+  temperature:
+    value: null
+    reporting_status: not_reported
+    notes: Not reported.
+  seed:
+    value: null
+    reporting_status: not_reported
+    notes: Not reported.
+  repeats:
+    value: null
+    reporting_status: not_reported
+    notes: Repeat count is not reported for Table 5.
+  grader:
+    type: expert-biologist manual grading against the ideal answer, reviewed by a second expert
+    model: null
+    human_review: true
+    reporting_status: reported
+  statistical:
+    value: single reported accuracy per model
+    reporting_status: reported
+    notes: No confidence intervals reported.
+  contamination:
+    value: full pre-release snapshot with 80% later public and 20% private contamination-monitoring splits
+    reporting_status: reported
+    notes: Main results combine both splits.
+metrics:
+- metric_id: accuracy
+  source_label: Accuracy
+  unit: proportion
+  range:
+  - 0
+  - 1
+  higher_is_better: true
+  aggregation: correct / sampled modified questions
+  pass_threshold: null
+  tolerance: expert judgment against ideal multiple-choice answer
+results:
+- model_id: lab-bench-claude-3-5-sonnet-20240620
+  metric_id: accuracy
+  value: 0.3
+  ci_low: null
+  ci_high: null
+  n: 20
+  notes: Creator Table 5 open-response study.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - lab-bench-protocolqa-creator-open-response-results
+- model_id: lab-bench-gpt-4o-unversioned
+  metric_id: accuracy
+  value: 0.2
+  ci_low: null
+  ci_high: null
+  n: 20
+  notes: Creator Table 5 open-response study.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - lab-bench-protocolqa-creator-open-response-results
+comparability_group: lab-bench-protocolqa-paper-v3-open-response
+verification:
+  status: verified
+  last_verified: '2026-07-21'
+  notes: Open-response protocol is kept separate from multiple-choice results.
+evidence:
+- id: lab-bench-protocolqa-creator-open-response-protocol
+  source_type: work
+  source_id: lab-bench-paper
+  accessed_date: '2026-07-21'
+  locator:
+    type: section
+    value: Section 2.4 and Appendix B.2
+    note: Subset construction, modified wording, expert grading, and second review.
+  supports:
+  - /benchmark_version
+  - /model_ids
+  - /scope
+  - /protocol
+  - /metrics
+- id: lab-bench-protocolqa-creator-open-response-results
+  source_type: work
+  source_id: lab-bench-paper
+  accessed_date: '2026-07-21'
+  locator:
+    type: table
+    value: Table 5
+    note: lab-bench-protocolqa model accuracy and question count.
+  supports:
+  - /results

@@ -1,24 +1,411 @@
 entity_type: benchmark
 id: lab-bench-dbqa
 name: LAB-Bench DbQA
-aliases: [DbQA]
-summary: LAB-Bench track evaluating retrieval and interpretation of records from biological databases.
+aliases:
+- DbQA
+summary: Database-retrieval category spanning 10 genomics, clinical, protein, regulatory, vaccine-response, and viral-PPI
+  tasks.
 kind: track
 parent_id: lab-bench
-organizations: [FutureHouse]
+organizations:
+- FutureHouse
 release_date: '2024-07-14'
-latest_version: repository-main
-domains: [bioinformatics, genomics, protein-science]
-capabilities: [retrieval, knowledge, scientific-reasoning]
-modalities: [text, database]
-task_formats: [multiple choice]
-task_counts: {total: null, basis: questions, reporting_status: not_reported, subsets: []}
-coverage_notes: []
-access: {level: partially-open, tasks: Approximately 80% of LAB-Bench is public., artifacts: Released questions reference public databases., grader: Open-source exact-choice evaluator., license: CC-BY-SA-4.0, biosafety_notes: null}
+latest_version: repository-998a8e0
+domains:
+- bioinformatics
+- genomics
+- transcriptomics
+- epigenomics
+- protein-sequence
+- protein-protein-binding
+- clinical-translational
+- virology
+capabilities:
+- retrieval
+- knowledge
+- prediction
+- classification
+- scientific-reasoning
+modalities:
+- text
+- protein-sequence
+- database
+- web
+task_formats:
+- multiple choice
+task_counts:
+  total: 650
+  basis: questions across formal child tasks
+  reporting_status: reported
+  subsets:
+  - id: lab-bench-dbqa-dga
+    label: Disease gene associations
+    count: 50
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: null
+  - id: lab-bench-dbqa-gene-location
+    label: Gene location
+    count: 50
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: null
+  - id: lab-bench-dbqa-mirna-targets
+    label: miRNA targets
+    count: 50
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: null
+  - id: lab-bench-dbqa-mouse-tumor-gene-sets
+    label: Mouse tumor gene sets
+    count: 100
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: null
+  - id: lab-bench-dbqa-oncogenic-signatures
+    label: Oncogenic signatures
+    count: 50
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: null
+  - id: lab-bench-dbqa-tfbs-gtrd
+    label: GTRD transcription-factor binding sites
+    count: 50
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: null
+  - id: lab-bench-dbqa-variant-from-sequence
+    label: Protein variant from sequence
+    count: 100
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: null
+  - id: lab-bench-dbqa-variant-multi-sequence
+    label: Protein variant with multiple sequences
+    count: 100
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: null
+  - id: lab-bench-dbqa-vax-response
+    label: Vaccine response gene sets
+    count: 50
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: null
+  - id: lab-bench-dbqa-viral-ppi
+    label: Viral protein–protein interactions
+    count: 50
+    basis: questions
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: null
+coverage_notes:
+- tag: protein-sequence
+  coverage: explicitly-in-scope
+  count: 200
+  reporting_status: reported
+  notes: Two ClinVar protein-sequence tasks contain 100 questions each.
+- tag: protein-protein-binding
+  coverage: explicitly-in-scope
+  count: 50
+  reporting_status: reported
+  notes: Viral PPI contains 50 database-retrieval questions.
+access:
+  level: partially-open
+  tasks: 520 questions are public and 130 question contents are withheld.
+  artifacts: Public questions and all public/private split IDs are versioned in the official repository.
+  grader: The official harness scores exact single-choice outputs and reports accuracy, precision, coverage, and n.
+  license: CC-BY-SA-4.0
+  biosafety_notes: BioBench Atlas stores metadata and aggregate results only.
 resources:
-  - {type: repository, url: 'https://github.com/Future-House/LAB-Bench/tree/998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838/DbQA', license: CC-BY-SA-4.0, access_notes: Commit-pinned track directory.}
+- id: lab-bench-dbqa-repository-resource
+  type: repository
+  url: https://github.com/Future-House/LAB-Bench/tree/998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838/DbQA
+  license: CC-BY-SA-4.0
+  access_notes: Commit-pinned official category directory.
+  last_checked: '2026-07-21'
+  pin:
+    kind: commit
+    value: 998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838
+    url: https://github.com/Future-House/LAB-Bench/tree/998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838/DbQA
 implementations:
-  - {framework: labbench Python evaluator, status: official, url: 'https://github.com/Future-House/LAB-Bench/tree/998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838', commit: 998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838, notes: null}
-verification: {status: verified, last_verified: '2026-07-21', notes: Canonical suite track.}
+- framework: labbench Python evaluator
+  status: official
+  url: https://github.com/Future-House/LAB-Bench/tree/998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838
+  commit: 998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838
+  notes: Official category loader and evaluator.
+versions:
+- id: lab-bench-dbqa-paper-v3
+  label: paper-v3
+  status: active
+  release_date: '2024-07-17'
+  as_of: '2024-07-17'
+  task_counts:
+    total: 650
+    basis: questions across formal child tasks
+    reporting_status: reported
+    subsets:
+    - id: lab-bench-dbqa-dga
+      label: Disease gene associations
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-dbqa-gene-location
+      label: Gene location
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-dbqa-mirna-targets
+      label: miRNA targets
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-dbqa-mouse-tumor-gene-sets
+      label: Mouse tumor gene sets
+      count: 100
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-dbqa-oncogenic-signatures
+      label: Oncogenic signatures
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-dbqa-tfbs-gtrd
+      label: GTRD transcription-factor binding sites
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-dbqa-variant-from-sequence
+      label: Protein variant from sequence
+      count: 100
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-dbqa-variant-multi-sequence
+      label: Protein variant with multiple sequences
+      count: 100
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-dbqa-vax-response
+      label: Vaccine response gene sets
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-dbqa-viral-ppi
+      label: Viral protein–protein interactions
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+  formal_tracks: &id001
+  - lab-bench-dbqa-dga
+  - lab-bench-dbqa-gene-location
+  - lab-bench-dbqa-mirna-targets
+  - lab-bench-dbqa-mouse-tumor-gene-sets
+  - lab-bench-dbqa-oncogenic-signatures
+  - lab-bench-dbqa-tfbs-gtrd
+  - lab-bench-dbqa-variant-from-sequence
+  - lab-bench-dbqa-variant-multi-sequence
+  - lab-bench-dbqa-vax-response
+  - lab-bench-dbqa-viral-ppi
+  notes: Creator-paper full category snapshot.
+  evidence_ids:
+  - lab-bench-dbqa-evidence-paper
+- id: lab-bench-dbqa-repository-998a8e0
+  label: repository-998a8e0
+  status: current
+  release_date: '2025-09-27'
+  as_of: '2026-07-21'
+  task_counts:
+    total: 650
+    basis: questions across formal child tasks
+    reporting_status: reported
+    subsets:
+    - id: lab-bench-dbqa-dga
+      label: Disease gene associations
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-dbqa-gene-location
+      label: Gene location
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-dbqa-mirna-targets
+      label: miRNA targets
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-dbqa-mouse-tumor-gene-sets
+      label: Mouse tumor gene sets
+      count: 100
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-dbqa-oncogenic-signatures
+      label: Oncogenic signatures
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-dbqa-tfbs-gtrd
+      label: GTRD transcription-factor binding sites
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-dbqa-variant-from-sequence
+      label: Protein variant from sequence
+      count: 100
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-dbqa-variant-multi-sequence
+      label: Protein variant with multiple sequences
+      count: 100
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-dbqa-vax-response
+      label: Vaccine response gene sets
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+    - id: lab-bench-dbqa-viral-ppi
+      label: Viral protein–protein interactions
+      count: 50
+      basis: questions
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: null
+  formal_tracks: *id001
+  notes: Current commit-pinned category snapshot.
+  evidence_ids:
+  - lab-bench-dbqa-evidence-repository
+audit:
+  status: audited
+  audited_date: '2026-07-21'
+  unresolved_fields: 0
+  notes: null
+field_status: []
+verification:
+  status: verified
+  last_verified: '2026-07-21'
+  notes: Counts and child-task relationships independently recomputed from versioned split manifests.
 evidence:
-  - {work_id: lab-bench-paper, locator: 'Official repository DbQA directory and README', supports: [name, parent_id, capabilities, modalities, access]}
+- id: lab-bench-dbqa-evidence-paper
+  source_type: work
+  source_id: lab-bench-paper
+  accessed_date: '2026-07-21'
+  locator:
+    type: table
+    value: Table 1 and Appendix Table 6; task-specific Appendix C sections
+    note: Category total, task definitions, domains, modalities, and creator evaluation.
+  supports:
+  - /name
+  - /organizations
+  - /release_date
+  - /kind
+  - /domains
+  - /capabilities
+  - /modalities
+  - /task_counts/total
+  - /task_counts/basis
+  - /task_counts/subsets
+  - /access/level
+  - /access/license
+  - /versions/0/task_counts/total
+  - /versions/0/task_counts/basis
+  - /versions/0/task_counts/subsets
+- id: lab-bench-dbqa-evidence-repository
+  source_type: resource
+  source_id: lab-bench-dbqa-repository-resource
+  accessed_date: '2026-07-21'
+  locator:
+    type: repository-path
+    value: DbQA/*-splits.json and task.py at 998a8e0a40cf116c80e1b0e7a805ebb5fb9fa838
+    note: Public/private/total 520/130/650; exact child files and evaluator.
+  supports:
+  - /latest_version
+  - /task_counts/total
+  - /task_counts/basis
+  - /task_counts/subsets
+  - /access/level
+  - /access/tasks
+  - /access/artifacts
+  - /access/grader
+  - /access/license
+  - /resources
+  - /versions/1/task_counts/total
+  - /versions/1/task_counts/basis
+  - /versions/1/task_counts/subsets

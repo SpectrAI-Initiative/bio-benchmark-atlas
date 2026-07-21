@@ -2,35 +2,47 @@ entity_type: evaluation_run
 id: lab-bench-figqa-crop-tool
 work_id: anthropic-sonnet-4-6-system-card
 benchmark_id: lab-bench-figqa
-benchmark_version: repository-main
-scope: {type: track, n: null, subset_id: null, filter: FigQA track; realized item count not stated in the system card., reporting_status: not_reported}
+benchmark_version: null
+model_ids: [claude-sonnet-4-6, claude-sonnet-4-5, claude-opus-4-6]
+scope: {type: track, n: null, subset_id: null, filter: 'FigQA track; benchmark snapshot, public/private scope, and realized item count are not reported.', reporting_status: not_reported}
 protocol:
   shots: &nr {value: null, reporting_status: not_reported, notes: Not reported.}
-  turns: {value: single-turn, reporting_status: reported, notes: Multiple-choice figure question.}
+  turns: {value: single-turn, reporting_status: reported, notes: Multiple-choice figure questions.}
   system_prompt_public: *nr
-  reasoning: *nr
+  reasoning: {value: adaptive thinking at max effort, reporting_status: reported, notes: Shared setting for every registered model.}
   tools:
-    browser: {value: false, reporting_status: reported, notes: No browser.}
-    internet: {value: false, reporting_status: reported, notes: No internet.}
-    databases: {value: false, reporting_status: reported, notes: No databases.}
-    code_execution: {value: false, reporting_status: reported, notes: No code execution.}
-    container: {value: false, reporting_status: reported, notes: No container.}
-    external_tools: {value: [image crop tool], reporting_status: reported, notes: Crop-tool condition.}
+    browser: {value: false, reporting_status: reported, notes: No browser reported.}
+    internet: {value: false, reporting_status: reported, notes: No internet reported.}
+    databases: {value: false, reporting_status: reported, notes: No database tools reported.}
+    code_execution: {value: false, reporting_status: reported, notes: No code execution reported.}
+    container: {value: false, reporting_status: reported, notes: No container reported.}
+    external_tools: {value: [simple image cropping tool], reporting_status: reported, notes: Crop-tool condition.}
   token_budget: *nr
   time_budget: *nr
   temperature: *nr
   seed: *nr
   repeats: {value: 5, reporting_status: reported, notes: Five evaluation runs.}
-  grader: {type: exact multiple-choice match, model: null, human_review: false, reporting_status: reported}
-  statistical: {value: mean across five runs, reporting_status: reported, notes: null}
+  grader: {type: null, model: null, human_review: null, reporting_status: not_reported}
+  statistical: {value: mean over five runs with 95% CI shown, reporting_status: reported, notes: Numeric confidence-interval bounds are not printed.}
   contamination: *nr
 metrics:
-  - {metric_id: accuracy, source_label: FigQA accuracy, unit: percent, range: [0, 100], higher_is_better: true, aggregation: mean over five runs, pass_threshold: null, tolerance: exact choice}
+  - {metric_id: accuracy, source_label: FigQA score, unit: percent, range: [0, 100], higher_is_better: true, aggregation: mean over five runs, pass_threshold: null, tolerance: null}
 results:
-  - {model_id: claude-sonnet-4-6, metric_id: accuracy, value: 77.1, ci_low: null, ci_high: null, n: null, notes: null}
-  - {model_id: claude-sonnet-4-5, metric_id: accuracy, value: 59.3, ci_low: null, ci_high: null, n: null, notes: null}
-  - {model_id: claude-opus-4-6, metric_id: accuracy, value: 78.3, ci_low: null, ci_high: null, n: null, notes: null}
-comparability_group: lab-bench-figqa-crop-tool-five-runs
-verification: {status: verified, last_verified: '2026-07-21', notes: Kept separate because the crop tool materially changes the protocol.}
+  - {model_id: claude-sonnet-4-6, metric_id: accuracy, value: 77.1, ci_low: null, ci_high: null, n: null, notes: '95% CI is plotted but numeric bounds are not reported.', status: verified, confidence: high, evidence_ids: [lab-bench-figqa-crop-tool-results]}
+  - {model_id: claude-sonnet-4-5, metric_id: accuracy, value: 59.3, ci_low: null, ci_high: null, n: null, notes: '95% CI is plotted but numeric bounds are not reported.', status: verified, confidence: high, evidence_ids: [lab-bench-figqa-crop-tool-results]}
+  - {model_id: claude-opus-4-6, metric_id: accuracy, value: 78.3, ci_low: null, ci_high: null, n: null, notes: '95% CI is plotted but numeric bounds are not reported.', status: verified, confidence: high, evidence_ids: [lab-bench-figqa-crop-tool-results]}
+comparability_group: lab-bench-figqa-sonnet46-adaptive-max-crop-tool-five-runs
+verification: {status: verified, last_verified: '2026-07-21', notes: 'Kept separate because the image-cropping tool materially changes the protocol.'}
 evidence:
-  - {work_id: anthropic-sonnet-4-6-system-card, locator: 'LAB-Bench FigQA figure and caption', supports: [scope, protocol.tools.external_tools, protocol.repeats, metrics, results]}
+  - id: lab-bench-figqa-crop-tool-protocol
+    source_type: work
+    source_id: anthropic-sonnet-4-6-system-card
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'Section 2.17.1, printed page 33', note: 'Adaptive thinking, max effort, simple crop tool, five runs, 95% CI, and unreported n/snapshot/grader.'}
+    supports: [/benchmark_version, /model_ids, /scope, /protocol, /metrics]
+  - id: lab-bench-figqa-crop-tool-results
+    source_type: work
+    source_id: anthropic-sonnet-4-6-system-card
+    accessed_date: '2026-07-21'
+    locator: {type: section, value: 'Section 2.17.1 and Figure 2.17.1.A, printed page 33', note: 'All three crop-tool point estimates.'}
+    supports: [/results]

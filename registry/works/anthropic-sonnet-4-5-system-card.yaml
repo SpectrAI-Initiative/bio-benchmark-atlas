@@ -1,0 +1,19 @@
+entity_type: work
+id: anthropic-sonnet-4-5-system-card
+title: Claude Sonnet 4.5 System Card
+authors:
+- Anthropic
+organizations:
+- Anthropic
+work_type: system-card
+source_class: official_model_provider
+publication_date: '2025-09-29'
+canonical_url: https://assets.anthropic.com/m/12f214efcc2f457a/original/Claude-Sonnet-4-5-System-Card.pdf
+doi: null
+arxiv: null
+status: published
+verification:
+  status: verified
+  last_verified: '2026-07-21'
+  notes: Official PDF, SHA256 d5d1ce28fea101ae3b201a5d4da100090a5d6b73246f7da820cafd7dbb11100e; LAB-Bench details and figure
+    are on printed pages 132–133.

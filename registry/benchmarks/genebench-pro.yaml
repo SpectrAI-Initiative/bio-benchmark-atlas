@@ -1,40 +1,816 @@
 entity_type: benchmark
 id: genebench-pro
 name: GeneBench-Pro
-aliases: [Gene Bench Pro]
-summary: Research-level computational-biology tasks testing multistage analysis, ambiguity handling, and decision-relevant statistical judgment.
+aliases:
+- Gene Bench Pro
+summary: A research-level agent benchmark of 129 synthetic, multistage computational-biology analyses that require iterative
+  QC, statistical modeling, diagnostics, and decision-relevant judgment.
 kind: agentic-eval
 parent_id: null
-organizations: [OpenAI]
+organizations:
+- OpenAI
 release_date: '2026-06-30'
-latest_version: '1.0'
-domains: [genomics, transcriptomics, epigenomics, spatial-omics, proteomics, microbiome, clinical-translational, bioinformatics]
-capabilities: [data-analysis, coding, tool-use, scientific-reasoning]
-modalities: [text, table, raw-omics, code]
-task_formats: [workspace-based data analysis, exact JSON response]
+latest_version: paper-v1
+domains:
+- genomics
+- transcriptomics
+- epigenomics
+- single-cell
+- spatial-omics
+- proteomics
+- microbiome
+- clinical-translational
+- bioinformatics
+capabilities:
+- data-analysis
+- coding
+- tool-use
+- scientific-reasoning
+modalities:
+- text
+- table
+- raw-omics
+- code
+task_formats:
+- isolated-workspace scientific analysis
+- exact JSON response
 task_counts:
   total: 129
-  basis: evaluations
+  basis: self-contained synthetic scientific-analysis problems (called evaluations in the paper abstract)
   reporting_status: reported
   subsets:
-    - {id: public-representative, label: Public representative tasks, count: 10, basis: evaluations, exclusive: false, exhaustive: false, reporting_status: reported, notes: Fully open-sourced examples.}
-    - {id: third-party-heldout, label: Planned third-party held-out subset, count: 50, basis: evaluations, exclusive: false, exhaustive: false, reporting_status: reported, notes: Announced for Artificial Analysis.}
+  - id: genebench-pro-public-release
+    label: Public release subset
+    count: 10
+    basis: problems
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: Ten externally reviewed case-study packages are public with prompts, staged data, ground truth, grader configuration,
+      and reports.
+  - id: genebench-pro-artificial-analysis
+    label: Artificial Analysis reporting subset
+    count: 50
+    basis: held-out problems
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: Disjoint from the public release. The formal paper says this locked reporting subset was provided to Artificial
+      Analysis; the launch page still describes delivery in future tense. The tasks are not public.
+  - id: genebench-pro-internal-holdout
+    label: Internal holdout
+    count: 69
+    basis: held-out problems
+    exclusive: true
+    exhaustive: true
+    reporting_status: reported
+    notes: Remainder after the disjoint 10-problem public and 50-problem Artificial Analysis subsets; not publicly released.
+  - id: genebench-pro-primary-statistical-genetics
+    label: Primary domain — Statistical genetics
+    count: 17
+    basis: problems in the primary-domain atlas
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: One member of the 10-domain partition; marked non-exhaustive here because the registry also stores independent
+      release and review partitions.
+  - id: genebench-pro-primary-population-genetics
+    label: Primary domain — Population genetics
+    count: 21
+    basis: problems in the primary-domain atlas
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: One member of the 10-domain partition; marked non-exhaustive here because the registry also stores independent
+      release and review partitions.
+  - id: genebench-pro-primary-quantitative-genetics
+    label: Primary domain — Quantitative genetics
+    count: 17
+    basis: problems in the primary-domain atlas
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: One member of the 10-domain partition; marked non-exhaustive here because the registry also stores independent
+      release and review partitions.
+  - id: genebench-pro-primary-regulatory-omics
+    label: Primary domain — Regulatory omics
+    count: 17
+    basis: problems in the primary-domain atlas
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: One member of the 10-domain partition; marked non-exhaustive here because the registry also stores independent
+      release and review partitions.
+  - id: genebench-pro-primary-functional-genomics
+    label: Primary domain — Functional genomics
+    count: 9
+    basis: problems in the primary-domain atlas
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: One member of the 10-domain partition; marked non-exhaustive here because the registry also stores independent
+      release and review partitions.
+  - id: genebench-pro-primary-proteomics
+    label: Primary domain — Proteomics
+    count: 7
+    basis: problems in the primary-domain atlas
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: One member of the 10-domain partition; marked non-exhaustive here because the registry also stores independent
+      release and review partitions.
+  - id: genebench-pro-primary-clinical-pgx-diagnostics
+    label: Primary domain — Clinical, PGx & diagnostics
+    count: 26
+    basis: problems in the primary-domain atlas
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: One member of the 10-domain partition; marked non-exhaustive here because the registry also stores independent
+      release and review partitions.
+  - id: genebench-pro-primary-cancer-genomics
+    label: Primary domain — Cancer genomics
+    count: 10
+    basis: problems in the primary-domain atlas
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: One member of the 10-domain partition; marked non-exhaustive here because the registry also stores independent
+      release and review partitions.
+  - id: genebench-pro-primary-microbial-genomics
+    label: Primary domain — Microbial genomics
+    count: 3
+    basis: problems in the primary-domain atlas
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: One member of the 10-domain partition; marked non-exhaustive here because the registry also stores independent
+      release and review partitions.
+  - id: genebench-pro-primary-forensic-genetics
+    label: Primary domain — Forensic genetics
+    count: 2
+    basis: problems in the primary-domain atlas
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: One member of the 10-domain partition; marked non-exhaustive here because the registry also stores independent
+      release and review partitions.
+  - id: genebench-pro-terminal-association-correction
+    label: Terminal subdomain — Association & correction
+    count: 6
+    basis: problems in the terminal-subdomain atlas
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+  - id: genebench-pro-terminal-causal-mapping
+    label: Terminal subdomain — Causal mapping
+    count: 6
+    basis: problems in the terminal-subdomain atlas
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+  - id: genebench-pro-terminal-heritability-architecture
+    label: Terminal subdomain — Heritability and architecture
+    count: 2
+    basis: problems in the terminal-subdomain atlas
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+  - id: genebench-pro-terminal-pedigree-ibd-phasing
+    label: Terminal subdomain — Pedigree, IBD, and phasing
+    count: 3
+    basis: problems in the terminal-subdomain atlas
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+  - id: genebench-pro-terminal-selection-mutation
+    label: Terminal subdomain — Selection & mutation
+    count: 7
+    basis: problems in the terminal-subdomain atlas
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+  - id: genebench-pro-terminal-admixture-adna
+    label: Terminal subdomain — Admixture & ancient DNA
+    count: 6
+    basis: problems in the terminal-subdomain atlas
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+  - id: genebench-pro-terminal-history-genealogies
+    label: Terminal subdomain — History & genealogies
+    count: 8
+    basis: problems in the terminal-subdomain atlas
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+  - id: genebench-pro-terminal-trait-architecture-variance
+    label: Terminal subdomain — Trait architecture and variance
+    count: 6
+    basis: problems in the terminal-subdomain atlas
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+  - id: genebench-pro-terminal-family-social-transmission
+    label: Terminal subdomain — Family, social, and transmission effects
+    count: 6
+    basis: problems in the terminal-subdomain atlas
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+  - id: genebench-pro-terminal-polygenic-prediction-selection
+    label: Terminal subdomain — Polygenic prediction and genomic selection
+    count: 5
+    basis: problems in the terminal-subdomain atlas
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+  - id: genebench-pro-terminal-regulatory-qtls-ase
+    label: Terminal subdomain — Regulatory QTLs & ASE
+    count: 8
+    basis: problems in the terminal-subdomain atlas
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+  - id: genebench-pro-terminal-transcriptome-structure
+    label: Terminal subdomain — Transcriptome structure
+    count: 5
+    basis: problems in the terminal-subdomain atlas
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+  - id: genebench-pro-terminal-spatial-chromatin-context
+    label: Terminal subdomain — Spatial and chromatin context
+    count: 4
+    basis: problems in the terminal-subdomain atlas
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+  - id: genebench-pro-terminal-functional-genomics-terminal
+    label: Terminal subdomain — Functional genomics
+    count: 9
+    basis: problems in the terminal-subdomain atlas
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+  - id: genebench-pro-terminal-proteomics-biomarkers
+    label: Terminal subdomain — Proteomics and biomarkers
+    count: 7
+    basis: problems in the terminal-subdomain atlas
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+  - id: genebench-pro-terminal-clinical-variant-penetrance
+    label: Terminal subdomain — Clinical variant interpretation & penetrance
+    count: 11
+    basis: problems in the terminal-subdomain atlas
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+  - id: genebench-pro-terminal-pharmacogenomics-treatment-response
+    label: Terminal subdomain — Pharmacogenomics and treatment response
+    count: 8
+    basis: problems in the terminal-subdomain atlas
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+  - id: genebench-pro-terminal-prenatal-reproductive-risk
+    label: Terminal subdomain — Prenatal, reproductive, and clinical-risk genetics
+    count: 7
+    basis: problems in the terminal-subdomain atlas
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+  - id: genebench-pro-terminal-cancer-somatic-liquid-biopsy
+    label: Terminal subdomain — Cancer somatic genomics and liquid biopsy
+    count: 10
+    basis: problems in the terminal-subdomain atlas
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+  - id: genebench-pro-terminal-microbial-metagenomic-genomics
+    label: Terminal subdomain — Microbial and metagenomic genomics
+    count: 3
+    basis: problems in the terminal-subdomain atlas
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+  - id: genebench-pro-terminal-forensic-genetics-terminal
+    label: Terminal subdomain — Forensic genetics
+    count: 2
+    basis: problems in the terminal-subdomain atlas
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+  - id: genebench-pro-externally-reviewed
+    label: Externally reviewed problems
+    count: 82
+    basis: problems
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: Orthogonal review-status stratum; all ten public problems are included.
+  - id: genebench-pro-not-externally-reviewed
+    label: Not externally reviewed
+    count: 47
+    basis: problems
+    exclusive: false
+    exhaustive: false
+    reporting_status: reported
+    notes: Orthogonal review-status stratum.
 coverage_notes:
-  - {tag: proteomics, coverage: observed, count: 7, reporting_status: reported, notes: Proteomics and biomarkers domain.}
+- tag: proteomics
+  coverage: explicitly-in-scope
+  count: 7
+  reporting_status: reported
+  notes: Seven primary-domain problems are assigned to Proteomics; proteomics also appears in cross-domain problems.
+- tag: protein-protein-binding
+  coverage: unknown
+  count: null
+  reporting_status: not_reported
+  notes: The domain atlas covers proteomics and biomarkers but does not define or count protein-binding problems separately.
 access:
   level: partially-open
-  tasks: Ten representative tasks are public; most tasks are held out.
-  artifacts: Public examples include their attached synthetic data.
-  grader: Deterministic targets are described; the full grader is not public.
-  license: null
-  biosafety_notes: No restricted biological materials are mirrored.
+  tasks: Ten externally reviewed problems are fully public; a disjoint 50-problem Artificial Analysis subset and 69-problem
+    internal holdout are not public.
+  artifacts: The ten public packages include solver prompts, staged data, ground truth, problem-specific grader configuration,
+    checksums, and detailed case-study reports.
+  grader: A Python reference grader is public for the ten released case studies; the full 129-problem evaluation packages
+    and grader targets remain held out.
+  license: MIT (root LICENSE); CC-BY-4.0 (Hugging Face dataset-card metadata)
+  biosafety_notes: Problems use constructively simulated data and synthetic labels. BioBench Atlas stores metadata and aggregate
+    results only and does not mirror task data.
 resources:
-  - {type: paper, url: 'https://cdn.openai.com/pdf/21938268-21af-442f-af93-3b2249afb241/genebench-pro.pdf', license: null, access_notes: Official report.}
-  - {type: website, url: 'https://openai.com/index/introducing-genebench-pro/', license: null, access_notes: Official interactive overview.}
+- id: genebench-pro-paper-resource
+  type: paper
+  url: https://cdn.openai.com/pdf/21938268-21af-442f-af93-3b2249afb241/genebench-pro.pdf
+  license: CC-BY-NC-4.0 (bioRxiv v1)
+  access_notes: Official OpenAI PDF, SHA256 b1131c0c9b43598400ed2f2de40666b6587a11de757857fd43a33b46da9f2ba9.
+  last_checked: '2026-07-21'
+  pin:
+    kind: version
+    value: bioRxiv v1
+    url: https://www.biorxiv.org/content/10.64898/2026.06.29.735386v1
+- id: genebench-pro-announcement-resource
+  type: website
+  url: https://openai.com/index/introducing-genebench-pro/
+  license: null
+  access_notes: Official launch page and interactive domain atlas.
+  last_checked: '2026-07-21'
+  pin:
+    kind: snapshot
+    value: '2026-07-21'
+    url: https://openai.com/index/introducing-genebench-pro/
+- id: genebench-pro-case-studies-resource
+  type: website
+  url: https://openai.com/index/genebench-pro/case-studies/
+  license: null
+  access_notes: Official browser for the ten public case studies.
+  last_checked: '2026-07-21'
+  pin:
+    kind: snapshot
+    value: '2026-07-21'
+    url: https://openai.com/index/genebench-pro/case-studies/
+- id: genebench-pro-public-dataset-resource
+  type: dataset
+  url: https://huggingface.co/datasets/ajh-oai/genebench-pro-public-package
+  license: CC-BY-4.0 metadata; MIT root LICENSE
+  access_notes: Official ten-problem public package. Dataset metadata and root LICENSE disagree on the package license.
+  last_checked: '2026-07-21'
+  pin:
+    kind: commit
+    value: 9bd2c54a6c0beef041e3504aa7eb65fc77783e18
+    url: https://huggingface.co/datasets/ajh-oai/genebench-pro-public-package/tree/9bd2c54a6c0beef041e3504aa7eb65fc77783e18
+- id: genebench-pro-reference-grader-resource
+  type: grader
+  url: https://huggingface.co/datasets/ajh-oai/genebench-pro-public-package/blob/9bd2c54a6c0beef041e3504aa7eb65fc77783e18/reference_grader.py
+  license: MIT root LICENSE; CC-BY-4.0 dataset metadata
+  access_notes: Reference implementation for the ten public case-study grader contracts.
+  last_checked: '2026-07-21'
+  pin:
+    kind: commit
+    value: 9bd2c54a6c0beef041e3504aa7eb65fc77783e18
+    url: https://huggingface.co/datasets/ajh-oai/genebench-pro-public-package/blob/9bd2c54a6c0beef041e3504aa7eb65fc77783e18/reference_grader.py
 implementations:
-  - {framework: official isolated workspace, status: not-available, url: null, commit: null, notes: Full evaluation harness is not public.}
-verification: {status: verified, last_verified: '2026-07-21', notes: Official OpenAI sources only.}
+- framework: GeneBench-Pro public reference grader
+  status: official
+  url: https://huggingface.co/datasets/ajh-oai/genebench-pro-public-package/blob/9bd2c54a6c0beef041e3504aa7eb65fc77783e18/reference_grader.py
+  commit: 9bd2c54a6c0beef041e3504aa7eb65fc77783e18
+  notes: Python 3.10+ grader for the ten public reproducibility packages; the boolean passed field is authoritative.
+- framework: GeneBench-Pro internal Docker evaluation harness
+  status: not-available
+  url: null
+  commit: null
+  notes: The paper specifies the environment and protocol, but the full 129-problem runner, prompts, targets, and grader packages
+    are not public.
+versions:
+- id: genebench-pro-paper-v1
+  label: paper-v1
+  status: current
+  release_date: '2026-06-30'
+  as_of: '2026-06-30'
+  task_counts:
+    total: 129
+    basis: self-contained synthetic scientific-analysis problems (called evaluations in the paper abstract)
+    reporting_status: reported
+    subsets:
+    - id: genebench-pro-public-release
+      label: Public release subset
+      count: 10
+      basis: problems
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: Ten externally reviewed case-study packages are public with prompts, staged data, ground truth, grader configuration,
+        and reports.
+    - id: genebench-pro-artificial-analysis
+      label: Artificial Analysis reporting subset
+      count: 50
+      basis: held-out problems
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: Disjoint from the public release. The formal paper says this locked reporting subset was provided to Artificial
+        Analysis; the launch page still describes delivery in future tense. The tasks are not public.
+    - id: genebench-pro-internal-holdout
+      label: Internal holdout
+      count: 69
+      basis: held-out problems
+      exclusive: true
+      exhaustive: true
+      reporting_status: reported
+      notes: Remainder after the disjoint 10-problem public and 50-problem Artificial Analysis subsets; not publicly released.
+    - id: genebench-pro-primary-statistical-genetics
+      label: Primary domain — Statistical genetics
+      count: 17
+      basis: problems in the primary-domain atlas
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: One member of the 10-domain partition; marked non-exhaustive here because the registry also stores independent
+        release and review partitions.
+    - id: genebench-pro-primary-population-genetics
+      label: Primary domain — Population genetics
+      count: 21
+      basis: problems in the primary-domain atlas
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: One member of the 10-domain partition; marked non-exhaustive here because the registry also stores independent
+        release and review partitions.
+    - id: genebench-pro-primary-quantitative-genetics
+      label: Primary domain — Quantitative genetics
+      count: 17
+      basis: problems in the primary-domain atlas
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: One member of the 10-domain partition; marked non-exhaustive here because the registry also stores independent
+        release and review partitions.
+    - id: genebench-pro-primary-regulatory-omics
+      label: Primary domain — Regulatory omics
+      count: 17
+      basis: problems in the primary-domain atlas
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: One member of the 10-domain partition; marked non-exhaustive here because the registry also stores independent
+        release and review partitions.
+    - id: genebench-pro-primary-functional-genomics
+      label: Primary domain — Functional genomics
+      count: 9
+      basis: problems in the primary-domain atlas
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: One member of the 10-domain partition; marked non-exhaustive here because the registry also stores independent
+        release and review partitions.
+    - id: genebench-pro-primary-proteomics
+      label: Primary domain — Proteomics
+      count: 7
+      basis: problems in the primary-domain atlas
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: One member of the 10-domain partition; marked non-exhaustive here because the registry also stores independent
+        release and review partitions.
+    - id: genebench-pro-primary-clinical-pgx-diagnostics
+      label: Primary domain — Clinical, PGx & diagnostics
+      count: 26
+      basis: problems in the primary-domain atlas
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: One member of the 10-domain partition; marked non-exhaustive here because the registry also stores independent
+        release and review partitions.
+    - id: genebench-pro-primary-cancer-genomics
+      label: Primary domain — Cancer genomics
+      count: 10
+      basis: problems in the primary-domain atlas
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: One member of the 10-domain partition; marked non-exhaustive here because the registry also stores independent
+        release and review partitions.
+    - id: genebench-pro-primary-microbial-genomics
+      label: Primary domain — Microbial genomics
+      count: 3
+      basis: problems in the primary-domain atlas
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: One member of the 10-domain partition; marked non-exhaustive here because the registry also stores independent
+        release and review partitions.
+    - id: genebench-pro-primary-forensic-genetics
+      label: Primary domain — Forensic genetics
+      count: 2
+      basis: problems in the primary-domain atlas
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: One member of the 10-domain partition; marked non-exhaustive here because the registry also stores independent
+        release and review partitions.
+    - id: genebench-pro-terminal-association-correction
+      label: Terminal subdomain — Association & correction
+      count: 6
+      basis: problems in the terminal-subdomain atlas
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+    - id: genebench-pro-terminal-causal-mapping
+      label: Terminal subdomain — Causal mapping
+      count: 6
+      basis: problems in the terminal-subdomain atlas
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+    - id: genebench-pro-terminal-heritability-architecture
+      label: Terminal subdomain — Heritability and architecture
+      count: 2
+      basis: problems in the terminal-subdomain atlas
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+    - id: genebench-pro-terminal-pedigree-ibd-phasing
+      label: Terminal subdomain — Pedigree, IBD, and phasing
+      count: 3
+      basis: problems in the terminal-subdomain atlas
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+    - id: genebench-pro-terminal-selection-mutation
+      label: Terminal subdomain — Selection & mutation
+      count: 7
+      basis: problems in the terminal-subdomain atlas
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+    - id: genebench-pro-terminal-admixture-adna
+      label: Terminal subdomain — Admixture & ancient DNA
+      count: 6
+      basis: problems in the terminal-subdomain atlas
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+    - id: genebench-pro-terminal-history-genealogies
+      label: Terminal subdomain — History & genealogies
+      count: 8
+      basis: problems in the terminal-subdomain atlas
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+    - id: genebench-pro-terminal-trait-architecture-variance
+      label: Terminal subdomain — Trait architecture and variance
+      count: 6
+      basis: problems in the terminal-subdomain atlas
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+    - id: genebench-pro-terminal-family-social-transmission
+      label: Terminal subdomain — Family, social, and transmission effects
+      count: 6
+      basis: problems in the terminal-subdomain atlas
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+    - id: genebench-pro-terminal-polygenic-prediction-selection
+      label: Terminal subdomain — Polygenic prediction and genomic selection
+      count: 5
+      basis: problems in the terminal-subdomain atlas
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+    - id: genebench-pro-terminal-regulatory-qtls-ase
+      label: Terminal subdomain — Regulatory QTLs & ASE
+      count: 8
+      basis: problems in the terminal-subdomain atlas
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+    - id: genebench-pro-terminal-transcriptome-structure
+      label: Terminal subdomain — Transcriptome structure
+      count: 5
+      basis: problems in the terminal-subdomain atlas
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+    - id: genebench-pro-terminal-spatial-chromatin-context
+      label: Terminal subdomain — Spatial and chromatin context
+      count: 4
+      basis: problems in the terminal-subdomain atlas
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+    - id: genebench-pro-terminal-functional-genomics-terminal
+      label: Terminal subdomain — Functional genomics
+      count: 9
+      basis: problems in the terminal-subdomain atlas
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+    - id: genebench-pro-terminal-proteomics-biomarkers
+      label: Terminal subdomain — Proteomics and biomarkers
+      count: 7
+      basis: problems in the terminal-subdomain atlas
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+    - id: genebench-pro-terminal-clinical-variant-penetrance
+      label: Terminal subdomain — Clinical variant interpretation & penetrance
+      count: 11
+      basis: problems in the terminal-subdomain atlas
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+    - id: genebench-pro-terminal-pharmacogenomics-treatment-response
+      label: Terminal subdomain — Pharmacogenomics and treatment response
+      count: 8
+      basis: problems in the terminal-subdomain atlas
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+    - id: genebench-pro-terminal-prenatal-reproductive-risk
+      label: Terminal subdomain — Prenatal, reproductive, and clinical-risk genetics
+      count: 7
+      basis: problems in the terminal-subdomain atlas
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+    - id: genebench-pro-terminal-cancer-somatic-liquid-biopsy
+      label: Terminal subdomain — Cancer somatic genomics and liquid biopsy
+      count: 10
+      basis: problems in the terminal-subdomain atlas
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+    - id: genebench-pro-terminal-microbial-metagenomic-genomics
+      label: Terminal subdomain — Microbial and metagenomic genomics
+      count: 3
+      basis: problems in the terminal-subdomain atlas
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+    - id: genebench-pro-terminal-forensic-genetics-terminal
+      label: Terminal subdomain — Forensic genetics
+      count: 2
+      basis: problems in the terminal-subdomain atlas
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: One member of the 21-terminal-subdomain partition; stored alongside independent release and review partitions.
+    - id: genebench-pro-externally-reviewed
+      label: Externally reviewed problems
+      count: 82
+      basis: problems
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: Orthogonal review-status stratum; all ten public problems are included.
+    - id: genebench-pro-not-externally-reviewed
+      label: Not externally reviewed
+      count: 47
+      basis: problems
+      exclusive: false
+      exhaustive: false
+      reporting_status: reported
+      notes: Orthogonal review-status stratum.
+  formal_tracks: []
+  notes: Initial formal 129-problem suite reported in bioRxiv v1 and the official OpenAI PDF. The public Hugging Face package
+    is a ten-problem reproducibility subset, not a replacement full-suite version.
+  evidence_ids:
+  - genebench-pro-paper-evidence
+  - genebench-pro-public-package-evidence
+audit:
+  status: audited-with-caveats
+  audited_date: '2026-07-21'
+  unresolved_fields: 1
+  notes: Counts, release strata, domain atlas, environment, grading, repeats, and all 60 configuration results are audited.
+    The public package exposes conflicting license declarations.
+field_status:
+- path: /access/license
+  status: conflicted
+  confidence: high
+  reason: The pinned Hugging Face README front matter declares CC-BY-4.0, while the same package root LICENSE is the MIT License
+    with OpenAI copyright.
+  evidence_ids:
+  - genebench-pro-public-package-evidence
+verification:
+  status: verified
+  last_verified: '2026-07-21'
+  notes: Audited against the formal paper, official OpenAI launch/case-study pages, and commit-pinned ten-problem public package.
 evidence:
-  - work_id: genebench-pro-report
-    locator: 'Abstract; Domain Atlas; Evaluation and grading; Results'
-    supports: [summary, task_counts, domains, capabilities, access]
+- id: genebench-pro-paper-evidence
+  source_type: work
+  source_id: genebench-pro-report
+  accessed_date: '2026-07-21'
+  locator:
+    type: section
+    value: Abstract; Benchmark Scope and Construction; Construction, Validation, and Grading; Methods; Supplementary Tables
+      1–2
+    note: Definition, 129 total, 10/50/69 release partition, 10 domains and 21 subdomains, 82/47 review strata, environment,
+      grading, attempts, metrics, and results.
+  supports:
+  - /name
+  - /aliases
+  - /summary
+  - /kind
+  - /organizations
+  - /release_date
+  - /latest_version
+  - /domains
+  - /capabilities
+  - /modalities
+  - /task_formats
+  - /task_counts/total
+  - /task_counts/basis
+  - /task_counts/subsets
+  - /coverage_notes
+  - /access/level
+  - /access/tasks
+  - /access/artifacts
+  - /access/grader
+  - /access/biosafety_notes
+  - /resources
+  - /implementations
+  - /versions/0/task_counts/total
+  - /versions/0/task_counts/basis
+  - /versions/0/task_counts/subsets
+- id: genebench-pro-public-package-evidence
+  source_type: resource
+  source_id: genebench-pro-public-dataset-resource
+  accessed_date: '2026-07-21'
+  locator:
+    type: repository-path
+    value: README.md; LICENSE; problems.csv; manifest.json; reference_grader.py at 9bd2c54a6c0beef041e3504aa7eb65fc77783e18
+    note: Ten public packages, released artifacts, runner contract, commit pin, and the CC-BY-4.0 versus MIT license conflict.
+  supports:
+  - /latest_version
+  - /access/level
+  - /access/tasks
+  - /access/artifacts
+  - /access/grader
+  - /access/license
+  - /resources
+  - /implementations
+  - /versions/0/task_counts/subsets

@@ -1,5 +1,9 @@
 - date: '2026-07-21'
   type: audit
+  entity_ids: [genebench-pro, genebench-pro-report, genebench-pro-official, genebench-pro-pro-mode, gpt-5-6-sol, gpt-5-6-pro, claude-opus-4-8]
+  summary: Audited GeneBench-Pro as 129 synthetic problems partitioned into 10 public, 50 Artificial Analysis, and 69 internal-holdout problems; registered the 10-domain and 21-terminal-subdomain atlas plus 82/47 review strata, pinned the ten-problem public package and its reference grader, retained its CC-BY-4.0 versus MIT license conflict, and normalized all 60 creator-reported model configurations across 13 exact effort/repeat groups with confidence intervals, valid-attempt handling, tools, and binary-grader semantics.
+- date: '2026-07-21'
+  type: audit
   entity_ids: [lab-bench, lab-bench-paper, lab-bench-litqa2, lab-bench-suppqa, lab-bench-figqa, lab-bench-tableqa, lab-bench-dbqa, lab-bench-protocolqa, lab-bench-seqqa, lab-bench-cloning-scenarios, anthropic-sonnet-4-5-system-card]
   summary: Audited LAB-Bench as 2,457 questions in eight broad categories; reproduced the 1,967 public and 490 private split across 31 versioned task files, preserved the README's conflicting 30-subtask claim, registered every formal DbQA and SeqQA child track, transcribed all 31 creator multiple-choice result rows and three expert-graded open-response studies, and separated Anthropic 10-shot and crop-tool evaluations by protocol and comparability group.
 - date: '2026-07-21'

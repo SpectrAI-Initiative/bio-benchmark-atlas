@@ -6,4 +6,8 @@ release_date: null
 version_string: GPT-5.4
 version_status: reported
 aliases: []
-verification: {status: verified, last_verified: '2026-07-21', notes: Exact public report label; snapshot date not stated.}
+verification:
+  status: verified
+  last_verified: '2026-07-21'
+  notes: Exact public-report and GeneBench-Pro Supplementary Table 1 label; the evaluated endpoint snapshot and release
+    date are not reported.

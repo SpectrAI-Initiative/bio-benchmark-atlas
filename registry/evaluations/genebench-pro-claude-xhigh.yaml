@@ -1,15 +1,10 @@
 entity_type: evaluation_run
-id: genebench-pro-pro-mode
+id: genebench-pro-claude-xhigh
 work_id: genebench-pro-report
 benchmark_id: genebench-pro
 benchmark_version: paper-v1
 model_ids:
-- gpt-5-2-pro
-- gpt-5-4-pro
-- gpt-5-5-pro
-- gpt-5-6-luna-pro
-- gpt-5-6-terra-pro
-- gpt-5-6-pro
+- claude-opus-4-8
 scope:
   type: full
   n: 129
@@ -31,7 +26,7 @@ protocol:
     notes: The task prompts for ten cases are public, but the full harness system message and 119 held-out prompts are not
       published.
   reasoning:
-    value: GPT Pro (Extended)
+    value: provider-reported xhigh reasoning setting
     reporting_status: reported
     notes: Effort labels are provider-native configuration labels; no claim is made that equal labels imply equal token budgets
       across providers.
@@ -119,86 +114,26 @@ metrics:
   tolerance: A problem attempt passes only when all graded fields satisfy their problem-specific exact-match rules or absolute
     numeric tolerances.
 results:
-- model_id: gpt-5-2-pro
+- model_id: claude-opus-4-8
   metric_id: pass-rate
-  value: 8.5
-  ci_low: 5.0
-  ci_high: 12.6
+  value: 10.1
+  ci_low: 6.4
+  ci_high: 14.3
   n: 129
-  notes: Supplementary Table 1 configuration GPT-5.2Pro (Extended); nominal attempts per problem 5, valid-attempt mean 5.0
-    and range 4–5; average tokens not reported; problem regimes 0%=79.1%, 0–10%=0.0%, 10–50%=14.0%, ≥50%=7.0%.
+  notes: Supplementary Table 1 configuration ClaudeOpus4.8 (xhigh); nominal attempts per problem 5, valid-attempt mean 5.0
+    and range 4–5; average tokens not reported; problem regimes 0%=75.2%, 0–10%=0.0%, 10–50%=17.1%, ≥50%=7.8%.
   status: verified
   confidence: high
   evidence_ids:
-  - genebench-pro-pro-mode-results
-- model_id: gpt-5-4-pro
-  metric_id: pass-rate
-  value: 16.3
-  ci_low: 10.9
-  ci_high: 22.0
-  n: 129
-  notes: Supplementary Table 1 configuration GPT-5.4Pro (Extended); nominal attempts per problem 5, valid-attempt mean 5.0
-    and range 5–5; average tokens not reported; problem regimes 0%=72.1%, 0–10%=0.0%, 10–50%=12.4%, ≥50%=15.5%.
-  status: verified
-  confidence: high
-  evidence_ids:
-  - genebench-pro-pro-mode-results
-- model_id: gpt-5-5-pro
-  metric_id: pass-rate
-  value: 20.5
-  ci_low: 14.7
-  ci_high: 26.5
-  n: 129
-  notes: Supplementary Table 1 configuration GPT-5.5Pro (Extended); nominal attempts per problem 5, valid-attempt mean 5.0
-    and range 5–5; average tokens not reported; problem regimes 0%=66.7%, 0–10%=0.0%, 10–50%=14.0%, ≥50%=19.4%.
-  status: verified
-  confidence: high
-  evidence_ids:
-  - genebench-pro-pro-mode-results
-- model_id: gpt-5-6-luna-pro
-  metric_id: pass-rate
-  value: 23.6
-  ci_low: 17.2
-  ci_high: 30.2
-  n: 129
-  notes: Supplementary Table 1 configuration GPT-5.6LunaPro (Extended); nominal attempts per problem 5, valid-attempt mean
-    5.0 and range 5–5; average tokens not reported; problem regimes 0%=65.9%, 0–10%=0.0%, 10–50%=10.9%, ≥50%=23.3%.
-  status: verified
-  confidence: high
-  evidence_ids:
-  - genebench-pro-pro-mode-results
-- model_id: gpt-5-6-terra-pro
-  metric_id: pass-rate
-  value: 28.5
-  ci_low: 21.7
-  ci_high: 35.7
-  n: 129
-  notes: Supplementary Table 1 configuration GPT-5.6TerraPro (Extended); nominal attempts per problem 5, valid-attempt mean
-    5.0 and range 5–5; average tokens not reported; problem regimes 0%=59.7%, 0–10%=0.0%, 10–50%=11.6%, ≥50%=28.7%.
-  status: verified
-  confidence: high
-  evidence_ids:
-  - genebench-pro-pro-mode-results
-- model_id: gpt-5-6-pro
-  metric_id: pass-rate
-  value: 31.5
-  ci_low: 24.3
-  ci_high: 38.9
-  n: 129
-  notes: Supplementary Table 1 configuration GPT-5.6SolPro (Extended); nominal attempts per problem 5, valid-attempt mean
-    5.0 and range 5–5; average tokens not reported; problem regimes 0%=55.8%, 0–10%=0.0%, 10–50%=14.0%, ≥50%=30.2%.
-  status: verified
-  confidence: high
-  evidence_ids:
-  - genebench-pro-pro-mode-results
-comparability_group: genebench-pro-paper-v1-full-pro-extended
+  - genebench-pro-claude-xhigh-results
+comparability_group: genebench-pro-paper-v1-full-claude-xhigh
 verification:
   status: verified
   last_verified: '2026-07-21'
-  notes: 6 configuration result(s), confidence intervals, repeats, valid-attempt summaries, and environment settings were
+  notes: 1 configuration result(s), confidence intervals, repeats, valid-attempt summaries, and environment settings were
     checked against Methods and Supplementary Table 1.
 evidence:
-- id: genebench-pro-pro-mode-protocol
+- id: genebench-pro-claude-xhigh-protocol
   source_type: work
   source_id: genebench-pro-report
   accessed_date: '2026-07-21'
@@ -213,7 +148,7 @@ evidence:
   - /scope
   - /protocol
   - /metrics
-- id: genebench-pro-pro-mode-results
+- id: genebench-pro-claude-xhigh-results
   source_type: work
   source_id: genebench-pro-report
   accessed_date: '2026-07-21'

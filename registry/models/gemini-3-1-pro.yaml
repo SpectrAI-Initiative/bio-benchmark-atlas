@@ -6,4 +6,8 @@ release_date: null
 version_string: Gemini 3.1 Pro
 version_status: reported
 aliases: []
-verification: {status: verified, last_verified: '2026-07-21', notes: Exact LifeSciBench report label; endpoint snapshot not stated.}
+verification:
+  status: verified
+  last_verified: '2026-07-21'
+  notes: Exact label in both LifeSciBench and GeneBench-Pro; neither report states an endpoint snapshot, and GeneBench-Pro
+    does not report a release date.

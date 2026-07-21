@@ -1,9 +1,9 @@
 entity_type: model
-id: claude-opus-4-8
-name: Claude Opus 4.8
-provider: Anthropic
+id: gpt-5-6-luna-pro
+name: GPT-5.6 Luna Pro (Extended)
+provider: OpenAI
 release_date: null
-version_string: Claude Opus 4.8
+version_string: GPT-5.6 Luna Pro (Extended)
 version_status: reported
 aliases: []
 verification:

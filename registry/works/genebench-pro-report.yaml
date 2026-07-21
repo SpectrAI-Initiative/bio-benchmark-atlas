@@ -1,13 +1,19 @@
 entity_type: work
 id: genebench-pro-report
 title: 'GeneBench-Pro: Evaluating Multistage Statistical Reasoning in Genomics, Quantitative Biology, and Translational Biomedicine'
-authors: [Jeremy Li, Andrew Ho]
-organizations: [OpenAI]
-work_type: technical-report
+authors:
+- Jeremiah H. Li
+- Andrew J. Ho
+organizations:
+- OpenAI
+work_type: preprint
 source_class: benchmark_creator
 publication_date: '2026-06-30'
-canonical_url: 'https://cdn.openai.com/pdf/21938268-21af-442f-af93-3b2249afb241/genebench-pro.pdf'
-doi: null
+canonical_url: https://cdn.openai.com/pdf/21938268-21af-442f-af93-3b2249afb241/genebench-pro.pdf
+doi: 10.64898/2026.06.29.735386
 arxiv: null
 status: published
-verification: {status: verified, last_verified: '2026-07-21', notes: Official OpenAI report.}
+verification:
+  status: verified
+  last_verified: '2026-07-21'
+  notes: Official OpenAI PDF and bioRxiv v1 metadata; the PDF shortens the author names to Jeremy Li and Andrew Ho.

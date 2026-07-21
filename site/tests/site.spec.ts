@@ -182,6 +182,34 @@ test('LAB-Bench separates category, task-file, split, and provider evaluation se
   await expect(page.locator('#lab-bench-figqa-crop-tool')).toContainText('crop tool');
 });
 
+test('GeneBench-Pro separates release strata, effort settings, repeats, and all reported configurations', async ({ page }) => {
+  await page.goto('/bio-benchmark-atlas/benchmarks/genebench-pro/');
+  await expect(page.getByText(/partitioned into 10 public, 50 Artificial Analysis, and 69 internal-holdout/)).toBeVisible();
+  await expect(page.getByText(/All 60 reported model configurations are normalized across 13 effort\/repeat groups/)).toBeVisible();
+  await expect(page.getByText(/dataset card says CC BY 4\.0, but its root LICENSE says MIT/)).toBeVisible();
+  await expect(page.getByText('Conflicted · high', { exact: true }).first()).toBeVisible();
+  await expect(page.getByRole('cell', { name: 'Public release subset' })).toBeVisible();
+  await expect(page.getByRole('cell', { name: 'Artificial Analysis reporting subset' })).toBeVisible();
+  await expect(page.getByRole('cell', { name: 'Internal holdout' })).toBeVisible();
+
+  const xhigh = page.locator('#genebench-pro-official');
+  await expect(xhigh.getByText('Scope', { exact: true }).locator('..')).toContainText('full · n=129');
+  await expect(xhigh.getByText('Repeats', { exact: true }).locator('..')).toContainText('10');
+  await expect(xhigh).toContainText('GPT-5.5');
+  await expect(xhigh).toContainText('12');
+
+  const max = page.locator('#genebench-pro-standard-max');
+  await expect(max).toContainText('GPT-5.6 Sol');
+  await expect(max).toContainText('28.7');
+
+  const pro = page.locator('#genebench-pro-pro-mode');
+  await expect(pro.getByText('Repeats', { exact: true }).locator('..')).toContainText('5');
+  await expect(pro).toContainText('GPT-5.6 Sol Pro (Extended)');
+  await expect(pro).toContainText('31.5');
+  await expect(page.locator('.run-card')).toHaveCount(13);
+  await expect(page.locator('.chart-card')).toHaveCount(13);
+});
+
 test('BioMysteryBench separates the human subsets and repeats', async ({ page }) => {
   await page.goto('/bio-benchmark-atlas/benchmarks/biomysterybench/');
   await expect(page.getByRole('cell', { name: 'Human-solvable' })).toBeVisible();

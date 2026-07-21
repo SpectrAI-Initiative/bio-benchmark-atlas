@@ -1,9 +1,15 @@
 entity_type: model
 id: gpt-5-6-pro
-name: GPT-5.6 Pro
+name: GPT-5.6 Sol Pro (Extended)
 provider: OpenAI
 release_date: null
-version_string: GPT-5.6 Sol (Pro)
+version_string: GPT-5.6 Sol Pro (Extended)
 version_status: reported
-aliases: [GPT-5.6 Pro mode]
-verification: {status: verified, last_verified: '2026-07-21', notes: Pro-mode label reported by GeneBench-Pro; not merged with standard Sol.}
+aliases:
+- GPT-5.6 Sol (Pro)
+- GPT-5.6 Pro mode
+verification:
+  status: verified
+  last_verified: '2026-07-21'
+  notes: GeneBench-Pro reports the exact label GPT-5.6 Sol Pro (Extended); earlier registry sources used GPT-5.6 Sol (Pro)
+    or GPT-5.6 Pro mode. The endpoint snapshot and release date are not reported.

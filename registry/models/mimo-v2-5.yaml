@@ -1,9 +1,9 @@
 entity_type: model
-id: claude-opus-4-8
-name: Claude Opus 4.8
-provider: Anthropic
+id: mimo-v2-5
+name: MiMo V2.5
+provider: Xiaomi
 release_date: null
-version_string: Claude Opus 4.8
+version_string: MiMo V2.5
 version_status: reported
 aliases: []
 verification:

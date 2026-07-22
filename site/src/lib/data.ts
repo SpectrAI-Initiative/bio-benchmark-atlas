@@ -49,6 +49,7 @@ export const benchmarkMap = new Map(data.benchmarks.map((item) => [item.id, item
 export const workMap = new Map(data.works.map((item) => [item.id, item]));
 export const modelMap = new Map(data.models.map((item) => [item.id, item]));
 export const runMap = new Map(data.evaluation_runs.map((item) => [item.id, item]));
+export const scientificTaskMap = new Map(data.scientific_tasks.map((item) => [item.id, item]));
 
 export const termMaps = Object.fromEntries(
   Object.entries(data.taxonomies).map(([axis, terms]) => [axis, new Map(terms.map((term) => [term.id, term]))]),
@@ -95,4 +96,17 @@ export function evidenceSourceId(evidence: { work_id?: string; source_id?: strin
 
 export function familyBenchmarks(): Benchmark[] {
   return data.benchmarks.filter((benchmark) => benchmark.parent_id === null);
+}
+
+export function rootFamily(benchmark: Benchmark): Benchmark {
+  let current = benchmark;
+  while (current.parent_id) current = benchmarkMap.get(current.parent_id) ?? current;
+  return current;
+}
+
+export function taskDescendantIds(taskId: string): string[] {
+  return [
+    taskId,
+    ...data.scientific_tasks.filter((item) => item.parent_id === taskId).map((item) => item.id),
+  ];
 }

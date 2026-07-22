@@ -19,7 +19,7 @@ const id = `plot-${Math.random().toString(36).slice(2)}`;
   </header>
   <div class="chart plot-host" id={id} data-kind={kind} data-values={JSON.stringify(values)} data-options={JSON.stringify(options)} aria-hidden="true"></div>
   {tableColumns.length > 0 && (
-    <details class="small">
+    <details class="small" open={kind === 'heatmap'}>
       <summary>Accessible data table</summary>
       <div class="table-wrap">
         <table>

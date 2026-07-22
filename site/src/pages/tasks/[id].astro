@@ -1,0 +1,61 @@
+---
+import Layout from '../../components/Layout.astro';
+import Tag from '../../components/Tag.astro';
+import { benchmarkMap, data, taskDescendantIds, termMaps, withBase, workMap } from '../../lib/data';
+
+export function getStaticPaths() {
+  return data.scientific_tasks.map((task) => ({ params: { id: task.id }, props: { task } }));
+}
+const { task } = Astro.props;
+const descendantIds = taskDescendantIds(task.id);
+const coverageRows = data.scientific_task_coverage.filter((row) => descendantIds.includes(row.task_type_id));
+const positiveRows = coverageRows.filter((row) => row.aggregate_eligible);
+const benchmarkIds = [...new Set(positiveRows.map((row) => row.benchmark_id))];
+const benchmarks = benchmarkIds.map((id) => benchmarkMap.get(id)).filter(Boolean);
+const rootFamilyIds = [...new Set(positiveRows.map((row) => row.root_family_id))];
+const trackIds = [...new Set(positiveRows.filter((row) => row.benchmark_kind === 'track').map((row) => row.benchmark_id))];
+const relatedBenchmarkIds = new Set(benchmarkIds);
+for (const id of benchmarkIds) {
+  const benchmark = benchmarkMap.get(id);
+  if (benchmark?.parent_id === null) data.benchmarks.filter((item) => item.parent_id === id).forEach((item) => relatedBenchmarkIds.add(item.id));
+}
+const runs = data.evaluation_runs.filter((run) => relatedBenchmarkIds.has(run.benchmark_id));
+const works = [...new Set(runs.map((run) => run.work_id))].map((id) => workMap.get(id)).filter(Boolean);
+const parent = task.parent_id ? termMaps.scientific_tasks.get(task.parent_id) : undefined;
+---
+<Layout title={task.label} description={task.definition} canonicalPath={`/tasks/${task.id}/`}>
+  <header class="page-head shell">
+    <div class="breadcrumbs"><a href={withBase('/tasks/')}>Scientific Tasks</a><span>/</span>{parent && <><a href={withBase(`/tasks/${parent.id}/`)}>{parent.label}</a><span>/</span></>}<span>{task.label}</span></div>
+    <p class="eyebrow">Scientific task · {termMaps.task_families.get(task.task_family_id)?.label}</p>
+    <h1>{task.label}</h1>
+    <p class="lede">{task.definition}</p>
+    <p lang="zh-CN" class="muted"><strong>{task.label_zh}</strong></p>
+    <div class="tag-list">{task.object_ids.map((id) => <span class="tag accent">{termMaps.scientific_objects.get(id)?.label ?? id}</span>)}<span class="tag">{termMaps.task_families.get(task.task_family_id)?.label ?? task.task_family_id}</span></div>
+  </header>
+  <div class="shell section detail-grid">
+    <div>
+      <section>
+        <h2>Definition and search aliases</h2>
+        <dl class="definition-list">
+          <div><dt>Permanent ID</dt><dd><code>{task.id}</code></dd></div>
+          <div><dt>Aliases</dt><dd>{task.aliases.length ? task.aliases.join(', ') : 'None'}</dd></div>
+          <div><dt>Deprecated aliases</dt><dd>{task.deprecated_aliases.length ? task.deprecated_aliases.join(', ') : 'None'}</dd></div>
+          <div><dt>Hierarchy</dt><dd>{parent ? `Leaf task under ${parent.label}` : 'Parent task; benchmark coverage below includes its leaf tasks.'}</dd></div>
+        </dl>
+      </section>
+      {positiveRows.length === 0 ? <div class="callout info"><strong>Registry coverage gap.</strong> No verified, aggregation-eligible benchmark mapping currently covers this task. This is a curation gap signal, not proof that no benchmark exists.</div> : <section class="section-tight">
+        <p class="eyebrow">Coverage</p><h2>{rootFamilyIds.length} benchmark families cover this task</h2>
+        <div class="grid two">{benchmarks.map((benchmark) => benchmark && <article class="card"><div class="meta"><span>{benchmark.kind}</span><span>{benchmark.scientific_task_classification.status}</span></div><h3><a class="stretched" href={withBase(`/benchmarks/${benchmark.id}/`)}>{benchmark.name}</a></h3><p>{benchmark.summary}</p><div class="tag-list">{benchmark.scientific_task_classification.entries.filter((entry) => descendantIds.includes(entry.task_type_id)).map((entry) => <Tag id={entry.task_type_id} axis="scientific_tasks" />)}</div></article>)}</div>
+      </section>}
+      <section class="section-tight"><h2>Evidence-backed count claims</h2><p class="muted">Each row keeps its original unit and basis. Rows with different units or overlapping mappings are never added.</p>
+        {coverageRows.length ? <div class="table-wrap"><table><thead><tr><th>Benchmark</th><th>Mapped task</th><th>Coverage</th><th>Count</th><th>Version</th><th>Evidence</th></tr></thead><tbody>{coverageRows.map((row) => <tr><td><a href={withBase(`/benchmarks/${row.benchmark_id}/`)}>{row.benchmark_name}</a><br/><span class="small muted">root: {row.root_family_id}</span></td><td><a href={withBase(`/tasks/${row.task_type_id}/`)}>{termMaps.scientific_tasks.get(row.task_type_id)?.label ?? row.task_type_id}</a><br/><span class="small muted">{row.mapping_method} · {row.confidence}</span></td><td>{row.coverage}</td><td class:list={{'not-reported': row.count === null}}>{row.count ?? 'Not reported'} {row.count !== null && <span class="small muted">{row.count_unit}</span>}<br/><span class="small muted">{row.count_basis}</span></td><td>{row.benchmark_version}{row.as_of && <><br/><span class="small muted">as of {row.as_of}</span></>}</td><td>{row.evidence_ids.map((id) => <><code>{id}</code><br/></>)}</td></tr>)}</tbody></table></div> : <p>No count claim is registered.</p>}
+      </section>
+      <section class="section-tight"><h2>Official evaluations connected to these benchmarks</h2><p class="muted">Runs are included only for benchmark records mapped here (and formal child tracks when a mapped suite is the root). A task mapping does not imply that every run isolates this task.</p>
+        {works.length ? <div class="table-wrap"><table><thead><tr><th>Work</th><th>Provider / class</th><th>Related runs</th></tr></thead><tbody>{works.map((work) => work && <tr><td><a href={withBase(`/works/${work.id}/`)}>{work.title}</a></td><td>{work.organizations.join(', ')}<br/><span class="small muted">{work.source_class}</span></td><td>{runs.filter((run) => run.work_id === work.id).map((run) => <><a href={withBase(`/benchmarks/${run.benchmark_id}/`)}><code>{run.id}</code></a><br/></>)}</td></tr>)}</tbody></table></div> : <div class="callout info">No normalized official evaluation run is connected to the mapped benchmark records yet.</div>}
+      </section>
+    </div>
+    <aside class="sidebar">
+      <div class="card"><p class="eyebrow">Coverage summary</p><dl class="definition-list"><div><dt>Families</dt><dd>{rootFamilyIds.length}</dd></div><div><dt>Mapped records</dt><dd>{benchmarks.length}</dd></div><div><dt>Formal tracks</dt><dd>{trackIds.length}</dd></div><div><dt>Official works</dt><dd>{works.length}</dd></div></dl><p><a href={withBase(`/tasks/?object=${task.object_ids[0]}`)}>Browse related object tasks →</a></p><p><a href={withBase('/data/scientific-task-coverage.csv')} download>Download coverage CSV ↓</a></p></div>
+    </aside>
+  </div>
+</Layout>

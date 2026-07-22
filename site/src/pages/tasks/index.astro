@@ -1,0 +1,105 @@
+---
+import Layout from '../../components/Layout.astro';
+import PlotCard from '../../components/PlotCard.astro';
+import { benchmarkMap, data, taskDescendantIds, termMaps, withBase } from '../../lib/data';
+
+const objects = data.taxonomies.scientific_objects;
+const families = data.taxonomies.task_families;
+const domains = data.taxonomies.domains.filter((term) =>
+  data.scientific_task_coverage.some((row) => benchmarkMap.get(row.benchmark_id)?.domains.includes(term.id)),
+);
+const taskRows = data.scientific_tasks.map((task) => {
+  const ids = taskDescendantIds(task.id);
+  const coverage = data.scientific_task_coverage.filter((row) => ids.includes(row.task_type_id));
+  const eligible = coverage.filter((row) => row.aggregate_eligible);
+  const familyIds = [...new Set(eligible.map((row) => row.root_family_id))];
+  const trackIds = [...new Set(eligible.filter((row) => row.benchmark_kind === 'track').map((row) => row.benchmark_id))];
+  const workIds = [...new Set(eligible.flatMap((row) => row.evaluating_work_ids))];
+  const domainIds = [...new Set(coverage.flatMap((row) => benchmarkMap.get(row.benchmark_id)?.domains ?? []))];
+  const statuses = [...new Set(coverage.map((row) => row.coverage))];
+  return { task, coverage, familyIds, trackIds, workIds, domainIds, statuses };
+});
+const heatmap = objects.flatMap((object) => families.map((family) => ({
+  y: object.label,
+  x: family.label,
+  value: taskRows.filter(({ task, familyIds }) => task.object_ids.includes(object.id) && task.task_family_id === family.id && familyIds.length > 0).length,
+})));
+const focusObjectIds = ['protein', 'dna', 'rna', 'small-molecule', 'cell', 'omics-profile'];
+const gaps = focusObjectIds.map((id) => {
+  const object = termMaps.scientific_objects.get(id)!;
+  const matching = taskRows.filter(({ task }) => task.object_ids.includes(id) && task.parent_id !== null);
+  return {
+    label: object.label,
+    value: matching.filter(({ familyIds }) => familyIds.length === 0).length,
+    total: matching.length,
+    covered: matching.filter(({ familyIds }) => familyIds.length > 0).length,
+  };
+});
+---
+<Layout title="Scientific Task Atlas" canonicalPath="/tasks/">
+  <header class="page-head shell">
+    <p class="eyebrow">Scientific Task Atlas</p>
+    <h1>What scientific problem does each benchmark actually test?</h1>
+    <p class="lede">Separate protein folding from sequence design, PPI from protein-ligand binding, and DNA, RNA, small-molecule, cellular, omics, and workflow tasks. Counts keep their original units and evidence.</p>
+  </header>
+  <div class="shell section-tight">
+    <form class="explorer-controls" id="task-controls" role="search">
+      <div class="field"><label for="q">Search</label><input id="q" name="q" type="search" placeholder="folding, PPI, docking, RNA design…" /></div>
+      <div class="field"><label for="object">Object</label><select id="object" name="object"><option value="">All objects</option>{objects.map((term) => <option value={term.id}>{term.label}</option>)}</select></div>
+      <div class="field"><label for="family">Task family</label><select id="family" name="family"><option value="">All task families</option>{families.map((term) => <option value={term.id}>{term.label}</option>)}</select></div>
+      <div class="field"><label for="domain">Domain</label><select id="domain" name="domain"><option value="">All domains</option>{domains.map((term) => <option value={term.id}>{term.label}</option>)}</select></div>
+      <div class="field"><label for="coverage">Coverage</label><select id="coverage" name="coverage"><option value="">All statuses</option><option value="covered">Any positive coverage</option><option value="gap">Registry gap</option><option value="explicitly-in-scope">Explicitly in scope</option><option value="observed">Observed</option><option value="not-in-scope">Explicitly not in scope</option></select></div>
+    </form>
+    <p class="small muted"><strong id="task-count">{taskRows.length}</strong> task terms · Parent rows roll up their leaf tasks · <a href={withBase('/data/scientific-task-coverage.csv')} download>Download coverage CSV</a></p>
+    <div class="table-wrap"><table id="task-table"><thead><tr><th>Scientific task</th><th>Object / family</th><th>Coverage</th><th>Tracks</th><th>Official works</th></tr></thead><tbody>
+      {taskRows.map(({ task, familyIds, trackIds, workIds, domainIds, statuses }) => <tr
+        data-search={`${task.id} ${task.label} ${task.label_zh} ${task.aliases.join(' ')} ${task.deprecated_aliases.join(' ')}`.toLowerCase()}
+        data-objects={task.object_ids.join(' ')} data-family={task.task_family_id} data-domains={domainIds.join(' ')} data-statuses={statuses.join(' ')} data-covered={familyIds.length > 0 ? 'yes' : 'no'}>
+        <td><a href={withBase(`/tasks/${task.id}/`)}>{task.label}</a><br/><span class="small muted" lang="zh-CN">{task.label_zh}</span>{task.parent_id && <><br/><span class="small muted">Child of {termMaps.scientific_tasks.get(task.parent_id)?.label}</span></>}</td>
+        <td>{task.object_ids.map((id) => termMaps.scientific_objects.get(id)?.label ?? id).join(', ')}<br/><span class="small muted">{termMaps.task_families.get(task.task_family_id)?.label ?? task.task_family_id}</span></td>
+        <td>{familyIds.length ? <><strong>{familyIds.length}</strong> families</> : <span class="not-reported">Coverage gap</span>}</td>
+        <td>{trackIds.length}</td><td>{workIds.length}</td>
+      </tr>)}
+    </tbody></table></div>
+    <p id="task-empty" class="callout" hidden>No Scientific Task matches this filter combination.</p>
+  </div>
+  <div class="shell section grid two">
+    <PlotCard title="Object × task family" description="Covered Scientific Task terms in each object/family cell; parent terms roll up leaf coverage in the table above." kind="heatmap" values={heatmap} csv="/data/scientific-task-coverage.csv" tableColumns={[{key:'y',label:'Scientific object'},{key:'x',label:'Task family'},{key:'value',label:'Covered task terms'}]} options={{height: 520, marginLeft: 150}} />
+    <PlotCard title="Current coverage gaps" description="Leaf task terms with zero eligible benchmark-family coverage. Zero coverage is a registry gap, not proof no benchmark exists." kind="bar" values={gaps} csv="/data/scientific-task-coverage.csv" tableColumns={[{key:'label',label:'Scientific object'},{key:'value',label:'Uncovered leaf tasks'},{key:'covered',label:'Covered leaf tasks'},{key:'total',label:'Registered leaf tasks'}]} options={{height: 360}} />
+  </div>
+  <script>
+    const form = document.querySelector<HTMLFormElement>('#task-controls')!;
+    const rows = [...document.querySelectorAll<HTMLTableRowElement>('#task-table tbody tr')];
+    const count = document.querySelector<HTMLElement>('#task-count')!;
+    const empty = document.querySelector<HTMLElement>('#task-empty')!;
+    const params = new URLSearchParams(location.search);
+    for (const name of ['q', 'object', 'family', 'domain', 'coverage']) {
+      const control = form.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement;
+      control.value = params.get(name) ?? '';
+    }
+    function update() {
+      const values = Object.fromEntries(new FormData(form)) as Record<string, string>;
+      let visible = 0;
+      rows.forEach((row) => {
+        const coverageMatch = !values.coverage
+          || (values.coverage === 'covered' && row.dataset.covered === 'yes')
+          || (values.coverage === 'gap' && row.dataset.covered === 'no')
+          || row.dataset.statuses?.split(' ').includes(values.coverage);
+        const match = (!values.q || row.dataset.search?.includes(values.q.toLowerCase()))
+          && (!values.object || row.dataset.objects?.split(' ').includes(values.object))
+          && (!values.family || row.dataset.family === values.family)
+          && (!values.domain || row.dataset.domains?.split(' ').includes(values.domain))
+          && coverageMatch;
+        row.hidden = !match;
+        if (match) visible += 1;
+      });
+      count.textContent = String(visible);
+      empty.hidden = visible !== 0;
+      const next = new URLSearchParams();
+      Object.entries(values).forEach(([key, value]) => value && next.set(key, value));
+      history.replaceState(null, '', `${location.pathname}${next.size ? `?${next}` : ''}`);
+    }
+    form.addEventListener('input', update);
+    update();
+  </script>
+</Layout>

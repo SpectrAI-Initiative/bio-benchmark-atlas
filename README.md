@@ -4,7 +4,7 @@ BioBench Atlas is a source-grounded registry of benchmarks for protein science, 
 
 The website is published at **https://spectrai-initiative.github.io/bio-benchmark-atlas/**.
 
-The immutable `v1.1.0` release contains completed field-level reviews for fourteen of the fifteen launch families. VirBench's detailed audit is intentionally deferred and its verified v1 record remains visibly marked `legacy`; this exception is declared in registry metadata and enforced by CI. Production entities expose an audit status so downstream users can distinguish legacy records from completed field-level audits.
+The immutable `v1.1.0` release contains completed field-level reviews for fourteen of the fifteen launch families. The current `1.2.0-dev` registry adds a Scientific Task layer that distinguishes problems such as protein folding, protein sequence design, PPI, protein-ligand binding, DNA regulation, RNA design, small-molecule discovery, omics analysis, and scientific workflows. VirBench's detailed audit and task classification remain intentionally deferred and visibly marked `legacy` / `unclassified`; this is the only CI-enforced exception.
 
 ## Principles
 
@@ -31,6 +31,8 @@ The registry deliberately separates four things that are often conflated:
 - **EvaluationRun** — one coherent scope and protocol, including exact evaluated model/system IDs, prompts, tools, budgets, repeats, grader, and metrics. A model can be linked even when the source reports no extractable scalar result.
 - **Model** — the exact model or agent-and-model identity reported by a source.
 
+Benchmarks also expose `scientific_task_classification`, which maps the benchmark or formal track to the most specific evidence-supported Scientific Task. A mapping records its version, coverage status, method, confidence, original count unit and basis, evidence IDs, and whether the count was reported. Domain, capability, modality, task format, and Scientific Task remain separate axes.
+
 Changing a subset, tool, prompt, reasoning setting, budget, grader, or repeat count requires a separate run. Models are only charted together within an explicit `comparability_group`.
 
 Audited benchmarks additionally carry structured version history, permanent resource and evidence IDs, precise locators, and machine-readable `field_status` warnings. Provisional or conflicted totals cannot establish `scope: full`; provisional/conflicted result rows remain downloadable but are excluded from comparison charts.
@@ -46,6 +48,9 @@ Every production build publishes:
 - `/data/models.json`
 - `/data/benchmarks.csv`
 - `/data/evaluation-results.csv`
+- `/data/scientific-tasks.json`
+- `/data/scientific-task-coverage.json`
+- `/data/scientific-task-coverage.csv`
 - `/schema/registry.schema.json`
 
 These files and the website are generated from the same normalized in-memory object. Do not edit generated exports directly.

@@ -15,6 +15,13 @@
 - Unreported fields:
 - Provisional/conflicted paths:
 
+## Scientific Task classification
+
+- Classification status: <!-- complete / partial / unclassified -->
+- Benchmark version / rolling as-of:
+- Mapping method(s): <!-- official-taxonomy / official-track / artifact-derived -->
+- Count units and unreported mappings:
+
 ## Evaluation completeness
 
 - [ ] Scope is explicitly `full`, `subset`, `track`, or `unknown`.
@@ -25,6 +32,7 @@
 - [ ] Every audited critical field uses structured evidence with a resolvable `/path`.
 - [ ] Provisional/conflicted values have adjacent `field_status` warnings.
 - [ ] Numeric results have status, confidence, and evidence IDs.
+- [ ] Scientific Task mappings use the most specific officially supported term, preserve count units, and cite benchmark-owned evidence IDs.
 
 ## Validation
 

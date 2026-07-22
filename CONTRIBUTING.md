@@ -49,6 +49,17 @@ pnpm --dir site test
 - Production validation rejects undeclared legacy records. A deliberately deferred root family must have a dated, reasoned entry in `registry/meta.yaml` under `audit_exemptions`; remove that entry in the same pull request that completes its audit.
 - Attach the completed field audit table from `docs/audit-playbook.md` to the pull request.
 
+## Scientific Task mapping rules
+
+- Maintain task mappings in the curation-area files under `registry/scientific_task_classifications/`; the loader normalizes them into each public Benchmark object.
+- Select the most specific task supported by a creator source, formal track, or locatable official artifact. Do not infer a task from the benchmark name or a potential downstream use.
+- Keep Domain, Capability, Modality, task format, and Scientific Task separate. In particular, fitness prediction is not automatically protein design.
+- Use `partial` when a mixed suite has no exhaustive official task taxonomy. A `complete` mapping must cover the formal task inventory.
+- Preserve the original count unit and basis. Never add questions, examples, assays, targets, systems, tracks, and problems together.
+- A reported count needs a value; an unreported count must be `null`. Explicit exclusion is `not-in-scope` with a reported zero.
+- Low-confidence mappings require `field_status` and are excluded from coverage aggregation.
+- Zero-coverage taxonomy terms are intentional registry gap signals and should not be deleted merely because no current benchmark maps to them.
+
 ## Rights and safety
 
 Do not add third-party questions, restricted benchmark artifacts, model outputs, or paper snapshots unless redistribution is explicitly permitted. Metadata contributions are CC BY 4.0; code contributions are Apache-2.0. Upstream assets retain their licenses.

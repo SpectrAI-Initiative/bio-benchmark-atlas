@@ -247,6 +247,8 @@ footer { width: min(calc(100% - 2rem), var(--content)); margin: 5rem auto 0; pad
   footer { grid-template-columns: 1fr; }
   .footer-links { justify-content: flex-start; }
   .chart-card { padding: .8rem; }
+  .plot-host[data-kind="heatmap"] { display: none; }
+  .chart-card details[open] .table-wrap { max-width: 100%; overflow-x: auto; }
 }
 
 @media (prefers-reduced-motion: reduce) {

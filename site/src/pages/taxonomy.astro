@@ -1,11 +1,12 @@
 ---
 import Layout from '../components/Layout.astro';
-import { data } from '../lib/data';
+import { data, withBase } from '../lib/data';
 const axes = [
-  ['domains','Scientific domain'], ['capabilities','Capability'], ['modalities','Input modality'], ['access_levels','Access level']
+  ['domains','Scientific domain'], ['capabilities','Capability'], ['modalities','Input modality'], ['access_levels','Access level'],
+  ['scientific_objects','Scientific object'], ['task_families','Scientific task family'], ['scientific_tasks','Scientific task']
 ] as const;
 ---
 <Layout title="Taxonomy" canonicalPath="/taxonomy/">
   <header class="page-head shell"><p class="eyebrow">Controlled vocabulary</p><h1>Multiple axes, no free-form tag drift.</h1><p class="lede">A benchmark can cover several domains, capabilities, and modalities. Each stable ID has an English definition, Chinese explanation, parent, and deprecated aliases.</p></header>
-  <div class="shell section prose">{axes.map(([axis,label]) => <section><h2>{label}</h2><div class="table-wrap"><table><thead><tr><th>ID</th><th>English</th><th>中文</th><th>Parent</th><th>Definition</th></tr></thead><tbody>{data.taxonomies[axis].map((term) => <tr><td><code>{term.id}</code></td><td>{term.label}</td><td lang="zh-CN">{term.label_zh}</td><td>{term.parent_id ?? '—'}</td><td>{term.definition}</td></tr>)}</tbody></table></div></section>)}</div>
+  <div class="shell section prose">{axes.map(([axis,label]) => <section><h2>{label}</h2><div class="table-wrap"><table><thead><tr><th>ID</th><th>English</th><th>中文</th><th>Parent</th><th>Definition</th></tr></thead><tbody>{data.taxonomies[axis].map((term) => <tr><td>{axis === 'scientific_tasks' ? <a href={withBase(`/tasks/${term.id}/`)}><code>{term.id}</code></a> : <code>{term.id}</code>}</td><td>{term.label}</td><td lang="zh-CN">{term.label_zh}</td><td>{term.parent_id ?? '—'}</td><td>{term.definition}</td></tr>)}</tbody></table></div></section>)}</div>
 </Layout>

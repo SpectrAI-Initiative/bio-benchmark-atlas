@@ -1,0 +1,1325 @@
+# Evidence-backed Scientific Task mappings for this curation area.
+classifications:
+  bioinstruction:
+    status: complete
+    benchmark_version: emnlp-2025
+    as_of: null
+    notes: The classification is exhaustive over the 21 formal evaluation tracks in the final creator paper; example counts
+      remain on child records.
+    entries:
+    - task_type_id: antibody-antigen-interaction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 1
+      count_unit: tracks
+      count_basis: Formal evaluation tracks (Antibody-Antigen Neutralization).
+      count_ref: null
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-evidence-paper
+      notes: Track count; not an example count.
+    - task_type_id: rna-processing-translation-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 2
+      count_unit: tracks
+      count_basis: Formal evaluation tracks (APA Isoform Prediction and Mean Ribosome Loading).
+      count_ref: null
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-evidence-paper
+      notes: Track count; not an example count.
+    - task_type_id: promoter-detection
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 2
+      count_unit: tracks
+      count_basis: Formal evaluation tracks (Core Promoter Detection and Promoter Detection 300).
+      count_ref: null
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-evidence-paper
+      notes: Track count; not an example count.
+    - task_type_id: crispr-guide-activity-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 1
+      count_unit: tracks
+      count_basis: Formal evaluation tracks (CRISPR On-Target Prediction).
+      count_ref: null
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-evidence-paper
+      notes: Track count; not an example count.
+    - task_type_id: enhancer-activity-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 1
+      count_unit: tracks
+      count_basis: Formal evaluation tracks (Enhancer Activity Prediction).
+      count_ref: null
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-evidence-paper
+      notes: Track count; not an example count.
+    - task_type_id: protein-function-annotation
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 1
+      count_unit: tracks
+      count_basis: Formal evaluation tracks (Enzyme Commission Number Prediction).
+      count_ref: null
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-evidence-paper
+      notes: Track count; not an example count.
+    - task_type_id: epigenetic-mark-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 1
+      count_unit: tracks
+      count_basis: Formal evaluation tracks (Epigenetic Marks Prediction).
+      count_ref: null
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-evidence-paper
+      notes: Track count; not an example count.
+    - task_type_id: enhancer-promoter-interaction-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 1
+      count_unit: tracks
+      count_basis: Formal evaluation tracks (Enhancer-Promoter Interaction Prediction).
+      count_ref: null
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-evidence-paper
+      notes: Track count; not an example count.
+    - task_type_id: protein-fluorescence-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 1
+      count_unit: tracks
+      count_basis: Formal evaluation tracks (Protein Fluorescence Prediction).
+      count_ref: null
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-evidence-paper
+      notes: Track count; not an example count.
+    - task_type_id: rna-modification-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 1
+      count_unit: tracks
+      count_basis: Formal evaluation tracks (RNA Modification Prediction).
+      count_ref: null
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-evidence-paper
+      notes: Track count; not an example count.
+    - task_type_id: rna-function-classification
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 1
+      count_unit: tracks
+      count_basis: Formal evaluation tracks (Non-coding RNA Function Classification).
+      count_ref: null
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-evidence-paper
+      notes: Track count; not an example count.
+    - task_type_id: rna-design
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 1
+      count_unit: tracks
+      count_basis: Formal evaluation tracks (Programmable RNA Switches).
+      count_ref: null
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-evidence-paper
+      notes: Track count; not an example count.
+    - task_type_id: rna-protein-interaction-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 1
+      count_unit: tracks
+      count_basis: Formal evaluation tracks (RNA-Protein Interaction Prediction).
+      count_ref: null
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-evidence-paper
+      notes: Track count; not an example count.
+    - task_type_id: sirna-efficacy-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 1
+      count_unit: tracks
+      count_basis: Formal evaluation tracks (siRNA Efficiency Prediction).
+      count_ref: null
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-evidence-paper
+      notes: Track count; not an example count.
+    - task_type_id: protein-solubility-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 1
+      count_unit: tracks
+      count_basis: Formal evaluation tracks (Protein Solubility Prediction).
+      count_ref: null
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-evidence-paper
+      notes: Track count; not an example count.
+    - task_type_id: protein-stability-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 2
+      count_unit: tracks
+      count_basis: Formal evaluation tracks (Protein Stability and Protein Thermostability).
+      count_ref: null
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-evidence-paper
+      notes: Track count; not an example count.
+    - task_type_id: transcription-factor-binding-site-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 2
+      count_unit: tracks
+      count_basis: Formal evaluation tracks (Human and mouse Transcription Binding Sites Detection).
+      count_ref: null
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-evidence-paper
+      notes: Track count; not an example count.
+    - task_type_id: protein-sequence-design
+      coverage: not-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 0
+      count_unit: tracks
+      count_basis: Formal evaluation tracks in the final creator paper.
+      count_ref: /coverage_notes/3/count
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-evidence-paper
+      notes: The paper explicitly leaves generative sequence design for future work.
+  bioinstruction-aan:
+    status: complete
+    benchmark_version: emnlp-2025
+    as_of: null
+    notes: Single-purpose formal Biology-Instructions evaluation track.
+    entries:
+    - task_type_id: antibody-antigen-interaction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 26902
+      count_unit: examples
+      count_basis: distinct examples across the published train, validation, and test splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-aan-evidence-paper
+      notes: Antibody-antigen neutralization prediction.
+  bioinstruction-apa:
+    status: complete
+    benchmark_version: emnlp-2025
+    as_of: null
+    notes: Single-purpose formal Biology-Instructions evaluation track.
+    entries:
+    - task_type_id: rna-processing-translation-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 1658482
+      count_unit: examples
+      count_basis: distinct examples across the published train, validation, and test splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-apa-evidence-paper
+      notes: Alternative-polyadenylation isoform usage prediction.
+  bioinstruction-cpd:
+    status: complete
+    benchmark_version: emnlp-2025
+    as_of: null
+    notes: Single-purpose formal Biology-Instructions evaluation track.
+    entries:
+    - task_type_id: promoter-detection
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 118392
+      count_unit: examples
+      count_basis: distinct examples across the published train, validation, and test splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-cpd-evidence-paper
+      notes: Core-promoter detection.
+  bioinstruction-crispr-on-target:
+    status: complete
+    benchmark_version: emnlp-2025
+    as_of: null
+    notes: Single-purpose formal Biology-Instructions evaluation track.
+    entries:
+    - task_type_id: crispr-guide-activity-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 2076
+      count_unit: examples
+      count_basis: distinct examples across the published train, validation, and test splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-crispr-on-target-evidence-paper
+      notes: CRISPR guide on-target activity prediction.
+  bioinstruction-ea:
+    status: complete
+    benchmark_version: emnlp-2025
+    as_of: null
+    notes: Single-purpose formal Biology-Instructions evaluation track.
+    entries:
+    - task_type_id: enhancer-activity-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 484052
+      count_unit: examples
+      count_basis: distinct examples across the published train, validation, and test splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-ea-evidence-paper
+      notes: Enhancer activity prediction.
+  bioinstruction-ec:
+    status: complete
+    benchmark_version: emnlp-2025
+    as_of: null
+    notes: Single-purpose formal Biology-Instructions evaluation track.
+    entries:
+    - task_type_id: protein-function-annotation
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 19199
+      count_unit: examples
+      count_basis: distinct examples across the published train, validation, and test splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-ec-evidence-paper
+      notes: Enzyme Commission function annotation.
+  bioinstruction-emp:
+    status: complete
+    benchmark_version: emnlp-2025
+    as_of: null
+    notes: Single-purpose formal Biology-Instructions evaluation track.
+    entries:
+    - task_type_id: epigenetic-mark-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 287367
+      count_unit: examples
+      count_basis: distinct examples across the published train, validation, and test splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-emp-evidence-paper
+      notes: Epigenetic-mark prediction.
+  bioinstruction-epi:
+    status: complete
+    benchmark_version: emnlp-2025
+    as_of: null
+    notes: Single-purpose formal Biology-Instructions evaluation track.
+    entries:
+    - task_type_id: enhancer-promoter-interaction-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 16368
+      count_unit: examples
+      count_basis: distinct examples across the published train, validation, and test splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-epi-evidence-paper
+      notes: Enhancer-promoter interaction prediction.
+  bioinstruction-fluorescence:
+    status: complete
+    benchmark_version: emnlp-2025
+    as_of: null
+    notes: Single-purpose formal Biology-Instructions evaluation track.
+    entries:
+    - task_type_id: protein-fluorescence-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 54025
+      count_unit: examples
+      count_basis: distinct examples across the published train, validation, and test splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-fluorescence-evidence-paper
+      notes: Protein fluorescence regression.
+  bioinstruction-modification:
+    status: complete
+    benchmark_version: emnlp-2025
+    as_of: null
+    notes: Single-purpose formal Biology-Instructions evaluation track.
+    entries:
+    - task_type_id: rna-modification-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 309460
+      count_unit: examples
+      count_basis: distinct examples across the published train, validation, and test splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-modification-evidence-paper
+      notes: RNA chemical-modification prediction.
+  bioinstruction-mrl:
+    status: complete
+    benchmark_version: emnlp-2025
+    as_of: null
+    notes: Single-purpose formal Biology-Instructions evaluation track.
+    entries:
+    - task_type_id: rna-processing-translation-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 91519
+      count_unit: examples
+      count_basis: distinct examples across the published train, validation, and test splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-mrl-evidence-paper
+      notes: Mean ribosome-loading prediction.
+  bioinstruction-ncrna:
+    status: complete
+    benchmark_version: emnlp-2025
+    as_of: null
+    notes: Single-purpose formal Biology-Instructions evaluation track.
+    entries:
+    - task_type_id: rna-function-classification
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 11160
+      count_unit: examples
+      count_basis: distinct examples across the published train, validation, and test splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-ncrna-evidence-paper
+      notes: Non-coding RNA function classification.
+  bioinstruction-pd300:
+    status: complete
+    benchmark_version: emnlp-2025
+    as_of: null
+    notes: Single-purpose formal Biology-Instructions evaluation track.
+    entries:
+    - task_type_id: promoter-detection
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 118392
+      count_unit: examples
+      count_basis: distinct examples across the published train, validation, and test splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-pd300-evidence-paper
+      notes: Promoter detection in 300-base-pair context.
+  bioinstruction-prs:
+    status: complete
+    benchmark_version: emnlp-2025
+    as_of: null
+    notes: Single-purpose formal Biology-Instructions evaluation track.
+    entries:
+    - task_type_id: rna-design
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 93399
+      count_unit: examples
+      count_basis: distinct examples across the published train, validation, and test splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-prs-evidence-paper
+      notes: Programmable RNA-switch value prediction.
+  bioinstruction-rpi:
+    status: complete
+    benchmark_version: emnlp-2025
+    as_of: null
+    notes: Single-purpose formal Biology-Instructions evaluation track.
+    entries:
+    - task_type_id: rna-protein-interaction-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 20824
+      count_unit: examples
+      count_basis: distinct examples across the published train, validation, and test splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-rpi-evidence-paper
+      notes: RNA-protein interaction prediction.
+  bioinstruction-sirna:
+    status: complete
+    benchmark_version: emnlp-2025
+    as_of: null
+    notes: Single-purpose formal Biology-Instructions evaluation track.
+    entries:
+    - task_type_id: sirna-efficacy-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 66987
+      count_unit: examples
+      count_basis: distinct examples across the published train, validation, and test splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-sirna-evidence-paper
+      notes: siRNA efficiency prediction.
+  bioinstruction-solubility:
+    status: complete
+    benchmark_version: emnlp-2025
+    as_of: null
+    notes: Single-purpose formal Biology-Instructions evaluation track.
+    entries:
+    - task_type_id: protein-solubility-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 71421
+      count_unit: examples
+      count_basis: distinct examples across the published train, validation, and test splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-solubility-evidence-paper
+      notes: Protein solubility prediction.
+  bioinstruction-stability:
+    status: complete
+    benchmark_version: emnlp-2025
+    as_of: null
+    notes: Single-purpose formal Biology-Instructions evaluation track.
+    entries:
+    - task_type_id: protein-stability-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 68977
+      count_unit: examples
+      count_basis: distinct examples across the published train, validation, and test splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-stability-evidence-paper
+      notes: Protein stability prediction.
+  bioinstruction-tb-human:
+    status: complete
+    benchmark_version: emnlp-2025
+    as_of: null
+    notes: Single-purpose formal Biology-Instructions evaluation track.
+    entries:
+    - task_type_id: transcription-factor-binding-site-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 138344
+      count_unit: examples
+      count_basis: distinct examples across the published train, validation, and test splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-tb-human-evidence-paper
+      notes: Human transcription-factor binding-site detection.
+  bioinstruction-tb-mouse:
+    status: complete
+    benchmark_version: emnlp-2025
+    as_of: null
+    notes: Single-purpose formal Biology-Instructions evaluation track.
+    entries:
+    - task_type_id: transcription-factor-binding-site-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 100028
+      count_unit: examples
+      count_basis: distinct examples across the published train, validation, and test splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-tb-mouse-evidence-paper
+      notes: Mouse transcription-factor binding-site detection.
+  bioinstruction-thermostability:
+    status: complete
+    benchmark_version: emnlp-2025
+    as_of: null
+    notes: Single-purpose formal Biology-Instructions evaluation track.
+    entries:
+    - task_type_id: protein-stability-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 7031
+      count_unit: examples
+      count_basis: distinct examples across the published train, validation, and test splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - bioinstruction-thermostability-evidence-paper
+      notes: Protein thermostability prediction.
+  lab-bench:
+    status: partial
+    benchmark_version: repository-998a8e0
+    as_of: null
+    notes: Formal child tracks support several precise mappings; the mixed suite has no exhaustive creator scientific-task
+      taxonomy.
+    entries:
+    - task_type_id: scientific-database-retrieval
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 650
+      count_unit: questions
+      count_basis: Questions across the ten formal DbQA child tasks.
+      count_ref: null
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-evidence-repository
+      notes: Count is specific to DbQA and is not added to other task claims.
+    - task_type_id: scientific-evidence-interpretation
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: null
+      count_unit: questions
+      count_basis: FigQA, LitQA2, SuppQA, and TableQA questions.
+      count_ref: null
+      reporting_status: not_reported
+      evidence_ids:
+      - lab-bench-evidence-paper
+      notes: The root record does not publish this cross-track subtotal.
+    - task_type_id: experiment-protocol-planning
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 135
+      count_unit: questions
+      count_basis: ProtocolQA questions across public and private splits.
+      count_ref: null
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-evidence-paper
+      notes: CloningScenarios is shown separately and is not included in this count.
+    - task_type_id: protein-protein-interaction-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 50
+      count_unit: questions
+      count_basis: Viral PPI formal-task questions.
+      count_ref: /coverage_notes/1/count
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-evidence-paper
+      notes: Viral-human PPI database-retrieval questions.
+    - task_type_id: protein-sequence-design
+      coverage: not-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 0
+      count_unit: questions
+      count_basis: Released LAB-Bench questions.
+      count_ref: /coverage_notes/2/count
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-evidence-paper
+      notes: Primer and cloning design are not relabeled as protein sequence design.
+  lab-bench-seqqa:
+    status: partial
+    benchmark_version: repository-998a8e0
+    as_of: null
+    notes: Formal child tracks are mapped where they express a controlled Scientific Task; generic sequence arithmetic remains
+      unclassified.
+    entries:
+    - task_type_id: dna-sequence-design
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: null
+      count_unit: questions
+      count_basis: Primer-design questions across formal SeqQA child tracks.
+      count_ref: null
+      reporting_status: not_reported
+      evidence_ids:
+      - lab-bench-seqqa-evidence-paper
+      notes: A cross-track subtotal is not reported by the creator.
+    - task_type_id: rna-processing-translation-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 200
+      count_unit: questions
+      count_basis: Four 50-question ORF and translation formal child tracks.
+      count_ref: null
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-seqqa-evidence-paper
+      notes: The count is derived only from formal child-track sizes documented by the official release.
+  lab-bench-dbqa:
+    status: complete
+    benchmark_version: repository-998a8e0
+    as_of: null
+    notes: Single-purpose formal LAB-Bench track.
+    entries:
+    - task_type_id: scientific-database-retrieval
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 650
+      count_unit: questions
+      count_basis: questions across formal child tasks
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-dbqa-evidence-repository
+      notes: Complete formal DbQA category.
+  lab-bench-figqa:
+    status: complete
+    benchmark_version: repository-998a8e0
+    as_of: null
+    notes: Single-purpose formal LAB-Bench track.
+    entries:
+    - task_type_id: scientific-evidence-interpretation
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 226
+      count_unit: questions
+      count_basis: questions across public and private splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-figqa-evidence-paper
+      notes: Scientific figure interpretation.
+  lab-bench-litqa2:
+    status: complete
+    benchmark_version: repository-998a8e0
+    as_of: null
+    notes: Single-purpose formal LAB-Bench track.
+    entries:
+    - task_type_id: scientific-evidence-interpretation
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 248
+      count_unit: questions
+      count_basis: questions across public and private splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-litqa2-evidence-paper
+      notes: Full-paper evidence retrieval and interpretation.
+  lab-bench-protocolqa:
+    status: complete
+    benchmark_version: repository-998a8e0
+    as_of: null
+    notes: Single-purpose formal LAB-Bench track.
+    entries:
+    - task_type_id: experiment-protocol-planning
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 135
+      count_unit: questions
+      count_basis: questions across public and private splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-protocolqa-evidence-paper
+      notes: Protocol troubleshooting is classified under protocol planning.
+  lab-bench-cloning-scenarios:
+    status: complete
+    benchmark_version: repository-998a8e0
+    as_of: null
+    notes: Single-purpose formal LAB-Bench track.
+    entries:
+    - task_type_id: experiment-protocol-planning
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 41
+      count_unit: questions
+      count_basis: questions across public and private splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-cloning-scenarios-evidence-paper
+      notes: Molecular-cloning workflow planning.
+  lab-bench-suppqa:
+    status: complete
+    benchmark_version: repository-998a8e0
+    as_of: null
+    notes: Single-purpose formal LAB-Bench track.
+    entries:
+    - task_type_id: scientific-evidence-interpretation
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 102
+      count_unit: questions
+      count_basis: questions across public and private splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-suppqa-evidence-paper
+      notes: Supplementary text and table interpretation.
+  lab-bench-tableqa:
+    status: complete
+    benchmark_version: repository-998a8e0
+    as_of: null
+    notes: Single-purpose formal LAB-Bench track.
+    entries:
+    - task_type_id: scientific-evidence-interpretation
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 305
+      count_unit: questions
+      count_basis: questions across public and private splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-tableqa-evidence-paper
+      notes: Scientific table interpretation.
+  lab-bench-dbqa-dga:
+    status: complete
+    benchmark_version: repository-998a8e0
+    as_of: null
+    notes: Single-purpose formal LAB-Bench track.
+    entries:
+    - task_type_id: scientific-database-retrieval
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 50
+      count_unit: questions
+      count_basis: questions across public and private splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-dbqa-dga-evidence-paper
+      notes: DisGeNET and OMIM retrieval.
+  lab-bench-dbqa-gene-location:
+    status: complete
+    benchmark_version: repository-998a8e0
+    as_of: null
+    notes: Single-purpose formal LAB-Bench track.
+    entries:
+    - task_type_id: scientific-database-retrieval
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 50
+      count_unit: questions
+      count_basis: questions across public and private splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-dbqa-gene-location-evidence-paper
+      notes: Ensembl gene-location retrieval.
+  lab-bench-dbqa-mirna-targets:
+    status: complete
+    benchmark_version: repository-998a8e0
+    as_of: null
+    notes: Single-purpose formal LAB-Bench track.
+    entries:
+    - task_type_id: scientific-database-retrieval
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 50
+      count_unit: questions
+      count_basis: questions across public and private splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-dbqa-mirna-targets-evidence-paper
+      notes: miRDB target retrieval.
+  lab-bench-dbqa-mouse-tumor-gene-sets:
+    status: complete
+    benchmark_version: repository-998a8e0
+    as_of: null
+    notes: Single-purpose formal LAB-Bench track.
+    entries:
+    - task_type_id: scientific-database-retrieval
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 100
+      count_unit: questions
+      count_basis: questions across public and private splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-dbqa-mouse-tumor-gene-sets-evidence-paper
+      notes: Gene-set membership retrieval.
+  lab-bench-dbqa-oncogenic-signatures:
+    status: complete
+    benchmark_version: repository-998a8e0
+    as_of: null
+    notes: Single-purpose formal LAB-Bench track.
+    entries:
+    - task_type_id: scientific-database-retrieval
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 50
+      count_unit: questions
+      count_basis: questions across public and private splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-dbqa-oncogenic-signatures-evidence-paper
+      notes: MSigDB signature retrieval.
+  lab-bench-dbqa-vax-response:
+    status: complete
+    benchmark_version: repository-998a8e0
+    as_of: null
+    notes: Single-purpose formal LAB-Bench track.
+    entries:
+    - task_type_id: scientific-database-retrieval
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 50
+      count_unit: questions
+      count_basis: questions across public and private splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-dbqa-vax-response-evidence-paper
+      notes: Vaccine-response gene-set retrieval.
+  lab-bench-seqqa-orf-seq-aaid:
+    status: complete
+    benchmark_version: repository-998a8e0
+    as_of: null
+    notes: Single-purpose formal LAB-Bench track.
+    entries:
+    - task_type_id: rna-processing-translation-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 50
+      count_unit: questions
+      count_basis: questions across public and private splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-seqqa-orf-seq-aaid-evidence-paper
+      notes: Translation of a DNA open reading frame.
+  lab-bench-seqqa-orf-seq-aaseq:
+    status: complete
+    benchmark_version: repository-998a8e0
+    as_of: null
+    notes: Single-purpose formal LAB-Bench track.
+    entries:
+    - task_type_id: rna-processing-translation-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 50
+      count_unit: questions
+      count_basis: questions across public and private splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-seqqa-orf-seq-aaseq-evidence-paper
+      notes: Translation of a DNA open reading frame.
+  lab-bench-seqqa-orf-seq-numlen:
+    status: complete
+    benchmark_version: repository-998a8e0
+    as_of: null
+    notes: Single-purpose formal LAB-Bench track.
+    entries:
+    - task_type_id: rna-processing-translation-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 50
+      count_unit: questions
+      count_basis: questions across public and private splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-seqqa-orf-seq-numlen-evidence-paper
+      notes: Open-reading-frame interpretation.
+  lab-bench-seqqa-orf-transeff:
+    status: complete
+    benchmark_version: repository-998a8e0
+    as_of: null
+    notes: Single-purpose formal LAB-Bench track.
+    entries:
+    - task_type_id: rna-processing-translation-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 50
+      count_unit: questions
+      count_basis: questions across public and private splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-seqqa-orf-transeff-evidence-paper
+      notes: Translation-efficiency reasoning.
+  lab-bench-seqqa-pcr-gene-enzprimers:
+    status: complete
+    benchmark_version: repository-998a8e0
+    as_of: null
+    notes: Single-purpose formal LAB-Bench track.
+    entries:
+    - task_type_id: dna-sequence-design
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 50
+      count_unit: questions
+      count_basis: questions across public and private splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-seqqa-pcr-gene-enzprimers-evidence-paper
+      notes: Restriction-cloning primer design.
+  lab-bench-seqqa-pcr-gene-gibshindprimers:
+    status: complete
+    benchmark_version: repository-998a8e0
+    as_of: null
+    notes: Single-purpose formal LAB-Bench track.
+    entries:
+    - task_type_id: dna-sequence-design
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 50
+      count_unit: questions
+      count_basis: questions across public and private splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-seqqa-pcr-gene-gibshindprimers-evidence-paper
+      notes: Gibson-assembly primer design.
+  lab-bench-seqqa-pcr-gene-gibssmaprimers:
+    status: complete
+    benchmark_version: repository-998a8e0
+    as_of: null
+    notes: Single-purpose formal LAB-Bench track.
+    entries:
+    - task_type_id: dna-sequence-design
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 50
+      count_unit: questions
+      count_basis: questions across public and private splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-seqqa-pcr-gene-gibssmaprimers-evidence-paper
+      notes: Gibson-assembly primer design.
+  lab-bench-seqqa-pcr-len-primers:
+    status: complete
+    benchmark_version: repository-998a8e0
+    as_of: null
+    notes: Single-purpose formal LAB-Bench track.
+    entries:
+    - task_type_id: dna-sequence-design
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 50
+      count_unit: questions
+      count_basis: questions across public and private splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-seqqa-pcr-len-primers-evidence-paper
+      notes: PCR primer selection under an amplicon-length constraint.
+  lab-bench-seqqa-pcr-seq-enzprimers:
+    status: complete
+    benchmark_version: repository-998a8e0
+    as_of: null
+    notes: Single-purpose formal LAB-Bench track.
+    entries:
+    - task_type_id: dna-sequence-design
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 50
+      count_unit: questions
+      count_basis: questions across public and private splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-seqqa-pcr-seq-enzprimers-evidence-paper
+      notes: Restriction-cloning primer design from a sequence.
+  lab-bench-seqqa-pcr-seq-primers:
+    status: complete
+    benchmark_version: repository-998a8e0
+    as_of: null
+    notes: Single-purpose formal LAB-Bench track.
+    entries:
+    - task_type_id: dna-sequence-design
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 50
+      count_unit: questions
+      count_basis: questions across public and private splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-seqqa-pcr-seq-primers-evidence-paper
+      notes: PCR primer selection for a target amplicon.
+  lab-bench-dbqa-tfbs-gtrd:
+    status: complete
+    benchmark_version: repository-998a8e0
+    as_of: null
+    notes: Official GTRD retrieval track with a regulatory scientific object.
+    entries:
+    - task_type_id: scientific-database-retrieval
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 50
+      count_unit: questions
+      count_basis: questions across public and private splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-dbqa-tfbs-gtrd-evidence-paper
+      notes: Database retrieval is the evaluated operation.
+    - task_type_id: transcription-factor-binding-site-prediction
+      coverage: observed
+      mapping_method: official-track
+      confidence: high
+      count: 50
+      count_unit: questions
+      count_basis: questions across public and private splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-dbqa-tfbs-gtrd-evidence-paper
+      notes: The artifact concerns TFBS annotations; it does not evaluate a de novo predictor.
+  lab-bench-dbqa-variant-from-sequence:
+    status: complete
+    benchmark_version: repository-998a8e0
+    as_of: null
+    notes: ClinVar lookup and pathogenicity interpretation from a protein sequence.
+    entries:
+    - task_type_id: scientific-database-retrieval
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 100
+      count_unit: questions
+      count_basis: questions across public and private splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-dbqa-variant-from-sequence-evidence-paper
+      notes: ClinVar retrieval.
+    - task_type_id: protein-clinical-variant-interpretation
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 100
+      count_unit: questions
+      count_basis: questions across public and private splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-dbqa-variant-from-sequence-evidence-paper
+      notes: Variant pathogenicity is explicitly evaluated.
+  lab-bench-dbqa-variant-multi-sequence:
+    status: complete
+    benchmark_version: repository-998a8e0
+    as_of: null
+    notes: ClinVar lookup and pathogenicity interpretation across multiple protein sequences.
+    entries:
+    - task_type_id: scientific-database-retrieval
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 100
+      count_unit: questions
+      count_basis: questions across public and private splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-dbqa-variant-multi-sequence-evidence-paper
+      notes: ClinVar retrieval.
+    - task_type_id: protein-clinical-variant-interpretation
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 100
+      count_unit: questions
+      count_basis: questions across public and private splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-dbqa-variant-multi-sequence-evidence-paper
+      notes: Variant pathogenicity is explicitly evaluated.
+  lab-bench-dbqa-viral-ppi:
+    status: complete
+    benchmark_version: repository-998a8e0
+    as_of: null
+    notes: Formal viral-human protein-interaction retrieval track.
+    entries:
+    - task_type_id: protein-protein-interaction-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 50
+      count_unit: questions
+      count_basis: questions across public and private splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-dbqa-viral-ppi-evidence-paper
+      notes: The official task retrieves predicted P-HIPSter interaction partners.
+    - task_type_id: scientific-database-retrieval
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 50
+      count_unit: questions
+      count_basis: questions across public and private splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-dbqa-viral-ppi-evidence-paper
+      notes: Database retrieval is part of the evaluated task.
+  lab-bench-seqqa-pcr-geneprimers-enz:
+    status: complete
+    benchmark_version: repository-998a8e0
+    as_of: null
+    notes: Single-purpose formal LAB-Bench sequence-analysis track.
+    entries:
+    - task_type_id: dna-sequence-analysis
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 50
+      count_unit: questions
+      count_basis: questions across public and private splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-seqqa-pcr-geneprimers-enz-evidence-paper
+      notes: Infers restriction enzymes from a primer pair rather than generating a new sequence.
+  lab-bench-seqqa-pcr-primers-len:
+    status: complete
+    benchmark_version: repository-998a8e0
+    as_of: null
+    notes: Single-purpose formal LAB-Bench sequence-analysis track.
+    entries:
+    - task_type_id: dna-sequence-analysis
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 50
+      count_unit: questions
+      count_basis: questions across public and private splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-seqqa-pcr-primers-len-evidence-paper
+      notes: Calculates an amplicon length from primers and a DNA template.
+  lab-bench-seqqa-prop-seq-gcpercent:
+    status: complete
+    benchmark_version: repository-998a8e0
+    as_of: null
+    notes: Single-purpose formal LAB-Bench sequence-analysis track.
+    entries:
+    - task_type_id: dna-sequence-analysis
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 50
+      count_unit: questions
+      count_basis: questions across public and private splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-seqqa-prop-seq-gcpercent-evidence-paper
+      notes: Calculates a DNA sequence GC percentage.
+  lab-bench-seqqa-re-seq-lenfrags:
+    status: complete
+    benchmark_version: repository-998a8e0
+    as_of: null
+    notes: Single-purpose formal LAB-Bench sequence-analysis track.
+    entries:
+    - task_type_id: dna-sequence-analysis
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 50
+      count_unit: questions
+      count_basis: questions across public and private splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-seqqa-re-seq-lenfrags-evidence-paper
+      notes: Calculates restriction-fragment lengths.
+  lab-bench-seqqa-re-seq-numfrags:
+    status: complete
+    benchmark_version: repository-998a8e0
+    as_of: null
+    notes: Single-purpose formal LAB-Bench sequence-analysis track.
+    entries:
+    - task_type_id: dna-sequence-analysis
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 50
+      count_unit: questions
+      count_basis: questions across public and private splits
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - lab-bench-seqqa-re-seq-numfrags-evidence-paper
+      notes: Calculates a restriction-fragment count.

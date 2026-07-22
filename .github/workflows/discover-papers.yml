@@ -1,0 +1,41 @@
+name: Discover papers
+
+on:
+  schedule:
+    - cron: '30 3 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.10', cache: pip}
+      - run: python -m pip install -e .
+      - name: Ensure lifecycle labels exist
+        env: {GH_TOKEN: '${{ github.token }}'}
+        run: |
+          gh label create paper-candidate --color 1d76db --description "Discovered or externally submitted paper awaiting approval" --force
+          gh label create approved-for-intake --color 0e8a16 --description "Maintainer approved OpenAI extraction" --force
+          gh label create needs-human-review --color d93f0b --description "Automated intake stopped for human review" --force
+          gh label create extraction-failed --color b60205 --description "Transient or technical extraction failure" --force
+          gh label create area:protein --color 5319e7 --force
+          gh label create area:dna-rna --color 5319e7 --force
+          gh label create area:small-molecule --color 5319e7 --force
+          gh label create area:omics-cell --color 5319e7 --force
+      - name: Create at most ten high-precision candidate issues
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python scripts/discover_papers.py --create-issues --close-stale --output paper-candidates.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: paper-candidate-audit
+          path: paper-candidates.json
+          retention-days: 30
+

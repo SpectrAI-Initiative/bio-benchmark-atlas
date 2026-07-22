@@ -12,6 +12,11 @@ body:
   - type: input
     id: doi
     attributes: {label: DOI (optional), description: Include the DOI when it is not obvious from the URL.}
+  - type: textarea
+    id: source_url
+    attributes:
+      label: Open PDF or full-text URL / attachment (optional)
+      description: Paste a legal open PDF/XML/HTML URL, or attach a PDF you are authorized to provide. Files are never committed to Git.
   - type: input
     id: preprint
     attributes: {label: arXiv or preprint ID (optional), description: Include a version suffix when relevant, for example 2512.21907v2.}
@@ -36,4 +41,12 @@ body:
       label: Scope confirmation
       options:
         - label: The paper is about life science, chemistry, bioinformatics, or an explicit bio/chem subset.
+          required: true
+  - type: checkboxes
+    id: source_rights
+    attributes:
+      label: Source-use confirmation
+      description: Automated extraction cannot start without this confirmation.
+      options:
+        - label: The source is legally open for automated reading, or I am authorized to provide it for this review. I understand the full text will not be committed or redistributed.
           required: true

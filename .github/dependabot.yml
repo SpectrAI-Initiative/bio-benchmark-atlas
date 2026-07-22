@@ -14,10 +14,12 @@ updates:
     groups:
       pip-minor-patch:
         update-types: [minor, patch]
+        exclude-patterns: [openai]
   - package-ecosystem: github-actions
     directory: /
     schedule: {interval: weekly}
     open-pull-requests-limit: 5
     groups:
-      github-actions:
+      github-actions-minor-patch:
         patterns: ['*']
+        update-types: [minor, patch]

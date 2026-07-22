@@ -2,6 +2,7 @@ __pycache__/
 *.py[cod]
 .venv/
 .pytest_cache/
+tmp/
 node_modules/
 site/node_modules/
 site/dist/

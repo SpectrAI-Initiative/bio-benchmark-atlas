@@ -4,6 +4,10 @@
   summary: Added the Scientific Task Atlas taxonomy, evidence-backed benchmark mappings, normalized task-coverage exports, task explorer and detail pages, and Chinese task-system guidance.
   entity_ids: []
 - date: '2026-07-22'
+  type: addition
+  entity_ids: [tape, tape-paper, tape-creator-full, genomic-benchmarks, genomic-benchmarks-paper, genomic-benchmarks-creator-full, beacon-rna, beacon-paper, beacon-creator-full, moleculenet, moleculenet-paper, moleculenet-creator-full, atom3d, atom3d-paper, atom3d-creator-full, guacamol, guacamol-paper, guacamol-creator-full, scib, scib-paper, scib-creator-full]
+  summary: Added seven creator-audited benchmark families spanning protein representation learning, genomic sequence classification, RNA representation learning, molecular property prediction, 3D molecular learning, molecular generation, and single-cell integration; froze living implementations to commit-pinned snapshots and classified scientific tasks without flattening heterogeneous endpoints or metrics.
+- date: '2026-07-22'
   type: release
   entity_ids: [registry-schema, lifescibench, proteingym, casp, cameo, flip, proteinlmbench, bioinstruction, lab-bench, genebench-pro, biomysterybench, compbiobench, bixbench, blade, scigym, virbench]
   summary: Released v1.1.0 with field-level audits for fourteen launch families, structured versions and evidence, normalized official evaluation settings and results, and an explicit machine-validated VirBench legacy exception.

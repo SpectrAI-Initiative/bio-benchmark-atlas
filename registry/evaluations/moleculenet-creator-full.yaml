@@ -1,0 +1,41 @@
+entity_type: evaluation_run
+id: moleculenet-creator-full
+work_id: moleculenet-paper
+benchmark_id: moleculenet
+benchmark_version: original-2017
+scope: {type: full, n: 17, subset_id: null, filter: All seventeen original-paper dataset collections., reporting_status: reported}
+protocol:
+  shots: &mn-na {value: null, reporting_status: not_applicable, notes: Supervised molecular machine learning; no prompting.}
+  turns: *mn-na
+  system_prompt_public: *mn-na
+  reasoning: *mn-na
+  tools:
+    browser: *mn-na
+    internet: *mn-na
+    databases: *mn-na
+    code_execution: {value: null, reporting_status: not_applicable, notes: DeepChem training and evaluation are the benchmark procedure.}
+    container: {value: null, reporting_status: not_reported, notes: No single common container is reported in the paper.}
+    external_tools: {value: 'DeepChem featurizers, splitters, conventional ML and graph-based models', reporting_status: reported, notes: Dataset-specific recommended splits and metrics are mandatory for comparability.}
+  token_budget: *mn-na
+  time_budget: {value: null, reporting_status: not_reported, notes: No common runtime budget across model classes is reported.}
+  temperature: *mn-na
+  seed: {value: null, reporting_status: not_reported, notes: No single common seed is reported for all benchmark runs.}
+  repeats: {value: 3, reporting_status: reported, notes: Final benchmark performances use three independent runs with different fixed numerical seeds.}
+  grader: {type: deterministic dataset-specific scorer, model: null, human_review: false, reporting_status: reported}
+  statistical: {value: 'Mean and standard deviation over three independent runs for each dataset-model setting; no cross-dataset normalized total.', reporting_status: reported, notes: 'Results must preserve dataset, split, featurizer, and model identity.'}
+  contamination: {value: '80/10/10 train-validation-test partitions with dataset-specific random, stratified, scaffold, or time splits.', reporting_status: reported, notes: The paper warns random splits can be misleading for chemical series.}
+metrics:
+  - {metric_id: mean-absolute-error, source_label: MAE, unit: dataset-specific property units, range: null, higher_is_better: false, aggregation: held-out examples and endpoints, pass_threshold: null, tolerance: null}
+  - {metric_id: root-mean-squared-error, source_label: RMSE, unit: dataset-specific property units, range: null, higher_is_better: false, aggregation: held-out examples, pass_threshold: null, tolerance: null}
+  - {metric_id: roc-auc, source_label: ROC-AUC, unit: area, range: [0, 1], higher_is_better: true, aggregation: dataset-specific macro endpoint average where applicable, pass_threshold: null, tolerance: null}
+  - {metric_id: prc-auc, source_label: PRC-AUC, unit: area, range: [0, 1], higher_is_better: true, aggregation: dataset-specific endpoint average where applicable, pass_threshold: null, tolerance: null}
+results: []
+comparability_group: moleculenet-original-task-native
+verification: {status: verified, last_verified: '2026-07-22', notes: 'Original 17-collection scope, recommended splits, three-run aggregation, and native metrics are verified; no global MoleculeNet score is created.'}
+evidence:
+  - id: moleculenet-creator-full-protocol-evidence
+    source_type: work
+    source_id: moleculenet-paper
+    accessed_date: '2026-07-22'
+    locator: {type: table, value: 'Methods Sections 3.1-3.5; Results and Discussion; Appendix Performances; Tables 1-3', note: 'Defines all datasets, 80/10/10 partitions, recommended split/metric per collection, featurizers, models, three-run mean/standard-deviation aggregation, and creator results.'}
+    supports: [/scope, /protocol, /metrics]

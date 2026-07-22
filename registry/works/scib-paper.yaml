@@ -1,0 +1,13 @@
+entity_type: work
+id: scib-paper
+title: Benchmarking atlas-level data integration in single-cell genomics
+authors: [Malte D. Luecken, M. Büttner, K. Chaichoompu, A. Danese, M. Interlandi, M. F. Mueller, D. C. Strobl, L. Zappia, M. Dugas, M. Colomé-Tatché, Fabian J. Theis]
+organizations: [Helmholtz Zentrum München, Technical University of Munich]
+work_type: paper
+source_class: benchmark_creator
+publication_date: '2021-12-23'
+canonical_url: https://doi.org/10.1038/s41592-021-01336-8
+doi: 10.1038/s41592-021-01336-8
+arxiv: null
+status: published
+verification: {status: verified, last_verified: '2026-07-22', notes: Peer-reviewed Nature Methods creator paper and paper-specific reproducibility pipeline verified.}

@@ -21,7 +21,7 @@ from validate_registry import RegistryValidationError, _resolve_pointer, validat
 def test_registry_validates_and_has_v1_depth() -> None:
     entities = validate_registry()
     families = [item for item in entities["benchmark"] if item["parent_id"] is None]
-    assert len(families) == 15
+    assert len(families) == 22
     assert len(entities["evaluation_run"]) >= 15
     assert {work["source_class"] for work in entities["work"]} <= {
         "benchmark_creator",
@@ -1122,7 +1122,7 @@ def test_v11_exports_surface_audit_and_result_status_columns() -> None:
     }
     assert legacy_ids == exemption_ids == {"virbench"}
     root_benchmarks = [benchmark for benchmark in payload["benchmarks"] if benchmark["parent_id"] is None]
-    assert sum(benchmark["audit"]["status"] != "legacy" for benchmark in root_benchmarks) == 14
+    assert sum(benchmark["audit"]["status"] != "legacy" for benchmark in root_benchmarks) == 21
 
 
 def test_unapproved_legacy_record_is_rejected(monkeypatch) -> None:
@@ -1191,10 +1191,11 @@ def test_scientific_task_exports_are_normalized_and_preserve_units() -> None:
     assert {item["root_family_id"] for item in coverage} == {
         "lifescibench", "proteingym", "casp", "cameo", "flip", "proteinlmbench",
         "bioinstruction", "lab-bench", "genebench-pro", "biomysterybench",
-        "compbiobench", "bixbench", "blade", "scigym",
+        "compbiobench", "bixbench", "blade", "scigym", "tape", "genomic-benchmarks",
+        "beacon-rna", "moleculenet", "atom3d", "guacamol", "scib",
     }
     generation = next(item for item in tasks if item["id"] == "small-molecule-generation")
-    assert generation["coverage_family_count"] == 0
+    assert generation["coverage_family_count"] == 1
     units = {
         item["count_unit"] for item in coverage
         if item["count"] is not None and item["coverage"] != "not-in-scope"
@@ -1204,6 +1205,103 @@ def test_scientific_task_exports_are_normalized_and_preserve_units() -> None:
     coverage_header = (ROOT / "exports" / "scientific-task-coverage.csv").read_text(encoding="utf-8").splitlines()[0]
     assert {"scientific_task_ids", "task_classification_status"} <= set(benchmark_header.split(","))
     assert {"task_type_id", "root_family_id", "count_unit", "evidence_ids", "aggregate_eligible"} <= set(coverage_header.split(","))
+
+
+def test_creator_audited_benchmark_expansion_contracts() -> None:
+    entities = load_entities()
+    benchmarks = {item["id"]: item for item in entities["benchmark"]}
+    runs = {item["id"]: item for item in entities["evaluation_run"]}
+    expected_totals = {
+        "tape": (5, "supervised downstream benchmark tasks"),
+        "genomic-benchmarks": (9, "benchmark dataset classification tasks"),
+        "beacon-rna": (13, "formal RNA benchmark tasks"),
+        "moleculenet": (17, "original paper dataset collections"),
+        "atom3d": (8, "curated 3D benchmark datasets"),
+        "guacamol": (25, "formal benchmark problems"),
+        "scib": (13, "atlas-level integration tasks"),
+    }
+    for benchmark_id, (total, basis) in expected_totals.items():
+        benchmark = benchmarks[benchmark_id]
+        assert benchmark["parent_id"] is None
+        assert benchmark["audit"]["status"] == "audited"
+        assert benchmark["verification"]["status"] == "verified"
+        assert benchmark["task_counts"]["total"] == total
+        assert benchmark["task_counts"]["basis"] == basis
+        assert benchmark["scientific_task_classification"]["status"] in {"complete", "partial"}
+
+    tape_tasks = {
+        item["task_type_id"]: item["count"]
+        for item in benchmarks["tape"]["scientific_task_classification"]["entries"]
+    }
+    assert tape_tasks == {
+        "protein-secondary-structure-prediction": 1,
+        "protein-contact-map-prediction": 1,
+        "protein-remote-homology-detection": 1,
+        "protein-fluorescence-prediction": 1,
+        "protein-stability-prediction": 1,
+    }
+    assert "protein-monomer-structure-prediction" not in tape_tasks
+    assert "protein-sequence-design" not in tape_tasks
+
+    beacon_subsets = {
+        item["id"]: item["count"] for item in benchmarks["beacon-rna"]["task_counts"]["subsets"]
+    }
+    assert beacon_subsets == {"beacon-structure": 4, "beacon-function": 5, "beacon-engineering": 4}
+    assert runs["beacon-creator-full"]["protocol"]["repeats"]["value"] == 3
+
+    genomic_tasks = {
+        item["task_type_id"]: item["count"]
+        for item in benchmarks["genomic-benchmarks"]["scientific_task_classification"]["entries"]
+    }
+    assert genomic_tasks == {
+        "enhancer-activity-prediction": 4,
+        "promoter-detection": 1,
+        "epigenetic-mark-prediction": 1,
+        "dna-sequence-analysis": 3,
+    }
+
+    molecule_net = benchmarks["moleculenet"]
+    assert sum(item["count"] for item in molecule_net["task_counts"]["subsets"]) == 17
+    assert "endpoint" not in molecule_net["task_counts"]["basis"]
+    assert runs["moleculenet-creator-full"]["comparability_group"].endswith("task-native")
+    assert runs["moleculenet-creator-full"]["results"] == []
+    assert runs["moleculenet-creator-full"]["protocol"]["repeats"]["value"] == 3
+
+    atom_tasks = benchmarks["atom3d"]["scientific_task_classification"]["entries"]
+    assert len(atom_tasks) == 8
+    assert sum(item["count"] for item in atom_tasks) == 8
+    assert {item["task_type_id"] for item in atom_tasks} == {
+        "small-molecule-property-prediction",
+        "protein-protein-interface-prediction",
+        "protein-residue-identity-prediction",
+        "protein-complex-mutation-stability-prediction",
+        "protein-ligand-binding-affinity",
+        "protein-ligand-efficacy-prediction",
+        "protein-model-quality-assessment",
+        "rna-structure-quality-assessment",
+    }
+    assert runs["atom3d-creator-full"]["protocol"]["repeats"]["value"] == 3
+
+    guacamol_subsets = {
+        item["id"]: item["count"] for item in benchmarks["guacamol"]["task_counts"]["subsets"]
+    }
+    assert guacamol_subsets == {
+        "guacamol-distribution-learning": 5,
+        "guacamol-goal-directed-v2": 20,
+    }
+    guacamol_task = benchmarks["guacamol"]["scientific_task_classification"]["entries"][0]
+    assert (guacamol_task["task_type_id"], guacamol_task["count_unit"]) == (
+        "small-molecule-generation", "problems",
+    )
+
+    scib_subsets = {item["id"]: item["count"] for item in benchmarks["scib"]["task_counts"]["subsets"]}
+    assert scib_subsets == {"scib-simulation": 2, "scib-scrna": 5, "scib-scatac": 6}
+    scib_overall = next(
+        item for item in runs["scib-creator-full"]["metrics"]
+        if item["metric_id"] == "overall-integration-score"
+    )
+    assert scib_overall["higher_is_better"] is True
+    assert scib_overall["aggregation"] == "0.6 bio-conservation plus 0.4 batch-removal"
 
 
 def _audited_lifescibench_entities() -> dict[str, list[dict[str, object]]]:

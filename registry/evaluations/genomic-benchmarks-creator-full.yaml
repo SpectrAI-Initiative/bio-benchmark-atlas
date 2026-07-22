@@ -1,0 +1,39 @@
+entity_type: evaluation_run
+id: genomic-benchmarks-creator-full
+work_id: genomic-benchmarks-paper
+benchmark_id: genomic-benchmarks
+benchmark_version: package-1.0.0-snapshot
+scope: {type: full, n: 9, subset_id: null, filter: All nine datasets listed in creator-paper Table 1., reporting_status: reported}
+protocol:
+  shots: &gb-na {value: null, reporting_status: not_applicable, notes: Supervised DNA classification; no prompting.}
+  turns: *gb-na
+  system_prompt_public: *gb-na
+  reasoning: *gb-na
+  tools:
+    browser: *gb-na
+    internet: *gb-na
+    databases: *gb-na
+    code_execution: {value: null, reporting_status: not_applicable, notes: Training code is the benchmark implementation.}
+    container: {value: null, reporting_status: not_reported, notes: No common container is prescribed.}
+    external_tools: {value: TensorFlow and PyTorch CNN baseline workflows, reporting_status: reported, notes: Each dataset uses its published train/test split.}
+  token_budget: *gb-na
+  time_budget: {value: null, reporting_status: not_reported, notes: No common runtime budget is reported.}
+  temperature: *gb-na
+  seed: {value: null, reporting_status: not_reported, notes: A common seed is not reported.}
+  repeats: {value: null, reporting_status: not_reported, notes: A common repeat count is not reported.}
+  grader: {type: deterministic classification scorer, model: null, human_review: false, reporting_status: reported}
+  statistical: {value: 'Accuracy and F1 are reported independently for each dataset and framework.', reporting_status: reported, notes: No collection-wide aggregate is defined.}
+  contamination: {value: Dataset-specific train/test splits; duplicate and background-generation controls follow each construction notebook., reporting_status: reported, notes: Version 0 dataset metadata is retained.}
+metrics:
+  - {metric_id: classification-accuracy, source_label: Accuracy, unit: percent, range: [0, 100], higher_is_better: true, aggregation: held-out test sequences per dataset, pass_threshold: null, tolerance: null}
+  - {metric_id: f1-score, source_label: F1 score, unit: percent, range: [0, 100], higher_is_better: true, aggregation: held-out test sequences per dataset, pass_threshold: null, tolerance: null}
+results: []
+comparability_group: genomic-benchmarks-creator-native
+verification: {status: verified, last_verified: '2026-07-22', notes: Nine-dataset scope and both reported metrics are verified; per-dataset table values remain downloadable from the source.}
+evidence:
+  - id: genomic-benchmarks-creator-full-protocol-evidence
+    source_type: work
+    source_id: genomic-benchmarks-paper
+    accessed_date: '2026-07-22'
+    locator: {type: table, value: 'Methods and Tables 1-2', note: 'Lists all nine datasets, train/test design, CNN workflows, and accuracy/F1 results.'}
+    supports: [/scope, /protocol, /metrics]

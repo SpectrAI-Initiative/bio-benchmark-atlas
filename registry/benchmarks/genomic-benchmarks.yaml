@@ -1,0 +1,69 @@
+entity_type: benchmark
+id: genomic-benchmarks
+name: Genomic Benchmarks
+aliases: [Genomic Benchmarks collection]
+summary: A versioned collection of nine DNA sequence-classification datasets covering regulatory elements, promoters, enhancers, open chromatin, species, and coding-context discrimination.
+kind: suite
+parent_id: null
+organizations: [Masaryk University, CEITEC Masaryk University]
+release_date: '2023-05-01'
+latest_version: package-1.0.0-snapshot
+domains: [genomics, epigenomics]
+capabilities: [prediction, classification]
+modalities: [dna-rna-sequence]
+task_formats: [binary genomic sequence classification, multiclass genomic sequence classification]
+task_counts: &genomic-benchmarks-counts
+  total: 9
+  basis: benchmark dataset classification tasks
+  reporting_status: reported
+  subsets:
+    - {id: genomic-benchmarks-core-regulatory, label: Core regulatory-element datasets, count: 6, basis: benchmark dataset classification tasks, exclusive: true, exhaustive: true, reporting_status: reported, notes: Drosophila enhancer plus five human regulatory datasets.}
+    - {id: genomic-benchmarks-demo, label: Demonstration datasets, count: 2, basis: benchmark dataset classification tasks, exclusive: true, exhaustive: true, reporting_status: reported, notes: Coding-versus-intergenic and human-versus-worm demos.}
+    - {id: genomic-benchmarks-dummy, label: Dummy dataset, count: 1, basis: benchmark dataset classification tasks, exclusive: true, exhaustive: true, reporting_status: reported, notes: Small mouse-enhancer prototyping dataset.}
+coverage_notes:
+  - {tag: genomics, coverage: explicitly-in-scope, count: 9, reporting_status: reported, notes: All nine formal entries are genomic DNA sequence-classification datasets.}
+  - {tag: epigenomics, coverage: explicitly-in-scope, count: 1, reporting_status: reported, notes: The human open-chromatin-region dataset directly tests chromatin accessibility classification.}
+access:
+  level: fully-open
+  tasks: Versioned coordinates, train/test splits, cloud-cached sequences, and Python/Hugging Face loaders are public.
+  artifacts: The official package publishes dataset construction notebooks and TensorFlow/PyTorch baseline workflows.
+  grader: Deterministic classification accuracy and F1 calculations on held-out test sets.
+  license: Apache-2.0 for package code; reference genomes and adapted source datasets retain source-specific terms.
+  biosafety_notes: The benchmark concerns public genomic annotations; this registry mirrors no sequences.
+resources:
+  - {id: genomic-benchmarks-paper-resource, type: paper, url: 'https://doi.org/10.1186/s12863-023-01123-8', license: CC BY 4.0, access_notes: Peer-reviewed creator paper in BMC Genomic Data., last_checked: '2026-07-22', pin: null}
+  - id: genomic-benchmarks-repository-resource
+    type: repository
+    url: https://github.com/ML-Bioinfo-CEITEC/genomic_benchmarks
+    license: Apache-2.0
+    access_notes: Official package and dataset-construction repository; all nine metadata files report dataset version 0 at the pinned commit.
+    last_checked: '2026-07-22'
+    pin: {kind: commit, value: 605d8539830e16c85abe7826990958303ffc5e1c, url: 'https://github.com/ML-Bioinfo-CEITEC/genomic_benchmarks/tree/605d8539830e16c85abe7826990958303ffc5e1c'}
+implementations:
+  - {framework: genomic-benchmarks Python package, status: official, url: 'https://github.com/ML-Bioinfo-CEITEC/genomic_benchmarks/tree/605d8539830e16c85abe7826990958303ffc5e1c', commit: 605d8539830e16c85abe7826990958303ffc5e1c, notes: Package version 1.0.0 with dataset loaders and creator CNN baselines.}
+versions:
+  - id: genomic-benchmarks-package-1-0-0-snapshot
+    label: package-1.0.0-snapshot
+    status: rolling
+    release_date: '2023-05-01'
+    as_of: '2026-07-22'
+    task_counts: *genomic-benchmarks-counts
+    formal_tracks: []
+    notes: As-of snapshot of the nine datasets enumerated in the paper and pinned repository; future repository additions require a new snapshot.
+    evidence_ids: [genomic-benchmarks-paper-definition-evidence, genomic-benchmarks-repository-evidence]
+audit: {status: audited, audited_date: '2026-07-22', unresolved_fields: 0, notes: 'Nine paper datasets, their categories, package version, and current metadata versions were checked separately.'}
+field_status: []
+verification: {status: verified, last_verified: '2026-07-22', notes: Paper Table 1 and the pinned repository enumerate the same nine datasets.}
+evidence:
+  - id: genomic-benchmarks-paper-definition-evidence
+    source_type: work
+    source_id: genomic-benchmarks-paper
+    accessed_date: '2026-07-22'
+    locator: {type: table, value: 'Construction and content, Overview of Datasets, Tables 1-2', note: 'Lists nine datasets, sequence counts, classes, categories, train/test design, and creator CNN metrics.'}
+    supports: [/name, /aliases, /summary, /kind, /organizations, /release_date, /latest_version, /domains, /capabilities, /modalities, /task_formats, /task_counts/total, /task_counts/basis, /task_counts/subsets, /coverage_notes, /access/level, /access/license, /resources, /versions/0/release_date, /versions/0/task_counts/total, /versions/0/task_counts/basis, /versions/0/task_counts/subsets]
+  - id: genomic-benchmarks-repository-evidence
+    source_type: resource
+    source_id: genomic-benchmarks-repository-resource
+    accessed_date: '2026-07-22'
+    locator: {type: repository-path, value: 'README.md; setup.py; datasets/*/metadata.yaml; experiments/README.md at 605d8539830e16c85abe7826990958303ffc5e1c', note: 'Confirms package version, nine dataset directories, version metadata, public loaders, licenses, and baseline metrics.'}
+    supports: [/latest_version, /access/tasks, /access/artifacts, /access/grader, /access/license, /resources, /implementations, /versions/0/as_of, /versions/0/formal_tracks]

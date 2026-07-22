@@ -1,0 +1,13 @@
+entity_type: work
+id: tape-paper
+title: Evaluating Protein Transfer Learning with TAPE
+authors: [Roshan Rao, Nicholas Bhattacharya, Neil Thomas, Yan Duan, Xi Chen, John Canny, Pieter Abbeel, Yun S. Song]
+organizations: [University of California Berkeley]
+work_type: paper
+source_class: benchmark_creator
+publication_date: '2019-12-08'
+canonical_url: https://proceedings.neurips.cc/paper/2019/hash/37f65c068b7723cd7809ee2d31d7861c-Abstract.html
+doi: 10.1101/676825
+arxiv: '1906.08230'
+status: published
+verification: {status: verified, last_verified: '2026-07-22', notes: NeurIPS 2019 creator paper with public data and code.}

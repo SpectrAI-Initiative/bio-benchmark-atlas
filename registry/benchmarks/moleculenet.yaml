@@ -1,0 +1,70 @@
+entity_type: benchmark
+id: moleculenet
+name: MoleculeNet
+aliases: [MoleculeNet original suite]
+summary: The original molecular-machine-learning benchmark of 17 dataset collections and more than 800 prediction endpoints spanning quantum, physicochemical, biophysical, and physiological properties.
+kind: suite
+parent_id: null
+organizations: [Stanford University, DeepChem]
+release_date: '2017-03-02'
+latest_version: original-2017
+domains: [medchem, protein-ligand-binding, assay-screening, clinical-translational]
+capabilities: [prediction, classification, regression]
+modalities: [small-molecule-structure, structure-3d]
+task_formats: [molecular property regression, molecular property classification, multitask endpoint prediction]
+task_counts: &moleculenet-counts
+  total: 17
+  basis: original paper dataset collections
+  reporting_status: reported
+  subsets:
+    - {id: moleculenet-quantum, label: Quantum mechanics collections, count: 4, basis: original paper dataset collections, exclusive: true, exhaustive: true, reporting_status: reported, notes: 'QM7, QM7b, QM8, and QM9.'}
+    - {id: moleculenet-physical, label: Physical chemistry collections, count: 3, basis: original paper dataset collections, exclusive: true, exhaustive: true, reporting_status: reported, notes: 'ESOL, FreeSolv, and Lipophilicity.'}
+    - {id: moleculenet-biophysics, label: Biophysics collections, count: 5, basis: original paper dataset collections, exclusive: true, exhaustive: true, reporting_status: reported, notes: 'PCBA, MUV, HIV, BACE, and PDBbind.'}
+    - {id: moleculenet-physiology, label: Physiology collections, count: 5, basis: original paper dataset collections, exclusive: true, exhaustive: true, reporting_status: reported, notes: 'BBBP, Tox21, ToxCast, SIDER, and ClinTox.'}
+coverage_notes:
+  - {tag: medchem, coverage: explicitly-in-scope, count: 17, reporting_status: reported, notes: Dataset collections cover molecular properties and drug-discovery endpoints; 17 is not the number of individual prediction endpoints.}
+  - {tag: protein-ligand-binding, coverage: explicitly-in-scope, count: 1, reporting_status: reported, notes: PDBbind is the explicit binding-affinity collection; other biophysical activity collections are not relabeled as affinity tasks.}
+access:
+  level: fully-open
+  tasks: The original public datasets and standard loaders are distributed through DeepChem.
+  artifacts: DeepChem publishes featurizers, splitters, model implementations, and benchmark utilities.
+  grader: Deterministic regression and classification metrics with dataset-specific recommended splits.
+  license: MIT for DeepChem code; the Chemical Science paper is CC BY-NC 3.0 and underlying datasets retain source-specific terms.
+  biosafety_notes: The suite includes drug activity and toxicity endpoints; this registry mirrors no compounds or labels.
+resources:
+  - {id: moleculenet-paper-resource, type: paper, url: 'https://doi.org/10.1039/C7SC02664A', license: CC BY-NC 3.0, access_notes: Peer-reviewed creator paper in Chemical Science., last_checked: '2026-07-22', pin: null}
+  - id: moleculenet-deepchem-resource
+    type: repository
+    url: https://github.com/deepchem/deepchem
+    license: MIT
+    access_notes: Official maintained implementation; the record intentionally retains the original 17-collection paper snapshot rather than all current MolNet loaders.
+    last_checked: '2026-07-22'
+    pin: {kind: commit, value: fbe3b911a94a6eb8c84c1a9e7ac67a472c49ea80, url: 'https://github.com/deepchem/deepchem/tree/fbe3b911a94a6eb8c84c1a9e7ac67a472c49ea80'}
+implementations:
+  - {framework: DeepChem MolNet, status: official, url: 'https://github.com/deepchem/deepchem/tree/fbe3b911a94a6eb8c84c1a9e7ac67a472c49ea80/deepchem/molnet', commit: fbe3b911a94a6eb8c84c1a9e7ac67a472c49ea80, notes: Current maintained loaders; users must select the original datasets and paper-recommended split/metric to reproduce the original suite.}
+versions:
+  - id: moleculenet-original-2017
+    label: original-2017
+    status: current
+    release_date: '2017-03-02'
+    as_of: null
+    task_counts: *moleculenet-counts
+    formal_tracks: []
+    notes: Fixed original-paper snapshot of 17 collections; later additions to DeepChem MolNet are outside this version.
+    evidence_ids: [moleculenet-paper-definition-evidence, moleculenet-repository-evidence]
+audit: {status: audited, audited_date: '2026-07-22', unresolved_fields: 0, notes: Original 17-collection scope is separated from the larger living DeepChem catalog; endpoint counts are not conflated with dataset counts.}
+field_status: []
+verification: {status: verified, last_verified: '2026-07-22', notes: 'Creator paper Table 1 defines the fixed collection, recommended splits, and metrics.'}
+evidence:
+  - id: moleculenet-paper-definition-evidence
+    source_type: work
+    source_id: moleculenet-paper
+    accessed_date: '2026-07-22'
+    locator: {type: table, value: 'Sections 3-5, Figure 2 and Tables 1-3', note: 'Defines 17 collections, four categories, over 800 endpoints, 80/10/10 splits, recommended splitters, metrics, and creator baselines.'}
+    supports: [/name, /aliases, /summary, /kind, /organizations, /release_date, /latest_version, /domains, /capabilities, /modalities, /task_formats, /task_counts/total, /task_counts/basis, /task_counts/subsets, /coverage_notes, /access/level, /access/license, /resources, /versions/0/release_date, /versions/0/task_counts/total, /versions/0/task_counts/basis, /versions/0/task_counts/subsets]
+  - id: moleculenet-repository-evidence
+    source_type: resource
+    source_id: moleculenet-deepchem-resource
+    accessed_date: '2026-07-22'
+    locator: {type: repository-path, value: 'deepchem/molnet; LICENSE at fbe3b911a94a6eb8c84c1a9e7ac67a472c49ea80', note: Pins the maintained loader and evaluation implementation while preserving the original-paper version boundary.}
+    supports: [/access/tasks, /access/artifacts, /access/grader, /access/license, /resources, /implementations, /versions/0/formal_tracks]

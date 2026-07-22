@@ -1,0 +1,13 @@
+entity_type: work
+id: atom3d-paper
+title: 'ATOM3D: Tasks On Molecules in Three Dimensions'
+authors: [Raphael J. L. Townshend, Martin Vögele, Patricia Suriana, Alexander Derry, Alexander Powers, Yianni Laloudakis, Sidhika Balachandar, Bowen Jing, Brandon Anderson, Stephan Eismann, Risi Kondor, Russ B. Altman, Ron O. Dror]
+organizations: [Stanford University]
+work_type: paper
+source_class: benchmark_creator
+publication_date: '2021-12-07'
+canonical_url: https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/c45147dee729311ef5b5c3003946c48f-Abstract-round1.html
+doi: null
+arxiv: '2012.04035'
+status: published
+verification: {status: verified, last_verified: '2026-07-22', notes: NeurIPS 2021 Datasets and Benchmarks creator paper and official project resources verified.}

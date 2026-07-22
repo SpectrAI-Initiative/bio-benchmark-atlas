@@ -1,0 +1,380 @@
+# Evidence-backed Scientific Task mappings for the first post-v1.1 expansion.
+classifications:
+  tape:
+    status: complete
+    benchmark_version: original-2019
+    as_of: null
+    notes: The five supervised downstream tasks are explicitly defined and grouped in the creator paper.
+    entries:
+    - task_type_id: protein-secondary-structure-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 1
+      count_unit: tasks
+      count_basis: Supervised downstream benchmark tasks.
+      count_ref: null
+      reporting_status: reported
+      evidence_ids: [tape-paper-definition-evidence]
+      notes: Per-residue three-state and eight-state secondary-structure prediction constitute one benchmark task.
+    - task_type_id: protein-contact-map-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 1
+      count_unit: tasks
+      count_basis: Supervised downstream benchmark tasks.
+      count_ref: null
+      reporting_status: reported
+      evidence_ids: [tape-paper-definition-evidence]
+      notes: Residue-pair contact prediction is the second structure task; it is not relabeled as full 3D folding.
+    - task_type_id: protein-remote-homology-detection
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 1
+      count_unit: tasks
+      count_basis: Supervised downstream benchmark tasks.
+      count_ref: null
+      reporting_status: reported
+      evidence_ids: [tape-paper-definition-evidence]
+      notes: Fold-level remote-homology classification.
+    - task_type_id: protein-fluorescence-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 1
+      count_unit: tasks
+      count_basis: Supervised downstream benchmark tasks.
+      count_ref: null
+      reporting_status: reported
+      evidence_ids: [tape-paper-definition-evidence]
+      notes: Sequence-to-fluorescence regression; this is prediction, not sequence generation.
+    - task_type_id: protein-stability-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 1
+      count_unit: tasks
+      count_basis: Supervised downstream benchmark tasks.
+      count_ref: null
+      reporting_status: reported
+      evidence_ids: [tape-paper-definition-evidence]
+      notes: Sequence-to-stability regression; this is prediction, not sequence generation.
+
+  genomic-benchmarks:
+    status: complete
+    benchmark_version: package-1.0.0-snapshot
+    as_of: '2026-07-22'
+    notes: Each of the nine version-0 dataset directories is assigned once using the creator paper's Table 1 labels.
+    entries:
+    - task_type_id: enhancer-activity-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 4
+      count_unit: tasks
+      count_basis: Benchmark dataset classification tasks.
+      count_ref: null
+      reporting_status: reported
+      evidence_ids: [genomic-benchmarks-paper-definition-evidence]
+      notes: Mouse enhancer, Drosophila enhancer, human enhancer Cohn, and human enhancer Ensembl datasets.
+    - task_type_id: promoter-detection
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 1
+      count_unit: tasks
+      count_basis: Benchmark dataset classification tasks.
+      count_ref: null
+      reporting_status: reported
+      evidence_ids: [genomic-benchmarks-paper-definition-evidence]
+      notes: Human non-TATA promoter classification.
+    - task_type_id: epigenetic-mark-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 1
+      count_unit: tasks
+      count_basis: Benchmark dataset classification tasks.
+      count_ref: null
+      reporting_status: reported
+      evidence_ids: [genomic-benchmarks-paper-definition-evidence]
+      notes: Human open-chromatin region classification.
+    - task_type_id: dna-sequence-analysis
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 3
+      count_unit: tasks
+      count_basis: Benchmark dataset classification tasks.
+      count_ref: null
+      reporting_status: reported
+      evidence_ids: [genomic-benchmarks-paper-definition-evidence]
+      notes: Two demo coding-versus-intergenic datasets and the human regulatory-region multiclass dataset.
+
+  beacon-rna:
+    status: complete
+    benchmark_version: neurips-2024
+    as_of: null
+    notes: All thirteen tasks are assigned once using the structure, function, and engineering groupings in the creator paper.
+    entries:
+    - task_type_id: rna-structure-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 4
+      count_unit: tasks
+      count_basis: Formal RNA benchmark tasks.
+      count_ref: null
+      reporting_status: reported
+      evidence_ids: [beacon-paper-definition-evidence]
+      notes: Secondary structure, structural score, distance-map, and tertiary-structure tasks.
+    - task_type_id: rna-processing-translation-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 3
+      count_unit: tasks
+      count_basis: Formal RNA benchmark tasks.
+      count_ref: null
+      reporting_status: reported
+      evidence_ids: [beacon-paper-definition-evidence]
+      notes: Splice-site prediction, alternative polyadenylation, and mean ribosome loading.
+    - task_type_id: rna-function-classification
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 1
+      count_unit: tasks
+      count_basis: Formal RNA benchmark tasks.
+      count_ref: null
+      reporting_status: reported
+      evidence_ids: [beacon-paper-definition-evidence]
+      notes: Non-coding RNA functional classification.
+    - task_type_id: rna-modification-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 1
+      count_unit: tasks
+      count_basis: Formal RNA benchmark tasks.
+      count_ref: null
+      reporting_status: reported
+      evidence_ids: [beacon-paper-definition-evidence]
+      notes: RNA modification-site prediction.
+    - task_type_id: rna-stability-degradation-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 1
+      count_unit: tasks
+      count_basis: Formal RNA benchmark tasks.
+      count_ref: null
+      reporting_status: reported
+      evidence_ids: [beacon-paper-definition-evidence]
+      notes: Condition-specific RNA degradation prediction.
+    - task_type_id: rna-switch-activity-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 1
+      count_unit: tasks
+      count_basis: Formal RNA benchmark tasks.
+      count_ref: null
+      reporting_status: reported
+      evidence_ids: [beacon-paper-definition-evidence]
+      notes: Programmable RNA-switch activity prediction.
+    - task_type_id: crispr-guide-activity-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 1
+      count_unit: tasks
+      count_basis: Formal RNA benchmark tasks.
+      count_ref: null
+      reporting_status: reported
+      evidence_ids: [beacon-paper-definition-evidence]
+      notes: CRISPR on-target efficiency prediction.
+    - task_type_id: crispr-off-target-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 1
+      count_unit: tasks
+      count_basis: Formal RNA benchmark tasks.
+      count_ref: null
+      reporting_status: reported
+      evidence_ids: [beacon-paper-definition-evidence]
+      notes: CRISPR off-target interaction prediction.
+
+  moleculenet:
+    status: partial
+    benchmark_version: original-2017
+    as_of: null
+    notes: The fixed original suite is mapped at dataset-collection level; heterogeneous biochemical endpoint collections are not atomized into unsupported task counts.
+    entries:
+    - task_type_id: small-molecule-property-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 17
+      count_unit: other
+      count_basis: Original paper dataset collections.
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids: [moleculenet-paper-definition-evidence]
+      notes: Umbrella mapping for all 17 original dataset collections, which span quantum, physical, biophysical, and physiological properties.
+    - task_type_id: admet-toxicity-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 5
+      count_unit: other
+      count_basis: Original paper dataset collections.
+      count_ref: null
+      reporting_status: reported
+      evidence_ids: [moleculenet-paper-definition-evidence]
+      notes: The five physiology collections are ESOL-independent ADMET or toxicity datasets; no endpoint-level total is asserted here.
+    - task_type_id: protein-ligand-binding-affinity
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 1
+      count_unit: other
+      count_basis: Original paper dataset collections.
+      count_ref: null
+      reporting_status: reported
+      evidence_ids: [moleculenet-paper-definition-evidence]
+      notes: PDBbind is the explicitly structure-based protein-ligand affinity collection.
+
+  atom3d:
+    status: complete
+    benchmark_version: v0.2.6
+    as_of: '2026-07-22'
+    notes: The eight official task abbreviations are mapped one-to-one to their documented scientific prediction problems.
+    entries:
+    - task_type_id: small-molecule-property-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 1
+      count_unit: tasks
+      count_basis: Curated 3D benchmark datasets.
+      count_ref: null
+      reporting_status: reported
+      evidence_ids: [atom3d-paper-definition-evidence]
+      notes: SMP, small-molecule property prediction from molecular structure.
+    - task_type_id: protein-protein-interface-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 1
+      count_unit: tasks
+      count_basis: Curated 3D benchmark datasets.
+      count_ref: null
+      reporting_status: reported
+      evidence_ids: [atom3d-paper-definition-evidence]
+      notes: PIP predicts whether residue pairs from two proteins contact when the proteins bind; it is narrower than binary interaction detection.
+    - task_type_id: protein-residue-identity-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 1
+      count_unit: tasks
+      count_basis: Curated 3D benchmark datasets.
+      count_ref: null
+      reporting_status: reported
+      evidence_ids: [atom3d-paper-definition-evidence]
+      notes: RES, residue identity prediction from the local structural environment.
+    - task_type_id: protein-complex-mutation-stability-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 1
+      count_unit: tasks
+      count_basis: Curated 3D benchmark datasets.
+      count_ref: null
+      reporting_status: reported
+      evidence_ids: [atom3d-paper-definition-evidence]
+      notes: MSP predicts whether a single mutation stabilizes a protein complex; it is not a monomer thermostability task.
+    - task_type_id: protein-ligand-binding-affinity
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 1
+      count_unit: tasks
+      count_basis: Curated 3D benchmark datasets.
+      count_ref: null
+      reporting_status: reported
+      evidence_ids: [atom3d-paper-definition-evidence]
+      notes: LBA, ligand binding-affinity prediction.
+    - task_type_id: protein-ligand-efficacy-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 1
+      count_unit: tasks
+      count_basis: Curated 3D benchmark datasets.
+      count_ref: null
+      reporting_status: reported
+      evidence_ids: [atom3d-paper-definition-evidence]
+      notes: LEP classifies whether a bound molecule activates protein function from active and inactive target conformations; it does not predict binding presence or affinity.
+    - task_type_id: protein-model-quality-assessment
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 1
+      count_unit: tasks
+      count_basis: Curated 3D benchmark datasets.
+      count_ref: null
+      reporting_status: reported
+      evidence_ids: [atom3d-paper-definition-evidence]
+      notes: PSR, protein structure ranking.
+    - task_type_id: rna-structure-quality-assessment
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 1
+      count_unit: tasks
+      count_basis: Curated 3D benchmark datasets.
+      count_ref: null
+      reporting_status: reported
+      evidence_ids: [atom3d-paper-definition-evidence]
+      notes: RSR ranks candidate RNA structures and is therefore not relabeled as de novo RNA folding.
+
+  guacamol:
+    status: complete
+    benchmark_version: suite-v2
+    as_of: null
+    notes: Version 2 of the official benchmark suite defines five distribution-learning and twenty goal-directed problems.
+    entries:
+    - task_type_id: small-molecule-generation
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 25
+      count_unit: problems
+      count_basis: Formal benchmark problems.
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids: [guacamol-paper-definition-evidence, guacamol-repository-evidence]
+      notes: Includes both distribution-learning assessment and goal-directed molecular optimization problems.
+
+  scib:
+    status: complete
+    benchmark_version: paper-2021
+    as_of: null
+    notes: The creator study evaluates integration methods across thirteen atlas-level tasks and does not equate cells or batches with task count.
+    entries:
+    - task_type_id: single-cell-data-integration
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 13
+      count_unit: tasks
+      count_basis: Atlas-level integration tasks.
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids: [scib-paper-definition-evidence]
+      notes: Two simulation, five scRNA-seq, and six scATAC-seq integration tasks.

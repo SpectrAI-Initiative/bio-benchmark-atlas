@@ -1,0 +1,69 @@
+entity_type: benchmark
+id: beacon-rna
+name: BEACON
+aliases: [Benchmark for Comprehensive RNA Tasks and Language Models, RNA BEACON]
+summary: A 13-task RNA representation benchmark covering structure, function, processing, modification, translation, degradation, programmable switches, and CRISPR activity.
+kind: suite
+parent_id: null
+organizations: [Shanghai Artificial Intelligence Laboratory, University of Sydney, University of Hong Kong, Fudan University]
+release_date: '2024-06-14'
+latest_version: neurips-2024
+domains: [transcriptomics, genomics, molecular-cell-biology]
+capabilities: [prediction, classification, regression]
+modalities: [dna-rna-sequence]
+task_formats: [sequence classification, nucleotide-level classification, sequence regression, nucleotide-level regression]
+task_counts: &beacon-counts
+  total: 13
+  basis: formal RNA benchmark tasks
+  reporting_status: reported
+  subsets:
+    - {id: beacon-structure, label: Structure tasks, count: 4, basis: formal RNA benchmark tasks, exclusive: true, exhaustive: true, reporting_status: reported, notes: 'SSP, CMP, DMP, and SSI.'}
+    - {id: beacon-function, label: Function tasks, count: 5, basis: formal RNA benchmark tasks, exclusive: true, exhaustive: true, reporting_status: reported, notes: 'SPL, APA, ncRNA, Modif, and MRL.'}
+    - {id: beacon-engineering, label: Engineering tasks, count: 4, basis: formal RNA benchmark tasks, exclusive: true, exhaustive: true, reporting_status: reported, notes: 'VDP, PRS, CRI-On, and CRI-Off.'}
+coverage_notes:
+  - {tag: transcriptomics, coverage: explicitly-in-scope, count: 13, reporting_status: reported, notes: 'All tasks consume RNA sequence and evaluate RNA structural, functional, or engineering outcomes.'}
+  - {tag: genomics, coverage: explicitly-in-scope, count: 2, reporting_status: reported, notes: CRISPR on-target and off-target tasks involve guide and target sequence activity.}
+access:
+  level: fully-open
+  tasks: The official repository links all 13 prepared datasets and publishes task scripts and model checkpoints.
+  artifacts: Training code, tokenizers, RNA language-model adapters, checkpoints, and split-specific scripts are public.
+  grader: Deterministic task-specific F1, precision, R-squared, accuracy, AUC, MCRMSE, and Spearman scorers.
+  license: Apache-2.0 for code; underlying datasets have mixed public, research-only, and noncommercial terms documented in the paper.
+  biosafety_notes: The paper notes general dual-use potential for RNA manipulation; this registry mirrors no sequences, checkpoints, or model outputs.
+resources:
+  - {id: beacon-paper-resource, type: paper, url: 'https://proceedings.neurips.cc/paper_files/paper/2024/file/a8ea503d91320fcfe12cba61c8a6d285-Paper-Datasets_and_Benchmarks_Track.pdf', license: null, access_notes: NeurIPS 2024 Datasets and Benchmarks creator paper., last_checked: '2026-07-22', pin: null}
+  - id: beacon-repository-resource
+    type: repository
+    url: https://github.com/terry-r123/RNABenchmark
+    license: Apache-2.0
+    access_notes: Official implementation and task manifest.
+    last_checked: '2026-07-22'
+    pin: {kind: commit, value: da7f9c7ac3f39605af27e1dfcdf879adba963d79, url: 'https://github.com/terry-r123/RNABenchmark/tree/da7f9c7ac3f39605af27e1dfcdf879adba963d79'}
+implementations:
+  - {framework: BEACON RNABenchmark, status: official, url: 'https://github.com/terry-r123/RNABenchmark/tree/da7f9c7ac3f39605af27e1dfcdf879adba963d79', commit: da7f9c7ac3f39605af27e1dfcdf879adba963d79, notes: Scripts for all 13 tasks and BEACON-B/open-source RNA model evaluation.}
+versions:
+  - id: beacon-neurips-2024
+    label: neurips-2024
+    status: current
+    release_date: '2024-06-14'
+    as_of: null
+    task_counts: *beacon-counts
+    formal_tracks: []
+    notes: Fixed 13-task snapshot from the final NeurIPS paper.
+    evidence_ids: [beacon-paper-definition-evidence, beacon-repository-evidence]
+audit: {status: audited, audited_date: '2026-07-22', unresolved_fields: 0, notes: 'The 13 task rows, group counts, split sizes, metrics, repetition count, access, and dataset-license table were checked.'}
+field_status: []
+verification: {status: verified, last_verified: '2026-07-22', notes: Paper Table 1 and the pinned repository task manifest agree.}
+evidence:
+  - id: beacon-paper-definition-evidence
+    source_type: work
+    source_id: beacon-paper
+    accessed_date: '2026-07-22'
+    locator: {type: table, value: 'pp. 1-7, Figure 1 and Tables 1-3; Appendix A.1 and Table 22', note: 'Defines all 13 tasks, split sizes, metrics, three-seed evaluation, and dataset-specific licenses.'}
+    supports: [/name, /aliases, /summary, /kind, /organizations, /release_date, /latest_version, /domains, /capabilities, /modalities, /task_formats, /task_counts/total, /task_counts/basis, /task_counts/subsets, /coverage_notes, /access/level, /access/license, /access/biosafety_notes, /resources, /versions/0/release_date, /versions/0/task_counts/total, /versions/0/task_counts/basis, /versions/0/task_counts/subsets]
+  - id: beacon-repository-evidence
+    source_type: resource
+    source_id: beacon-repository-resource
+    accessed_date: '2026-07-22'
+    locator: {type: repository-path, value: 'README.md; downstream/*; scripts/* at da7f9c7ac3f39605af27e1dfcdf879adba963d79', note: 'Confirms exact task names, public implementation, task-specific scorers, and Apache-2.0 code license.'}
+    supports: [/access/tasks, /access/artifacts, /access/grader, /access/license, /resources, /implementations, /versions/0/formal_tracks]

@@ -1,5 +1,5 @@
 name: BioBench Atlas
-version: 1.2.0
+version: 1.3.0-dev
 release_date: '2026-07-22'
 canonical_repository: https://github.com/SpectrAI-Initiative/bio-benchmark-atlas
 canonical_site: https://spectrai-initiative.github.io/bio-benchmark-atlas/
@@ -7,6 +7,7 @@ maintainer: wang422003
 published_source_classes:
   - benchmark_creator
   - official_model_provider
+  - independent_reproduction
 audit_exemptions:
   - benchmark_id: virbench
     decision_date: '2026-07-21'

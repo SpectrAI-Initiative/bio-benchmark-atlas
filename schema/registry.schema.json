@@ -6,7 +6,8 @@
     {"$ref": "#/$defs/Benchmark"},
     {"$ref": "#/$defs/Work"},
     {"$ref": "#/$defs/Model"},
-    {"$ref": "#/$defs/EvaluationRun"}
+    {"$ref": "#/$defs/EvaluationRun"},
+    {"$ref": "#/$defs/BenchmarkUse"}
   ],
   "$defs": {
     "Id": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
@@ -223,7 +224,7 @@
     },
     "Work": {
       "type": "object", "additionalProperties": false,
-      "required": ["entity_type", "id", "title", "authors", "organizations", "work_type", "source_class", "publication_date", "canonical_url", "doi", "arxiv", "status", "verification"],
+      "required": ["entity_type", "id", "title", "authors", "organizations", "work_type", "source_class", "publication_date", "canonical_url", "doi", "arxiv", "status", "source_versions", "current_version_id", "verification"],
       "properties": {
         "entity_type": {"const": "work"}, "id": {"$ref": "#/$defs/Id"}, "title": {"type": "string"},
         "authors": {"type": "array", "items": {"type": "string"}}, "organizations": {"type": "array", "items": {"type": "string"}},
@@ -231,7 +232,20 @@
         "source_class": {"enum": ["benchmark_creator", "official_model_provider", "independent_reproduction"]},
         "publication_date": {"type": "string", "format": "date"}, "canonical_url": {"type": "string", "format": "uri"},
         "doi": {"type": ["string", "null"]}, "arxiv": {"type": ["string", "null"]}, "status": {"enum": ["published", "preprint", "living", "archived"]},
+        "source_versions": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/WorkSourceVersion"}},
+        "current_version_id": {"$ref": "#/$defs/Id"},
         "verification": {"$ref": "#/$defs/Verification"}
+      }
+    },
+    "WorkSourceVersion": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "label", "status", "publication_date", "canonical_url", "doi", "arxiv"],
+      "properties": {
+        "id": {"$ref": "#/$defs/Id"}, "label": {"type": "string", "minLength": 1},
+        "status": {"enum": ["current", "superseded", "version-of-record"]},
+        "publication_date": {"type": "string", "format": "date"},
+        "canonical_url": {"type": "string", "format": "uri"},
+        "doi": {"type": ["string", "null"]}, "arxiv": {"type": ["string", "null"]}
       }
     },
     "Model": {
@@ -246,14 +260,15 @@
     },
     "EvaluationRun": {
       "type": "object", "additionalProperties": false,
-      "required": ["entity_type", "id", "work_id", "benchmark_id", "benchmark_version", "scope", "protocol", "metrics", "results", "comparability_group", "verification", "evidence"],
+      "required": ["entity_type", "id", "work_id", "work_version_id", "benchmark_id", "benchmark_version", "scope", "protocol", "metrics", "results", "comparability_group", "verification", "evidence"],
       "properties": {
         "entity_type": {"const": "evaluation_run"}, "id": {"$ref": "#/$defs/Id"}, "work_id": {"$ref": "#/$defs/Id"}, "benchmark_id": {"$ref": "#/$defs/Id"},
+        "work_version_id": {"$ref": "#/$defs/Id"},
         "benchmark_version": {"type": ["string", "null"]},
         "model_ids": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/Id"}},
         "scope": {
-          "type": "object", "additionalProperties": false, "required": ["type", "n", "subset_id", "filter", "reporting_status"],
-          "properties": {"type": {"enum": ["full", "subset", "track", "unknown"]}, "n": {"type": ["integer", "null"], "minimum": 0}, "subset_id": {"anyOf": [{"$ref": "#/$defs/Id"}, {"type": "null"}]}, "filter": {"type": ["string", "null"]}, "reporting_status": {"enum": ["reported", "not_reported"]}}
+          "type": "object", "additionalProperties": false, "required": ["type", "n", "subset_id", "filter", "selection", "reporting_status"],
+          "properties": {"type": {"enum": ["full", "subset", "track", "unknown"]}, "n": {"type": ["integer", "null"], "minimum": 0}, "subset_id": {"anyOf": [{"$ref": "#/$defs/Id"}, {"type": "null"}]}, "filter": {"type": ["string", "null"]}, "selection": {"enum": ["formal-subset", "filtered", "sampled", "hand-selected", "truncated", null]}, "reporting_status": {"enum": ["reported", "not_reported"]}}
         },
         "protocol": {
           "type": "object", "additionalProperties": false, "required": ["shots", "turns", "system_prompt_public", "reasoning", "tools", "token_budget", "time_budget", "temperature", "seed", "repeats", "grader", "statistical", "contamination"],
@@ -269,14 +284,46 @@
           }
         },
         "metrics": {"type": "array", "minItems": 1, "items": {
-          "type": "object", "additionalProperties": false, "required": ["metric_id", "source_label", "unit", "range", "higher_is_better", "aggregation", "pass_threshold", "tolerance"],
-          "properties": {"metric_id": {"$ref": "#/$defs/Id"}, "source_label": {"type": "string"}, "unit": {"type": "string"}, "range": {"type": ["array", "null"], "minItems": 2, "maxItems": 2, "items": {"type": "number"}}, "higher_is_better": {"type": "boolean"}, "aggregation": {"type": ["string", "null"]}, "pass_threshold": {"type": ["number", "null"]}, "tolerance": {"type": ["string", "null"]}}
+          "type": "object", "additionalProperties": false, "required": ["metric_id", "source_label", "unit", "range", "higher_is_better", "aggregation", "pass_threshold", "tolerance", "kind", "baseline_model_id"],
+          "properties": {"metric_id": {"$ref": "#/$defs/Id"}, "source_label": {"type": "string"}, "unit": {"type": "string"}, "range": {"type": ["array", "null"], "minItems": 2, "maxItems": 2, "items": {"type": "number"}}, "higher_is_better": {"type": "boolean"}, "aggregation": {"type": ["string", "null"]}, "pass_threshold": {"type": ["number", "null"]}, "tolerance": {"type": ["string", "null"]}, "kind": {"enum": ["absolute", "delta"]}, "baseline_model_id": {"anyOf": [{"$ref": "#/$defs/Id"}, {"type": "null"}]}}
         }},
         "results": {"type": "array", "items": {
           "type": "object", "additionalProperties": false, "required": ["model_id", "metric_id", "value", "ci_low", "ci_high", "n", "notes"],
           "properties": {"model_id": {"$ref": "#/$defs/Id"}, "metric_id": {"$ref": "#/$defs/Id"}, "value": {"type": "number"}, "ci_low": {"type": ["number", "null"]}, "ci_high": {"type": ["number", "null"]}, "n": {"type": ["integer", "null"], "minimum": 0}, "notes": {"type": ["string", "null"]}, "status": {"enum": ["verified", "provisional", "conflicted"]}, "confidence": {"$ref": "#/$defs/Confidence"}, "evidence_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/Id"}}}
         }},
         "comparability_group": {"$ref": "#/$defs/Id"}, "verification": {"$ref": "#/$defs/Verification"},
+        "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/Evidence"}}
+      }
+    },
+    "BenchmarkUseScope": {
+      "type": "object", "additionalProperties": false,
+      "required": ["type", "subset_kind", "n", "subset_id", "selection", "selection_method", "reporting_status"],
+      "properties": {
+        "type": {"enum": ["full", "subset", "track", "unknown"]},
+        "subset_kind": {"enum": ["formal-subset", "paper-specific", "not-reported", "not-applicable"]},
+        "n": {"type": ["integer", "null"], "minimum": 0},
+        "subset_id": {"anyOf": [{"$ref": "#/$defs/Id"}, {"type": "null"}]},
+        "selection": {"enum": ["formal-subset", "filtered", "sampled", "hand-selected", "truncated", null]},
+        "selection_method": {"type": ["string", "null"]},
+        "reporting_status": {"enum": ["reported", "not_reported", "not_applicable"]}
+      }
+    },
+    "BenchmarkUse": {
+      "type": "object", "additionalProperties": false,
+      "required": ["entity_type", "id", "work_id", "work_version_id", "benchmark_id", "benchmark_version", "relation_type", "status", "model_ids", "scope", "metric_labels", "evaluation_run_ids", "reporting_gaps", "notes", "verification", "evidence"],
+      "properties": {
+        "entity_type": {"const": "benchmark_use"}, "id": {"$ref": "#/$defs/Id"},
+        "work_id": {"$ref": "#/$defs/Id"}, "work_version_id": {"$ref": "#/$defs/Id"},
+        "benchmark_id": {"$ref": "#/$defs/Id"}, "benchmark_version": {"type": ["string", "null"]},
+        "relation_type": {"enum": ["benchmark-creation", "evaluation", "training", "fine-tuning", "validation", "model-selection", "external-result-summary"]},
+        "status": {"enum": ["normalized", "partial", "non-evaluation"]},
+        "model_ids": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/Id"}},
+        "scope": {"$ref": "#/$defs/BenchmarkUseScope"},
+        "metric_labels": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+        "evaluation_run_ids": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/Id"}},
+        "reporting_gaps": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "notes": {"type": ["string", "null"]},
+        "verification": {"$ref": "#/$defs/Verification"},
         "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/Evidence"}}
       }
     }

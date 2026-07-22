@@ -42,7 +42,11 @@ const canonical = new URL(withBase(canonicalPath), 'https://spectrai-initiative.
         <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
         <span>BioBench <b>Atlas</b></span>
       </a>
-      <nav aria-label="Primary navigation">
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation">
+        <span aria-hidden="true" class="menu-icon"><i></i><i></i><i></i></span>
+        <span>Menu</span>
+      </button>
+      <nav id="primary-navigation" aria-label="Primary navigation">
         <a href={withBase('/benchmarks/')}>Explorer</a>
         <a href={withBase('/works/')}>Papers</a>
         <a href={withBase('/tasks/')}>Tasks</a>
@@ -77,6 +81,67 @@ const canonical = new URL(withBase(canonicalPath), 'https://spectrai-initiative.
         const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
         root.dataset.theme = next;
         localStorage.setItem('biobench-theme', next);
+      });
+
+      const header = document.querySelector('.site-header');
+      const menuButton = document.querySelector('.menu-toggle');
+      const navigation = document.querySelector('#primary-navigation');
+      const mobileMenu = matchMedia('(max-width: 900px)');
+      const closeMenu = (restoreFocus = false) => {
+        if (!header || !menuButton) return;
+        header.removeAttribute('data-menu-open');
+        menuButton.setAttribute('aria-expanded', 'false');
+        if (restoreFocus) menuButton.focus();
+      };
+      const openMenu = () => {
+        if (!header || !menuButton || !navigation) return;
+        header.setAttribute('data-menu-open', '');
+        menuButton.setAttribute('aria-expanded', 'true');
+        navigation.querySelector('a')?.focus({ preventScroll: true });
+      };
+      menuButton?.addEventListener('click', () => {
+        if (menuButton.getAttribute('aria-expanded') === 'true') closeMenu();
+        else openMenu();
+      });
+      navigation?.addEventListener('click', (event) => {
+        if (event.target instanceof HTMLAnchorElement && mobileMenu.matches) closeMenu();
+      });
+      document.addEventListener('click', (event) => {
+        if (mobileMenu.matches && header?.hasAttribute('data-menu-open') && event.target instanceof Node && !header.contains(event.target)) closeMenu();
+      });
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && header?.hasAttribute('data-menu-open')) closeMenu(true);
+      });
+      mobileMenu.addEventListener('change', () => closeMenu());
+
+      document.querySelectorAll('.detail-grid .table-wrap').forEach((tableWrap) => {
+        if (!(tableWrap instanceof HTMLElement) || tableWrap.parentElement?.classList.contains('table-scroll-shell')) return;
+        const shell = document.createElement('div');
+        shell.className = 'table-scroll-shell';
+        const hint = document.createElement('span');
+        hint.className = 'table-scroll-hint';
+        hint.textContent = 'Swipe to view more';
+        hint.setAttribute('aria-hidden', 'true');
+        tableWrap.before(shell);
+        shell.append(tableWrap, hint);
+        const updateOverflow = () => {
+          const overflows = tableWrap.scrollWidth > tableWrap.clientWidth + 2;
+          shell.toggleAttribute('data-overflow', overflows);
+          shell.toggleAttribute('data-scrolled', tableWrap.scrollLeft > 8);
+          if (overflows) {
+            tableWrap.setAttribute('tabindex', '0');
+            tableWrap.setAttribute('role', 'region');
+            const sectionHeading = tableWrap.closest('section')?.querySelector('h2, h3')?.textContent?.trim();
+            tableWrap.setAttribute('aria-label', `${sectionHeading || 'Data'} table`);
+          } else {
+            tableWrap.removeAttribute('tabindex');
+            tableWrap.removeAttribute('role');
+            tableWrap.removeAttribute('aria-label');
+          }
+        };
+        tableWrap.addEventListener('scroll', updateOverflow, { passive: true });
+        new ResizeObserver(updateOverflow).observe(tableWrap);
+        updateOverflow();
       });
     </script>
   </body>

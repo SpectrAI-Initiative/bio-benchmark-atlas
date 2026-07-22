@@ -20,22 +20,30 @@ const rows = data.works.map((work) => {
 });
 ---
 <Layout title="Paper Explorer" canonicalPath="/works/">
-  <header class="page-head shell"><p class="eyebrow">Paper and work explorer</p><h1>Trace every benchmark claim back to a work.</h1><p class="lede">Filter creator papers, provider releases, and independent studies by benchmark relationship, realized scope, and reporting completeness.</p></header>
+  <header class="page-head page-head--compact shell"><p class="eyebrow">Paper and work explorer</p><h1>Trace every benchmark claim back to a work.</h1><p class="lede">Filter creator papers, provider releases, and independent studies by benchmark relationship, realized scope, and reporting completeness.</p></header>
   <div class="shell section-tight">
-    <form class="explorer-controls paper-controls" id="paper-controls" role="search">
-      <div class="field"><label for="q">Search</label><input id="q" name="q" type="search" placeholder="paper title, author, organization…" /></div>
-      <div class="field"><label for="year">Year</label><select id="year" name="year"><option value="">All years</option>{years.map((year) => <option value={year}>{year}</option>)}</select></div>
-      <div class="field"><label for="work-type">Work type</label><select id="work-type" name="type"><option value="">All work types</option>{workTypes.map((type) => <option value={type}>{type}</option>)}</select></div>
-      <div class="field"><label for="source-class">Source class</label><select id="source-class" name="source"><option value="">All source classes</option>{sourceClasses.map((source) => <option value={source}>{source.replaceAll('_', ' ')}</option>)}</select></div>
-      <div class="field"><label for="benchmark">Benchmark</label><select id="benchmark" name="benchmark"><option value="">All benchmarks</option>{usedBenchmarkIds.map((id) => <option value={id}>{benchmarkMap.get(id)?.name ?? id}</option>)}</select></div>
-      <div class="field"><label for="relation">Relation</label><select id="relation" name="relation"><option value="">All relations</option>{relations.map((relation) => <option value={relation}>{relation.replaceAll('-', ' ')}</option>)}</select></div>
-      <div class="field"><label for="scope">Scope</label><select id="scope" name="scope"><option value="">All scopes</option>{scopes.map((scope) => <option value={scope}>{scope}</option>)}</select></div>
-      <div class="field"><label for="completeness">Completeness</label><select id="completeness" name="completeness"><option value="">All completeness</option><option value="normalized">Normalized</option><option value="partial">Partial</option><option value="non-evaluation">Non-evaluation</option></select></div>
-      <div class="field"><label for="review-method">Review method</label><select id="review-method" name="review"><option value="">All review methods</option>{reviewMethods.map((method) => <option value={method}>{method.replaceAll('-', ' ')}</option>)}</select></div>
+    <form class="explorer-form" id="paper-controls" role="search">
+      <div class="explorer-controls paper-controls">
+        <div class="field"><label for="q">Search</label><input id="q" name="q" type="search" placeholder="paper title, author, organization…" /></div>
+        <div class="field"><label for="benchmark">Benchmark</label><select id="benchmark" name="benchmark"><option value="">All benchmarks</option>{usedBenchmarkIds.map((id) => <option value={id}>{benchmarkMap.get(id)?.name ?? id}</option>)}</select></div>
+        <div class="field"><label for="year">Year</label><select id="year" name="year"><option value="">All years</option>{years.map((year) => <option value={year}>{year}</option>)}</select></div>
+        <div class="field"><label for="source-class">Source class</label><select id="source-class" name="source"><option value="">All source classes</option>{sourceClasses.map((source) => <option value={source}>{source.replaceAll('_', ' ')}</option>)}</select></div>
+      </div>
+      <details class="advanced-filters" data-advanced-filter>
+        <summary>Advanced filters <span data-advanced-count></span></summary>
+        <div class="explorer-controls advanced-controls paper-advanced-controls">
+          <div class="field"><label for="work-type">Work type</label><select id="work-type" name="type"><option value="">All work types</option>{workTypes.map((type) => <option value={type}>{type}</option>)}</select></div>
+          <div class="field"><label for="relation">Relation</label><select id="relation" name="relation"><option value="">All relations</option>{relations.map((relation) => <option value={relation}>{relation.replaceAll('-', ' ')}</option>)}</select></div>
+          <div class="field"><label for="scope">Scope</label><select id="scope" name="scope"><option value="">All scopes</option>{scopes.map((scope) => <option value={scope}>{scope}</option>)}</select></div>
+          <div class="field"><label for="completeness">Completeness</label><select id="completeness" name="completeness"><option value="">All completeness</option><option value="normalized">Normalized</option><option value="partial">Partial</option><option value="non-evaluation">Non-evaluation</option></select></div>
+          <div class="field"><label for="review-method">Review method</label><select id="review-method" name="review"><option value="">All review methods</option>{reviewMethods.map((method) => <option value={method}>{method.replaceAll('-', ' ')}</option>)}</select></div>
+        </div>
+      </details>
     </form>
     <p class="small muted"><strong id="paper-count">{rows.length}</strong> works · <a href={withBase('/data/works.csv')} download>Download works CSV</a> · <a href={withBase('/data/benchmark-uses.csv')} download>Download benchmark-use CSV</a></p>
-    <div class="table-wrap"><table id="paper-table"><thead><tr><th>Work</th><th>Type / source</th><th>Published</th><th>Review</th><th>Benchmark usage</th><th>Completeness</th></tr></thead><tbody>
+    <div class="table-wrap desktop-record-table"><table id="paper-table"><thead><tr><th>Work</th><th>Type / source</th><th>Published</th><th>Review</th><th>Benchmark usage</th><th>Completeness</th></tr></thead><tbody>
       {rows.map(({ work, uses, completeness, reviewMethod }) => <tr
+        data-record-id={work.id}
         data-search={`${work.title} ${work.authors.join(' ')} ${work.organizations.join(' ')}`.toLowerCase()}
         data-year={work.publication_date.slice(0,4)} data-type={work.work_type} data-source={work.source_class}
         data-benchmarks={uses.map((use) => use.benchmark_id).join(' ')} data-relations={uses.map((use) => use.relation_type).join(' ')} data-scopes={uses.map((use) => use.scope.type).join(' ')} data-completeness={completeness} data-review={reviewMethod}>
@@ -46,17 +54,37 @@ const rows = data.works.map((work) => {
         <td><span class:list={['usage-badge', completeness]}>{completeness.replaceAll('-', ' ')}</span></td>
       </tr>)}
     </tbody></table></div><p id="paper-empty" class="callout" hidden>No work matches this filter combination.</p>
+    <div class="mobile-records" data-mobile-records>
+      {rows.map(({ work, uses, completeness, reviewMethod }) => {
+        const uniqueBenchmarks = [...new Set(uses.map((use) => use.benchmark_id))];
+        const uniqueRelations = [...new Set(uses.map((use) => use.relation_type.replaceAll('-', ' ')))];
+        return <article class="record-card" data-mobile-record data-record-id={work.id}
+          data-search={`${work.title} ${work.authors.join(' ')} ${work.organizations.join(' ')}`.toLowerCase()}
+          data-year={work.publication_date.slice(0,4)} data-type={work.work_type} data-source={work.source_class}
+          data-benchmarks={uses.map((use) => use.benchmark_id).join(' ')} data-relations={uses.map((use) => use.relation_type).join(' ')} data-scopes={uses.map((use) => use.scope.type).join(' ')} data-completeness={completeness} data-review={reviewMethod}>
+          <h2><a href={withBase(`/works/${work.id}/`)}>{work.title}</a></h2>
+          <p class="small muted">{work.organizations.join(' · ') || work.authors.slice(0, 3).join(', ')}</p>
+          <div class="record-meta"><span>{work.publication_date}</span><span>{work.work_type}</span><span>{work.source_class.replaceAll('_', ' ')}</span></div>
+          <div class="tag-list"><span class:list={['usage-badge', completeness]}>{completeness.replaceAll('-', ' ')}</span>{work.review_provenance ? <span class="usage-badge normalized">AI-assisted</span> : <span class="tag">manual review</span>}</div>
+          <div class="record-stats"><div><small>Benchmark usage</small><strong>{uniqueBenchmarks.length}</strong></div><div><small>Relations</small><span class="small">{uniqueRelations.join(', ') || 'Metadata only'}</span></div></div>
+        </article>;
+      })}
+    </div>
   </div>
   <script>
     const form = document.querySelector<HTMLFormElement>('#paper-controls')!;
     const rows = [...document.querySelectorAll<HTMLTableRowElement>('#paper-table tbody tr')];
+    const cards = new Map([...document.querySelectorAll<HTMLElement>('[data-mobile-record]')].map((card) => [card.dataset.recordId, card]));
     const count = document.querySelector<HTMLElement>('#paper-count')!;
     const empty = document.querySelector<HTMLElement>('#paper-empty')!;
+    const advanced = form.querySelector<HTMLDetailsElement>('[data-advanced-filter]')!;
+    const advancedCount = advanced.querySelector<HTMLElement>('[data-advanced-count]')!;
     const params = new URLSearchParams(location.search);
     for (const name of ['q', 'year', 'type', 'source', 'benchmark', 'relation', 'scope', 'completeness', 'review']) {
       const control = form.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement;
       control.value = params.get(name) ?? '';
     }
+    advanced.open = ['type', 'relation', 'scope', 'completeness', 'review'].some((name) => Boolean(params.get(name)));
     function update() {
       const values = Object.fromEntries(new FormData(form)) as Record<string, string>;
       let visible = 0;
@@ -69,8 +97,12 @@ const rows = data.works.map((work) => {
           && (!values.completeness || row.dataset.completeness === values.completeness)
           && (!values.review || row.dataset.review === values.review);
         row.hidden = !match;
+        const card = cards.get(row.dataset.recordId);
+        if (card) card.hidden = !match;
         if (match) visible += 1;
       });
+      const activeAdvanced = ['type', 'relation', 'scope', 'completeness', 'review'].filter((name) => values[name]).length;
+      advancedCount.textContent = activeAdvanced ? `(${activeAdvanced})` : '';
       count.textContent = String(visible); empty.hidden = visible !== 0;
       const next = new URLSearchParams(); Object.entries(values).forEach(([key, value]) => value && next.set(key, value));
       history.replaceState(null, '', `${location.pathname}${next.size ? `?${next}` : ''}`);

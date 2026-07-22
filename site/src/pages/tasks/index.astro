@@ -37,22 +37,30 @@ const gaps = focusObjectIds.map((id) => {
 });
 ---
 <Layout title="Scientific Task Atlas" canonicalPath="/tasks/">
-  <header class="page-head shell">
+  <header class="page-head page-head--compact shell">
     <p class="eyebrow">Scientific Task Atlas</p>
     <h1>What scientific problem does each benchmark actually test?</h1>
     <p class="lede">Separate protein folding from sequence design, PPI from protein-ligand binding, and DNA, RNA, small-molecule, cellular, omics, and workflow tasks. Counts keep their original units and evidence.</p>
   </header>
   <div class="shell section-tight">
-    <form class="explorer-controls" id="task-controls" role="search">
-      <div class="field"><label for="q">Search</label><input id="q" name="q" type="search" placeholder="folding, PPI, docking, RNA design…" /></div>
-      <div class="field"><label for="object">Object</label><select id="object" name="object"><option value="">All objects</option>{objects.map((term) => <option value={term.id}>{term.label}</option>)}</select></div>
-      <div class="field"><label for="family">Task family</label><select id="family" name="family"><option value="">All task families</option>{families.map((term) => <option value={term.id}>{term.label}</option>)}</select></div>
-      <div class="field"><label for="domain">Domain</label><select id="domain" name="domain"><option value="">All domains</option>{domains.map((term) => <option value={term.id}>{term.label}</option>)}</select></div>
-      <div class="field"><label for="coverage">Coverage</label><select id="coverage" name="coverage"><option value="">All statuses</option><option value="covered">Any positive coverage</option><option value="gap">Registry gap</option><option value="explicitly-in-scope">Explicitly in scope</option><option value="observed">Observed</option><option value="not-in-scope">Explicitly not in scope</option></select></div>
+    <form class="explorer-form" id="task-controls" role="search">
+      <div class="explorer-controls explorer-controls--tasks">
+        <div class="field"><label for="q">Search</label><input id="q" name="q" type="search" placeholder="folding, PPI, docking, RNA design…" /></div>
+        <div class="field"><label for="object">Scientific object</label><select id="object" name="object"><option value="">All objects</option>{objects.map((term) => <option value={term.id}>{term.label}</option>)}</select></div>
+        <div class="field"><label for="family">Task family</label><select id="family" name="family"><option value="">All task families</option>{families.map((term) => <option value={term.id}>{term.label}</option>)}</select></div>
+      </div>
+      <details class="advanced-filters" data-advanced-filter>
+        <summary>Advanced filters <span data-advanced-count></span></summary>
+        <div class="explorer-controls advanced-controls">
+          <div class="field"><label for="domain">Domain</label><select id="domain" name="domain"><option value="">All domains</option>{domains.map((term) => <option value={term.id}>{term.label}</option>)}</select></div>
+          <div class="field"><label for="coverage">Coverage</label><select id="coverage" name="coverage"><option value="">All statuses</option><option value="covered">Any positive coverage</option><option value="gap">Registry gap</option><option value="explicitly-in-scope">Explicitly in scope</option><option value="observed">Observed</option><option value="not-in-scope">Explicitly not in scope</option></select></div>
+        </div>
+      </details>
     </form>
     <p class="small muted"><strong id="task-count">{taskRows.length}</strong> task terms · Parent rows roll up their leaf tasks · <a href={withBase('/data/scientific-task-coverage.csv')} download>Download coverage CSV</a></p>
-    <div class="table-wrap"><table id="task-table"><thead><tr><th>Scientific task</th><th>Object / family</th><th>Coverage</th><th>Tracks</th><th>Official works</th></tr></thead><tbody>
+    <div class="table-wrap desktop-record-table"><table id="task-table"><thead><tr><th>Scientific task</th><th>Object / family</th><th>Coverage</th><th>Tracks</th><th>Official works</th></tr></thead><tbody>
       {taskRows.map(({ task, familyIds, trackIds, workIds, domainIds, statuses }) => <tr
+        data-record-id={task.id}
         data-search={`${task.id} ${task.label} ${task.label_zh} ${task.aliases.join(' ')} ${task.deprecated_aliases.join(' ')}`.toLowerCase()}
         data-objects={task.object_ids.join(' ')} data-family={task.task_family_id} data-domains={domainIds.join(' ')} data-statuses={statuses.join(' ')} data-covered={familyIds.length > 0 ? 'yes' : 'no'}>
         <td><a href={withBase(`/tasks/${task.id}/`)}>{task.label}</a><br/><span class="small muted" lang="zh-CN">{task.label_zh}</span>{task.parent_id && <><br/><span class="small muted">Child of {termMaps.scientific_tasks.get(task.parent_id)?.label}</span></>}</td>
@@ -61,6 +69,18 @@ const gaps = focusObjectIds.map((id) => {
         <td>{trackIds.length}</td><td>{workIds.length}</td>
       </tr>)}
     </tbody></table></div>
+    <div class="mobile-records" data-mobile-records>
+      {taskRows.map(({ task, familyIds, trackIds, workIds, domainIds, statuses }) => <article class="record-card" data-mobile-record data-record-id={task.id}
+        data-search={`${task.id} ${task.label} ${task.label_zh} ${task.aliases.join(' ')} ${task.deprecated_aliases.join(' ')}`.toLowerCase()}
+        data-objects={task.object_ids.join(' ')} data-family={task.task_family_id} data-domains={domainIds.join(' ')} data-statuses={statuses.join(' ')} data-covered={familyIds.length > 0 ? 'yes' : 'no'}>
+        <h2><a href={withBase(`/tasks/${task.id}/`)}>{task.label}</a></h2>
+        <p class="small muted" lang="zh-CN">{task.label_zh}</p>
+        {task.parent_id && <p class="small muted">Child of {termMaps.scientific_tasks.get(task.parent_id)?.label}</p>}
+        <div class="record-meta"><span>{task.object_ids.map((id) => termMaps.scientific_objects.get(id)?.label ?? id).join(', ')}</span><span>{termMaps.task_families.get(task.task_family_id)?.label ?? task.task_family_id}</span></div>
+        <div class="tag-list">{familyIds.length ? <span class="usage-badge normalized">Covered by {familyIds.length} {familyIds.length === 1 ? 'family' : 'families'}</span> : <span class="usage-badge partial">Coverage gap</span>}</div>
+        <div class="record-stats"><div><small>Formal tracks</small><strong>{trackIds.length}</strong></div><div><small>Official works</small><strong>{workIds.length}</strong></div></div>
+      </article>)}
+    </div>
     <p id="task-empty" class="callout" hidden>No Scientific Task matches this filter combination.</p>
   </div>
   <div class="shell section grid two">
@@ -70,13 +90,17 @@ const gaps = focusObjectIds.map((id) => {
   <script>
     const form = document.querySelector<HTMLFormElement>('#task-controls')!;
     const rows = [...document.querySelectorAll<HTMLTableRowElement>('#task-table tbody tr')];
+    const cards = new Map([...document.querySelectorAll<HTMLElement>('[data-mobile-record]')].map((card) => [card.dataset.recordId, card]));
     const count = document.querySelector<HTMLElement>('#task-count')!;
     const empty = document.querySelector<HTMLElement>('#task-empty')!;
+    const advanced = form.querySelector<HTMLDetailsElement>('[data-advanced-filter]')!;
+    const advancedCount = advanced.querySelector<HTMLElement>('[data-advanced-count]')!;
     const params = new URLSearchParams(location.search);
     for (const name of ['q', 'object', 'family', 'domain', 'coverage']) {
       const control = form.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement;
       control.value = params.get(name) ?? '';
     }
+    advanced.open = ['domain', 'coverage'].some((name) => Boolean(params.get(name)));
     function update() {
       const values = Object.fromEntries(new FormData(form)) as Record<string, string>;
       let visible = 0;
@@ -91,8 +115,12 @@ const gaps = focusObjectIds.map((id) => {
           && (!values.domain || row.dataset.domains?.split(' ').includes(values.domain))
           && coverageMatch;
         row.hidden = !match;
+        const card = cards.get(row.dataset.recordId);
+        if (card) card.hidden = !match;
         if (match) visible += 1;
       });
+      const activeAdvanced = ['domain', 'coverage'].filter((name) => values[name]).length;
+      advancedCount.textContent = activeAdvanced ? `(${activeAdvanced})` : '';
       count.textContent = String(visible);
       empty.hidden = visible !== 0;
       const next = new URLSearchParams();

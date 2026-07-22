@@ -11,7 +11,9 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
+  # A completed Validate run on a PR also starts this workflow before the build
+  # job is skipped. Keep those wrapper runs from cancelling a main deployment.
+  group: pages-${{ github.event.workflow_run.head_branch }}
   cancel-in-progress: true
 
 jobs:

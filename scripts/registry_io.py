@@ -17,6 +17,7 @@ ENTITY_DIRS = {
     "work": REGISTRY_DIR / "works",
     "model": REGISTRY_DIR / "models",
     "evaluation_run": REGISTRY_DIR / "evaluations",
+    "benchmark_use": REGISTRY_DIR / "benchmark_uses",
 }
 
 
@@ -77,6 +78,27 @@ def load_entities() -> dict[str, list[dict[str, Any]]]:
                     f"found {entity.get('entity_type')!r}"
                 )
             loaded[expected_type].append(entity)
+
+    work_by_id = {item["id"]: item for item in loaded["work"]}
+    for work in loaded["work"]:
+        if "source_versions" not in work:
+            version_id = f"{work['id']}-{work['publication_date']}"
+            work["source_versions"] = [{
+                "id": version_id,
+                "label": "Canonical source",
+                "status": "current",
+                "publication_date": work["publication_date"],
+                "canonical_url": work["canonical_url"],
+                "doi": work["doi"],
+                "arxiv": work["arxiv"],
+            }]
+            work["current_version_id"] = version_id
+    for run in loaded["evaluation_run"]:
+        run.setdefault("work_version_id", work_by_id[run["work_id"]]["current_version_id"])
+        run["scope"].setdefault("selection", None)
+        for metric in run["metrics"]:
+            metric.setdefault("kind", "absolute")
+            metric.setdefault("baseline_model_id", None)
 
     classifications = load_scientific_task_classifications()
     benchmarks = {item["id"]: item for item in loaded["benchmark"]}

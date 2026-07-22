@@ -26,7 +26,12 @@ def test_registry_validates_and_has_v1_depth() -> None:
     assert {work["source_class"] for work in entities["work"]} <= {
         "benchmark_creator",
         "official_model_provider",
+        "independent_reproduction",
     }
+    assert all(work["current_version_id"] in {version["id"] for version in work["source_versions"]} for work in entities["work"])
+    assert all(run["work_version_id"] for run in entities["evaluation_run"])
+    assert all("selection" in run["scope"] for run in entities["evaluation_run"])
+    assert all(metric["kind"] in {"absolute", "delta"} for run in entities["evaluation_run"] for metric in run["metrics"])
 
 
 def test_lifescibench_protein_and_binding_contract() -> None:
@@ -46,7 +51,7 @@ def test_lifescibench_protein_and_binding_contract() -> None:
     assert notes["protein-protein-binding"]["reporting_status"] == "not_reported"
     assert run["benchmark_version"] == "initial-release"
     assert run["scope"] == {
-        "type": "full", "n": 750, "subset_id": None, "filter": None, "reporting_status": "reported",
+        "type": "full", "n": 750, "subset_id": None, "filter": None, "selection": None, "reporting_status": "reported",
     }
     assert run["protocol"]["turns"]["value"] == "single-turn"
     assert run["protocol"]["tools"]["internet"]["value"] is True
@@ -84,7 +89,7 @@ def test_proteingym_versions_counts_binding_and_protocol() -> None:
     assert run["benchmark_id"] == "proteingym-dms-substitutions"
     assert run["scope"] == {
         "type": "full", "n": 217, "subset_id": None, "filter": None,
-        "reporting_status": "reported",
+        "selection": None, "reporting_status": "reported",
     }
     assert {item["metric_id"] for item in run["metrics"]} == {
         "spearman-correlation", "auc-roc", "matthews-correlation",
@@ -315,7 +320,7 @@ def test_proteinlmbench_pins_release_resolves_choice_counts_and_registers_table3
     assert run["scope"] == {
         "type": "full", "n": 944, "subset_id": None,
         "filter": "All 944 paper-defined ProteinLMBench questions; the paper does not pin an exact Hugging Face commit.",
-        "reporting_status": "reported",
+        "selection": None, "reporting_status": "reported",
     }
     assert run["protocol"]["shots"]["value"] == 0
     assert run["protocol"]["temperature"]["value"] == 0.1
@@ -1022,7 +1027,7 @@ def test_scigym_separates_released_splits_and_creator_protocols() -> None:
     assert main["scope"] == {
         "type": "full", "n": 137, "subset_id": None,
         "filter": "All 137 systems in the official small split, each having fewer than ten reactions.",
-        "reporting_status": "reported",
+        "selection": None, "reporting_status": "reported",
     }
     assert main["protocol"]["turns"]["value"] == "multi-turn"
     assert main["protocol"]["tools"]["code_execution"]["value"] is True
@@ -1099,7 +1104,7 @@ def test_build_is_deterministic_and_surfaces_match() -> None:
         ROOT / "site" / "public" / "data" / "registry.json"
     ).read_bytes()
     payload = json.loads((ROOT / "exports" / "registry.json").read_text(encoding="utf-8"))
-    assert payload["meta"]["version"] == "1.2.0"
+    assert payload["meta"]["version"] == "1.3.0-dev"
     assert all("model_ids" in run for run in payload["evaluation_runs"])
 
 

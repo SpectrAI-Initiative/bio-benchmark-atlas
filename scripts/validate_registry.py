@@ -411,9 +411,43 @@ def validate_registry() -> dict[str, list[dict[str, Any]]]:
             by_type[entity_type][entity_id] = entity
 
     resource_by_id: dict[str, tuple[str, dict[str, Any]]] = {}
+    work_version_by_id: dict[str, tuple[str, dict[str, Any]]] = {}
     version_ids: dict[str, str] = {}
     evidence_by_id: dict[str, tuple[str, dict[str, Any]]] = {}
     permanent_ids = set(global_ids)
+    identifier_owners: dict[tuple[str, str], str] = {}
+    for work in entities["work"]:
+        version_ids_for_work = {item["id"] for item in work["source_versions"]}
+        if len(version_ids_for_work) != len(work["source_versions"]):
+            raise RegistryValidationError(f"{work['id']}: duplicate source version IDs")
+        if work["current_version_id"] not in version_ids_for_work:
+            raise RegistryValidationError(
+                f"{work['id']}: current_version_id does not reference a source version"
+            )
+        current = next(
+            item for item in work["source_versions"] if item["id"] == work["current_version_id"]
+        )
+        if current["status"] == "superseded":
+            raise RegistryValidationError(f"{work['id']}: current source version is superseded")
+        for version in work["source_versions"]:
+            if version["id"] in permanent_ids:
+                raise RegistryValidationError(f"duplicate permanent ID {version['id']!r}")
+            permanent_ids.add(version["id"])
+            work_version_by_id[version["id"]] = (work["id"], version)
+        for kind, raw_value in (
+            ("doi", work["doi"]), ("arxiv", work["arxiv"]),
+            ("canonical_url", work["canonical_url"]),
+        ):
+            if raw_value is None:
+                continue
+            value = raw_value.strip().lower().rstrip("/")
+            key = (kind, value)
+            owner = identifier_owners.get(key)
+            if owner is not None and owner != work["id"]:
+                raise RegistryValidationError(
+                    f"{work['id']}: duplicate {kind} identifier also used by {owner}"
+                )
+            identifier_owners[key] = work["id"]
     for benchmark in entities["benchmark"]:
         for resource in benchmark["resources"]:
             resource_id = resource.get("id")
@@ -427,7 +461,7 @@ def validate_registry() -> dict[str, list[dict[str, Any]]]:
                 raise RegistryValidationError(f"duplicate permanent ID {version['id']!r}")
             permanent_ids.add(version["id"])
             version_ids[version["id"]] = benchmark["id"]
-    for entity_type in ("benchmark", "evaluation_run"):
+    for entity_type in ("benchmark", "evaluation_run", "benchmark_use"):
         for entity in entities[entity_type]:
             for evidence in entity["evidence"]:
                 evidence_id = evidence.get("id")
@@ -575,13 +609,13 @@ def validate_registry() -> dict[str, list[dict[str, Any]]]:
                 f"{work['id']}: source class {work['source_class']} is not publishable in v1"
             )
 
-    for entity_type in ("benchmark", "evaluation_run"):
+    for entity_type in ("benchmark", "evaluation_run", "benchmark_use"):
         for entity in entities[entity_type]:
             audited = (
                 entity_type == "benchmark"
                 and entity.get("audit", {}).get("status") in AUDITED_STATUSES
             ) or (
-                entity_type == "evaluation_run"
+                entity_type in {"evaluation_run", "benchmark_use"}
                 and by_type["benchmark"][entity["benchmark_id"]].get("audit", {}).get("status")
                 in AUDITED_STATUSES
             )
@@ -625,11 +659,31 @@ def validate_registry() -> dict[str, list[dict[str, Any]]]:
             raise RegistryValidationError(f"{run['id']}: missing work {run['work_id']}")
         if run["benchmark_id"] not in by_type["benchmark"]:
             raise RegistryValidationError(f"{run['id']}: missing benchmark {run['benchmark_id']}")
+        work_version = work_version_by_id.get(run["work_version_id"])
+        if work_version is None or work_version[0] != run["work_id"]:
+            raise RegistryValidationError(
+                f"{run['id']}: work_version_id does not belong to work {run['work_id']}"
+            )
         metric_ids = {metric["metric_id"] for metric in run["metrics"]}
         if len(metric_ids) != len(run["metrics"]):
             raise RegistryValidationError(f"{run['id']}: duplicate metric IDs")
         benchmark = by_type["benchmark"][run["benchmark_id"]]
         benchmark_audited = benchmark.get("audit", {}).get("status") in AUDITED_STATUSES
+        for metric in run["metrics"]:
+            baseline_model_id = metric["baseline_model_id"]
+            if metric["kind"] == "delta":
+                if baseline_model_id is None:
+                    raise RegistryValidationError(
+                        f"{run['id']}: delta metric {metric['metric_id']} requires baseline_model_id"
+                    )
+                if baseline_model_id not in by_type["model"]:
+                    raise RegistryValidationError(
+                        f"{run['id']}: delta metric references missing baseline model {baseline_model_id}"
+                    )
+            elif baseline_model_id is not None:
+                raise RegistryValidationError(
+                    f"{run['id']}: absolute metric {metric['metric_id']} cannot declare a baseline model"
+                )
         for model_id in run.get("model_ids", []):
             if model_id not in by_type["model"]:
                 raise RegistryValidationError(f"{run['id']}: missing evaluated model {model_id}")
@@ -722,10 +776,17 @@ def validate_registry() -> dict[str, list[dict[str, Any]]]:
             raise RegistryValidationError(f"{run['id']}: scope n exceeds benchmark total")
         subset_counts = run_version["task_counts"] if run_version is not None else benchmark["task_counts"]
         subset_ids = {item["id"] for item in subset_counts["subsets"]}
-        if scope["subset_id"] is not None and scope["subset_id"] not in subset_ids:
-            raise RegistryValidationError(f"{run['id']}: scope references missing subset {scope['subset_id']}")
         if scope["type"] == "subset" and (scope["subset_id"] is None or scope["n"] is None):
             raise RegistryValidationError(f"{run['id']}: subset scope requires subset_id and realized n")
+        if scope["subset_id"] is not None and scope["subset_id"] not in subset_ids:
+            if scope["selection"] in {None, "formal-subset"}:
+                raise RegistryValidationError(
+                    f"{run['id']}: formal subset references missing subset {scope['subset_id']}"
+                )
+            if scope["n"] is None or not scope["filter"]:
+                raise RegistryValidationError(
+                    f"{run['id']}: paper-specific subset requires n and a selection method"
+                )
 
         supports = {path for evidence in run["evidence"] for path in evidence["supports"]}
         if not any(path in {"scope", "/scope"} or path.startswith(("scope.", "/scope/")) for path in supports):
@@ -751,6 +812,63 @@ def validate_registry() -> dict[str, list[dict[str, Any]]]:
             raise RegistryValidationError(
                 f"comparability group {group!r} mixes incompatible benchmark/version/scope/metrics"
             )
+
+    for use in entities["benchmark_use"]:
+        if use["work_id"] not in by_type["work"]:
+            raise RegistryValidationError(f"{use['id']}: missing work {use['work_id']}")
+        if use["benchmark_id"] not in by_type["benchmark"]:
+            raise RegistryValidationError(
+                f"{use['id']}: missing benchmark {use['benchmark_id']}"
+            )
+        work_version = work_version_by_id.get(use["work_version_id"])
+        if work_version is None or work_version[0] != use["work_id"]:
+            raise RegistryValidationError(
+                f"{use['id']}: work_version_id does not belong to work {use['work_id']}"
+            )
+        for model_id in use["model_ids"]:
+            if model_id not in by_type["model"]:
+                raise RegistryValidationError(f"{use['id']}: missing model {model_id}")
+        linked_runs = []
+        for run_id in use["evaluation_run_ids"]:
+            run = by_type["evaluation_run"].get(run_id)
+            if run is None:
+                raise RegistryValidationError(f"{use['id']}: missing evaluation run {run_id}")
+            if run["work_id"] != use["work_id"] or run["benchmark_id"] != use["benchmark_id"]:
+                raise RegistryValidationError(
+                    f"{use['id']}: linked run {run_id} belongs to another work or benchmark"
+                )
+            linked_runs.append(run)
+        if use["status"] == "normalized" and not linked_runs:
+            raise RegistryValidationError(f"{use['id']}: normalized use requires a linked run")
+        if use["status"] == "partial":
+            if not use["reporting_gaps"]:
+                raise RegistryValidationError(f"{use['id']}: partial use requires reporting_gaps")
+            if linked_runs:
+                raise RegistryValidationError(
+                    f"{use['id']}: partial use cannot masquerade as a normalized run"
+                )
+        if use["status"] == "non-evaluation" and use["relation_type"] in {
+            "evaluation", "external-result-summary",
+        }:
+            raise RegistryValidationError(
+                f"{use['id']}: evaluation relation cannot have non-evaluation status"
+            )
+        if use["relation_type"] in {"training", "fine-tuning", "validation", "model-selection"}:
+            if use["status"] != "non-evaluation" or linked_runs:
+                raise RegistryValidationError(
+                    f"{use['id']}: non-evaluation relation must not link evaluation runs"
+                )
+        scope = use["scope"]
+        if scope["type"] == "subset" and scope["subset_kind"] == "paper-specific":
+            if scope["n"] is None or scope["selection"] in {None, "formal-subset"} or not scope["selection_method"]:
+                raise RegistryValidationError(
+                    f"{use['id']}: paper-specific subset requires n, selection, and method"
+                )
+        if by_type["work"][use["work_id"]]["source_class"] == "independent_reproduction":
+            if not use["work_version_id"]:
+                raise RegistryValidationError(
+                    f"{use['id']}: independent work requires a versioned source"
+                )
 
     return entities
 

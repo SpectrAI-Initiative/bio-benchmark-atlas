@@ -56,4 +56,5 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           PR_URL: ${{ steps.pr.outputs.url }}
-        run: gh issue comment "$ISSUE_NUMBER" --body "Created a draft evidence-intake PR: ${PR_URL}. Identity matching is automated; benchmark relationships, settings, metrics, and results still require source-level review."
+        run: |
+          gh issue comment "$ISSUE_NUMBER" --body "Created a draft evidence-intake PR: ${PR_URL}. Identity matching is automated; benchmark relationships, settings, metrics, and results still require source-level review."

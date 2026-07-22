@@ -1,0 +1,39 @@
+name: Review a paper
+description: Submit a bio/chem paper for benchmark-use auditing and registry intake.
+title: "[Paper intake]: "
+labels: [paper-intake]
+body:
+  - type: input
+    id: url
+    attributes:
+      label: Paper or preprint URL
+      description: DOI, arXiv, bioRxiv, medRxiv, ChemRxiv, or publisher URL.
+    validations: {required: true}
+  - type: input
+    id: doi
+    attributes: {label: DOI (optional), description: Include the DOI when it is not obvious from the URL.}
+  - type: input
+    id: preprint
+    attributes: {label: arXiv or preprint ID (optional), description: Include a version suffix when relevant, for example 2512.21907v2.}
+  - type: input
+    id: title
+    attributes: {label: Title (optional), description: Useful when the linked page blocks metadata lookup.}
+  - type: textarea
+    id: benchmarks
+    attributes: {label: Possible benchmarks, description: List benchmark names you noticed; these are hints, not accepted claims.}
+  - type: textarea
+    id: locators
+    attributes: {label: Relevant tables, figures, or sections, description: Point reviewers to evaluation settings or result tables.}
+  - type: dropdown
+    id: new_benchmark
+    attributes:
+      label: Could this introduce a new benchmark?
+      options: [Unknown, Yes, No]
+    validations: {required: true}
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope confirmation
+      options:
+        - label: The paper is about life science, chemistry, bioinformatics, or an explicit bio/chem subset.
+          required: true

@@ -1,0 +1,59 @@
+name: Paper intake scaffold
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  scaffold:
+    if: contains(github.event.issue.labels.*.name, 'paper-intake')
+    runs-on: ubuntu-latest
+    concurrency: paper-intake-${{ github.event.issue.number }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.10', cache: pip}
+      - run: python -m pip install -e .
+      - name: Normalize identity and create a review scaffold
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          python scripts/triage_paper.py \
+            --issue-body "$ISSUE_BODY" \
+            --resolve \
+            --output "intake/papers/issue-${ISSUE_NUMBER}.yaml"
+      - name: Open a draft intake pull request
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          branch="paper-intake/issue-${ISSUE_NUMBER}"
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git checkout -b "$branch"
+          git add "intake/papers/issue-${ISSUE_NUMBER}.yaml"
+          git commit -m "chore(intake): scaffold paper issue #${ISSUE_NUMBER}"
+          git push origin "$branch"
+          pr_url=$(gh pr create \
+            --repo "$REPOSITORY" \
+            --base main \
+            --head "$branch" \
+            --draft \
+            --label paper-intake \
+            --title "Paper intake #${ISSUE_NUMBER}" \
+            --body "Automated identity and duplicate-check scaffold for #${ISSUE_NUMBER}. This PR is not production-ready until a human verifies the paper, replaces the intake scaffold with Registry entities, and sets production_ready only through reviewed evidence.")
+          echo "url=$pr_url" >> "$GITHUB_OUTPUT"
+      - name: Link the draft pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          PR_URL: ${{ steps.pr.outputs.url }}
+        run: gh issue comment "$ISSUE_NUMBER" --body "Created a draft evidence-intake PR: ${PR_URL}. Identity matching is automated; benchmark relationships, settings, metrics, and results still require source-level review."

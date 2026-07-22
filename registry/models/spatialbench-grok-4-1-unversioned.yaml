@@ -1,0 +1,9 @@
+entity_type: model
+id: spatialbench-grok-4-1-unversioned
+name: Grok-4.1 (SpatialBench paper label)
+provider: xAI
+release_date: null
+version_string: null
+version_status: not_reported
+aliases: [Grok-4.1]
+verification: {status: verified, last_verified: '2026-07-22', notes: "The paper reports only Grok-4.1, so it is kept separate from the repository's exact grok-4-1-fast-reasoning identity."}

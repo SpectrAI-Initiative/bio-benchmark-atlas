@@ -1,0 +1,22 @@
+entity_type: benchmark_use
+id: anthropic-scientific-figure-evaluation
+work_id: anthropic-healthcare-life-sciences
+work_version_id: anthropic-healthcare-life-sciences-2026-01-11
+benchmark_id: anthropic-scientific-figure-interpretation
+benchmark_version: reported-2026-01-11
+relation_type: evaluation
+status: normalized
+model_ids: [claude-opus-4-1, claude-sonnet-4-5, claude-opus-4-5]
+scope: {type: unknown, subset_kind: not-reported, n: null, subset_id: null, selection: null, selection_method: null, reporting_status: not_reported}
+metric_labels: [Accuracy delta]
+evaluation_run_ids: [anthropic-scientific-figure-delta]
+reporting_gaps: [task count, task data, grader, prompt, tools, repeats, absolute accuracy]
+notes: Only the exact Opus 4.5 improvement annotation is normalized; plotted absolute values are not estimated.
+verification: {status: verified, last_verified: '2026-07-22', notes: Exact relationship and delta are public while the underlying evaluation remains private.}
+evidence:
+  - id: anthropic-scientific-figure-evaluation-use-evidence
+    source_type: work
+    source_id: anthropic-healthcare-life-sciences
+    accessed_date: '2026-07-22'
+    locator: {type: figure, value: 'Evals for key life sciences tasks — Scientific figure interpretation', note: 'Shows Opus 4.1, Sonnet 4.5, Opus 4.5 and an exact +13.2% annotation.'}
+    supports: [/benchmark_version, /relation_type, /status, /model_ids, /scope, /metric_labels, /evaluation_run_ids, /reporting_gaps, /notes]

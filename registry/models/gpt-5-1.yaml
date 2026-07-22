@@ -1,0 +1,9 @@
+entity_type: model
+id: gpt-5-1
+name: GPT-5.1
+provider: OpenAI
+release_date: null
+version_string: GPT-5.1
+version_status: reported
+aliases: []
+verification: {status: verified, last_verified: '2026-07-22', notes: Exact SpatialBench source label; no dated endpoint snapshot is reported.}

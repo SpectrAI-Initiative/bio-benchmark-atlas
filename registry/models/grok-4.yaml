@@ -1,0 +1,9 @@
+entity_type: model
+id: grok-4
+name: Grok-4
+provider: xAI
+release_date: null
+version_string: Grok-4
+version_status: reported
+aliases: []
+verification: {status: verified, last_verified: '2026-07-22', notes: Exact SpatialBench source label; no dated endpoint snapshot is reported.}

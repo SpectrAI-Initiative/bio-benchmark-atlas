@@ -1,0 +1,41 @@
+entity_type: evaluation_run
+id: anthropic-scientific-figure-delta
+work_id: anthropic-healthcare-life-sciences
+work_version_id: anthropic-healthcare-life-sciences-2026-01-11
+benchmark_id: anthropic-scientific-figure-interpretation
+benchmark_version: reported-2026-01-11
+model_ids: [claude-opus-4-1, claude-sonnet-4-5, claude-opus-4-5]
+scope: {type: unknown, n: null, subset_id: null, filter: null, selection: null, reporting_status: not_reported}
+protocol:
+  shots: {value: null, reporting_status: not_reported, notes: Not reported.}
+  turns: {value: null, reporting_status: not_reported, notes: Not reported.}
+  system_prompt_public: {value: null, reporting_status: not_reported, notes: Not reported.}
+  reasoning: {value: null, reporting_status: not_reported, notes: Not reported for this benchmark direction.}
+  tools:
+    browser: {value: null, reporting_status: not_reported, notes: Not reported.}
+    internet: {value: null, reporting_status: not_reported, notes: Not reported.}
+    databases: {value: null, reporting_status: not_reported, notes: Not reported.}
+    code_execution: {value: null, reporting_status: not_reported, notes: Not reported.}
+    container: {value: null, reporting_status: not_reported, notes: Not reported.}
+    external_tools: {value: null, reporting_status: not_reported, notes: Not reported.}
+  token_budget: {value: null, reporting_status: not_reported, notes: Not reported.}
+  time_budget: {value: null, reporting_status: not_reported, notes: Not reported.}
+  temperature: {value: null, reporting_status: not_reported, notes: Not reported.}
+  seed: {value: null, reporting_status: not_reported, notes: Not reported.}
+  repeats: {value: null, reporting_status: not_reported, notes: Not reported.}
+  grader: {type: null, model: null, human_review: null, reporting_status: not_reported}
+  statistical: {value: null, reporting_status: not_reported, notes: No confidence interval or aggregation method is reported.}
+  contamination: {value: null, reporting_status: not_reported, notes: Not reported.}
+metrics:
+  - {metric_id: accuracy-delta, source_label: 'Accuracy improvement from Claude Opus 4.1 to Claude Opus 4.5', unit: percent delta as annotated, range: null, higher_is_better: true, aggregation: null, pass_threshold: null, tolerance: null, kind: delta, baseline_model_id: claude-opus-4-1}
+results:
+  - {model_id: claude-opus-4-5, metric_id: accuracy-delta, value: 13.2, ci_low: null, ci_high: null, n: null, notes: 'Exact +13.2% chart annotation; no absolute accuracy or relative-versus-percentage-point interpretation is inferred.', status: verified, confidence: high, evidence_ids: [anthropic-scientific-figure-delta-evidence]}
+comparability_group: anthropic-scientific-figure-delta
+verification: {status: verified, last_verified: '2026-07-22', notes: Only the labeled Opus 4.5 versus Opus 4.1 delta is normalized; plotted absolute positions are not digitized.}
+evidence:
+  - id: anthropic-scientific-figure-delta-evidence
+    source_type: work
+    source_id: anthropic-healthcare-life-sciences
+    accessed_date: '2026-07-22'
+    locator: {type: figure, value: 'Evals for key life sciences tasks — Scientific figure interpretation', note: 'Labels Accuracy (%) and annotates +13.2% from Opus 4.1 to Opus 4.5.'}
+    supports: [/benchmark_version, /model_ids, /scope, /protocol, /metrics, /results]

@@ -10,4 +10,4 @@ canonical_url: 'https://www.anthropic.com/news/claude-for-life-sciences'
 doi: null
 arxiv: null
 status: published
-verification: {status: verified, last_verified: '2026-07-21', notes: Official model-provider release with ProtocolQA evaluation details.}
+verification: {status: verified, last_verified: '2026-07-22', notes: Official model-provider release with ProtocolQA details and a partial BixBench comparison claim.}

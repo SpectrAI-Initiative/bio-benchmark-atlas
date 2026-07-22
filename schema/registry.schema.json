@@ -97,6 +97,7 @@
           "properties": {
             "id": {"$ref": "#/$defs/Id"}, "label": {"type": "string"}, "count": {"type": ["integer", "null"], "minimum": 0},
             "basis": {"type": "string"}, "exclusive": {"type": "boolean"}, "exhaustive": {"type": "boolean"},
+            "partition_group": {"anyOf": [{"$ref": "#/$defs/Id"}, {"type": "null"}]},
             "reporting_status": {"enum": ["reported", "not_reported"]}, "notes": {"type": ["string", "null"]}
           }
         }}

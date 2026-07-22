@@ -1,0 +1,141 @@
+entity_type: benchmark
+id: spatialbench
+name: SpatialBench
+aliases: [Spatial Bench]
+summary: A benchmark of deterministic, verifiable agentic problems derived from real spatial-transcriptomics workflows, testing whether agents can manipulate data and recover key biological results.
+kind: agentic-eval
+parent_id: null
+organizations: [LatchBio]
+release_date: '2025-12-26'
+latest_version: repo-159-5042c4f
+domains: [spatial-omics, transcriptomics, single-cell, bioinformatics]
+capabilities: [data-analysis, coding, tool-use, scientific-reasoning]
+modalities: [text, table, figure, raw-omics, image, code]
+task_formats: [containerized spatial-biology analysis problem, deterministic graded agent episode]
+task_counts: &current-counts
+  total: 159
+  basis: evaluations in the official repository snapshot at commit 5042c4f3ee597da1590650c7b894d068ae968e26
+  reporting_status: reported
+  subsets:
+    - {id: spatialbench-159-cell-typing, label: Cell typing, count: 45, basis: official category_results.json n_evals, exclusive: true, exhaustive: true, partition_group: task-category, reporting_status: reported, notes: Category partition of the 159 evaluations.}
+    - {id: spatialbench-159-clustering, label: Clustering, count: 3, basis: official category_results.json n_evals, exclusive: true, exhaustive: true, partition_group: task-category, reporting_status: reported, notes: Category partition of the 159 evaluations.}
+    - {id: spatialbench-159-differential-expression, label: Differential expression, count: 40, basis: official category_results.json n_evals, exclusive: true, exhaustive: true, partition_group: task-category, reporting_status: reported, notes: Category partition of the 159 evaluations.}
+    - {id: spatialbench-159-dimensionality-reduction, label: Dimensionality reduction, count: 11, basis: official category_results.json n_evals, exclusive: true, exhaustive: true, partition_group: task-category, reporting_status: reported, notes: Category partition of the 159 evaluations.}
+    - {id: spatialbench-159-normalization, label: Normalization, count: 7, basis: official category_results.json n_evals, exclusive: true, exhaustive: true, partition_group: task-category, reporting_status: reported, notes: Category partition of the 159 evaluations.}
+    - {id: spatialbench-159-qc, label: Quality control, count: 17, basis: official category_results.json n_evals, exclusive: true, exhaustive: true, partition_group: task-category, reporting_status: reported, notes: Category partition of the 159 evaluations.}
+    - {id: spatialbench-159-spatial-analysis, label: Spatial analysis, count: 36, basis: official category_results.json n_evals, exclusive: true, exhaustive: true, partition_group: task-category, reporting_status: reported, notes: Category partition of the 159 evaluations.}
+    - {id: spatialbench-159-atlasxomics, label: AtlasXOmics, count: 32, basis: official platform_results.json n_evals, exclusive: true, exhaustive: true, partition_group: platform, reporting_status: reported, notes: Platform partition of the same 159 evaluations; never added to category counts.}
+    - {id: spatialbench-159-curio, label: Curio, count: 34, basis: official platform_results.json n_evals, exclusive: true, exhaustive: true, partition_group: platform, reporting_status: reported, notes: Platform partition of the same 159 evaluations; never added to category counts.}
+    - {id: spatialbench-159-merfish, label: MERFISH / Vizgen, count: 33, basis: official platform_results.json merfish n_evals, exclusive: true, exhaustive: true, partition_group: platform, reporting_status: reported, notes: The result artifact uses merfish while the README names the vendor/platform as Vizgen.}
+    - {id: spatialbench-159-visium, label: Visium, count: 30, basis: official platform_results.json n_evals, exclusive: true, exhaustive: true, partition_group: platform, reporting_status: reported, notes: Platform partition of the same 159 evaluations; never added to category counts.}
+    - {id: spatialbench-159-xenium, label: Xenium, count: 30, basis: official platform_results.json n_evals, exclusive: true, exhaustive: true, partition_group: platform, reporting_status: reported, notes: Platform partition of the same 159 evaluations; never added to category counts.}
+coverage_notes:
+  - {tag: spatial-omics, coverage: explicitly-in-scope, count: 159, reporting_status: reported, notes: Every current evaluation is drawn from a spatial transcriptomics workflow.}
+  - {tag: transcriptomics, coverage: explicitly-in-scope, count: 159, reporting_status: reported, notes: The official release describes all five platforms as spatial transcriptomics technologies.}
+  - {tag: single-cell, coverage: observed, count: null, reporting_status: not_reported, notes: 'Cell typing and clustering are explicit categories, but a standalone single-cell-only count is not published.'}
+access:
+  level: partially-open
+  tasks: The full 159-evaluation set is withheld to reduce contamination; a representative sample covering every platform type and task category is public.
+  artifacts: The repository releases example evaluations, representative trajectories, deterministic grader code, methods, and aggregate full-suite results.
+  grader: Five deterministic grader families cover numeric tolerance, multiple choice, marker-gene precision/recall, label-set Jaccard, and distribution comparison.
+  license: Apache-2.0 for the official repository; full withheld benchmark artifacts have no separately published redistribution grant
+  biosafety_notes: The tasks analyze spatial biology datasets. This registry stores only metadata and result summaries and mirrors neither withheld data nor trajectories.
+resources:
+  - id: spatialbench-paper-resource
+    type: paper
+    url: https://arxiv.org/pdf/2512.21907v2
+    license: null
+    access_notes: Version 2 creator preprint with the complete 146-evaluation inventory and printed result tables.
+    last_checked: '2026-07-22'
+    pin: {kind: snapshot, value: 'sha256:2ffd1b523bf6291a97a0a98af1517d8cf6c8c30c51f13353dfe917de02a3b323', url: 'https://arxiv.org/pdf/2512.21907v2'}
+  - id: spatialbench-repository-resource
+    type: repository
+    url: https://github.com/latchbio/spatialbench
+    license: Apache-2.0
+    access_notes: Official 159-evaluation benchmark, methods, sample tasks, trajectories, and result artifacts.
+    last_checked: '2026-07-22'
+    pin: {kind: commit, value: 5042c4f3ee597da1590650c7b894d068ae968e26, url: 'https://github.com/latchbio/spatialbench/tree/5042c4f3ee597da1590650c7b894d068ae968e26'}
+  - id: spatialbench-grader-resource
+    type: grader
+    url: https://github.com/latchbio/spatialbench/tree/5042c4f3ee597da1590650c7b894d068ae968e26/spatialbench
+    license: Apache-2.0
+    access_notes: Deterministic grader definitions and benchmark runner at the same pinned snapshot.
+    last_checked: '2026-07-22'
+    pin: {kind: commit, value: 5042c4f3ee597da1590650c7b894d068ae968e26, url: 'https://github.com/latchbio/spatialbench/tree/5042c4f3ee597da1590650c7b894d068ae968e26/spatialbench'}
+implementations:
+  - {framework: SpatialBench with latch-eval-tools, status: official, url: 'https://github.com/latchbio/spatialbench/tree/5042c4f3ee597da1590650c7b894d068ae968e26', commit: 5042c4f3ee597da1590650c7b894d068ae968e26, notes: Public benchmark validation and runner code; the full evaluation set remains withheld.}
+versions:
+  - id: spatialbench-paper-v2
+    label: paper-v2
+    status: superseded
+    release_date: '2026-01-05'
+    as_of: '2026-01-05'
+    task_counts:
+      total: 146
+      basis: problems in the complete arXiv v2 benchmark inventory
+      reporting_status: reported
+      subsets:
+        - {id: spatialbench-v2-qc, label: Quality control, count: 20, basis: paper v2 Table 9, exclusive: true, exhaustive: false, partition_group: task-category, reporting_status: reported, notes: 'Printed component count; the seven category rows sum to 147 rather than the stated 146 total.'}
+        - {id: spatialbench-v2-normalization, label: Normalization, count: 7, basis: paper v2 Table 9, exclusive: true, exhaustive: false, partition_group: task-category, reporting_status: reported, notes: 'Printed component count; the seven category rows sum to 147 rather than the stated 146 total.'}
+        - {id: spatialbench-v2-dimensionality-reduction, label: Dimensionality reduction, count: 15, basis: paper v2 Table 9, exclusive: true, exhaustive: false, partition_group: task-category, reporting_status: reported, notes: 'Printed component count; the seven category rows sum to 147 rather than the stated 146 total.'}
+        - {id: spatialbench-v2-clustering, label: Clustering, count: 22, basis: paper v2 Table 9, exclusive: true, exhaustive: false, partition_group: task-category, reporting_status: reported, notes: 'Printed component count; the seven category rows sum to 147 rather than the stated 146 total.'}
+        - {id: spatialbench-v2-cell-typing, label: Cell typing, count: 39, basis: paper v2 Table 9, exclusive: true, exhaustive: false, partition_group: task-category, reporting_status: reported, notes: 'Printed component count; the seven category rows sum to 147 rather than the stated 146 total.'}
+        - {id: spatialbench-v2-differential-expression, label: Differential expression, count: 26, basis: paper v2 Table 9, exclusive: true, exhaustive: false, partition_group: task-category, reporting_status: reported, notes: 'Printed component count; the seven category rows sum to 147 rather than the stated 146 total.'}
+        - {id: spatialbench-v2-spatial-analysis, label: Spatial analysis, count: 18, basis: paper v2 Table 9, exclusive: true, exhaustive: false, partition_group: task-category, reporting_status: reported, notes: 'Printed component count; the seven category rows sum to 147 rather than the stated 146 total.'}
+        - {id: spatialbench-v2-atlasxomics, label: AtlasXOmics, count: 23, basis: paper v2 Table 9, exclusive: true, exhaustive: false, partition_group: platform, reporting_status: reported, notes: 'Printed component count; the five platform rows sum to 147 rather than the stated 146 total.'}
+        - {id: spatialbench-v2-merfish, label: MERFISH, count: 19, basis: paper v2 Table 9, exclusive: true, exhaustive: false, partition_group: platform, reporting_status: reported, notes: 'Printed component count; the five platform rows sum to 147 rather than the stated 146 total.'}
+        - {id: spatialbench-v2-xenium, label: Xenium, count: 30, basis: paper v2 Table 9, exclusive: true, exhaustive: false, partition_group: platform, reporting_status: reported, notes: 'Printed component count; the five platform rows sum to 147 rather than the stated 146 total.'}
+        - {id: spatialbench-v2-visium, label: Visium, count: 32, basis: paper v2 Table 9, exclusive: true, exhaustive: false, partition_group: platform, reporting_status: reported, notes: 'Printed component count; the five platform rows sum to 147 rather than the stated 146 total.'}
+        - {id: spatialbench-v2-seeker, label: Seeker, count: 43, basis: paper v2 Table 9, exclusive: true, exhaustive: false, partition_group: platform, reporting_status: reported, notes: 'Printed component count; the five platform rows sum to 147 rather than the stated 146 total.'}
+    formal_tracks: []
+    notes: Complete paper-era suite used in the arXiv v2 model and harness experiments.
+    evidence_ids: [spatialbench-evidence-paper-counts]
+  - id: spatialbench-repo-159-5042c4f
+    label: repo-159-5042c4f
+    status: current
+    release_date: '2026-06-10'
+    as_of: '2026-06-10'
+    task_counts: *current-counts
+    formal_tracks: []
+    notes: Revised 159-evaluation snapshot; full tasks remain withheld, while results and a representative sample are public.
+    evidence_ids: [spatialbench-evidence-current-counts]
+audit:
+  status: audited-with-caveats
+  audited_date: '2026-07-22'
+  unresolved_fields: 1
+  notes: Counts, access, graders, methods, and both version-specific result sets were checked against the creator paper and commit-pinned repository. Paper v2's two printed component partitions each sum to 147, conflicting with its stated 146 total.
+field_status:
+  - path: /versions/0/task_counts/subsets
+    status: conflicted
+    confidence: high
+    reason: Paper v2 Table 9 states 146 total evaluations, while both its seven category rows and five platform rows sum to 147; no correction is published.
+    evidence_ids: [spatialbench-evidence-paper-counts]
+verification:
+  status: verified
+  last_verified: '2026-07-22'
+  notes: Paper v2 and the current repository snapshot are intentionally separated and never share a comparability group.
+evidence:
+  - id: spatialbench-evidence-identity
+    source_type: work
+    source_id: spatialbench-preprint
+    accessed_date: '2026-07-22'
+    locator: {type: page, value: 'arXiv v2 pp. 1–3, abstract and §§1–2.1', note: 'Benchmark name, creators, objective, release, real-data setup, modalities, and deterministic evaluation design.'}
+    supports: [/name, /aliases, /summary, /kind, /parent_id, /organizations, /release_date, /domains, /capabilities, /modalities, /task_formats]
+  - id: spatialbench-evidence-paper-counts
+    source_type: work
+    source_id: spatialbench-preprint
+    accessed_date: '2026-07-22'
+    locator: {type: table, value: 'arXiv v2 Appendix A.1, Table 9 and Table 10', note: Complete 146-evaluation inventory and both category and platform partitions.}
+    supports: [/versions/0/release_date, /versions/0/as_of, /versions/0/task_counts/total, /versions/0/task_counts/basis, /versions/0/task_counts/subsets]
+  - id: spatialbench-evidence-current-counts
+    source_type: resource
+    source_id: spatialbench-repository-resource
+    accessed_date: '2026-07-22'
+    locator: {type: repository-path, value: 'README.md, results/category_results.json, and results/platform_results.json at commit 5042c4f3ee597da1590650c7b894d068ae968e26', note: 159 total evaluations; seven category counts and five platform counts.}
+    supports: [/latest_version, /task_counts/total, /task_counts/basis, /task_counts/subsets, /versions/1/release_date, /versions/1/as_of, /versions/1/task_counts/total, /versions/1/task_counts/basis, /versions/1/task_counts/subsets, /coverage_notes]
+  - id: spatialbench-evidence-access-grader
+    source_type: resource
+    source_id: spatialbench-repository-resource
+    accessed_date: '2026-07-22'
+    locator: {type: repository-path, value: 'README.md, METHODS.md, LICENSE, example_evals/, results/, and spatialbench/ at commit 5042c4f3ee597da1590650c7b894d068ae968e26', note: 'Representative-only task release, Apache-2.0 code, deterministic grader families, runner, container methods, and public aggregate results.'}
+    supports: [/access/level, /access/tasks, /access/artifacts, /access/grader, /access/license, /access/biosafety_notes, /resources, /implementations]

@@ -1,0 +1,22 @@
+entity_type: benchmark_use
+id: anthropic-key-life-sciences-creation
+work_id: anthropic-healthcare-life-sciences
+work_version_id: anthropic-healthcare-life-sciences-2026-01-11
+benchmark_id: anthropic-key-life-sciences-evals
+benchmark_version: reported-2026-01-11
+relation_type: benchmark-creation
+status: non-evaluation
+model_ids: []
+scope: {type: unknown, subset_kind: not-applicable, n: null, subset_id: null, selection: null, selection_method: null, reporting_status: not_applicable}
+metric_labels: []
+evaluation_run_ids: []
+reporting_gaps: []
+notes: Anthropic is the creator and evaluator of this private internal suite; child-track evaluation relations are recorded separately.
+verification: {status: verified, last_verified: '2026-07-22', notes: Official model-provider page is the only public metadata source for this suite.}
+evidence:
+  - id: anthropic-key-life-sciences-creation-use-evidence
+    source_type: work
+    source_id: anthropic-healthcare-life-sciences
+    accessed_date: '2026-07-22'
+    locator: {type: figure, value: 'Evals for key life sciences tasks', note: 'Anthropic page presents the three private internal directions and model trend lines.'}
+    supports: [/benchmark_version, /relation_type, /status, /scope, /notes]

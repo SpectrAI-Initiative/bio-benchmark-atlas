@@ -1,0 +1,32 @@
+entity_type: work
+id: spatialbench-preprint
+title: 'SpatialBench: Can Agents Analyze Real-World Spatial Biology Data?'
+authors: [Kenny Workman, Zhen Yang, Harihara Muralidharan, Hannah Le]
+organizations: [LatchBio]
+work_type: preprint
+source_class: benchmark_creator
+publication_date: '2025-12-26'
+canonical_url: https://arxiv.org/abs/2512.21907
+doi: 10.48550/arXiv.2512.21907
+arxiv: '2512.21907'
+status: preprint
+source_versions:
+  - id: spatialbench-preprint-v1
+    label: arXiv v1
+    status: superseded
+    publication_date: '2025-12-26'
+    canonical_url: https://arxiv.org/abs/2512.21907v1
+    doi: 10.48550/arXiv.2512.21907
+    arxiv: 2512.21907v1
+  - id: spatialbench-preprint-v2
+    label: arXiv v2
+    status: current
+    publication_date: '2026-01-05'
+    canonical_url: https://arxiv.org/abs/2512.21907v2
+    doi: 10.48550/arXiv.2512.21907
+    arxiv: 2512.21907v2
+current_version_id: spatialbench-preprint-v2
+verification:
+  status: verified
+  last_verified: '2026-07-22'
+  notes: arXiv identity, v1/v2 dates, 146-problem inventory, methods, and printed tables were verified against version 2.

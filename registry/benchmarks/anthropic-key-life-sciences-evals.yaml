@@ -1,0 +1,55 @@
+entity_type: benchmark
+id: anthropic-key-life-sciences-evals
+name: Anthropic Key Life Sciences Evals
+aliases: [Evals for key life sciences tasks]
+summary: An Anthropic private internal suite reported only through an official accuracy chart covering scientific figure interpretation, computational biology, and protein understanding.
+kind: suite
+parent_id: null
+organizations: [Anthropic]
+release_date: '2026-01-11'
+latest_version: reported-2026-01-11
+domains: [life-science, bioinformatics, protein-science]
+capabilities: [knowledge, evidence-synthesis, data-analysis, scientific-reasoning]
+modalities: [text, figure]
+task_formats: [private internal accuracy evaluation; exact format not reported]
+task_counts: &internal-counts {total: null, basis: internal evaluation tasks shown only as three directions in an official chart, reporting_status: not_reported, subsets: []}
+coverage_notes:
+  - {tag: life-science, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: 'Three named internal directions are public, but tasks and counts are not.'}
+access: &internal-access
+  level: private-internal
+  tasks: No tasks, prompts, examples, or per-item metadata are released.
+  artifacts: Only an aggregate official chart and three direction labels are public.
+  grader: Not reported
+  license: null
+  biosafety_notes: No task content is public; this registry records only labels and annotated deltas and does not infer sensitive capabilities.
+resources:
+  - &internal-resource
+    id: anthropic-key-life-sciences-page-resource
+    type: website
+    url: https://www.anthropic.com/news/healthcare-life-sciences
+    license: null
+    access_notes: Official page and chart reporting the private internal suite.
+    last_checked: '2026-07-22'
+    pin: {kind: snapshot, value: '2026-01-11-page; chart-sha256:707bbc2884cfe1ca49a419ceb053d2382d6af1819b8bb7b985423640d84fca2d', url: 'https://www.anthropic.com/news/healthcare-life-sciences'}
+implementations:
+  - {framework: Anthropic internal evaluation harness, status: not-available, url: null, commit: null, notes: 'Tasks, prompts, graders, and harness code are not released.'}
+versions:
+  - id: anthropic-key-life-sciences-reported-2026-01-11
+    label: reported-2026-01-11
+    status: current
+    release_date: '2026-01-11'
+    as_of: '2026-01-11'
+    task_counts: *internal-counts
+    formal_tracks: [anthropic-scientific-figure-interpretation, anthropic-computational-biology, anthropic-protein-understanding]
+    notes: Metadata-only snapshot of the three directions named in the official chart.
+    evidence_ids: [anthropic-key-life-sciences-evidence]
+audit: {status: audited, audited_date: '2026-07-22', unresolved_fields: 0, notes: All unreported settings remain null; only exact text and numeric chart annotations are normalized.}
+field_status: []
+verification: {status: verified, last_verified: '2026-07-22', notes: Private/internal suite; excluded from public runnable coverage.}
+evidence:
+  - id: anthropic-key-life-sciences-evidence
+    source_type: work
+    source_id: anthropic-healthcare-life-sciences
+    accessed_date: '2026-07-22'
+    locator: {type: figure, value: 'Evals for key life sciences tasks', note: 'Names the three internal evaluation directions, labels Accuracy (%), and annotates Opus 4.5 changes from Opus 4.1.'}
+    supports: [/name, /aliases, /summary, /kind, /parent_id, /organizations, /release_date, /latest_version, /domains, /capabilities, /modalities, /task_formats, /task_counts/total, /task_counts/basis, /task_counts/subsets, /coverage_notes, /access/level, /access/tasks, /access/artifacts, /access/grader, /access/license, /access/biosafety_notes, /resources, /implementations, /versions/0/release_date, /versions/0/as_of, /versions/0/task_counts/total, /versions/0/task_counts/basis, /versions/0/task_counts/subsets, /versions/0/formal_tracks]

@@ -1,0 +1,54 @@
+entity_type: evaluation_run
+id: spatialbench-repo-159-claude-code
+work_id: spatialbench-repository-release
+work_version_id: spatialbench-repository-release-2026-06-10
+benchmark_id: spatialbench
+benchmark_version: repo-159-5042c4f
+model_ids: [claude-opus-4-8, claude-opus-4-7]
+scope: {type: full, n: 159, subset_id: null, filter: null, selection: null, reporting_status: reported}
+protocol:
+  shots: {value: null, reporting_status: not_reported, notes: Demonstration count is not reported.}
+  turns: {value: multi-turn Claude Code, reporting_status: reported, notes: Binary runs inside the evaluation container.}
+  system_prompt_public: {value: true, reporting_status: reported, notes: The official methods link the public latch-eval-tools configuration.}
+  reasoning: {value: maximum reasoning effort where applicable, reporting_status: reported, notes: Model-specific effort strings are not enumerated in the result CSV.}
+  tools:
+    browser: {value: null, reporting_status: not_reported, notes: Browser availability is not reported.}
+    internet: {value: true, reporting_status: reported, notes: Container network access is enabled; downloads and searches are discouraged but not blocked.}
+    databases: {value: null, reporting_status: not_reported, notes: No fixed database suite is reported.}
+    code_execution: {value: true, reporting_status: reported, notes: Claude Code executes inside the evaluation container.}
+    container: {value: true, reporting_status: reported, notes: '4 vCPU, 32 GB RAM, 100 GB storage container.'}
+    external_tools: {value: Claude Code with common scientific libraries and network-enabled shell, reporting_status: reported, notes: Harness-specific public configuration is linked from METHODS.md.}
+  token_budget: {value: null, reporting_status: not_reported, notes: No token limit is reported.}
+  time_budget: {value: 21600 seconds per task with no step limit, reporting_status: reported, notes: OOM events trigger a restart with a warning.}
+  temperature: {value: null, reporting_status: not_reported, notes: Not reported.}
+  seed: {value: null, reporting_status: not_reported, notes: Trial identifiers are public but numeric seeds are not reported.}
+  repeats: {value: 3, reporting_status: reported, notes: Every evaluation is run three times and averaged.}
+  grader: {type: five deterministic grader families, model: null, human_review: false, reporting_status: reported}
+  statistical: {value: t-distribution 95% confidence interval over per-evaluation means after averaging three runs, reporting_status: reported, notes: N=159 in the official model result CSV.}
+  contamination: {value: full suite withheld to reduce contamination, reporting_status: reported, notes: Only a representative sample is public.}
+metrics:
+  - {metric_id: accuracy, source_label: Accuracy, unit: percent, range: [0, 100], higher_is_better: true, aggregation: mean over 159 evaluation-level means after three repeats, pass_threshold: null, tolerance: deterministic task-specific grader, kind: absolute, baseline_model_id: null}
+  - {metric_id: mean-cost, source_label: Cost, unit: USD per evaluation, range: null, higher_is_better: false, aggregation: mean over the full result set, pass_threshold: null, tolerance: null, kind: absolute, baseline_model_id: null}
+  - {metric_id: mean-duration, source_label: Duration, unit: seconds per evaluation, range: null, higher_is_better: false, aggregation: mean over the full result set, pass_threshold: null, tolerance: null, kind: absolute, baseline_model_id: null}
+results:
+  - {model_id: claude-opus-4-8, metric_id: accuracy, value: 55.35, ci_low: 48.22, ci_high: 62.47, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-claude-code-results-evidence]}
+  - {model_id: claude-opus-4-8, metric_id: mean-cost, value: 0.8776, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-claude-code-results-evidence]}
+  - {model_id: claude-opus-4-8, metric_id: mean-duration, value: 489.16, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-claude-code-results-evidence]}
+  - {model_id: claude-opus-4-7, metric_id: accuracy, value: 51.36, ci_low: 44.15, ci_high: 58.57, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-claude-code-results-evidence]}
+  - {model_id: claude-opus-4-7, metric_id: mean-cost, value: 0.8023, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-claude-code-results-evidence]}
+  - {model_id: claude-opus-4-7, metric_id: mean-duration, value: 532.85, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-claude-code-results-evidence]}
+comparability_group: spatialbench-repo-159-claude-code
+verification: {status: verified, last_verified: '2026-07-22', notes: Exact 159-evaluation Claude Code rows transcribed from the pinned official CSV.}
+evidence:
+  - id: spatialbench-repo-claude-code-protocol-evidence
+    source_type: resource
+    source_id: spatialbench-repository-resource
+    accessed_date: '2026-07-22'
+    locator: {type: repository-path, value: 'METHODS.md at commit 5042c4f3ee597da1590650c7b894d068ae968e26', note: 'Three runs, max reasoning, container resources, six-hour timeout, network access, binary placement, and aggregation.'}
+    supports: [/benchmark_version, /scope, /protocol, /metrics]
+  - id: spatialbench-repo-claude-code-results-evidence
+    source_type: resource
+    source_id: spatialbench-repository-resource
+    accessed_date: '2026-07-22'
+    locator: {type: repository-path, value: 'results/model_results.csv at commit 5042c4f3ee597da1590650c7b894d068ae968e26; harness=claude-code', note: 'Exact model label, accuracy and CI, mean cost, mean duration, and N.'}
+    supports: [/results]

@@ -118,6 +118,7 @@ def _build_payload() -> dict[str, Any]:
                     entry["confidence"] != "low"
                     and path not in flagged_paths
                     and entry["coverage"] != "not-in-scope"
+                    and benchmark["access"]["level"] != "private-internal"
                 ),
             })
     task_coverage.sort(key=lambda item: (item["task_type_id"], item["root_family_id"], item["benchmark_id"]))

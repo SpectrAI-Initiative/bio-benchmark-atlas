@@ -1,0 +1,22 @@
+entity_type: benchmark_use
+id: spatialbench-repository-creation
+work_id: spatialbench-repository-release
+work_version_id: spatialbench-repository-release-2026-06-10
+benchmark_id: spatialbench
+benchmark_version: repo-159-5042c4f
+relation_type: benchmark-creation
+status: non-evaluation
+model_ids: []
+scope: {type: unknown, subset_kind: not-applicable, n: null, subset_id: null, selection: null, selection_method: null, reporting_status: not_applicable}
+metric_labels: []
+evaluation_run_ids: []
+reporting_gaps: []
+notes: Creator-maintained revised 159-evaluation benchmark snapshot fixed to the registered commit.
+verification: {status: verified, last_verified: '2026-07-22', notes: Revised benchmark release relation is separate from its current result table.}
+evidence:
+  - id: spatialbench-repository-creation-use-evidence
+    source_type: resource
+    source_id: spatialbench-repository-resource
+    accessed_date: '2026-07-22'
+    locator: {type: repository-path, value: 'README.md and CHANGELOG.md at commit 5042c4f3ee597da1590650c7b894d068ae968e26', note: Defines the revised 159-evaluation version.}
+    supports: [/benchmark_version, /relation_type, /status, /scope, /notes]

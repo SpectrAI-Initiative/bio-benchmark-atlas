@@ -95,14 +95,15 @@ def _validate_counts(owner_id: str, counts: dict[str, Any]) -> None:
     total = counts["total"]
     if total is None and counts.get("reporting_status") != "not_reported":
         raise RegistryValidationError(f"{owner_id}: null total must be not_reported")
-    exhaustive_members = [
-        subset for subset in counts["subsets"] if subset["exclusive"] and subset["exhaustive"]
-    ]
-    exhaustive_counts = [subset["count"] for subset in exhaustive_members if subset["count"] is not None]
-    if exhaustive_members and len(exhaustive_counts) == len(exhaustive_members) and total is not None:
-        if sum(exhaustive_counts) != total:
+    partitions: defaultdict[str, list[dict[str, Any]]] = defaultdict(list)
+    for subset in counts["subsets"]:
+        if subset["exclusive"] and subset["exhaustive"]:
+            partitions[subset.get("partition_group") or "default"].append(subset)
+    for partition_group, members in partitions.items():
+        reported = [subset["count"] for subset in members if subset["count"] is not None]
+        if members and len(reported) == len(members) and total is not None and sum(reported) != total:
             raise RegistryValidationError(
-                f"{owner_id}: exhaustive subset counts sum to {sum(exhaustive_counts)}, not {total}"
+                f"{owner_id}: exhaustive partition {partition_group!r} sums to {sum(reported)}, not {total}"
             )
 
 
@@ -680,6 +681,10 @@ def validate_registry() -> dict[str, list[dict[str, Any]]]:
                     raise RegistryValidationError(
                         f"{run['id']}: delta metric references missing baseline model {baseline_model_id}"
                     )
+                if baseline_model_id not in run.get("model_ids", []):
+                    raise RegistryValidationError(
+                        f"{run['id']}: delta baseline model must be listed among evaluated models"
+                    )
             elif baseline_model_id is not None:
                 raise RegistryValidationError(
                     f"{run['id']}: absolute metric {metric['metric_id']} cannot declare a baseline model"
@@ -837,9 +842,23 @@ def validate_registry() -> dict[str, list[dict[str, Any]]]:
                 raise RegistryValidationError(
                     f"{use['id']}: linked run {run_id} belongs to another work or benchmark"
                 )
+            if run["work_version_id"] != use["work_version_id"] or run["benchmark_version"] != use["benchmark_version"]:
+                raise RegistryValidationError(
+                    f"{use['id']}: linked run {run_id} uses a different work or benchmark version"
+                )
             linked_runs.append(run)
         if use["status"] == "normalized" and not linked_runs:
             raise RegistryValidationError(f"{use['id']}: normalized use requires a linked run")
+        if use["status"] == "normalized" and use["relation_type"] != "evaluation":
+            raise RegistryValidationError(
+                f"{use['id']}: only an evaluation relation can be normalized"
+            )
+        if linked_runs:
+            linked_models = {model_id for run in linked_runs for model_id in run.get("model_ids", [])}
+            if not linked_models <= set(use["model_ids"]):
+                raise RegistryValidationError(
+                    f"{use['id']}: model_ids must cover every model in linked runs"
+                )
         if use["status"] == "partial":
             if not use["reporting_gaps"]:
                 raise RegistryValidationError(f"{use['id']}: partial use requires reporting_gaps")
@@ -858,6 +877,10 @@ def validate_registry() -> dict[str, list[dict[str, Any]]]:
                 raise RegistryValidationError(
                     f"{use['id']}: non-evaluation relation must not link evaluation runs"
                 )
+        if use["relation_type"] == "external-result-summary" and linked_runs:
+            raise RegistryValidationError(
+                f"{use['id']}: an external result summary cannot link a local normalized run"
+            )
         scope = use["scope"]
         if scope["type"] == "subset" and scope["subset_kind"] == "paper-specific":
             if scope["n"] is None or scope["selection"] in {None, "formal-subset"} or not scope["selection_method"]:

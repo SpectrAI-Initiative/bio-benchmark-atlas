@@ -1270,9 +1270,10 @@ def test_scientific_task_exports_are_normalized_and_preserve_units() -> None:
     assert {item["root_family_id"] for item in coverage} == {
         "lifescibench", "proteingym", "casp", "cameo", "flip", "proteinlmbench",
         "bioinstruction", "lab-bench", "genebench-pro", "biomysterybench",
-        "compbiobench", "bixbench", "blade", "scigym", "tape", "genomic-benchmarks",
-        "beacon-rna", "moleculenet", "atom3d", "guacamol", "scib",
-    }
+            "compbiobench", "bixbench", "blade", "scigym", "tape", "genomic-benchmarks",
+            "beacon-rna", "moleculenet", "atom3d", "guacamol", "scib", "spatialbench",
+            "anthropic-key-life-sciences-evals",
+        }
     generation = next(item for item in tasks if item["id"] == "small-molecule-generation")
     assert generation["coverage_family_count"] == 1
     units = {

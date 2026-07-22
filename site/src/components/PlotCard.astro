@@ -19,9 +19,9 @@ const id = `plot-${Math.random().toString(36).slice(2)}`;
   </header>
   <div class="chart plot-host" id={id} data-kind={kind} data-values={JSON.stringify(values)} data-options={JSON.stringify(options)} aria-hidden="true"></div>
   {tableColumns.length > 0 && (
-    <details class="small" open={kind === 'heatmap'}>
+    <details class="small chart-data" data-chart-kind={kind}>
       <summary>Accessible data table</summary>
-      <div class="table-wrap">
+      <div class="table-wrap" tabindex="0" aria-label={`${title} data table`}>
         <table>
           <thead><tr>{tableColumns.map((column) => <th>{column.label}</th>)}</tr></thead>
           <tbody>{values.map((row) => <tr>{tableColumns.map((column) => <td>{String(row[column.key] ?? '')}</td>)}</tr>)}</tbody>
@@ -52,7 +52,7 @@ const id = `plot-${Math.random().toString(36).slice(2)}`;
     const shared = { width, style: { background: 'transparent', color: ink, fontSize: '12px' }, marginLeft: options.marginLeft ?? adaptiveMarginLeft, marginRight: options.marginRight ?? 55 };
     let plot;
     if (host.dataset.kind === 'heatmap') {
-      plot = Plot.plot({ ...shared, height: options.height ?? 330, marginLeft: 120, x: { label: null }, y: { label: null }, color: { scheme: 'ylgnbu', legend: true }, marks: [Plot.cell(values, { x: 'x', y: 'y', fill: 'value', title: (d) => `${d.y} × ${d.x}: ${d.value}` }), Plot.text(values, { x: 'x', y: 'y', text: 'value', fill: (d) => d.value > 5 ? 'white' : ink, fontSize: 10 })] });
+      plot = Plot.plot({ ...shared, height: options.height ?? 330, marginLeft: options.marginLeft ?? 120, marginBottom: options.marginBottom ?? 90, x: { label: null, tickRotate: -35 }, y: { label: null }, color: { scheme: 'ylgnbu', legend: true }, marks: [Plot.cell(values, { x: 'x', y: 'y', fill: 'value', title: (d) => `${d.y} × ${d.x}: ${d.value}` }), Plot.text(values, { x: 'x', y: 'y', text: 'value', fill: (d) => d.value > 5 ? 'white' : ink, fontSize: 10 })] });
     } else if (host.dataset.kind === 'timeline') {
       plot = Plot.plot({ ...shared, height: options.height ?? 280, marginLeft: 115, x: { type: 'utc', label: 'Release date', grid: true }, y: { label: null }, color: { legend: true }, marks: [Plot.ruleY(values, { y: 'label', stroke: line }), Plot.dot(values, { x: 'date', y: 'label', fill: 'group', r: 6, tip: true })] });
     } else if (host.dataset.kind === 'dot') {
@@ -65,4 +65,13 @@ const id = `plot-${Math.random().toString(36).slice(2)}`;
     }
     host.replaceChildren(plot);
   });
+
+  const compactHeatmap = matchMedia('(max-width: 620px)');
+  const syncHeatmapTables = () => {
+    document.querySelectorAll<HTMLDetailsElement>('.chart-data[data-chart-kind="heatmap"]').forEach((details) => {
+      details.open = compactHeatmap.matches;
+    });
+  };
+  syncHeatmapTables();
+  compactHeatmap.addEventListener('change', syncHeatmapTables);
 </script>

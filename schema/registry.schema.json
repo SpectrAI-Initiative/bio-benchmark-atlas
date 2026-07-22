@@ -29,7 +29,10 @@
       "properties": {
         "type": {"enum": ["page", "section", "figure", "table", "repository-path", "release", "dataset-card", "web-anchor", "other"]},
         "value": {"type": "string", "minLength": 1},
-        "note": {"type": ["string", "null"]}
+        "note": {"type": ["string", "null"]},
+        "document_page": {"type": ["integer", "null"], "minimum": 1},
+        "printed_page": {"type": ["string", "null"]},
+        "source_fragment_sha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"}
       }
     },
     "Evidence": {
@@ -235,6 +238,7 @@
         "doi": {"type": ["string", "null"]}, "arxiv": {"type": ["string", "null"]}, "status": {"enum": ["published", "preprint", "living", "archived"]},
         "source_versions": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/WorkSourceVersion"}},
         "current_version_id": {"$ref": "#/$defs/Id"},
+        "review_provenance": {"$ref": "#/$defs/ReviewProvenance"},
         "verification": {"$ref": "#/$defs/Verification"}
       }
     },
@@ -246,7 +250,26 @@
         "status": {"enum": ["current", "superseded", "version-of-record"]},
         "publication_date": {"type": "string", "format": "date"},
         "canonical_url": {"type": "string", "format": "uri"},
-        "doi": {"type": ["string", "null"]}, "arxiv": {"type": ["string", "null"]}
+        "doi": {"type": ["string", "null"]}, "arxiv": {"type": ["string", "null"]},
+        "source_access": {"enum": ["open-url", "submitted-pdf", "metadata-only"]},
+        "content_sha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
+        "content_type": {"type": ["string", "null"]},
+        "retrieved_at": {"type": ["string", "null"], "format": "date-time"}
+      }
+    },
+    "ReviewProvenance": {
+      "type": "object", "additionalProperties": false,
+      "required": ["method", "pipeline_version", "prompt_version", "source_version_id", "extractor_model_requested", "extractor_model_resolved", "verifier_model_requested", "verifier_model_resolved", "generated_at"],
+      "properties": {
+        "method": {"const": "automated-double-pass"},
+        "pipeline_version": {"type": "string", "minLength": 1},
+        "prompt_version": {"type": "string", "minLength": 1},
+        "source_version_id": {"$ref": "#/$defs/Id"},
+        "extractor_model_requested": {"type": "string", "minLength": 1},
+        "extractor_model_resolved": {"type": "string", "minLength": 1},
+        "verifier_model_requested": {"type": "string", "minLength": 1},
+        "verifier_model_resolved": {"type": "string", "minLength": 1},
+        "generated_at": {"type": "string", "format": "date-time"}
       }
     },
     "Model": {

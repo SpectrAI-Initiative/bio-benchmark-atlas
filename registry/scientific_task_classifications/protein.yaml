@@ -1,0 +1,526 @@
+# Evidence-backed Scientific Task mappings for this curation area.
+classifications:
+  lifescibench:
+    status: partial
+    benchmark_version: initial-release
+    as_of: null
+    notes: Official sources identify broad protein design and binding coverage but do not publish an exhaustive task-level
+      taxonomy or binding subtype counts.
+    entries:
+    - task_type_id: protein-design
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 62
+      count_unit: tasks
+      count_basis: Expert-authored tasks in the Protein primary domain and Design / Optimization workflow cell.
+      count_ref: /coverage_notes/1/count
+      reporting_status: reported
+      evidence_ids:
+      - lifescibench-evidence-counts
+      notes: This is a broad design-or-optimization count; it is not relabeled as sequence generation.
+    - task_type_id: protein-protein-interaction-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: null
+      count_unit: tasks
+      count_basis: Expert-authored benchmark tasks.
+      count_ref: null
+      reporting_status: not_reported
+      evidence_ids:
+      - lifescibench-evidence-taxonomy
+      notes: The official protein-domain definition and examples include protein-protein binding, without a standalone count.
+    - task_type_id: protein-ligand-binding-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: null
+      count_unit: tasks
+      count_basis: Expert-authored benchmark tasks.
+      count_ref: null
+      reporting_status: not_reported
+      evidence_ids:
+      - lifescibench-evidence-taxonomy
+      notes: The source does not distinguish pose from affinity, so the broad task is retained.
+  casp:
+    status: partial
+    benchmark_version: CASP17
+    as_of: 2026-07-21
+    notes: CASP17 is active; mappings follow formal categories while final assessed target counts remain unavailable.
+    entries:
+    - task_type_id: protein-monomer-structure-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: null
+      count_unit: targets
+      count_basis: CASP17 assessed monomer evaluation units.
+      count_ref: null
+      reporting_status: not_reported
+      evidence_ids:
+      - casp-evidence-casp17-protocol
+      notes: The final assessed monomer count is not yet reported.
+    - task_type_id: protein-complex-structure-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 61
+      count_unit: targets
+      count_basis: CASP17 multimer target re-releases with stoichiometry as of 2026-07-21.
+      count_ref: /coverage_notes/0/count
+      reporting_status: reported
+      evidence_ids:
+      - casp-evidence-casp17-counts
+      notes: Rolling release count; not a final assessed-set total.
+    - task_type_id: protein-model-quality-assessment
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: null
+      count_unit: targets
+      count_basis: CASP17 model-selection and accuracy-estimation targets.
+      count_ref: null
+      reporting_status: not_reported
+      evidence_ids:
+      - casp-evidence-casp17-protocol
+      notes: No final current-round count is asserted.
+    - task_type_id: protein-ligand-pose-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: null
+      count_unit: targets
+      count_basis: CASP17 protein-ligand targets.
+      count_ref: null
+      reporting_status: not_reported
+      evidence_ids:
+      - casp-evidence-casp17-protocol
+      notes: Pose prediction is a formal ligand-category objective.
+    - task_type_id: protein-ligand-binding-affinity
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: null
+      count_unit: targets
+      count_basis: CASP17 protein-ligand targets.
+      count_ref: null
+      reporting_status: not_reported
+      evidence_ids:
+      - casp-evidence-casp17-protocol
+      notes: Affinity or rank prediction is a formal ligand-category objective.
+  casp-protein-monomers:
+    status: complete
+    benchmark_version: CASP17
+    as_of: 2026-07-21
+    notes: Single-purpose formal track; the current round is rolling.
+    entries:
+    - task_type_id: protein-monomer-structure-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: null
+      count_unit: targets
+      count_basis: CASP17 assessed monomer evaluation units.
+      count_ref: null
+      reporting_status: not_reported
+      evidence_ids:
+      - casp-monomer-evidence-casp17
+      notes: Final assessed count is not reported while CASP17 is active.
+  casp-protein-multimers:
+    status: complete
+    benchmark_version: CASP17
+    as_of: 2026-07-21
+    notes: Formal complex-prediction track, including interface and model-selection phases.
+    entries:
+    - task_type_id: protein-complex-structure-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 61
+      count_unit: targets
+      count_basis: CASP17 multimer target re-releases with stoichiometry as of 2026-07-21.
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - casp-multimer-evidence-casp17
+      notes: Rolling release count; not a final assessed-set total.
+    - task_type_id: protein-model-quality-assessment
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: null
+      count_unit: targets
+      count_basis: CASP17 multimer model-selection evaluation units.
+      count_ref: null
+      reporting_status: not_reported
+      evidence_ids:
+      - casp-multimer-evidence-casp17-protocol
+      notes: Model-selection is in scope but not separately counted.
+  casp-immune-complexes:
+    status: complete
+    benchmark_version: CASP17
+    as_of: 2026-07-21
+    notes: Dedicated immune-complex category nested under multimer prediction.
+    entries:
+    - task_type_id: antibody-antigen-interaction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: null
+      count_unit: targets
+      count_basis: CASP17 immune-complex targets.
+      count_ref: null
+      reporting_status: not_reported
+      evidence_ids:
+      - casp-immune-evidence-category
+      notes: The official current-round page does not publish a standalone count.
+  casp-protein-ligands:
+    status: complete
+    benchmark_version: CASP17
+    as_of: 2026-07-21
+    notes: Dedicated protein-ligand track; current target counts are not final.
+    entries:
+    - task_type_id: protein-ligand-pose-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: null
+      count_unit: targets
+      count_basis: CASP17 protein-ligand targets.
+      count_ref: null
+      reporting_status: not_reported
+      evidence_ids:
+      - casp-ligand-evidence-casp17
+      notes: Pose and pocket prediction are explicit objectives.
+    - task_type_id: protein-ligand-binding-affinity
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: null
+      count_unit: targets
+      count_basis: CASP17 protein-ligand targets.
+      count_ref: null
+      reporting_status: not_reported
+      evidence_ids:
+      - casp-ligand-evidence-casp17
+      notes: Affinity or ranking is explicit, without a current standalone count.
+  cameo:
+    status: partial
+    benchmark_version: current-complex-3d
+    as_of: 2026-07-21
+    notes: Rolling service; task mappings describe current public categories and never imply an all-time target total.
+    entries:
+    - task_type_id: protein-complex-structure-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: null
+      count_unit: targets
+      count_basis: Weekly complete-complex targets in the current CAMEO service.
+      count_ref: null
+      reporting_status: not_reported
+      evidence_ids:
+      - cameo-evidence-current-help
+      notes: No fixed all-time count exists for the rolling service.
+    - task_type_id: protein-model-quality-assessment
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: null
+      count_unit: targets
+      count_basis: Weekly targets and submitted server models.
+      count_ref: null
+      reporting_status: not_reported
+      evidence_ids:
+      - cameo-evidence-2024-study
+      notes: CAMEO evaluates prediction quality against newly released structures.
+    - task_type_id: protein-ligand-pose-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: null
+      count_unit: targets
+      count_basis: Ligand-containing targets in the current rolling service.
+      count_ref: null
+      reporting_status: not_reported
+      evidence_ids:
+      - cameo-evidence-2024-study
+      notes: Ligand pose is in scope; binding affinity is not asserted.
+  flip:
+    status: complete
+    benchmark_version: original-2021
+    as_of: null
+    notes: FLIP evaluates sequence-to-fitness prediction; it is not a sequence-generation benchmark.
+    entries:
+    - task_type_id: protein-fitness-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 15
+      count_unit: tasks
+      count_basis: Dataset-and-split benchmark tasks.
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - flip-evidence-paper-definition
+      notes: All formal tasks are supervised fitness or phenotype prediction.
+    - task_type_id: protein-mutation-effect-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 15
+      count_unit: tasks
+      count_basis: Dataset-and-split benchmark tasks.
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - flip-evidence-paper-definition
+      notes: The same tasks evaluate generalization across mutated sequence landscapes; claims overlap and are never summed.
+  flip-aav:
+    status: complete
+    benchmark_version: original-2021
+    as_of: null
+    notes: AAV sequence-to-fitness landscape.
+    entries:
+    - task_type_id: protein-fitness-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 284009
+      count_unit: examples
+      count_basis: Distinct sequence-fitness examples across the sampled and designed AAV pools.
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - flip-aav-evidence-paper
+      notes: Example count, not a count of formal split tasks.
+  flip-gb1:
+    status: complete
+    benchmark_version: original-2021
+    as_of: null
+    notes: GB1 binding-fitness landscape; the target is fitness rather than direct affinity estimation.
+    entries:
+    - task_type_id: protein-fitness-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 8733
+      count_unit: examples
+      count_basis: Downsampled sequence-fitness examples retained for FLIP.
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - flip-gb1-evidence-paper
+      notes: Binding context does not turn the task into direct affinity prediction.
+  flip-meltome:
+    status: complete
+    benchmark_version: original-2021
+    as_of: null
+    notes: Protein melting-temperature landscape.
+    entries:
+    - task_type_id: protein-stability-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 27951
+      count_unit: examples
+      count_basis: Sequence-temperature examples in the Mixed split universe.
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - flip-meltome-evidence-paper
+      notes: Temperature examples are not combined with AAV or GB1 counts.
+  proteingym:
+    status: partial
+    benchmark_version: '1.3'
+    as_of: null
+    notes: The release mixes DMS assays, clinical proteins, and mutant measurements; counts stay on formal child tracks.
+    entries:
+    - task_type_id: protein-mutation-effect-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: null
+      count_unit: assays
+      count_basis: DMS assays and mutant measurements across version 1.3 tracks.
+      count_ref: null
+      reporting_status: not_reported
+      evidence_ids:
+      - proteingym-evidence-taxonomy
+      notes: Track-specific assay counts are recorded on child records.
+    - task_type_id: protein-fitness-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: null
+      count_unit: assays
+      count_basis: ProteinGym DMS assays.
+      count_ref: null
+      reporting_status: not_reported
+      evidence_ids:
+      - proteingym-evidence-taxonomy
+      notes: No heterogeneous root total is asserted.
+    - task_type_id: protein-clinical-variant-interpretation
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: null
+      count_unit: records
+      count_basis: Clinical substitution and indel tracks.
+      count_ref: null
+      reporting_status: not_reported
+      evidence_ids:
+      - proteingym-evidence-taxonomy
+      notes: Child records use clinical proteins as their count unit.
+    - task_type_id: protein-ligand-binding-prediction
+      coverage: observed
+      mapping_method: official-taxonomy
+      confidence: high
+      count: null
+      count_unit: assays
+      count_basis: DMS assays in the official generic Binding function category.
+      count_ref: null
+      reporting_status: not_reported
+      evidence_ids:
+      - proteingym-evidence-taxonomy
+      notes: The source does not support a ligand-only or PPI-only assay count.
+  proteingym-dms-substitutions:
+    status: complete
+    benchmark_version: '1.3'
+    as_of: null
+    notes: Formal DMS substitution track.
+    entries:
+    - task_type_id: protein-mutation-effect-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 217
+      count_unit: assays
+      count_basis: DMS assays.
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - proteingym-dms-sub-evidence-v13
+      notes: Assay count; not mutant-record count.
+    - task_type_id: protein-fitness-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 217
+      count_unit: assays
+      count_basis: DMS assays.
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - proteingym-dms-sub-evidence-v13
+      notes: Overlapping scientific-task claim; never summed with mutation-effect coverage.
+  proteingym-dms-indels:
+    status: complete
+    benchmark_version: '1.3'
+    as_of: null
+    notes: Formal DMS indel track; source conflicts on assay count remain flagged on the benchmark.
+    entries:
+    - task_type_id: protein-mutation-effect-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 66
+      count_unit: assays
+      count_basis: DMS assays.
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - proteingym-dms-indel-evidence-v13
+      notes: The underlying benchmark field carries the audit caveat.
+    - task_type_id: protein-fitness-prediction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 66
+      count_unit: assays
+      count_basis: DMS assays.
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - proteingym-dms-indel-evidence-v13
+      notes: Overlapping claim; not an additive task total.
+  proteingym-clinical-substitutions:
+    status: complete
+    benchmark_version: '1.3'
+    as_of: null
+    notes: Formal clinical substitution track.
+    entries:
+    - task_type_id: protein-clinical-variant-interpretation
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 2525
+      count_unit: records
+      count_basis: Clinical proteins.
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - proteingym-clinical-sub-evidence-v13
+      notes: The registry count unit is proteins, not variants.
+  proteingym-clinical-indels:
+    status: complete
+    benchmark_version: '1.3'
+    as_of: null
+    notes: Formal clinical indel track.
+    entries:
+    - task_type_id: protein-clinical-variant-interpretation
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 1555
+      count_unit: records
+      count_basis: Clinical proteins.
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - proteingym-clinical-indel-evidence-v13
+      notes: The registry count unit is proteins, not variants.
+  proteinlmbench:
+    status: partial
+    benchmark_version: hf-f139796
+    as_of: null
+    notes: Official materials claim broad topical coverage, but the released question file has no official topic labels; no
+      topical counts are inferred.
+    entries:
+    - task_type_id: protein-structure
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: null
+      count_unit: questions
+      count_basis: Released ProteinLMBench question records.
+      count_ref: null
+      reporting_status: not_reported
+      evidence_ids:
+      - proteinlmbench-evidence-paper
+      notes: Broad structure coverage only; folding is not inferred.
+    - task_type_id: protein-design
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: null
+      count_unit: questions
+      count_basis: Released ProteinLMBench question records.
+      count_ref: null
+      reporting_status: not_reported
+      evidence_ids:
+      - proteinlmbench-evidence-paper
+      notes: Broad protein-design topic; no sequence-generation count is available.
+    - task_type_id: molecular-interaction-analysis
+      coverage: observed
+      mapping_method: official-taxonomy
+      confidence: high
+      count: null
+      count_unit: questions
+      count_basis: Released ProteinLMBench question records.
+      count_ref: null
+      reporting_status: not_reported
+      evidence_ids:
+      - proteinlmbench-evidence-paper
+      notes: Official questions discuss multiple binding contexts without a topic field or binding-subtype counts.

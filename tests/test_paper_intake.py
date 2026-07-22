@@ -82,5 +82,5 @@ def test_build_intake_is_non_production_and_does_not_infer_relations() -> None:
 def test_paper_intake_workflow_is_valid_yaml() -> None:
     workflow = ROOT / ".github" / "workflows" / "paper-intake.yml"
     payload = yaml.safe_load(workflow.read_text(encoding="utf-8"))
-    assert payload["name"] == "Paper intake scaffold"
-    assert "scaffold" in payload["jobs"]
+    assert payload["name"] == "Paper intake"
+    assert {"authorize", "extract"} <= set(payload["jobs"])

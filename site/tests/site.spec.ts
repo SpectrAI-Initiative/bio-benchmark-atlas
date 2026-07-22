@@ -6,6 +6,7 @@ test('home renders charts and core navigation', async ({ page }) => {
   await expect(page.getByRole('heading', { name: /Map the benchmark/ })).toBeVisible();
   await expect(page.locator('.plot-host:visible svg').first()).toBeVisible();
   await expect(page.getByRole('link', { name: 'Explorer' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /New or re-verified evidence/ })).toBeVisible();
 });
 
 test('explorer restores and updates URL filter state', async ({ page }) => {
@@ -19,10 +20,11 @@ test('explorer restores and updates URL filter state', async ({ page }) => {
   await expect(page.getByRole('link', { name: 'ProteinGym', exact: true })).toBeHidden();
 });
 
-test('Paper Explorer restores relation filters and links both usage exports', async ({ page }) => {
-  await page.goto('/bio-benchmark-atlas/works/?source=official_model_provider&relation=external-result-summary');
+test('Paper Explorer restores relation and review filters and links both usage exports', async ({ page }) => {
+  await page.goto('/bio-benchmark-atlas/works/?source=official_model_provider&relation=external-result-summary&review=manual');
   await expect(page.locator('#source-class')).toHaveValue('official_model_provider');
   await expect(page.locator('#relation')).toHaveValue('external-result-summary');
+  await expect(page.locator('#review-method')).toHaveValue('manual');
   await expect(page.getByRole('link', { name: 'Advancing Claude in healthcare and the life sciences', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Claude for Life Sciences', exact: true })).toBeHidden();
   await page.locator('#q').fill('Anthropic');
@@ -443,10 +445,13 @@ test('methodology discloses the deferred VirBench audit', async ({ page }) => {
   await page.goto('/bio-benchmark-atlas/methodology/');
   await expect(page.locator('main')).toContainText('14 of the 15 launch families');
   await expect(page.locator('main')).toContainText("VirBench's detailed audit was intentionally deferred");
+  await expect(page.locator('main')).toContainText('Independent double-pass verification');
+  await expect(page.locator('main')).toContainText('paper-owner-gate');
 
   await page.goto('/bio-benchmark-atlas/zh/methodology/');
   await expect(page.locator('main')).toContainText('15 个 family 中已有 14 个完成字段级审计');
   await expect(page.locator('main')).toContainText('暂缓 VirBench 的细化');
+  await expect(page.locator('main')).toContainText('双阶段独立核验');
 });
 
 test('alias redirects to permanent benchmark id', async ({ page }) => {

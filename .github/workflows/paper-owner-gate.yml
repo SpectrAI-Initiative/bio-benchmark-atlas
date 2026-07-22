@@ -1,0 +1,36 @@
+name: Paper owner gate
+
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, ready_for_review]
+  pull_request_review:
+    types: [submitted, dismissed]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  paper-owner-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require wang422003 approval after the latest paper-intake push
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          [[ "$HEAD_REF" == paper-intake/* ]] || { echo "Non-paper intake PR: gate passes."; exit 0; }
+          commit_time=$(gh api "repos/${REPOSITORY}/commits/${HEAD_SHA}" --jq '.commit.committer.date')
+          approval_time=$(gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}/reviews" --paginate \
+            --jq '[.[] | select(.user.login == "wang422003" and .state == "APPROVED") | .submitted_at] | max // ""')
+          [[ -n "$approval_time" ]] || { echo "wang422003 approval is required"; exit 1; }
+          python - "$commit_time" "$approval_time" <<'PY'
+          import datetime as dt, sys
+          commit = dt.datetime.fromisoformat(sys.argv[1].replace("Z", "+00:00"))
+          approval = dt.datetime.fromisoformat(sys.argv[2].replace("Z", "+00:00"))
+          if approval <= commit: raise SystemExit("approval predates the latest bot push; re-approval is required")
+          PY
+

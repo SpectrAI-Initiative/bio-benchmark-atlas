@@ -1,0 +1,39 @@
+name: Paper extraction eval
+
+on:
+  schedule:
+    - cron: '15 2 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  golden:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.10', cache: pip}
+      - run: python -m pip install -e .
+      - name: Run live double-pass golden cases
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PAPER_EXTRACT_MODEL: ${{ vars.PAPER_EXTRACT_MODEL || 'gpt-5.6-sol' }}
+          PAPER_VERIFY_MODEL: ${{ vars.PAPER_VERIFY_MODEL || 'gpt-5.6-sol' }}
+        run: |
+          [[ -n "$OPENAI_API_KEY" ]] || { echo "OPENAI_API_KEY is not configured"; exit 1; }
+          python scripts/paper_extraction_eval.py --output golden-summary.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: paper-extraction-golden-summary
+          path: golden-summary.json
+          retention-days: 35
+      - name: Open a blocking issue after failure
+        if: failure()
+        env: {GH_TOKEN: '${{ github.token }}'}
+        run: |
+          gh label create paper-extraction-golden --color b60205 --description "Blocking live paper-extraction regression" --force
+          existing=$(gh issue list --label paper-extraction-golden --state open --json number --jq '.[0].number // ""')
+          [[ -n "$existing" ]] || gh issue create --title "Paper extraction golden evaluation failed" --label paper-extraction-golden --body "The live double-pass golden workflow failed. Production paper intake remains paused until a current model/prompt combination passes all numeric and locator assertions."

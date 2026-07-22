@@ -1,7 +1,7 @@
 - date: '2026-07-22'
-  version: 1.2.0-dev
-  type: development
-  summary: Added the Scientific Task Atlas taxonomy, evidence-backed benchmark mappings, normalized task-coverage exports, task explorer and detail pages, and Chinese task-system guidance.
+  version: 1.2.0
+  type: release
+  summary: Released v1.2.0 with the Scientific Task Atlas taxonomy, evidence-backed benchmark mappings, normalized task-coverage exports, task explorer and detail pages, Chinese task-system guidance, and seven additional creator-audited benchmark families.
   entity_ids: []
 - date: '2026-07-22'
   type: addition

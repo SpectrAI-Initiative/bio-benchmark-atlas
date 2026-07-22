@@ -3,6 +3,7 @@ import registry from '../generated/registry.json';
 export type Registry = typeof registry;
 type RawBenchmark = Registry['benchmarks'][number];
 type RawEvaluationRun = Registry['evaluation_runs'][number];
+type RawBenchmarkUse = Registry['benchmark_uses'][number];
 export type FieldStatus = {
   path: string;
   status: 'provisional' | 'conflicted';
@@ -40,6 +41,7 @@ export type EvaluationResult = RawEvaluationRun['results'][number] & {
   evidence_ids?: string[];
 };
 export type EvaluationRun = Omit<RawEvaluationRun, 'results'> & { results: EvaluationResult[]; model_ids: string[] };
+export type BenchmarkUse = RawBenchmarkUse;
 
 export const data = registry as Omit<Registry, 'benchmarks' | 'evaluation_runs'> & {
   benchmarks: Benchmark[];
@@ -49,6 +51,7 @@ export const benchmarkMap = new Map(data.benchmarks.map((item) => [item.id, item
 export const workMap = new Map(data.works.map((item) => [item.id, item]));
 export const modelMap = new Map(data.models.map((item) => [item.id, item]));
 export const runMap = new Map(data.evaluation_runs.map((item) => [item.id, item]));
+export const benchmarkUseMap = new Map(data.benchmark_uses.map((item) => [item.id, item]));
 export const scientificTaskMap = new Map(data.scientific_tasks.map((item) => [item.id, item]));
 
 export const termMaps = Object.fromEntries(

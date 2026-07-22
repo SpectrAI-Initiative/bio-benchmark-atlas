@@ -1,0 +1,30 @@
+---
+import type { BenchmarkUse } from '../lib/data';
+import { benchmarkMap, evidenceLocator, modelMap, runMap, withBase, workMap } from '../lib/data';
+
+interface Props { use: BenchmarkUse; showBenchmark?: boolean; showWork?: boolean; }
+const { use, showBenchmark = true, showWork = true } = Astro.props;
+const benchmark = benchmarkMap.get(use.benchmark_id);
+const work = workMap.get(use.work_id);
+const isExternal = use.relation_type === 'external-result-summary';
+const isInternal = benchmark?.access.level === 'private-internal';
+const badgeLabel = isExternal ? 'External summary' : isInternal ? 'Internal' : use.status === 'partial' ? 'Partial' : use.status === 'normalized' ? 'Normalized' : 'Non-evaluation';
+const badgeClass = isExternal ? 'external-summary' : isInternal ? 'internal' : use.status;
+---
+<article class:list={['use-card', badgeClass]} id={use.id}>
+  <div class="run-head">
+    <div><p class="eyebrow">{use.relation_type.replaceAll('-', ' ')}</p><h3>{use.id}</h3></div>
+    <div class="tag-list"><span class:list={['usage-badge', badgeClass]}>{badgeLabel}</span><span class="tag">{use.scope.type}{use.scope.n !== null ? ` · n=${use.scope.n}` : ''}</span></div>
+  </div>
+  {showBenchmark && <p><strong>Benchmark:</strong> <a href={withBase(`/benchmarks/${use.benchmark_id}/`)}>{benchmark?.name ?? use.benchmark_id}</a> · version {use.benchmark_version ?? <span class="not-reported">Not reported</span>}</p>}
+  {showWork && <p><strong>Work:</strong> {work ? <a href={withBase(`/works/${work.id}/`)}>{work.title}</a> : use.work_id} · source version <code>{use.work_version_id}</code></p>}
+  <dl class="definition-list compact">
+    <div><dt>Selection</dt><dd>{use.scope.selection ?? use.scope.subset_kind.replaceAll('-', ' ')}{use.scope.selection_method ? ` · ${use.scope.selection_method}` : ''}</dd></div>
+    <div><dt>Models</dt><dd>{use.model_ids.length ? use.model_ids.map((id, index) => <>{index ? ', ' : ''}<a href={withBase(`/models/${id}/`)}>{modelMap.get(id)?.name ?? id}</a></>) : <span class="not-reported">Not reported / not applicable</span>}</dd></div>
+    <div><dt>Metrics</dt><dd>{use.metric_labels.length ? use.metric_labels.join(', ') : <span class="not-reported">Not reported / not applicable</span>}</dd></div>
+    <div><dt>Linked runs</dt><dd>{use.evaluation_run_ids.length ? use.evaluation_run_ids.map((id, index) => { const run = runMap.get(id); return <>{index ? ', ' : ''}<a href={withBase(`/benchmarks/${run?.benchmark_id ?? use.benchmark_id}/#${id}`)}>{id}</a></>; }) : 'None'}</dd></div>
+  </dl>
+  {use.reporting_gaps.length > 0 && <p class="small"><strong>Not reported / unresolved:</strong> {use.reporting_gaps.join('; ')}</p>}
+  {use.notes && <p class="small muted">{use.notes}</p>}
+  <details><summary>Evidence</summary><ul>{use.evidence.map((evidence) => <li><strong>{evidenceLocator(evidence)}</strong><br/><span class="small muted">Supports: {evidence.supports.join(', ')}</span></li>)}</ul></details>
+</article>

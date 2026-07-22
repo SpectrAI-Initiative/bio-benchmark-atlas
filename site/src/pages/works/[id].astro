@@ -1,13 +1,18 @@
 ---
 import Layout from '../../components/Layout.astro';
 import RunCard from '../../components/RunCard.astro';
+import UseCard from '../../components/UseCard.astro';
 import { benchmarkMap, data, withBase } from '../../lib/data';
 export function getStaticPaths() { return data.works.map((work) => ({ params: { id: work.id }, props: { work } })); }
 const { work } = Astro.props;
 const runs = data.evaluation_runs.filter((run) => run.work_id === work.id);
+const uses = data.benchmark_uses.filter((use) => use.work_id === work.id);
 ---
 <Layout title={work.title} canonicalPath={`/works/${work.id}/`}>
-  <header class="page-head shell"><div class="breadcrumbs"><a href={withBase('/')}>Atlas</a><span>/</span><span>Works</span><span>/</span><span>{work.id}</span></div><p class="eyebrow">{work.work_type} · {work.source_class.replaceAll('_',' ')}</p><h1>{work.title}</h1><p class="lede">{work.organizations.join(' · ')} · {work.publication_date}</p></header>
-  <div class="shell section detail-grid"><div><h2>Evaluations represented by this work</h2>{runs.length ? runs.map((run) => <><p><a href={withBase(`/benchmarks/${run.benchmark_id}/`)}>{benchmarkMap.get(run.benchmark_id)?.name ?? run.benchmark_id} →</a></p><RunCard run={run} /></>) : <div class="callout info">This creator source supports benchmark metadata; no normalized model run is attached yet.</div>}</div>
-  <aside class="sidebar card"><h3>Source record</h3><dl class="definition-list"><div><dt>Status</dt><dd>{work.status}</dd></div><div><dt>Published</dt><dd>{work.publication_date}</dd></div><div><dt>Authors</dt><dd>{work.authors.join(', ')}</dd></div><div><dt>DOI</dt><dd>{work.doi ?? 'Not reported'}</dd></div><div><dt>arXiv</dt><dd>{work.arxiv ?? 'Not reported'}</dd></div></dl><p><a class="button" href={work.canonical_url}>Open canonical source ↗</a></p></aside></div>
+  <header class="page-head shell"><div class="breadcrumbs"><a href={withBase('/')}>Atlas</a><span>/</span><a href={withBase('/works/')}>Papers</a><span>/</span><span>{work.id}</span></div><p class="eyebrow">{work.work_type} · {work.source_class.replaceAll('_',' ')}</p><h1>{work.title}</h1><p class="lede">{work.organizations.join(' · ')} · {work.publication_date}</p></header>
+  <div class="shell section detail-grid"><div>
+    <section><p class="eyebrow">Relationship layer</p><h2>Benchmark usage</h2><p class="muted">This table records what the work did with each benchmark before attempting to normalize a run. Partial claims remain visible without being treated as comparable evaluations.</p>{uses.length ? uses.map((use) => <UseCard use={use} showWork={false} />) : <div class="callout info">No BenchmarkUse relation is normalized for this legacy work yet. Existing EvaluationRuns remain available below.</div>}</section>
+    <section class="section-tight"><h2>Normalized evaluation runs</h2>{runs.length ? runs.map((run) => <><p><a href={withBase(`/benchmarks/${run.benchmark_id}/`)}>{benchmarkMap.get(run.benchmark_id)?.name ?? run.benchmark_id} →</a></p><RunCard run={run} /></>) : <div class="callout info">This source has no normalized model run. It may be a creator-only source or a partial/non-evaluation benchmark use.</div>}</section>
+  </div>
+  <aside class="sidebar card"><h3>Source record</h3><dl class="definition-list"><div><dt>Status</dt><dd>{work.status}</dd></div><div><dt>Published</dt><dd>{work.publication_date}</dd></div><div><dt>Authors</dt><dd>{work.authors.join(', ')}</dd></div><div><dt>DOI</dt><dd>{work.doi ?? 'Not reported'}</dd></div><div><dt>arXiv</dt><dd>{work.arxiv ?? 'Not reported'}</dd></div><div><dt>Current source version</dt><dd><code>{work.current_version_id}</code></dd></div></dl><h3>Source versions</h3><ul>{work.source_versions.map((version) => <li><a href={version.canonical_url}>{version.label}</a><br/><span class="small muted">{version.id} · {version.status} · {version.publication_date}</span></li>)}</ul><p><a class="button" href={work.canonical_url}>Open canonical source ↗</a></p></aside></div>
 </Layout>

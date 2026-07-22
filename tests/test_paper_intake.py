@@ -3,6 +3,8 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+import yaml
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
@@ -75,3 +77,10 @@ def test_build_intake_is_non_production_and_does_not_infer_relations() -> None:
     assert intake["duplicate_work_candidates"][0]["work_id"] == "spatialbench-preprint"
     assert intake["benchmark_candidates"][0]["benchmark_id"] == "spatialbench"
     assert "relation_type" not in intake
+
+
+def test_paper_intake_workflow_is_valid_yaml() -> None:
+    workflow = ROOT / ".github" / "workflows" / "paper-intake.yml"
+    payload = yaml.safe_load(workflow.read_text(encoding="utf-8"))
+    assert payload["name"] == "Paper intake scaffold"
+    assert "scaffold" in payload["jobs"]

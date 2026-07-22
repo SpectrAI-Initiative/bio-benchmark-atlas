@@ -213,6 +213,7 @@ td a { font-weight: 700; text-decoration: none; }
 .chart-card header { display: flex; align-items: start; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
 .chart-card header p { color: var(--ink-soft); font-size: .84rem; }
 .chart { min-height: 220px; overflow-x: auto; }
+.plot-host { overflow-anchor: none; }
 .chart svg { display: block; color: var(--ink); }
 .chart-data { margin-top: .85rem; }
 .chart-data summary { cursor: pointer; font-weight: 700; }
@@ -240,7 +241,18 @@ td a { font-weight: 700; text-decoration: none; }
 .definition-list dt { color: var(--ink-soft); font-size: .79rem; font-weight: 700; }
 .definition-list dd { margin: 0; }
 
-.run-card { margin: 1rem 0; padding: 1.2rem; border: 1px solid var(--line); border-radius: 15px; background: var(--panel); }
+.work-run-groups { display: grid; gap: .65rem; margin-top: 1rem; }
+.work-run-group { border: 1px solid var(--line); border-radius: 14px; background: var(--panel); }
+.work-run-group > summary { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .85rem 1rem .85rem 2rem; cursor: pointer; font-weight: 750; list-style: none; }
+.work-run-group > summary::-webkit-details-marker { display: none; }
+.work-run-group > summary::before { content: '›'; position: absolute; left: .8rem; top: 50%; color: var(--coral-text); font-size: 1.25rem; line-height: 1; transform: translateY(-52%); transition: transform .16s ease; }
+.work-run-group[open] > summary::before { transform: translateY(-52%) rotate(90deg); }
+.work-run-group > summary span:last-child { color: var(--ink-soft); font-size: .78rem; white-space: nowrap; }
+.work-run-group[open] { padding: 0 1rem 1rem; }
+.work-run-group[open] > summary { margin-inline: -1rem; margin-bottom: .5rem; border-bottom: 1px solid var(--line); }
+.work-run-group > p { margin: .7rem 0; }
+.work-run-group .run-card { margin-inline: 0; }
+.run-card { margin: 1rem 0; padding: 1.2rem; border: 1px solid var(--line); border-radius: 15px; background: var(--panel); content-visibility: auto; contain-intrinsic-block-size: auto 1000px; }
 .run-head { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
 .setting-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .5rem; margin: 1rem 0; }
 .setting { padding: .7rem; border-radius: 10px; background: color-mix(in srgb, var(--mint-soft) 42%, var(--panel)); }

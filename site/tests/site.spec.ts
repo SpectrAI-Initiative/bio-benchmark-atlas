@@ -5,6 +5,20 @@ test('home renders charts and core navigation', async ({ page }, testInfo) => {
   await page.goto('/bio-benchmark-atlas/');
   await expect(page.getByRole('heading', { name: /Map the benchmark/ })).toBeVisible();
   await expect(page.locator('.plot-host:visible svg').first()).toBeVisible();
+  if (testInfo.project.name !== 'mobile') {
+    const heatmapBounds = await page.evaluate(() => {
+      const host = [...document.querySelectorAll<HTMLElement>('.plot-host[data-kind="heatmap"]')]
+        .find((candidate) => candidate.textContent?.includes('Protein-protein binding'));
+      const label = host
+        ? [...host.querySelectorAll<SVGTextElement>('text')].find((candidate) => candidate.textContent === 'Protein-protein binding')
+        : null;
+      return host && label
+        ? { hostLeft: host.getBoundingClientRect().left, labelLeft: label.getBoundingClientRect().left }
+        : null;
+    });
+    expect(heatmapBounds).not.toBeNull();
+    expect(heatmapBounds!.labelLeft).toBeGreaterThanOrEqual(heatmapBounds!.hostLeft);
+  }
   if (testInfo.project.name === 'mobile') await page.getByRole('button', { name: 'Menu' }).click();
   await expect(page.getByRole('link', { name: 'Explorer' })).toBeVisible();
   await expect(page.getByRole('heading', { name: /New or re-verified evidence/ })).toBeVisible();
@@ -21,6 +35,8 @@ test('explorer restores and updates URL filter state', async ({ page }) => {
   await expect(page).toHaveURL(/q=FLIP/);
   await expect(page.getByRole('link', { name: 'FLIP', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: 'ProteinGym', exact: true })).toBeHidden();
+  await expect(page.getByRole('link', { name: 'Download all benchmarks CSV' }))
+    .toHaveAttribute('href', '/bio-benchmark-atlas/data/benchmarks.csv');
 });
 
 test('Paper Explorer restores relation and review filters and links both usage exports', async ({ page }) => {
@@ -540,6 +556,7 @@ test('detail pages collapse dense metadata without losing evidence', async ({ pa
   await expect(page.locator('.evidence-item').first().locator('summary')).toContainText('Supports');
   await expect(page.locator('.evidence-paths').first()).toBeHidden();
   if (testInfo.project.name === 'mobile') {
+    await page.locator('.detail-grid .table-wrap').first().scrollIntoViewIfNeeded();
     await expect(page.locator('.table-scroll-shell[data-overflow]').first()).toBeVisible();
     await expect(page.locator('.table-scroll-shell[data-overflow] .table-scroll-hint').first()).toBeVisible();
   }
@@ -551,11 +568,36 @@ test('detail pages collapse dense metadata without losing evidence', async ({ pa
   await expect(page.locator('.author-overflow')).not.toHaveAttribute('open', '');
   const headingSize = await page.locator('.work-head h1').evaluate((node) => Number.parseFloat(getComputedStyle(node).fontSize));
   expect(headingSize).toBeLessThanOrEqual(testInfo.project.name === 'mobile' ? 40 : 64);
+  const runGroupCount = await page.locator('.work-run-group').count();
+  expect(runGroupCount).toBeGreaterThan(1);
+  await expect(page.locator('.work-run-group[open]')).toHaveCount(0);
+  expect(await page.locator('.table-scroll-shell').count()).toBeLessThan(10);
+  const initialPageHeight = await page.evaluate(() => document.documentElement.scrollHeight);
+  expect(initialPageHeight).toBeLessThan(30_000);
+  await page.locator('.work-run-group > summary').first().click();
+  await expect(page.locator('.work-run-group[open]')).toHaveCount(1);
+  const expandedPageOverflows = await page.evaluate(
+    () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
+  );
+  expect(expandedPageOverflows).toBe(false);
 });
 
 test('dark mode and mobile navigation remain usable', async ({ page }, testInfo) => {
   await page.goto('/bio-benchmark-atlas/');
   await page.getByRole('button', { name: 'Toggle color theme' }).click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await expect.poll(async () => page.evaluate(() => {
+    const plot = document.querySelector<SVGElement>('.plot-host[data-kind="bar"] svg');
+    return plot ? getComputedStyle(plot).color === getComputedStyle(document.body).color : false;
+  })).toBe(true);
+  const anchoredScroll = await page.evaluate(() => {
+    window.scrollTo(0, 2_000);
+    const before = window.scrollY;
+    document.querySelector<HTMLButtonElement>('.theme-toggle')?.click();
+    return before;
+  });
+  await expect.poll(async () => page.evaluate(() => window.scrollY)).toBe(anchoredScroll);
+  await page.evaluate(() => document.querySelector<HTMLButtonElement>('.theme-toggle')?.click());
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   if (testInfo.project.name === 'mobile') await page.getByRole('button', { name: 'Menu' }).click();
   await expect(page.getByRole('link', { name: 'Explorer' })).toBeVisible();

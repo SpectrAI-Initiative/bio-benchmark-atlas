@@ -1,10 +1,11 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
-test('home renders charts and core navigation', async ({ page }) => {
+test('home renders charts and core navigation', async ({ page }, testInfo) => {
   await page.goto('/bio-benchmark-atlas/');
   await expect(page.getByRole('heading', { name: /Map the benchmark/ })).toBeVisible();
   await expect(page.locator('.plot-host:visible svg').first()).toBeVisible();
+  if (testInfo.project.name === 'mobile') await page.getByRole('button', { name: 'Menu' }).click();
   await expect(page.getByRole('link', { name: 'Explorer' })).toBeVisible();
   await expect(page.getByRole('heading', { name: /New or re-verified evidence/ })).toBeVisible();
 });
@@ -13,6 +14,8 @@ test('explorer restores and updates URL filter state', async ({ page }) => {
   await page.goto('/bio-benchmark-atlas/benchmarks/?domain=protein-design&access=fully-open');
   await expect(page.locator('#domain')).toHaveValue('protein-design');
   await expect(page.locator('#access')).toHaveValue('fully-open');
+  await expect(page.locator('[data-advanced-filter]')).toHaveAttribute('open', '');
+  await expect(page.locator('[data-advanced-count]')).toHaveText('(1)');
   await expect(page.getByRole('link', { name: 'ProteinGym', exact: true })).toBeVisible();
   await page.locator('#q').fill('FLIP');
   await expect(page).toHaveURL(/q=FLIP/);
@@ -25,6 +28,8 @@ test('Paper Explorer restores relation and review filters and links both usage e
   await expect(page.locator('#source-class')).toHaveValue('official_model_provider');
   await expect(page.locator('#relation')).toHaveValue('external-result-summary');
   await expect(page.locator('#review-method')).toHaveValue('manual');
+  await expect(page.locator('[data-advanced-filter]')).toHaveAttribute('open', '');
+  await expect(page.locator('[data-advanced-count]')).toHaveText('(2)');
   await expect(page.getByRole('link', { name: 'Advancing Claude in healthcare and the life sciences', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Claude for Life Sciences', exact: true })).toBeHidden();
   await page.locator('#q').fill('Anthropic');
@@ -77,10 +82,12 @@ test('Work detail presents BenchmarkUse before normalized runs and preserves sou
   await expect(page.getByText('arXiv v2', { exact: true })).toBeVisible();
 });
 
-test('Scientific Task explorer supports aliases, filters, gaps, and URL restoration', async ({ page }) => {
+test('Scientific Task explorer supports aliases, filters, gaps, and URL restoration', async ({ page }, testInfo) => {
   await page.goto('/bio-benchmark-atlas/tasks/?object=protein&coverage=covered');
   await expect(page.locator('#object')).toHaveValue('protein');
   await expect(page.locator('#coverage')).toHaveValue('covered');
+  await expect(page.locator('[data-advanced-filter]')).toHaveAttribute('open', '');
+  await expect(page.locator('[data-advanced-count]')).toHaveText('(1)');
   await page.locator('#q').fill('folding');
   await expect(page).toHaveURL(/q=folding/);
   await expect(page.getByRole('link', { name: 'Protein monomer structure prediction', exact: true })).toBeVisible();
@@ -89,10 +96,14 @@ test('Scientific Task explorer supports aliases, filters, gaps, and URL restorat
   await page.locator('#object').selectOption('small-molecule');
   await page.locator('#coverage').selectOption('gap');
   await page.locator('#q').fill('retrosynthesis');
-  const gapRow = page.locator('#task-table tbody tr').filter({ has: page.getByRole('link', { name: 'Retrosynthesis planning', exact: true }) });
+  const gapRow = testInfo.project.name === 'mobile'
+    ? page.locator('[data-mobile-record][data-record-id="retrosynthesis-planning"]')
+    : page.locator('#task-table tbody tr').filter({ has: page.getByRole('link', { name: 'Retrosynthesis planning', exact: true }) });
   await expect(gapRow).toBeVisible();
   await expect(gapRow.getByText('Coverage gap', { exact: true })).toBeVisible();
-  await expect(page.locator('.chart-card details[open] table').first()).toBeVisible();
+  const heatmapTable = page.locator('.chart-data[data-chart-kind="heatmap"]');
+  if (testInfo.project.name === 'mobile') await expect(heatmapTable).toHaveAttribute('open', '');
+  else await expect(heatmapTable).not.toHaveAttribute('open', '');
 });
 
 test('Scientific Task detail pages preserve evidence-backed counts and gaps', async ({ page }) => {
@@ -459,10 +470,94 @@ test('alias redirects to permanent benchmark id', async ({ page }) => {
   await expect(page).toHaveURL(/\/benchmarks\/proteingym\/$/);
 });
 
-test('dark mode and mobile navigation remain usable', async ({ page }) => {
+test('responsive navigation stays compact and keyboard operable', async ({ page }, testInfo) => {
+  await page.goto('/bio-benchmark-atlas/');
+  const menu = page.getByRole('button', { name: 'Menu' });
+  const explorer = page.getByRole('link', { name: 'Explorer' });
+  if (testInfo.project.name !== 'mobile') {
+    await expect(menu).toBeHidden();
+    await expect(explorer).toBeVisible();
+    return;
+  }
+
+  const headerHeight = await page.locator('.site-header').evaluate((node) => node.getBoundingClientRect().height);
+  expect(headerHeight).toBeLessThanOrEqual(72);
+  await expect(menu).toHaveAttribute('aria-expanded', 'false');
+  await expect(explorer).toBeHidden();
+  const scrollBeforeMenu = await page.evaluate(() => scrollY);
+  await menu.click();
+  await expect(menu).toHaveAttribute('aria-expanded', 'true');
+  await expect(explorer).toBeFocused();
+  expect(await page.evaluate(() => scrollY)).toBe(scrollBeforeMenu);
+  await page.keyboard.press('Escape');
+  await expect(menu).toHaveAttribute('aria-expanded', 'false');
+  await expect(menu).toBeFocused();
+
+  await menu.click();
+  await page.locator('main').click({ position: { x: 5, y: 5 } });
+  await expect(menu).toHaveAttribute('aria-expanded', 'false');
+  await menu.click();
+  await explorer.click();
+  await expect(page).toHaveURL(/\/benchmarks\/$/);
+  await expect(page.getByRole('button', { name: 'Menu' })).toHaveAttribute('aria-expanded', 'false');
+});
+
+test('explorers switch between desktop tables and synchronized mobile cards', async ({ page }, testInfo) => {
+  for (const path of ['/bio-benchmark-atlas/benchmarks/', '/bio-benchmark-atlas/works/', '/bio-benchmark-atlas/tasks/']) {
+    await page.goto(path);
+    if (testInfo.project.name === 'mobile') {
+      await expect(page.locator('.desktop-record-table')).toBeHidden();
+      await expect(page.locator('[data-mobile-record]:visible').first()).toBeVisible();
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
+      expect(overflow, path).toBe(false);
+    } else {
+      await expect(page.locator('.desktop-record-table')).toBeVisible();
+      await expect(page.locator('[data-mobile-record]').first()).toBeHidden();
+    }
+  }
+
+  await page.goto('/bio-benchmark-atlas/benchmarks/');
+  await page.locator('#q').fill('FLIP');
+  await expect(page.locator('[data-mobile-record][data-record-id="flip"]')).not.toHaveAttribute('hidden', '');
+  await expect(page.locator('[data-mobile-record][data-record-id="proteingym"]')).toHaveAttribute('hidden', '');
+  await expect(page.locator('#benchmark-table [data-record-id="flip"]')).not.toHaveAttribute('hidden', '');
+  await expect(page.locator('#benchmark-table [data-record-id="proteingym"]')).toHaveAttribute('hidden', '');
+  await expect(page.locator('#visible-count')).toHaveText('4');
+  await page.locator('[data-advanced-filter] summary').click();
+  await page.locator('#access').selectOption('fully-open');
+  await expect(page.locator('[data-advanced-count]')).toHaveText('(1)');
+  await page.locator('#access').selectOption('');
+  await expect(page.locator('[data-advanced-count]')).toHaveText('');
+});
+
+test('detail pages collapse dense metadata without losing evidence', async ({ page }, testInfo) => {
+  await page.goto('/bio-benchmark-atlas/benchmarks/lifescibench/');
+  await expect(page.locator('.tag-overflow summary')).toHaveText(/\+\d+ more/);
+  await expect(page.locator('.tag-overflow')).not.toHaveAttribute('open', '');
+  await expect(page.locator('.sidebar-details').first()).not.toHaveAttribute('open', '');
+  await expect(page.locator('.evidence-item')).toHaveCount(5);
+  await expect(page.locator('.evidence-item').first()).not.toHaveAttribute('open', '');
+  await expect(page.locator('.evidence-item').first().locator('summary')).toContainText('Supports');
+  await expect(page.locator('.evidence-paths').first()).toBeHidden();
+  if (testInfo.project.name === 'mobile') {
+    await expect(page.locator('.table-scroll-shell[data-overflow]').first()).toBeVisible();
+    await expect(page.locator('.table-scroll-shell[data-overflow] .table-scroll-hint').first()).toBeVisible();
+  }
+
+  await page.goto('/bio-benchmark-atlas/works/bioinstructions-paper/');
+  await expect(page.locator('.breadcrumbs')).toContainText('Work detail');
+  await expect(page.locator('.breadcrumbs')).not.toContainText('bioinstructions-paper');
+  await expect(page.locator('.author-overflow summary')).toHaveText('and 10 more');
+  await expect(page.locator('.author-overflow')).not.toHaveAttribute('open', '');
+  const headingSize = await page.locator('.work-head h1').evaluate((node) => Number.parseFloat(getComputedStyle(node).fontSize));
+  expect(headingSize).toBeLessThanOrEqual(testInfo.project.name === 'mobile' ? 40 : 64);
+});
+
+test('dark mode and mobile navigation remain usable', async ({ page }, testInfo) => {
   await page.goto('/bio-benchmark-atlas/');
   await page.getByRole('button', { name: 'Toggle color theme' }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  if (testInfo.project.name === 'mobile') await page.getByRole('button', { name: 'Menu' }).click();
   await expect(page.getByRole('link', { name: 'Explorer' })).toBeVisible();
   await page.goto('/bio-benchmark-atlas/benchmarks/biomysterybench/');
   const hasPageOverflow = await page.evaluate(
@@ -481,12 +576,13 @@ test('dark mode and mobile navigation remain usable', async ({ page }) => {
   expect(proteinGymOverflow.resourceLabelsWrap).toBe(true);
 });
 
-test('critical pages have no serious or critical axe violations', async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name === 'mobile', 'One desktop accessibility sweep is sufficient.');
+test('critical pages have no serious or critical axe violations', async ({ page }) => {
   for (const path of [
     '/bio-benchmark-atlas/',
     '/bio-benchmark-atlas/benchmarks/',
     '/bio-benchmark-atlas/benchmarks/lifescibench/',
+    '/bio-benchmark-atlas/works/',
+    '/bio-benchmark-atlas/works/bioinstructions-paper/',
     '/bio-benchmark-atlas/tasks/',
     '/bio-benchmark-atlas/tasks/protein-design/',
     '/bio-benchmark-atlas/methodology/',

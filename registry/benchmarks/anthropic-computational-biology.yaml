@@ -1,0 +1,32 @@
+entity_type: benchmark
+id: anthropic-computational-biology
+name: Anthropic Computational Biology Eval
+aliases: []
+summary: Private Anthropic computational-biology evaluation direction reported only through a model-trend chart, without public tasks, counts, or protocol details.
+kind: track
+parent_id: anthropic-key-life-sciences-evals
+organizations: [Anthropic]
+release_date: '2026-01-11'
+latest_version: reported-2026-01-11
+domains: [life-science, bioinformatics]
+capabilities: [data-analysis, scientific-reasoning]
+modalities: [text]
+task_formats: [private computational biology evaluation; exact format not reported]
+task_counts: &compbio-counts {total: null, basis: private computational biology tasks, reporting_status: not_reported, subsets: []}
+coverage_notes: [{tag: bioinformatics, coverage: explicitly-in-scope, count: null, reporting_status: not_reported, notes: The direction is explicit; task count is not reported.}]
+access: {level: private-internal, tasks: No task content is released., artifacts: Only an aggregate model-trend chart is public., grader: Not reported, license: null, biosafety_notes: No examples or task content are public.}
+resources:
+  - {id: anthropic-computational-biology-page-resource, type: website, url: 'https://www.anthropic.com/news/healthcare-life-sciences', license: null, access_notes: Official source naming this private direction and its annotated model delta., last_checked: '2026-07-22', pin: {kind: snapshot, value: '2026-01-11-page; chart-sha256:707bbc2884cfe1ca49a419ceb053d2382d6af1819b8bb7b985423640d84fca2d', url: 'https://www.anthropic.com/news/healthcare-life-sciences'}}
+implementations: [{framework: Anthropic internal evaluation harness, status: not-available, url: null, commit: null, notes: Not released.}]
+versions:
+  - {id: anthropic-computational-biology-reported-2026-01-11, label: reported-2026-01-11, status: current, release_date: '2026-01-11', as_of: '2026-01-11', task_counts: *compbio-counts, formal_tracks: [], notes: Metadata-only snapshot., evidence_ids: [anthropic-computational-biology-evidence]}
+audit: {status: audited, audited_date: '2026-07-22', unresolved_fields: 0, notes: 'Missing task, prompt, grader, and count fields are explicitly Not reported.'}
+field_status: []
+verification: {status: verified, last_verified: '2026-07-22', notes: Official direction label and exact delta only.}
+evidence:
+  - id: anthropic-computational-biology-evidence
+    source_type: work
+    source_id: anthropic-healthcare-life-sciences
+    accessed_date: '2026-07-22'
+    locator: {type: figure, value: 'Evals for key life sciences tasks — Computational biology', note: 'Exact direction label and +10.5% Opus 4.5 annotation.'}
+    supports: [/name, /summary, /kind, /parent_id, /organizations, /release_date, /latest_version, /domains, /capabilities, /modalities, /task_formats, /task_counts/total, /task_counts/basis, /task_counts/subsets, /coverage_notes, /access/level, /access/tasks, /access/artifacts, /access/grader, /access/license, /access/biosafety_notes, /resources, /implementations, /versions/0/release_date, /versions/0/as_of, /versions/0/task_counts/total, /versions/0/task_counts/basis, /versions/0/task_counts/subsets]

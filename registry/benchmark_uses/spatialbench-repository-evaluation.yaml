@@ -1,0 +1,22 @@
+entity_type: benchmark_use
+id: spatialbench-repository-evaluation
+work_id: spatialbench-repository-release
+work_version_id: spatialbench-repository-release-2026-06-10
+benchmark_id: spatialbench
+benchmark_version: repo-159-5042c4f
+relation_type: evaluation
+status: normalized
+model_ids: [gpt-5-5, gpt-5-4, gemini-3-5-flash, claude-opus-4-8, claude-opus-4-6, claude-opus-4-7, gemini-3-1-pro-preview, gpt-5-2, grok-4-20-beta-0309-reasoning, claude-sonnet-4-6, claude-opus-4-5, claude-sonnet-4-5, gpt-5-1, grok-4-1-fast-reasoning, grok-4, gemini-2-5-pro]
+scope: {type: full, subset_kind: not-applicable, n: 159, subset_id: null, selection: null, selection_method: all 159 evaluations, reporting_status: reported}
+metric_labels: [Accuracy, Cost, Duration]
+evaluation_run_ids: [spatialbench-repo-159-mini-swe-agent, spatialbench-repo-159-claude-code, spatialbench-repo-159-pi, spatialbench-repo-159-openai-codex]
+reporting_gaps: []
+notes: mini-swe-agent, Claude Code, Pi, and OpenAI Codex are separate normalized runs and comparability groups.
+verification: {status: verified, last_verified: '2026-07-22', notes: Current full-suite results and protocol are tied to the registered repository commit.}
+evidence:
+  - id: spatialbench-repository-evaluation-use-evidence
+    source_type: resource
+    source_id: spatialbench-repository-resource
+    accessed_date: '2026-07-22'
+    locator: {type: repository-path, value: 'METHODS.md and results/model_results.csv at commit 5042c4f3ee597da1590650c7b894d068ae968e26', note: 'Full 159-evaluation methods and harness-specific result rows.'}
+    supports: [/benchmark_version, /relation_type, /status, /model_ids, /scope, /metric_labels, /evaluation_run_ids, /notes]

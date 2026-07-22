@@ -1,0 +1,16 @@
+entity_type: work
+id: spatialbench-repository-release
+title: SpatialBench 159-evaluation repository snapshot
+authors: [LatchBio]
+organizations: [LatchBio]
+work_type: official-release
+source_class: benchmark_creator
+publication_date: '2026-06-10'
+canonical_url: https://github.com/latchbio/spatialbench/tree/5042c4f3ee597da1590650c7b894d068ae968e26
+doi: null
+arxiv: null
+status: published
+verification:
+  status: verified
+  last_verified: '2026-07-22'
+  notes: Creator-maintained commit-pinned snapshot with 159-evaluation metadata, methods, graders, trajectories, and exact result tables.

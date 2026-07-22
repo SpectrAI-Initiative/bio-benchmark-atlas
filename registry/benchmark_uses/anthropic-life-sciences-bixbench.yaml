@@ -1,0 +1,42 @@
+entity_type: benchmark_use
+id: anthropic-life-sciences-bixbench
+work_id: anthropic-life-sciences
+work_version_id: anthropic-life-sciences-2025-10-20
+benchmark_id: bixbench
+benchmark_version: null
+relation_type: evaluation
+status: partial
+model_ids: [claude-sonnet-4-5, claude-sonnet-4]
+scope:
+  type: unknown
+  subset_kind: not-reported
+  n: null
+  subset_id: null
+  selection: null
+  selection_method: null
+  reporting_status: not_reported
+metric_labels: []
+evaluation_run_ids: []
+reporting_gaps:
+  - benchmark version
+  - full, subset, or track scope
+  - realized n
+  - metric and aggregation
+  - numeric results
+  - prompt, tools, and budget
+  - repeats and grader
+notes: Anthropic states that Sonnet 4.5 shows a similar improvement over Sonnet 4 on BixBench, but publishes no score or sufficiently specified evaluation setting. No value is inferred from the wording.
+verification:
+  status: verified
+  last_verified: '2026-07-22'
+  notes: The comparison claim is preserved as a partial use rather than a fabricated normalized run.
+evidence:
+  - id: anthropic-life-sciences-bixbench-evidence
+    source_type: work
+    source_id: anthropic-life-sciences
+    accessed_date: '2026-07-22'
+    locator:
+      type: section
+      value: Making Claude a better research partner, paragraph 2
+      note: Names BixBench and compares Sonnet 4.5 with predecessor Sonnet 4, without settings, metric, or results.
+    supports: [/benchmark_version, /relation_type, /status, /model_ids, /scope, /metric_labels, /evaluation_run_ids, /reporting_gaps, /notes]

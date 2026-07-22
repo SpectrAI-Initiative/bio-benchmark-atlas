@@ -1,0 +1,77 @@
+entity_type: evaluation_run
+id: spatialbench-paper-v2-base
+work_id: spatialbench-preprint
+work_version_id: spatialbench-preprint-v2
+benchmark_id: spatialbench
+benchmark_version: paper-v2
+model_ids: [claude-opus-4-5, claude-sonnet-4-5, gpt-5-2, gpt-5-1, gemini-2-5-pro, grok-4, spatialbench-grok-4-1-unversioned]
+scope: {type: full, n: 146, subset_id: null, filter: null, selection: null, reporting_status: reported}
+protocol:
+  shots: {value: null, reporting_status: not_reported, notes: Demonstration count is not reported.}
+  turns: {value: multi-turn agent, reporting_status: reported, notes: A step is one model invocation plus resulting tool calls; up to 100 steps are allowed.}
+  system_prompt_public: {value: false, reporting_status: reported, notes: 'Task prompts and examples are printed, but the complete base-harness system prompt is not published in the paper.'}
+  reasoning: {value: slightly modified Mini-SWE-Bench base harness, reporting_status: reported, notes: Provider reasoning-effort controls are not reported.}
+  tools:
+    browser: {value: null, reporting_status: not_reported, notes: Browser access is not reported.}
+    internet: {value: null, reporting_status: not_reported, notes: Network access is not reported for the paper-era runs.}
+    databases: {value: null, reporting_status: not_reported, notes: External database access is not reported.}
+    code_execution: {value: true, reporting_status: reported, notes: Agents interact with common scientific Python tooling and local data snapshots.}
+    container: {value: true, reporting_status: reported, notes: Evaluations execute in isolated clean workspaces under fixed resource limits.}
+    external_tools: {value: interactive compute and local workspace, reporting_status: reported, notes: Harness-specific routing and prompts differ across conditions.}
+  token_budget: {value: null, reporting_status: not_reported, notes: Not reported.}
+  time_budget: {value: maximum 100 agent steps; exact timeout not reported, reporting_status: reported, notes: The paper documents the hard step limit but not the wall-clock value.}
+  temperature: {value: null, reporting_status: not_reported, notes: Not reported.}
+  seed: {value: independent random seeds, reporting_status: reported, notes: Exact seed values are not reported.}
+  repeats: {value: 3, reporting_status: reported, notes: Every model configuration ran every evaluation three times.}
+  grader: {type: five deterministic grader families, model: null, human_review: false, reporting_status: reported}
+  statistical: {value: two-stage evaluation-weighted mean with t-distribution 95% confidence intervals over per-evaluation means, reporting_status: reported, notes: Missing/crashed evaluations count as failures; cost records missing from API logs are excluded only from cost aggregation.}
+  contamination: {value: null, reporting_status: not_reported, notes: No model-training decontamination study is reported.}
+metrics:
+  - {metric_id: accuracy, source_label: Accuracy, unit: percent, range: [0, 100], higher_is_better: true, aggregation: mean over 146 evaluation-level means after three repeats, pass_threshold: null, tolerance: deterministic task-specific grader, kind: absolute, baseline_model_id: null}
+  - {metric_id: mean-steps, source_label: Steps, unit: steps per evaluation, range: [1, 100], higher_is_better: false, aggregation: mean over evaluation-level three-run means, pass_threshold: null, tolerance: null, kind: absolute, baseline_model_id: null}
+  - {metric_id: mean-latency, source_label: Latency, unit: seconds per evaluation, range: null, higher_is_better: false, aggregation: mean over evaluation-level three-run means, pass_threshold: null, tolerance: null, kind: absolute, baseline_model_id: null}
+  - {metric_id: mean-cost, source_label: Cost, unit: USD per evaluation, range: null, higher_is_better: false, aggregation: mean over evaluation-level three-run means with missing cost logs excluded, pass_threshold: null, tolerance: null, kind: absolute, baseline_model_id: null}
+results:
+  - {model_id: claude-opus-4-5, metric_id: accuracy, value: 38.36, ci_low: 31.27, ci_high: 45.44, n: 146, notes: Table 1, status: verified, confidence: high, evidence_ids: [spatialbench-paper-base-results-evidence]}
+  - {model_id: claude-opus-4-5, metric_id: mean-steps, value: 2.84, ci_low: 2.51, ci_high: 3.17, n: 146, notes: Table 1, status: verified, confidence: high, evidence_ids: [spatialbench-paper-base-results-evidence]}
+  - {model_id: claude-opus-4-5, metric_id: mean-latency, value: 123.8, ci_low: 104.8, ci_high: 142.9, n: 146, notes: Table 1, status: verified, confidence: high, evidence_ids: [spatialbench-paper-base-results-evidence]}
+  - {model_id: claude-opus-4-5, metric_id: mean-cost, value: 0.143, ci_low: 0.121, ci_high: 0.165, n: 146, notes: Table 1, status: verified, confidence: high, evidence_ids: [spatialbench-paper-base-results-evidence]}
+  - {model_id: claude-sonnet-4-5, metric_id: accuracy, value: 28.31, ci_low: 22.22, ci_high: 34.40, n: 146, notes: Table 1, status: verified, confidence: high, evidence_ids: [spatialbench-paper-base-results-evidence]}
+  - {model_id: claude-sonnet-4-5, metric_id: mean-steps, value: 2.43, ci_low: 2.17, ci_high: 2.70, n: 146, notes: Table 1, status: verified, confidence: high, evidence_ids: [spatialbench-paper-base-results-evidence]}
+  - {model_id: claude-sonnet-4-5, metric_id: mean-latency, value: 115.6, ci_low: 98.0, ci_high: 133.2, n: 146, notes: Table 1, status: verified, confidence: high, evidence_ids: [spatialbench-paper-base-results-evidence]}
+  - {model_id: claude-sonnet-4-5, metric_id: mean-cost, value: 0.081, ci_low: 0.068, ci_high: 0.093, n: 146, notes: Table 1, status: verified, confidence: high, evidence_ids: [spatialbench-paper-base-results-evidence]}
+  - {model_id: gpt-5-2, metric_id: accuracy, value: 34.02, ci_low: 27.57, ci_high: 40.47, n: 146, notes: Table 1, status: verified, confidence: high, evidence_ids: [spatialbench-paper-base-results-evidence]}
+  - {model_id: gpt-5-2, metric_id: mean-steps, value: 2.10, ci_low: 1.89, ci_high: 2.30, n: 146, notes: Table 1, status: verified, confidence: high, evidence_ids: [spatialbench-paper-base-results-evidence]}
+  - {model_id: gpt-5-2, metric_id: mean-latency, value: 89.2, ci_low: 76.9, ci_high: 101.4, n: 146, notes: Table 1, status: verified, confidence: high, evidence_ids: [spatialbench-paper-base-results-evidence]}
+  - {model_id: gpt-5-2, metric_id: mean-cost, value: 0.037, ci_low: 0.031, ci_high: 0.042, n: 146, notes: Table 1, status: verified, confidence: high, evidence_ids: [spatialbench-paper-base-results-evidence]}
+  - {model_id: gpt-5-1, metric_id: accuracy, value: 27.40, ci_low: 21.30, ci_high: 33.50, n: 146, notes: Table 1, status: verified, confidence: high, evidence_ids: [spatialbench-paper-base-results-evidence]}
+  - {model_id: gpt-5-1, metric_id: mean-steps, value: 2.38, ci_low: 2.18, ci_high: 2.58, n: 146, notes: Table 1, status: verified, confidence: high, evidence_ids: [spatialbench-paper-base-results-evidence]}
+  - {model_id: gpt-5-1, metric_id: mean-latency, value: 55.8, ci_low: 48.2, ci_high: 63.5, n: 146, notes: Table 1, status: verified, confidence: high, evidence_ids: [spatialbench-paper-base-results-evidence]}
+  - {model_id: gpt-5-1, metric_id: mean-cost, value: 0.020, ci_low: 0.017, ci_high: 0.023, n: 146, notes: Table 1, status: verified, confidence: high, evidence_ids: [spatialbench-paper-base-results-evidence]}
+  - {model_id: gemini-2-5-pro, metric_id: accuracy, value: 20.09, ci_low: 14.75, ci_high: 25.43, n: 146, notes: Table 1, status: verified, confidence: high, evidence_ids: [spatialbench-paper-base-results-evidence]}
+  - {model_id: gemini-2-5-pro, metric_id: mean-steps, value: 3.61, ci_low: 3.11, ci_high: 4.10, n: 146, notes: Table 1, status: verified, confidence: high, evidence_ids: [spatialbench-paper-base-results-evidence]}
+  - {model_id: gemini-2-5-pro, metric_id: mean-latency, value: 193.5, ci_low: 168.2, ci_high: 218.7, n: 146, notes: Table 1, status: verified, confidence: high, evidence_ids: [spatialbench-paper-base-results-evidence]}
+  - {model_id: gemini-2-5-pro, metric_id: mean-cost, value: 0.188, ci_low: 0.157, ci_high: 0.219, n: 146, notes: Table 1, status: verified, confidence: high, evidence_ids: [spatialbench-paper-base-results-evidence]}
+  - {model_id: grok-4, metric_id: accuracy, value: 22.83, ci_low: 17.68, ci_high: 27.98, n: 146, notes: Table 1, status: verified, confidence: high, evidence_ids: [spatialbench-paper-base-results-evidence]}
+  - {model_id: grok-4, metric_id: mean-steps, value: 9.90, ci_low: 7.68, ci_high: 12.11, n: 146, notes: Table 1, status: verified, confidence: high, evidence_ids: [spatialbench-paper-base-results-evidence]}
+  - {model_id: grok-4, metric_id: mean-latency, value: 173.2, ci_low: 148.0, ci_high: 198.3, n: 146, notes: Table 1, status: verified, confidence: high, evidence_ids: [spatialbench-paper-base-results-evidence]}
+  - {model_id: grok-4, metric_id: mean-cost, value: 0.048, ci_low: 0.030, ci_high: 0.067, n: 146, notes: Table 1, status: verified, confidence: high, evidence_ids: [spatialbench-paper-base-results-evidence]}
+  - {model_id: spatialbench-grok-4-1-unversioned, metric_id: accuracy, value: 24.66, ci_low: 19.78, ci_high: 29.54, n: 146, notes: Table 1, status: verified, confidence: high, evidence_ids: [spatialbench-paper-base-results-evidence]}
+  - {model_id: spatialbench-grok-4-1-unversioned, metric_id: mean-steps, value: 9.93, ci_low: 8.09, ci_high: 11.78, n: 146, notes: Table 1, status: verified, confidence: high, evidence_ids: [spatialbench-paper-base-results-evidence]}
+  - {model_id: spatialbench-grok-4-1-unversioned, metric_id: mean-latency, value: 196.4, ci_low: 175.4, ci_high: 217.3, n: 146, notes: Table 1, status: verified, confidence: high, evidence_ids: [spatialbench-paper-base-results-evidence]}
+  - {model_id: spatialbench-grok-4-1-unversioned, metric_id: mean-cost, value: 0.077, ci_low: 0.047, ci_high: 0.107, n: 146, notes: Table 1, status: verified, confidence: high, evidence_ids: [spatialbench-paper-base-results-evidence]}
+comparability_group: spatialbench-paper-v2-base
+verification: {status: verified, last_verified: '2026-07-22', notes: Full 146-evaluation base-harness results are transcribed only from labeled Table 1 values.}
+evidence:
+  - id: spatialbench-paper-base-protocol-evidence
+    source_type: work
+    source_id: spatialbench-preprint
+    accessed_date: '2026-07-22'
+    locator: {type: page, value: 'arXiv v2 §§3.2–3.7 and Appendix A.4', note: 'Problem anatomy, deterministic graders, interactive compute, isolation, three repeats, 100-step limit, and two-stage statistics.'}
+    supports: [/benchmark_version, /scope, /protocol, /metrics]
+  - id: spatialbench-paper-base-results-evidence
+    source_type: work
+    source_id: spatialbench-preprint
+    accessed_date: '2026-07-22'
+    locator: {type: table, value: 'arXiv v2 Table 1', note: 'Exact base-harness accuracy, steps, latency, cost, and 95% confidence intervals for seven source labels.'}
+    supports: [/results]

@@ -1,0 +1,38 @@
+# Conservative mappings for Anthropic's private internal life-science directions.
+# Only the figure track maps to an existing leaf task; the other public labels are too broad.
+classifications:
+  anthropic-key-life-sciences-evals:
+    status: partial
+    benchmark_version: reported-2026-01-11
+    as_of: '2026-01-11'
+    notes: The official chart names three private directions but does not disclose tasks or an exhaustive scientific taxonomy.
+    entries: []
+  anthropic-scientific-figure-interpretation:
+    status: complete
+    benchmark_version: reported-2026-01-11
+    as_of: '2026-01-11'
+    notes: The public direction label maps directly to scientific evidence interpretation; its private task count is not reported.
+    entries:
+      - task_type_id: scientific-evidence-interpretation
+        coverage: explicitly-in-scope
+        mapping_method: official-track
+        confidence: high
+        count: null
+        count_unit: tasks
+        count_basis: private scientific figure interpretation tasks
+        count_ref: null
+        reporting_status: not_reported
+        evidence_ids: [anthropic-scientific-figure-evidence]
+        notes: No task-level examples or count are public.
+  anthropic-computational-biology:
+    status: partial
+    benchmark_version: reported-2026-01-11
+    as_of: '2026-01-11'
+    notes: Computational biology is an explicit private direction, but the source does not identify a sufficiently specific leaf task.
+    entries: []
+  anthropic-protein-understanding:
+    status: partial
+    benchmark_version: reported-2026-01-11
+    as_of: '2026-01-11'
+    notes: Protein understanding is an explicit private direction, but the source does not identify a sufficiently specific leaf task.
+    entries: []

@@ -1,0 +1,96 @@
+entity_type: evaluation_run
+id: spatialbench-repo-159-mini-swe-agent
+work_id: spatialbench-repository-release
+work_version_id: spatialbench-repository-release-2026-06-10
+benchmark_id: spatialbench
+benchmark_version: repo-159-5042c4f
+model_ids: [gpt-5-5, gpt-5-4, claude-opus-4-6, claude-opus-4-8, claude-opus-4-7, gemini-3-1-pro-preview, gpt-5-2, gemini-3-5-flash, grok-4-20-beta-0309-reasoning, claude-sonnet-4-6, claude-opus-4-5, claude-sonnet-4-5, gpt-5-1, grok-4-1-fast-reasoning, grok-4, gemini-2-5-pro]
+scope: {type: full, n: 159, subset_id: null, filter: null, selection: null, reporting_status: reported}
+protocol:
+  shots: {value: null, reporting_status: not_reported, notes: Demonstration count is not reported.}
+  turns: {value: multi-turn mini-swe-agent, reporting_status: reported, notes: Harness runs outside the task container and executes tool calls inside it.}
+  system_prompt_public: {value: true, reporting_status: reported, notes: The official methods link the public latch-eval-tools configuration.}
+  reasoning: {value: maximum reasoning effort where applicable, reporting_status: reported, notes: Model-specific effort strings are not enumerated in the result CSV.}
+  tools:
+    browser: {value: null, reporting_status: not_reported, notes: Browser availability is not reported.}
+    internet: {value: true, reporting_status: reported, notes: Container network access is enabled; downloads and searches are discouraged but not blocked.}
+    databases: {value: null, reporting_status: not_reported, notes: No fixed database suite is reported.}
+    code_execution: {value: true, reporting_status: reported, notes: Tool calls execute inside the evaluation container.}
+    container: {value: true, reporting_status: reported, notes: '4 vCPU, 32 GB RAM, 100 GB storage container.'}
+    external_tools: {value: mini-swe-agent with common scientific libraries and network-enabled shell, reporting_status: reported, notes: Harness-specific public configuration is linked from METHODS.md.}
+  token_budget: {value: null, reporting_status: not_reported, notes: No token limit is reported.}
+  time_budget: {value: 21600 seconds per task with no step limit, reporting_status: reported, notes: OOM events trigger a restart with a warning.}
+  temperature: {value: null, reporting_status: not_reported, notes: Not reported.}
+  seed: {value: null, reporting_status: not_reported, notes: Trial identifiers are public but numeric seeds are not reported.}
+  repeats: {value: 3, reporting_status: reported, notes: Every evaluation is run three times and averaged.}
+  grader: {type: five deterministic grader families, model: null, human_review: false, reporting_status: reported}
+  statistical: {value: t-distribution 95% confidence interval over per-evaluation means after averaging three runs, reporting_status: reported, notes: N=159 in the official model result CSV.}
+  contamination: {value: full suite withheld to reduce contamination, reporting_status: reported, notes: Only a representative sample is public.}
+metrics: &current-metrics
+  - {metric_id: accuracy, source_label: Accuracy, unit: percent, range: [0, 100], higher_is_better: true, aggregation: mean over 159 evaluation-level means after three repeats, pass_threshold: null, tolerance: deterministic task-specific grader, kind: absolute, baseline_model_id: null}
+  - {metric_id: mean-cost, source_label: Cost, unit: USD per evaluation, range: null, higher_is_better: false, aggregation: mean over the full result set, pass_threshold: null, tolerance: null, kind: absolute, baseline_model_id: null}
+  - {metric_id: mean-duration, source_label: Duration, unit: seconds per evaluation, range: null, higher_is_better: false, aggregation: mean over the full result set, pass_threshold: null, tolerance: null, kind: absolute, baseline_model_id: null}
+results:
+  - {model_id: gpt-5-5, metric_id: accuracy, value: 57.65, ci_low: 50.71, ci_high: 64.59, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: gpt-5-5, metric_id: mean-cost, value: 1.1207, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: gpt-5-5, metric_id: mean-duration, value: 586.66, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: gpt-5-4, metric_id: accuracy, value: 57.44, ci_low: 50.72, ci_high: 64.16, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: gpt-5-4, metric_id: mean-cost, value: 0.577, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: gpt-5-4, metric_id: mean-duration, value: 1128.75, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: claude-opus-4-6, metric_id: accuracy, value: 52.83, ci_low: 45.72, ci_high: 59.94, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: claude-opus-4-6, metric_id: mean-cost, value: 0.8456, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: claude-opus-4-6, metric_id: mean-duration, value: 609.15, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: claude-opus-4-8, metric_id: accuracy, value: 52.62, ci_low: 45.49, ci_high: 59.75, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: claude-opus-4-8, metric_id: mean-cost, value: 1.1061, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: claude-opus-4-8, metric_id: mean-duration, value: 902.86, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: claude-opus-4-7, metric_id: accuracy, value: 52.41, ci_low: 45.28, ci_high: 59.54, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: claude-opus-4-7, metric_id: mean-cost, value: 0.9817, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: claude-opus-4-7, metric_id: mean-duration, value: 626.84, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: gemini-3-1-pro-preview, metric_id: accuracy, value: 51.57, ci_low: 44.63, ci_high: 58.52, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: gemini-3-1-pro-preview, metric_id: mean-cost, value: 0.9362, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: gemini-3-1-pro-preview, metric_id: mean-duration, value: 1061.63, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: gpt-5-2, metric_id: accuracy, value: 50.1, ci_low: 42.96, ci_high: 57.25, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: gpt-5-2, metric_id: mean-cost, value: 0.6024, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: gpt-5-2, metric_id: mean-duration, value: 931.76, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: gemini-3-5-flash, metric_id: accuracy, value: 48.85, ci_low: 42.14, ci_high: 55.56, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: gemini-3-5-flash, metric_id: mean-cost, value: 2.7608, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: gemini-3-5-flash, metric_id: mean-duration, value: 1145.4, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: grok-4-20-beta-0309-reasoning, metric_id: accuracy, value: 45.91, ci_low: 39.33, ci_high: 52.5, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: grok-4-20-beta-0309-reasoning, metric_id: mean-cost, value: 0.1679, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: grok-4-20-beta-0309-reasoning, metric_id: mean-duration, value: 342.63, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: claude-sonnet-4-6, metric_id: accuracy, value: 44.23, ci_low: 37.35, ci_high: 51.12, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: claude-sonnet-4-6, metric_id: mean-cost, value: 0.273, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: claude-sonnet-4-6, metric_id: mean-duration, value: 405.3, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: claude-opus-4-5, metric_id: accuracy, value: 42.77, ci_low: 36.12, ci_high: 49.42, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: claude-opus-4-5, metric_id: mean-cost, value: 0.4624, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: claude-opus-4-5, metric_id: mean-duration, value: 376.54, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: claude-sonnet-4-5, metric_id: accuracy, value: 41.51, ci_low: 34.92, ci_high: 48.1, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: claude-sonnet-4-5, metric_id: mean-cost, value: 0.2247, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: claude-sonnet-4-5, metric_id: mean-duration, value: 294.44, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: gpt-5-1, metric_id: accuracy, value: 39.83, ci_low: 33.36, ci_high: 46.31, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: gpt-5-1, metric_id: mean-cost, value: 0.1574, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: gpt-5-1, metric_id: mean-duration, value: 309.79, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: grok-4-1-fast-reasoning, metric_id: accuracy, value: 33.96, ci_low: 27.7, ci_high: 40.22, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: grok-4-1-fast-reasoning, metric_id: mean-cost, value: 0.0164, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: grok-4-1-fast-reasoning, metric_id: mean-duration, value: 357.0, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: grok-4, metric_id: accuracy, value: 31.87, ci_low: 26.25, ci_high: 37.48, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: grok-4, metric_id: mean-cost, value: 0.4529, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: grok-4, metric_id: mean-duration, value: 732.47, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: gemini-2-5-pro, metric_id: accuracy, value: 28.93, ci_low: 22.97, ci_high: 34.9, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: gemini-2-5-pro, metric_id: mean-cost, value: 0.1086, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+  - {model_id: gemini-2-5-pro, metric_id: mean-duration, value: 231.07, ci_low: null, ci_high: null, n: 159, notes: model_results.csv, status: verified, confidence: high, evidence_ids: [spatialbench-repo-mini-results-evidence]}
+comparability_group: spatialbench-repo-159-mini-swe-agent
+verification: {status: verified, last_verified: '2026-07-22', notes: Exact 159-evaluation mini-swe-agent rows transcribed from the pinned official CSV.}
+evidence:
+  - id: spatialbench-repo-mini-protocol-evidence
+    source_type: resource
+    source_id: spatialbench-repository-resource
+    accessed_date: '2026-07-22'
+    locator: {type: repository-path, value: 'METHODS.md at commit 5042c4f3ee597da1590650c7b894d068ae968e26', note: 'Three runs, max reasoning, container resources, six-hour timeout, network access, harness placement, and aggregation.'}
+    supports: [/benchmark_version, /scope, /protocol, /metrics]
+  - id: spatialbench-repo-mini-results-evidence
+    source_type: resource
+    source_id: spatialbench-repository-resource
+    accessed_date: '2026-07-22'
+    locator: {type: repository-path, value: 'results/model_results.csv at commit 5042c4f3ee597da1590650c7b894d068ae968e26; harness=mini-swe-agent', note: 'Exact model label, accuracy and CI, mean cost, mean duration, and N.'}
+    supports: [/results]

@@ -1,0 +1,47 @@
+entity_type: evaluation_run
+id: spatialbench-paper-v2-latch
+work_id: spatialbench-preprint
+work_version_id: spatialbench-preprint-v2
+benchmark_id: spatialbench
+benchmark_version: paper-v2
+model_ids: [claude-opus-4-5]
+scope: {type: full, n: 146, subset_id: null, filter: null, selection: null, reporting_status: reported}
+protocol:
+  shots: {value: null, reporting_status: not_reported, notes: Not reported.}
+  turns: {value: multi-turn Latch agent, reporting_status: reported, notes: Interactive agent harness.}
+  system_prompt_public: {value: false, reporting_status: reported, notes: The complete Latch harness prompt is not printed.}
+  reasoning: {value: Latch agent harness, reporting_status: reported, notes: Provider effort control is not reported.}
+  tools:
+    browser: {value: null, reporting_status: not_reported, notes: Not reported.}
+    internet: {value: null, reporting_status: not_reported, notes: Not reported.}
+    databases: {value: null, reporting_status: not_reported, notes: Not reported.}
+    code_execution: {value: true, reporting_status: reported, notes: Common scientific Python tooling and local data workspace.}
+    container: {value: true, reporting_status: reported, notes: Isolated evaluation workspace.}
+    external_tools: {value: Latch agent harness tools, reporting_status: reported, notes: Exact tool routing is not enumerated.}
+  token_budget: {value: null, reporting_status: not_reported, notes: Not reported.}
+  time_budget: {value: fixed harness-specific budget; numeric value not reported, reporting_status: reported, notes: The paper states budgets were consistent within harness.}
+  temperature: {value: null, reporting_status: not_reported, notes: Not reported.}
+  seed: {value: independent random seeds, reporting_status: reported, notes: Exact values not reported.}
+  repeats: {value: 3, reporting_status: reported, notes: Three independent runs per evaluation.}
+  grader: {type: five deterministic grader families, model: null, human_review: false, reporting_status: reported}
+  statistical: {value: two-stage evaluation-weighted mean with t-distribution 95% confidence intervals, reporting_status: reported, notes: Evaluation is the statistical unit.}
+  contamination: {value: null, reporting_status: not_reported, notes: Not reported.}
+metrics:
+  - {metric_id: accuracy, source_label: Accuracy, unit: percent, range: [0, 100], higher_is_better: true, aggregation: mean over 146 evaluation-level means after three repeats, pass_threshold: null, tolerance: deterministic task-specific grader, kind: absolute, baseline_model_id: null}
+results:
+  - {model_id: claude-opus-4-5, metric_id: accuracy, value: 61.7, ci_low: 55.3, ci_high: 68.1, n: 146, notes: Table 4, status: verified, confidence: high, evidence_ids: [spatialbench-paper-latch-results-evidence]}
+comparability_group: spatialbench-paper-v2-latch
+verification: {status: verified, last_verified: '2026-07-22', notes: Latch harness result is isolated from base and Claude Code settings.}
+evidence:
+  - id: spatialbench-paper-latch-protocol-evidence
+    source_type: work
+    source_id: spatialbench-preprint
+    accessed_date: '2026-07-22'
+    locator: {type: page, value: 'arXiv v2 §§2.5 and 3.5–3.7; Appendix A.4', note: 'Harness separation, full scope, deterministic graders, three repeats, and statistics.'}
+    supports: [/benchmark_version, /scope, /protocol, /metrics]
+  - id: spatialbench-paper-latch-results-evidence
+    source_type: work
+    source_id: spatialbench-preprint
+    accessed_date: '2026-07-22'
+    locator: {type: table, value: 'arXiv v2 Table 4', note: Exact labeled Latch accuracy and 95% confidence interval.}
+    supports: [/results]

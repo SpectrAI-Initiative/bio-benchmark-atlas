@@ -1,0 +1,16 @@
+entity_type: work
+id: anthropic-healthcare-life-sciences
+title: Advancing Claude in healthcare and the life sciences
+authors: [Anthropic]
+organizations: [Anthropic]
+work_type: official-release
+source_class: official_model_provider
+publication_date: '2026-01-11'
+canonical_url: https://www.anthropic.com/news/healthcare-life-sciences
+doi: null
+arxiv: null
+status: published
+verification:
+  status: verified
+  last_verified: '2026-07-22'
+  notes: Official model-provider page; its SpatialBench panel explicitly attributes results to LatchBio, while its key-life-sciences panel reports Anthropic internal evaluations.

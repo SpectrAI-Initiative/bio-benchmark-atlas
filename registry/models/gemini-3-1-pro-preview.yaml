@@ -1,0 +1,9 @@
+entity_type: model
+id: gemini-3-1-pro-preview
+name: gemini-3.1-pro-preview
+provider: Google
+release_date: null
+version_string: gemini-3.1-pro-preview
+version_status: reported
+aliases: []
+verification: {status: verified, last_verified: '2026-07-22', notes: Exact model_name in the pinned SpatialBench result CSV.}

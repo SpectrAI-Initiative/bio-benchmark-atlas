@@ -271,3 +271,53 @@ classifications:
       evidence_ids:
       - scigym-large-evidence-count
       notes: Same systems; overlapping task claim.
+  spatialbench:
+    status: partial
+    benchmark_version: repo-159-5042c4f
+    as_of: '2026-06-10'
+    notes: Four official categories map directly to existing leaf tasks. Dimensionality reduction, normalization, and QC remain visible as benchmark subsets without inventing new task terms in this intake.
+    entries:
+    - task_type_id: cell-type-annotation
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 45
+      count_unit: problems
+      count_basis: official category_results.json n_evals
+      count_ref: /task_counts/subsets/0/count
+      reporting_status: reported
+      evidence_ids: [spatialbench-evidence-current-counts]
+      notes: Official Cell Typing category.
+    - task_type_id: cell-state-clustering
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 3
+      count_unit: problems
+      count_basis: official category_results.json n_evals
+      count_ref: /task_counts/subsets/1/count
+      reporting_status: reported
+      evidence_ids: [spatialbench-evidence-current-counts]
+      notes: Official Clustering category.
+    - task_type_id: differential-expression-analysis
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 40
+      count_unit: problems
+      count_basis: official category_results.json n_evals
+      count_ref: /task_counts/subsets/2/count
+      reporting_status: reported
+      evidence_ids: [spatialbench-evidence-current-counts]
+      notes: Official Differential Expression category.
+    - task_type_id: spatial-omics-analysis
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 36
+      count_unit: problems
+      count_basis: official category_results.json n_evals
+      count_ref: /task_counts/subsets/6/count
+      reporting_status: reported
+      evidence_ids: [spatialbench-evidence-current-counts]
+      notes: Official Spatial Analysis category.

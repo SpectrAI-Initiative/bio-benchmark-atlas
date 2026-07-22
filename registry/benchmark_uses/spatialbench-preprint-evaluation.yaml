@@ -1,0 +1,22 @@
+entity_type: benchmark_use
+id: spatialbench-preprint-evaluation
+work_id: spatialbench-preprint
+work_version_id: spatialbench-preprint-v2
+benchmark_id: spatialbench
+benchmark_version: paper-v2
+relation_type: evaluation
+status: normalized
+model_ids: [claude-opus-4-5, claude-sonnet-4-5, gpt-5-2, gpt-5-1, gemini-2-5-pro, grok-4, spatialbench-grok-4-1-unversioned]
+scope: {type: full, subset_kind: not-applicable, n: 146, subset_id: null, selection: null, selection_method: all 146 paper-v2 evaluations, reporting_status: reported}
+metric_labels: [Accuracy, Steps, Latency, Cost]
+evaluation_run_ids: [spatialbench-paper-v2-base, spatialbench-paper-v2-claude-code, spatialbench-paper-v2-latch]
+reporting_gaps: []
+notes: Base, Claude Code, and Latch harnesses are normalized as separate runs and comparability groups.
+verification: {status: verified, last_verified: '2026-07-22', notes: Full paper-v2 evaluation relation backed by labeled tables and versioned methods.}
+evidence:
+  - id: spatialbench-preprint-evaluation-use-evidence
+    source_type: work
+    source_id: spatialbench-preprint
+    accessed_date: '2026-07-22'
+    locator: {type: table, value: 'arXiv v2 Tables 1 and 4; §§2.2, 2.5, 3.5–3.7', note: Model and harness results over all 146 evaluations.}
+    supports: [/benchmark_version, /relation_type, /status, /model_ids, /scope, /metric_labels, /evaluation_run_ids, /notes]

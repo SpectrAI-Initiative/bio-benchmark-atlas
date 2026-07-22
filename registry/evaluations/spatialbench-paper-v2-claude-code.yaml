@@ -1,0 +1,48 @@
+entity_type: evaluation_run
+id: spatialbench-paper-v2-claude-code
+work_id: spatialbench-preprint
+work_version_id: spatialbench-preprint-v2
+benchmark_id: spatialbench
+benchmark_version: paper-v2
+model_ids: [claude-opus-4-5, claude-sonnet-4-5]
+scope: {type: full, n: 146, subset_id: null, filter: null, selection: null, reporting_status: reported}
+protocol:
+  shots: {value: null, reporting_status: not_reported, notes: Not reported.}
+  turns: {value: multi-turn Claude Code agent, reporting_status: reported, notes: Interactive agent harness.}
+  system_prompt_public: {value: false, reporting_status: reported, notes: Harness behavior is described but the complete prompt is not printed.}
+  reasoning: {value: Claude Code harness, reporting_status: reported, notes: Provider effort control is not reported.}
+  tools:
+    browser: {value: null, reporting_status: not_reported, notes: Not reported.}
+    internet: {value: null, reporting_status: not_reported, notes: Not reported.}
+    databases: {value: null, reporting_status: not_reported, notes: Not reported.}
+    code_execution: {value: true, reporting_status: reported, notes: Common scientific Python tooling and local data workspace.}
+    container: {value: true, reporting_status: reported, notes: Isolated evaluation workspace.}
+    external_tools: {value: Claude Code harness tools, reporting_status: reported, notes: Exact tool routing is not enumerated.}
+  token_budget: {value: null, reporting_status: not_reported, notes: Not reported.}
+  time_budget: {value: fixed harness-specific budget; numeric value not reported, reporting_status: reported, notes: The paper states budgets were consistent within harness.}
+  temperature: {value: null, reporting_status: not_reported, notes: Not reported.}
+  seed: {value: independent random seeds, reporting_status: reported, notes: Exact values not reported.}
+  repeats: {value: 3, reporting_status: reported, notes: Three independent runs per evaluation.}
+  grader: {type: five deterministic grader families, model: null, human_review: false, reporting_status: reported}
+  statistical: {value: two-stage evaluation-weighted mean with t-distribution 95% confidence intervals, reporting_status: reported, notes: Evaluation is the statistical unit.}
+  contamination: {value: null, reporting_status: not_reported, notes: Not reported.}
+metrics:
+  - {metric_id: accuracy, source_label: Accuracy, unit: percent, range: [0, 100], higher_is_better: true, aggregation: mean over 146 evaluation-level means after three repeats, pass_threshold: null, tolerance: deterministic task-specific grader, kind: absolute, baseline_model_id: null}
+results:
+  - {model_id: claude-opus-4-5, metric_id: accuracy, value: 48.1, ci_low: 40.9, ci_high: 55.3, n: 146, notes: Table 4, status: verified, confidence: high, evidence_ids: [spatialbench-paper-claude-code-results-evidence]}
+  - {model_id: claude-sonnet-4-5, metric_id: accuracy, value: 45.1, ci_low: 38.0, ci_high: 52.2, n: 146, notes: Table 4, status: verified, confidence: high, evidence_ids: [spatialbench-paper-claude-code-results-evidence]}
+comparability_group: spatialbench-paper-v2-claude-code
+verification: {status: verified, last_verified: '2026-07-22', notes: Claude Code is isolated from base and Latch harness comparisons.}
+evidence:
+  - id: spatialbench-paper-claude-code-protocol-evidence
+    source_type: work
+    source_id: spatialbench-preprint
+    accessed_date: '2026-07-22'
+    locator: {type: page, value: 'arXiv v2 §§2.5 and 3.5–3.7; Appendix A.4', note: 'Harness separation, full scope, deterministic graders, three repeats, and statistics.'}
+    supports: [/benchmark_version, /scope, /protocol, /metrics]
+  - id: spatialbench-paper-claude-code-results-evidence
+    source_type: work
+    source_id: spatialbench-preprint
+    accessed_date: '2026-07-22'
+    locator: {type: table, value: 'arXiv v2 Table 4', note: Exact labeled Claude Code accuracy and 95% confidence intervals.}
+    supports: [/results]

@@ -1,0 +1,22 @@
+entity_type: benchmark_use
+id: spatialbench-preprint-creation
+work_id: spatialbench-preprint
+work_version_id: spatialbench-preprint-v2
+benchmark_id: spatialbench
+benchmark_version: paper-v2
+relation_type: benchmark-creation
+status: non-evaluation
+model_ids: []
+scope: {type: unknown, subset_kind: not-applicable, n: null, subset_id: null, selection: null, selection_method: null, reporting_status: not_applicable}
+metric_labels: []
+evaluation_run_ids: []
+reporting_gaps: []
+notes: Creator preprint defining the 146-problem paper-v2 benchmark snapshot.
+verification: {status: verified, last_verified: '2026-07-22', notes: Benchmark-creation relation is separate from the paper's model evaluations.}
+evidence:
+  - id: spatialbench-preprint-creation-use-evidence
+    source_type: work
+    source_id: spatialbench-preprint
+    accessed_date: '2026-07-22'
+    locator: {type: page, value: 'arXiv v2 abstract and §§2.1, 3.1–3.4', note: Introduces and constructs SpatialBench.}
+    supports: [/benchmark_version, /relation_type, /status, /scope, /notes]

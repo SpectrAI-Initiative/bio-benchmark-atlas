@@ -16,12 +16,13 @@ from registry_io import load_entities, load_meta, load_taxonomies  # noqa: E402
 from check_sources import _sources  # noqa: E402
 import validate_registry as validator_module  # noqa: E402
 from validate_registry import RegistryValidationError, _resolve_pointer, validate_registry  # noqa: E402
+from build_registry import _build_payload  # noqa: E402
 
 
 def test_registry_validates_and_has_v1_depth() -> None:
     entities = validate_registry()
     families = [item for item in entities["benchmark"] if item["parent_id"] is None]
-    assert len(families) == 22
+    assert len(families) == 24
     assert len(entities["evaluation_run"]) >= 15
     assert {work["source_class"] for work in entities["work"]} <= {
         "benchmark_creator",
@@ -32,6 +33,79 @@ def test_registry_validates_and_has_v1_depth() -> None:
     assert all(run["work_version_id"] for run in entities["evaluation_run"])
     assert all("selection" in run["scope"] for run in entities["evaluation_run"])
     assert all(metric["kind"] in {"absolute", "delta"} for run in entities["evaluation_run"] for metric in run["metrics"])
+
+
+def test_bixbench_anthropic_claim_remains_partial_without_invented_results() -> None:
+    entities = load_entities()
+    use = next(item for item in entities["benchmark_use"] if item["id"] == "anthropic-life-sciences-bixbench")
+    assert use["relation_type"] == "evaluation"
+    assert use["status"] == "partial"
+    assert use["benchmark_version"] is None
+    assert use["scope"]["type"] == "unknown"
+    assert use["scope"]["n"] is None
+    assert use["metric_labels"] == []
+    assert use["evaluation_run_ids"] == []
+    assert set(use["model_ids"]) == {"claude-sonnet-4", "claude-sonnet-4-5"}
+    gaps = " · ".join(use["reporting_gaps"])
+    for phrase in ("benchmark version", "realized n", "metric", "numeric results", "prompt"):
+        assert phrase in gaps
+
+
+def test_spatialbench_versions_harnesses_and_external_summary_are_separate() -> None:
+    entities = load_entities()
+    benchmark = next(item for item in entities["benchmark"] if item["id"] == "spatialbench")
+    versions = {version["label"]: version for version in benchmark["versions"]}
+    assert benchmark["latest_version"] == "repo-159-5042c4f"
+    assert benchmark["task_counts"]["total"] == 159
+    assert versions["paper-v2"]["task_counts"]["total"] == 146
+    current_subsets = benchmark["task_counts"]["subsets"]
+    assert sum(item["count"] for item in current_subsets if item.get("partition_group") == "task-category") == 159
+    assert sum(item["count"] for item in current_subsets if item.get("partition_group") == "platform") == 159
+    historical_subsets = versions["paper-v2"]["task_counts"]["subsets"]
+    assert sum(item["count"] for item in historical_subsets if item.get("partition_group") == "task-category") == 147
+    assert sum(item["count"] for item in historical_subsets if item.get("partition_group") == "platform") == 147
+    assert any(status["path"] == "/versions/0/task_counts/subsets" and status["status"] == "conflicted" for status in benchmark["field_status"])
+    runs = [run for run in entities["evaluation_run"] if run["benchmark_id"] == "spatialbench"]
+    assert {run["benchmark_version"] for run in runs} == {"paper-v2", "repo-159-5042c4f"}
+    assert {run["comparability_group"] for run in runs} == {run["id"] for run in runs}
+    assert len(runs) == 7
+    summary = next(use for use in entities["benchmark_use"] if use["id"] == "anthropic-spatialbench-external-summary")
+    assert summary["relation_type"] == "external-result-summary"
+    assert summary["status"] == "partial"
+    assert summary["evaluation_run_ids"] == []
+    assert summary["scope"]["n"] == 146
+
+
+def test_anthropic_internal_suite_preserves_only_labeled_deltas() -> None:
+    entities = load_entities()
+    benchmarks = {item["id"]: item for item in entities["benchmark"]}
+    root = benchmarks["anthropic-key-life-sciences-evals"]
+    children = {item["id"] for item in entities["benchmark"] if item["parent_id"] == root["id"]}
+    assert root["access"]["level"] == "private-internal"
+    assert root["task_counts"]["total"] is None
+    assert children == {
+        "anthropic-scientific-figure-interpretation",
+        "anthropic-computational-biology",
+        "anthropic-protein-understanding",
+    }
+    expected = {
+        "anthropic-scientific-figure-delta": 13.2,
+        "anthropic-computational-biology-delta": 10.5,
+        "anthropic-protein-understanding-delta": 10.3,
+    }
+    runs = {run["id"]: run for run in entities["evaluation_run"] if run["benchmark_id"] in children}
+    assert set(runs) == set(expected)
+    for run_id, delta in expected.items():
+        run = runs[run_id]
+        assert run["scope"]["type"] == "unknown" and run["scope"]["n"] is None
+        assert len(run["metrics"]) == 1
+        assert run["metrics"][0]["kind"] == "delta"
+        assert run["metrics"][0]["baseline_model_id"] == "claude-opus-4-1"
+        assert [(result["model_id"], result["value"]) for result in run["results"]] == [("claude-opus-4-5", delta)]
+        assert run["protocol"]["grader"]["reporting_status"] == "not_reported"
+    payload = _build_payload()
+    internal_coverage = [row for row in payload["scientific_task_coverage"] if row["benchmark_id"].startswith("anthropic-")]
+    assert internal_coverage and all(row["aggregate_eligible"] is False for row in internal_coverage)
 
 
 def test_lifescibench_protein_and_binding_contract() -> None:
@@ -1127,7 +1201,7 @@ def test_v11_exports_surface_audit_and_result_status_columns() -> None:
     }
     assert legacy_ids == exemption_ids == {"virbench"}
     root_benchmarks = [benchmark for benchmark in payload["benchmarks"] if benchmark["parent_id"] is None]
-    assert sum(benchmark["audit"]["status"] != "legacy" for benchmark in root_benchmarks) == 21
+    assert sum(benchmark["audit"]["status"] != "legacy" for benchmark in root_benchmarks) == 23
 
 
 def test_unapproved_legacy_record_is_rejected(monkeypatch) -> None:
@@ -1404,7 +1478,9 @@ def test_comparability_group_rejects_any_protocol_difference(monkeypatch) -> Non
 
 def test_source_monitor_inventory_includes_works_and_resources() -> None:
     sources = _sources()
-    assert sum(item["source_type"] == "work" for item in sources) == len(load_entities()["work"])
+    assert sum(item["source_type"] == "work" for item in sources) == sum(
+        len(work["source_versions"]) for work in load_entities()["work"]
+    )
     assert sum(item["source_type"] == "resource" for item in sources) == sum(
         len(benchmark["resources"]) for benchmark in load_entities()["benchmark"]
     )
@@ -1446,8 +1522,11 @@ def test_all_primary_families_have_creator_evidence() -> None:
             item.get("source_id") if item.get("source_type") == "work" else item.get("work_id")
             for item in benchmark["evidence"]
         }
+        allowed_source_classes = {"benchmark_creator"}
+        if benchmark["access"]["level"] == "private-internal":
+            allowed_source_classes.add("official_model_provider")
         assert any(
-            work_id in works and works[work_id]["source_class"] == "benchmark_creator"
+            work_id in works and works[work_id]["source_class"] in allowed_source_classes
             for work_id in source_work_ids
         )
 

@@ -1,0 +1,9 @@
+entity_type: model
+id: grok-4-1-fast-reasoning
+name: grok-4-1-fast-reasoning
+provider: xAI
+release_date: null
+version_string: grok-4-1-fast-reasoning
+version_status: reported
+aliases: []
+verification: {status: verified, last_verified: '2026-07-22', notes: Exact model_name in the pinned SpatialBench result CSV; not merged with the paper's under-specified Grok-4.1 label.}

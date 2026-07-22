@@ -1,0 +1,24 @@
+entity_type: benchmark_use
+id: anthropic-spatialbench-external-summary
+work_id: anthropic-healthcare-life-sciences
+work_version_id: anthropic-healthcare-life-sciences-2026-01-11
+benchmark_id: spatialbench
+benchmark_version: paper-v2
+relation_type: external-result-summary
+status: partial
+model_ids: [claude-opus-4-5, claude-sonnet-4-5, gpt-5-2, gpt-5-1, gemini-2-5-pro, grok-4, spatialbench-grok-4-1-unversioned]
+scope: {type: full, subset_kind: not-applicable, n: 146, subset_id: null, selection: null, selection_method: all 146 paper-v2 problems described in the chart, reporting_status: reported}
+metric_labels: [Accuracy]
+evaluation_run_ids: []
+reporting_gaps:
+  - Anthropic did not conduct or claim an independent rerun
+  - harness settings are inherited from the cited LatchBio source rather than reported as an Anthropic protocol
+notes: The exact rounded chart values are explicitly attributed to LatchBio SpatialBench. This relation is a third-party result summary and is never counted as an Anthropic self-evaluation.
+verification: {status: verified, last_verified: '2026-07-22', notes: Attribution and 146-problem scope are explicit on the official Anthropic page.}
+evidence:
+  - id: anthropic-spatialbench-external-summary-evidence
+    source_type: work
+    source_id: anthropic-healthcare-life-sciences
+    accessed_date: '2026-07-22'
+    locator: {type: figure, value: 'SpatialBench: Spatial biology analysis by LatchBio', note: 'Caption says Source: LatchBio SpatialBench and 146 verifiable problems across five platforms and seven task categories.'}
+    supports: [/benchmark_version, /relation_type, /status, /model_ids, /scope, /metric_labels, /evaluation_run_ids, /reporting_gaps, /notes]

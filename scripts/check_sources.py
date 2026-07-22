@@ -12,7 +12,7 @@ import requests
 from registry_io import ROOT, load_entities
 
 
-USER_AGENT = "BioBench-Atlas/1.1 source monitor"
+USER_AGENT = "BioBench-Atlas/1.3 source monitor"
 WEB_FINGERPRINT_LIMIT = 2 * 1024 * 1024
 
 
@@ -20,14 +20,18 @@ def _sources() -> list[dict[str, Any]]:
     entities = load_entities()
     sources: list[dict[str, Any]] = []
     for work in entities["work"]:
-        sources.append({
-            "source_key": f"work:{work['id']}",
-            "source_type": "work",
-            "source_id": work["id"],
-            "benchmark_id": None,
-            "url": work["canonical_url"],
-            "pin": None,
-        })
+        for version in work["source_versions"]:
+            sources.append({
+                "source_key": f"work-version:{version['id']}",
+                "source_type": "work",
+                "source_id": version["id"],
+                "work_id": work["id"],
+                "work_version_id": version["id"],
+                "benchmark_id": None,
+                "url": version["canonical_url"],
+                "canonical_url": work["canonical_url"],
+                "pin": {"kind": "source-version", "value": version["id"]},
+            })
     for benchmark in entities["benchmark"]:
         for index, resource in enumerate(benchmark["resources"]):
             resource_id = resource.get("id", f"{benchmark['id']}-legacy-resource-{index + 1}")

@@ -2,14 +2,22 @@
 
 Thank you for improving the evidence layer around life-science evaluation. Contributions are reviewed for provenance and protocol completeness before coverage volume.
 
-## v1 source policy
+## Source policy
 
 Production records may come from:
 
-1. a benchmark creator's paper or formal technical report; or
-2. an official model provider's system card, release page, or research page.
+1. a benchmark creator's paper or formal technical report;
+2. an official model provider's system card, release page, or research page;
+3. a peer-reviewed paper; or
+4. a stable versioned arXiv, bioRxiv, medRxiv, or ChemRxiv preprint.
 
-Independent reproductions have a reserved schema class but are not publishable in v1. Ordinary blogs, secondary leaderboards, and unsourced score collections are out of scope.
+Independent evaluations use `source_class: independent_reproduction`. Ordinary blogs, secondary leaderboards, news summaries, and unsourced score collections are out of scope.
+
+## Paper intake workflow
+
+Use the `Review a paper` Issue Form for a DOI, preprint, or publisher link. The paper-intake action normalizes DOI/arXiv/URL/title identity, checks existing Works and benchmark labels, and opens a draft PR under `intake/papers/`. That scaffold is not part of the production Registry.
+
+A reviewer must then read the versioned primary source, distinguish actual evaluation from training, fine-tuning, validation, model selection, external result summary, and background citation, and replace the scaffold with verified Registry entities. One paper normally uses one PR. If the paper introduces an unregistered benchmark, add its creator source and official repository/data evidence in that same PR. If those primary sources cannot be established, keep the intake as an issue rather than publishing it.
 
 ## Contribution workflow
 
@@ -38,6 +46,9 @@ pnpm --dir site test
 - Preserve the source metric name, unit, direction, aggregation, threshold, and tolerance.
 - Never merge similar model names unless the primary source establishes identity.
 - Encode missing values as `null` with `reporting_status: not_reported`.
+- Use a partial `BenchmarkUse` when benchmark usage is certain but realized scope or metrics are not sufficiently reported for an EvaluationRun.
+- Mark third-party results quoted by a Work as `external-result-summary`; never count them as the Work author's own rerun.
+- Store labeled improvements as delta metrics with an explicit baseline model. Do not infer absolute values from plot geometry.
 
 ## v1.1 family audit rules
 
@@ -66,4 +77,4 @@ Do not add third-party questions, restricted benchmark artifacts, model outputs,
 
 ## Review and publication
 
-All changes use pull requests. The `@SpectrAI-Initiative/biobench-maintainers` team reviews registry, schema, taxonomy, scripts, and workflow changes. A non-author approval is required. Draft entities are available to PR previews but only verified entities enter production exports. Deprecated records are retained with history and successor links rather than deleted.
+All production changes use pull requests. Under the current repository rules, the owner may approve and merge their own PR after required CI checks pass; no non-author approval is required. Paper-intake scaffolds and draft entities never enter production exports. Deprecated records are retained with history and successor links rather than deleted.

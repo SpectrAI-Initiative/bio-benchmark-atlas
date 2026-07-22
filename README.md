@@ -1,14 +1,16 @@
 # BioBench Atlas
 
-BioBench Atlas is a source-grounded registry of benchmarks for protein science, omics, bioinformatics, and applied life-science research. It separates benchmark definitions from the works that evaluate them and records whether an evaluation used the full benchmark, which metrics it reported, and what tools, graders, repetitions, and subsets were used.
+BioBench Atlas is a source-grounded registry of benchmarks for protein science, omics, bioinformatics, chemistry, and applied life-science research. It separates benchmark definitions, versioned source Works, Work→Benchmark usage claims, normalized evaluation runs, and exact model identities.
 
 The website is published at **https://spectrai-initiative.github.io/bio-benchmark-atlas/**.
 
 The immutable `v1.2.0` release adds a Scientific Task layer that distinguishes problems such as protein folding, protein sequence design, PPI, protein-ligand binding, DNA regulation, RNA design, small-molecule discovery, omics analysis, and scientific workflows. It also expands the atlas with creator-audited TAPE, Genomic Benchmarks, BEACON, MoleculeNet, ATOM3D, GuacaMol, and scIB records. VirBench's detailed audit and task classification remain intentionally deferred and visibly marked `legacy` / `unclassified`; this is the only CI-enforced exception.
 
+The `v1.3.0` line adds versioned Works, a first-class `BenchmarkUse` relationship, Anthropic/Claude life-science evidence, SpatialBench, and a durable paper-intake workflow. A submitted paper link is identity-normalized and duplicate-checked into a draft PR; it cannot enter production until a reviewer verifies the source-level benchmark relationship and settings.
+
 ## Principles
 
-- Primary sources only in v1: benchmark-creator publications and official model-provider reports.
+- Publishable sources include benchmark creators, official model providers, peer-reviewed papers, and stable versioned formal preprints.
 - Unknown is not zero. Unreported settings remain explicit `null` values with a reporting status.
 - Results are compared only inside compatible benchmark/version/scope/protocol groups.
 - Third-party tasks, papers, and restricted artifacts are linked, not mirrored.
@@ -24,10 +26,11 @@ The immutable `v1.2.0` release adds a Scientific Task layer that distinguishes p
 
 ## Data model
 
-The registry deliberately separates four things that are often conflated:
+The registry deliberately separates five things that are often conflated:
 
 - **Benchmark** — scientific task definition, version, access, taxonomy, counts, and implementations.
 - **Work** — the creator publication or official provider document making an evaluation claim.
+- **BenchmarkUse** — how a Work uses a Benchmark: creation, evaluation, training, fine-tuning, validation, model selection, or external result summary. Incomplete claims remain partial and never enter comparison charts.
 - **EvaluationRun** — one coherent scope and protocol, including exact evaluated model/system IDs, prompts, tools, budgets, repeats, grader, and metrics. A model can be linked even when the source reports no extractable scalar result.
 - **Model** — the exact model or agent-and-model identity reported by a source.
 
@@ -45,9 +48,12 @@ Every production build publishes:
 - `/data/benchmarks.json`
 - `/data/works.json`
 - `/data/evaluation-runs.json`
+- `/data/benchmark-uses.json`
 - `/data/models.json`
 - `/data/benchmarks.csv`
 - `/data/evaluation-results.csv`
+- `/data/works.csv`
+- `/data/benchmark-uses.csv`
 - `/data/scientific-tasks.json`
 - `/data/scientific-task-coverage.json`
 - `/data/scientific-task-coverage.csv`

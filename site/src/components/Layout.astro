@@ -81,6 +81,7 @@ const canonical = new URL(withBase(canonicalPath), 'https://spectrai-initiative.
         const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
         root.dataset.theme = next;
         localStorage.setItem('biobench-theme', next);
+        window.dispatchEvent(new CustomEvent('biobench-theme-change', { detail: { theme: next } }));
       });
 
       const header = document.querySelector('.site-header');
@@ -114,8 +115,9 @@ const canonical = new URL(withBase(canonicalPath), 'https://spectrai-initiative.
       });
       mobileMenu.addEventListener('change', () => closeMenu());
 
-      document.querySelectorAll('.detail-grid .table-wrap').forEach((tableWrap) => {
-        if (!(tableWrap instanceof HTMLElement) || tableWrap.parentElement?.classList.contains('table-scroll-shell')) return;
+      const initializeScrollableTable = (tableWrap) => {
+        if (!(tableWrap instanceof HTMLElement) || tableWrap.dataset.scrollHintReady === 'true') return;
+        tableWrap.dataset.scrollHintReady = 'true';
         const shell = document.createElement('div');
         shell.className = 'table-scroll-shell';
         const hint = document.createElement('span');
@@ -142,7 +144,33 @@ const canonical = new URL(withBase(canonicalPath), 'https://spectrai-initiative.
         tableWrap.addEventListener('scroll', updateOverflow, { passive: true });
         new ResizeObserver(updateOverflow).observe(tableWrap);
         updateOverflow();
-      });
+      };
+      const detailTables = [...document.querySelectorAll('.detail-grid .table-wrap')];
+      const compactTables = matchMedia('(max-width: 760px)');
+      const ensureTableKeyboardAccess = (tableWrap) => {
+        if (!(tableWrap instanceof HTMLElement)) return;
+        tableWrap.setAttribute('tabindex', '0');
+        tableWrap.setAttribute('role', 'region');
+        const sectionHeading = tableWrap.closest('section')?.querySelector('h2, h3')?.textContent?.trim();
+        tableWrap.setAttribute('aria-label', `${sectionHeading || 'Data'} table`);
+      };
+      const syncCompactTableAccess = () => {
+        if (compactTables.matches) detailTables.forEach(ensureTableKeyboardAccess);
+      };
+      syncCompactTableAccess();
+      compactTables.addEventListener('change', syncCompactTableAccess);
+      if ('IntersectionObserver' in window) {
+        const tableObserver = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            tableObserver.unobserve(entry.target);
+            initializeScrollableTable(entry.target);
+          });
+        }, { rootMargin: '600px 0px' });
+        detailTables.forEach((tableWrap) => tableObserver.observe(tableWrap));
+      } else {
+        detailTables.forEach(initializeScrollableTable);
+      }
     </script>
   </body>
 </html>

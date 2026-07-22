@@ -1,5 +1,5 @@
 name: BioBench Atlas
-version: 1.1.0
+version: 1.2.0-dev
 release_date: '2026-07-22'
 canonical_repository: https://github.com/SpectrAI-Initiative/bio-benchmark-atlas
 canonical_site: https://spectrai-initiative.github.io/bio-benchmark-atlas/

@@ -140,10 +140,40 @@
         "evidence_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/Id"}}
       }
     },
+    "ScientificTaskCoverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["task_type_id", "coverage", "mapping_method", "confidence", "count", "count_unit", "count_basis", "count_ref", "reporting_status", "evidence_ids", "notes"],
+      "properties": {
+        "task_type_id": {"$ref": "#/$defs/Id"},
+        "coverage": {"enum": ["explicitly-in-scope", "observed", "not-in-scope"]},
+        "mapping_method": {"enum": ["official-taxonomy", "official-track", "artifact-derived"]},
+        "confidence": {"$ref": "#/$defs/Confidence"},
+        "count": {"type": ["integer", "null"], "minimum": 0},
+        "count_unit": {"enum": ["tasks", "questions", "examples", "assays", "targets", "systems", "problems", "records", "episodes", "tracks", "other"]},
+        "count_basis": {"type": "string", "minLength": 1},
+        "count_ref": {"type": ["string", "null"], "pattern": "^/"},
+        "reporting_status": {"enum": ["reported", "not_reported"]},
+        "evidence_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/Id"}},
+        "notes": {"type": ["string", "null"]}
+      }
+    },
+    "ScientificTaskClassification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "benchmark_version", "as_of", "notes", "entries"],
+      "properties": {
+        "status": {"enum": ["complete", "partial", "unclassified"]},
+        "benchmark_version": {"type": "string", "minLength": 1},
+        "as_of": {"type": ["string", "null"], "format": "date"},
+        "notes": {"type": ["string", "null"]},
+        "entries": {"type": "array", "items": {"$ref": "#/$defs/ScientificTaskCoverage"}}
+      }
+    },
     "Benchmark": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["entity_type", "id", "name", "aliases", "summary", "kind", "parent_id", "organizations", "release_date", "latest_version", "domains", "capabilities", "modalities", "task_formats", "task_counts", "coverage_notes", "access", "resources", "implementations", "verification", "evidence"],
+      "required": ["entity_type", "id", "name", "aliases", "summary", "kind", "parent_id", "organizations", "release_date", "latest_version", "domains", "capabilities", "modalities", "task_formats", "task_counts", "coverage_notes", "scientific_task_classification", "access", "resources", "implementations", "verification", "evidence"],
       "properties": {
         "entity_type": {"const": "benchmark"},
         "id": {"$ref": "#/$defs/Id"},
@@ -167,6 +197,7 @@
             "count": {"type": ["integer", "null"], "minimum": 0}, "reporting_status": {"enum": ["reported", "not_reported"]}, "notes": {"type": ["string", "null"]}
           }
         }},
+        "scientific_task_classification": {"$ref": "#/$defs/ScientificTaskClassification"},
         "access": {
           "type": "object", "additionalProperties": false, "required": ["level", "tasks", "artifacts", "grader", "license", "biosafety_notes"],
           "properties": {

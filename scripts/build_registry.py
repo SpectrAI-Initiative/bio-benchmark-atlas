@@ -21,6 +21,13 @@ def _reported(value: dict[str, Any]) -> str:
     return str(raw)
 
 
+def _root_family_id(benchmark: dict[str, Any], benchmark_by_id: dict[str, dict[str, Any]]) -> str:
+    current = benchmark
+    while current["parent_id"] is not None:
+        current = benchmark_by_id[current["parent_id"]]
+    return current["id"]
+
+
 def _build_payload() -> dict[str, Any]:
     entities = validate_registry()
     meta = load_meta()
@@ -58,6 +65,58 @@ def _build_payload() -> dict[str, Any]:
         enriched["evaluation_run_ids"] = sorted(runs_by_benchmark[benchmark["id"]])
         enriched["evaluating_work_ids"] = sorted(works_by_benchmark[benchmark["id"]])
         benchmarks.append(enriched)
+    benchmark_by_id = {item["id"]: item for item in benchmarks}
+    task_coverage = []
+    for benchmark in benchmarks:
+        classification = benchmark["scientific_task_classification"]
+        flagged_paths = {item["path"] for item in benchmark["field_status"]}
+        for index, entry in enumerate(classification["entries"]):
+            path = f"/scientific_task_classification/entries/{index}"
+            task_coverage.append({
+                "task_type_id": entry["task_type_id"],
+                "benchmark_id": benchmark["id"],
+                "benchmark_name": benchmark["name"],
+                "root_family_id": _root_family_id(benchmark, benchmark_by_id),
+                "benchmark_kind": benchmark["kind"],
+                "benchmark_version": classification["benchmark_version"],
+                "as_of": classification["as_of"],
+                "classification_status": classification["status"],
+                "coverage": entry["coverage"],
+                "mapping_method": entry["mapping_method"],
+                "confidence": entry["confidence"],
+                "count": entry["count"],
+                "count_unit": entry["count_unit"],
+                "count_basis": entry["count_basis"],
+                "count_ref": entry["count_ref"],
+                "reporting_status": entry["reporting_status"],
+                "evidence_ids": entry["evidence_ids"],
+                "notes": entry["notes"],
+                "audit_status": benchmark["audit"]["status"],
+                "evaluation_run_ids": benchmark["evaluation_run_ids"],
+                "evaluating_work_ids": benchmark["evaluating_work_ids"],
+                "aggregate_eligible": (
+                    entry["confidence"] != "low"
+                    and path not in flagged_paths
+                    and entry["coverage"] != "not-in-scope"
+                ),
+            })
+    task_coverage.sort(key=lambda item: (item["task_type_id"], item["root_family_id"], item["benchmark_id"]))
+
+    scientific_tasks = []
+    for term in taxonomies["scientific_tasks"]:
+        positive = [
+            item for item in task_coverage
+            if item["task_type_id"] == term["id"] and item["aggregate_eligible"]
+        ]
+        enriched = dict(term)
+        enriched["coverage_family_count"] = len({item["root_family_id"] for item in positive})
+        enriched["coverage_track_count"] = len({
+            item["benchmark_id"] for item in positive if item["benchmark_kind"] == "track"
+        })
+        enriched["official_work_count"] = len({
+            work_id for item in positive for work_id in item["evaluating_work_ids"]
+        })
+        scientific_tasks.append(enriched)
     return {
         "meta": meta,
         "taxonomies": taxonomies,
@@ -66,6 +125,8 @@ def _build_payload() -> dict[str, Any]:
         "works": verified["work"],
         "models": verified["model"],
         "evaluation_runs": evaluation_runs,
+        "scientific_tasks": scientific_tasks,
+        "scientific_task_coverage": task_coverage,
     }
 
 
@@ -83,8 +144,10 @@ def main() -> None:
     write_json(exports / "works.json", payload["works"])
     write_json(exports / "models.json", payload["models"])
     write_json(exports / "evaluation-runs.json", payload["evaluation_runs"])
+    write_json(exports / "scientific-tasks.json", payload["scientific_tasks"])
+    write_json(exports / "scientific-task-coverage.json", payload["scientific_task_coverage"])
     write_json(generated / "registry.json", payload)
-    for filename in ("registry.json", "benchmarks.json", "works.json", "models.json", "evaluation-runs.json"):
+    for filename in ("registry.json", "benchmarks.json", "works.json", "models.json", "evaluation-runs.json", "scientific-tasks.json", "scientific-task-coverage.json"):
         shutil.copy2(exports / filename, public_data / filename)
     public_schema.mkdir(parents=True, exist_ok=True)
     shutil.copy2(ROOT / "schema" / "registry.schema.json", public_schema / "registry.schema.json")
@@ -97,6 +160,10 @@ def main() -> None:
             "task_count": item["task_counts"]["total"] if item["task_counts"]["total"] is not None else "",
             "domains": ";".join(item["domains"]), "capabilities": ";".join(item["capabilities"]),
             "modalities": ";".join(item["modalities"]), "access": item["access"]["level"],
+            "scientific_task_ids": ";".join(
+                entry["task_type_id"] for entry in item["scientific_task_classification"]["entries"]
+            ),
+            "task_classification_status": item["scientific_task_classification"]["status"],
             "evaluation_runs": len(item["evaluation_run_ids"]), "works": len(item["evaluating_work_ids"]),
             "audit_status": item["audit"]["status"],
             "provisional_fields": ";".join(
@@ -107,7 +174,7 @@ def main() -> None:
             ),
             "last_verified": item["verification"]["last_verified"],
         })
-    benchmark_fields = ["id", "name", "kind", "parent_id", "release_date", "latest_version", "task_count", "domains", "capabilities", "modalities", "access", "evaluation_runs", "works", "audit_status", "provisional_fields", "conflicted_fields", "last_verified"]
+    benchmark_fields = ["id", "name", "kind", "parent_id", "release_date", "latest_version", "task_count", "domains", "capabilities", "modalities", "access", "scientific_task_ids", "task_classification_status", "evaluation_runs", "works", "audit_status", "provisional_fields", "conflicted_fields", "last_verified"]
     write_csv(exports / "benchmarks.csv", benchmark_fields, benchmark_rows)
     shutil.copy2(exports / "benchmarks.csv", public_data / "benchmarks.csv")
 
@@ -131,6 +198,23 @@ def main() -> None:
     result_fields = ["evaluation_run_id", "work_id", "benchmark_id", "benchmark_version", "scope", "subset_id", "n", "model_id", "metric_id", "value", "ci_low", "ci_high", "shots", "turns", "browser", "internet", "code_execution", "repeats", "grader", "comparability_group", "result_status", "confidence", "result_evidence_ids"]
     write_csv(exports / "evaluation-results.csv", result_fields, result_rows)
     shutil.copy2(exports / "evaluation-results.csv", public_data / "evaluation-results.csv")
+
+    coverage_fields = [
+        "task_type_id", "benchmark_id", "benchmark_name", "root_family_id", "benchmark_kind",
+        "benchmark_version", "as_of", "classification_status", "coverage", "mapping_method",
+        "confidence", "count", "count_unit", "count_basis", "count_ref", "reporting_status",
+        "evidence_ids", "audit_status", "aggregate_eligible", "notes",
+    ]
+    coverage_rows = []
+    for item in payload["scientific_task_coverage"]:
+        row = dict(item)
+        row["count"] = "" if item["count"] is None else item["count"]
+        row["as_of"] = item["as_of"] or ""
+        row["count_ref"] = item["count_ref"] or ""
+        row["evidence_ids"] = ";".join(item["evidence_ids"])
+        coverage_rows.append(row)
+    write_csv(exports / "scientific-task-coverage.csv", coverage_fields, coverage_rows)
+    shutil.copy2(exports / "scientific-task-coverage.csv", public_data / "scientific-task-coverage.csv")
     print(f"Built registry {payload['meta']['version']} with {len(payload['benchmarks'])} benchmarks and {len(payload['evaluation_runs'])} evaluation runs.")
 
 

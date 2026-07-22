@@ -64,6 +64,21 @@ def _resolve_pointer(document: Any, pointer: str) -> bool:
     return walk(document, parts)
 
 
+def _pointer_value(document: Any, pointer: str) -> Any:
+    if not pointer.startswith("/"):
+        raise KeyError(pointer)
+    value = document
+    for raw_part in pointer[1:].split("/"):
+        part = raw_part.replace("~1", "/").replace("~0", "~")
+        if isinstance(value, dict):
+            value = value[part]
+        elif isinstance(value, list):
+            value = value[int(part)]
+        else:
+            raise KeyError(pointer)
+    return value
+
+
 def _is_structured_evidence(evidence: dict[str, Any]) -> bool:
     return all(key in evidence for key in ("id", "source_type", "source_id", "accessed_date"))
 
@@ -110,6 +125,179 @@ def _collect_taxonomy_ids(taxonomies: dict[str, list[dict[str, Any]]]) -> dict[s
                     f"taxonomy {axis}/{term['id']} references missing parent {parent}"
                 )
     return ids
+
+
+def _normalize_alias(value: str) -> str:
+    return "-".join(value.strip().lower().replace("_", "-").split())
+
+
+def _normalize_basis(value: str) -> str:
+    return " ".join(value.strip().lower().rstrip(".").split())
+
+
+def _validate_scientific_taxonomies(
+    taxonomies: dict[str, list[dict[str, Any]]], taxonomy_ids: dict[str, set[str]]
+) -> None:
+    required_axes = {"scientific_objects", "task_families", "scientific_tasks"}
+    missing_axes = required_axes - set(taxonomies)
+    if missing_axes:
+        raise RegistryValidationError(f"missing Scientific Task taxonomy axes: {sorted(missing_axes)}")
+
+    tasks = {item["id"]: item for item in taxonomies["scientific_tasks"]}
+    aliases: dict[str, str] = {}
+    for task_id, task in tasks.items():
+        required = {
+            "label", "label_zh", "definition", "aliases", "deprecated_aliases",
+            "parent_id", "object_ids", "task_family_id",
+        }
+        missing = required - set(task)
+        if missing:
+            raise RegistryValidationError(
+                f"scientific task {task_id} is missing fields: {sorted(missing)}"
+            )
+        if not task["object_ids"]:
+            raise RegistryValidationError(f"scientific task {task_id} requires object_ids")
+        for object_id in task["object_ids"]:
+            if object_id not in taxonomy_ids["scientific_objects"]:
+                raise RegistryValidationError(
+                    f"scientific task {task_id} references missing object {object_id}"
+                )
+        if task["task_family_id"] not in taxonomy_ids["task_families"]:
+            raise RegistryValidationError(
+                f"scientific task {task_id} references missing family {task['task_family_id']}"
+            )
+        for alias in [task_id, *task["aliases"], *task["deprecated_aliases"]]:
+            normalized = _normalize_alias(alias)
+            owner = aliases.get(normalized)
+            if owner is not None and owner != task_id:
+                raise RegistryValidationError(
+                    f"scientific task alias {alias!r} is shared by {owner} and {task_id}"
+                )
+            aliases[normalized] = task_id
+
+    for task_id in tasks:
+        seen: set[str] = set()
+        current: str | None = task_id
+        depth = 0
+        while current is not None:
+            if current in seen:
+                raise RegistryValidationError(f"scientific task parent cycle includes {current}")
+            seen.add(current)
+            parent = tasks[current].get("parent_id")
+            if parent is not None:
+                depth += 1
+            current = parent
+        if depth > 1:
+            raise RegistryValidationError(
+                f"scientific task {task_id} exceeds the two-level hierarchy limit"
+            )
+
+
+def _validate_scientific_classification(
+    benchmark: dict[str, Any],
+    task_terms: dict[str, dict[str, Any]],
+    evidence_by_id: dict[str, tuple[str, dict[str, Any]]],
+) -> None:
+    benchmark_id = benchmark["id"]
+    classification = benchmark["scientific_task_classification"]
+    entries = classification["entries"]
+    if classification["benchmark_version"] != benchmark["latest_version"]:
+        raise RegistryValidationError(
+            f"{benchmark_id}: scientific classification version must equal latest_version"
+        )
+    current_versions = [
+        item for item in benchmark.get("versions", [])
+        if item["label"] == benchmark["latest_version"] and item["status"] in {"current", "rolling"}
+    ]
+    if current_versions and current_versions[0]["status"] == "rolling":
+        if classification["as_of"] != current_versions[0]["as_of"]:
+            raise RegistryValidationError(
+                f"{benchmark_id}: rolling scientific classification as_of must match the current snapshot"
+            )
+    if classification["status"] == "unclassified":
+        if benchmark_id != "virbench":
+            raise RegistryValidationError(
+                f"{benchmark_id}: VirBench is the only production record allowed to remain unclassified"
+            )
+        if entries:
+            raise RegistryValidationError(f"{benchmark_id}: unclassified record cannot contain entries")
+        return
+    if classification["status"] == "partial" and not classification.get("notes"):
+        raise RegistryValidationError(f"{benchmark_id}: partial classification requires notes")
+    if classification["status"] == "complete" and not any(
+        item["coverage"] in {"explicitly-in-scope", "observed"} for item in entries
+    ):
+        raise RegistryValidationError(
+            f"{benchmark_id}: complete classification requires a positive coverage entry"
+        )
+
+    task_ids = [item["task_type_id"] for item in entries]
+    if len(task_ids) != len(set(task_ids)):
+        raise RegistryValidationError(f"{benchmark_id}: duplicate scientific task mapping")
+    task_id_set = set(task_ids)
+    for task_id in task_ids:
+        if task_id not in task_terms:
+            raise RegistryValidationError(f"{benchmark_id}: unknown scientific task {task_id}")
+        parent = task_terms[task_id].get("parent_id")
+        if parent in task_id_set:
+            raise RegistryValidationError(
+                f"{benchmark_id}: cannot register both parent task {parent} and child {task_id}"
+            )
+
+    clean_benchmark = without_internal_fields(benchmark)
+    field_status = benchmark.get("field_status", [])
+    for index, entry in enumerate(entries):
+        path = f"/scientific_task_classification/entries/{index}"
+        count = entry["count"]
+        if entry["reporting_status"] == "reported" and count is None:
+            raise RegistryValidationError(f"{benchmark_id}: reported task count at {path} is null")
+        if entry["reporting_status"] == "not_reported" and count is not None:
+            raise RegistryValidationError(
+                f"{benchmark_id}: not-reported task count at {path} must be null"
+            )
+        if entry["coverage"] == "not-in-scope" and count != 0:
+            raise RegistryValidationError(
+                f"{benchmark_id}: not-in-scope task at {path} must have a reported zero count"
+            )
+        if entry["count_ref"] is not None:
+            try:
+                referenced_count = _pointer_value(clean_benchmark, entry["count_ref"])
+            except (KeyError, IndexError, ValueError, TypeError):
+                raise RegistryValidationError(
+                    f"{benchmark_id}: task count_ref does not resolve: {entry['count_ref']}"
+                )
+            if referenced_count != count:
+                raise RegistryValidationError(
+                    f"{benchmark_id}: task count {count} differs from count_ref value {referenced_count}"
+                )
+            if entry["count_ref"].endswith("/task_counts/total") or entry["count_ref"] == "/task_counts/total":
+                basis_ref = entry["count_ref"].rsplit("/", 1)[0] + "/basis"
+                referenced_basis = _pointer_value(clean_benchmark, basis_ref)
+                if _normalize_basis(referenced_basis) != _normalize_basis(entry["count_basis"]):
+                    raise RegistryValidationError(
+                        f"{benchmark_id}: task count_basis differs from the referenced task_counts basis"
+                    )
+        for evidence_id in entry["evidence_ids"]:
+            if evidence_id not in evidence_by_id:
+                raise RegistryValidationError(
+                    f"{benchmark_id}: task mapping references missing evidence {evidence_id}"
+                )
+            owner_id, evidence = evidence_by_id[evidence_id]
+            if owner_id != benchmark_id or path not in evidence["supports"]:
+                raise RegistryValidationError(
+                    f"{benchmark_id}: task evidence {evidence_id} must support {path}"
+                )
+            if entry["mapping_method"] == "artifact-derived":
+                locator = evidence["locator"]
+                locator_type = locator.get("type") if isinstance(locator, dict) else None
+                if locator_type not in {"repository-path", "dataset-card", "table", "other"}:
+                    raise RegistryValidationError(
+                        f"{benchmark_id}: artifact-derived mapping requires a row, file, table, or dataset locator"
+                    )
+        if entry["confidence"] == "low" and not _field_is_flagged(field_status, path):
+            raise RegistryValidationError(
+                f"{benchmark_id}: low-confidence task mapping at {path} requires field_status"
+            )
 
 
 def _check_parent_cycles(benchmarks: dict[str, dict[str, Any]]) -> None:
@@ -191,6 +379,7 @@ def validate_registry() -> dict[str, list[dict[str, Any]]]:
     meta = load_meta()
     taxonomies = load_taxonomies()
     taxonomy_ids = _collect_taxonomy_ids(taxonomies)
+    _validate_scientific_taxonomies(taxonomies, taxonomy_ids)
     entities = load_entities()
     schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
     validator = Draft202012Validator(schema, format_checker=FormatChecker())
@@ -285,6 +474,12 @@ def validate_registry() -> dict[str, list[dict[str, Any]]]:
                 raise RegistryValidationError(
                     f"{benchmark['id']}: null coverage count must be not_reported"
                 )
+
+        _validate_scientific_classification(
+            benchmark,
+            {item["id"]: item for item in taxonomies["scientific_tasks"]},
+            evidence_by_id,
+        )
 
         audit = benchmark.get("audit", {"status": "legacy"})
         field_status = benchmark.get("field_status", [])

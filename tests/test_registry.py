@@ -1178,7 +1178,7 @@ def test_build_is_deterministic_and_surfaces_match() -> None:
         ROOT / "site" / "public" / "data" / "registry.json"
     ).read_bytes()
     payload = json.loads((ROOT / "exports" / "registry.json").read_text(encoding="utf-8"))
-    assert payload["meta"]["version"] == "1.3.1"
+    assert payload["meta"]["version"] == "1.4.0-dev"
     assert all("model_ids" in run for run in payload["evaluation_runs"])
 
 

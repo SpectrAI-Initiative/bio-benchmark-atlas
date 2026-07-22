@@ -6,7 +6,7 @@ The website is published at **https://spectrai-initiative.github.io/bio-benchmar
 
 The immutable `v1.2.0` release adds a Scientific Task layer that distinguishes problems such as protein folding, protein sequence design, PPI, protein-ligand binding, DNA regulation, RNA design, small-molecule discovery, omics analysis, and scientific workflows. It also expands the atlas with creator-audited TAPE, Genomic Benchmarks, BEACON, MoleculeNet, ATOM3D, GuacaMol, and scIB records. VirBench's detailed audit and task classification remain intentionally deferred and visibly marked `legacy` / `unclassified`; this is the only CI-enforced exception.
 
-The `v1.3.0` line adds versioned Works, a first-class `BenchmarkUse` relationship, Anthropic/Claude life-science evidence, SpatialBench, and a durable paper-intake workflow. A submitted paper link is identity-normalized and duplicate-checked into a draft PR; it cannot enter production until a reviewer verifies the source-level benchmark relationship and settings.
+The immutable `v1.3.0` release adds versioned Works, a first-class `BenchmarkUse` relationship, Anthropic/Claude life-science evidence, SpatialBench, and a durable paper-intake workflow. A submitted paper link is identity-normalized and duplicate-checked into a draft PR; it cannot enter production until a reviewer verifies the source-level benchmark relationship and settings.
 
 ## Principles
 

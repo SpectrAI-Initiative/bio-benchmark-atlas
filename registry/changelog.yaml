@@ -1,7 +1,7 @@
 - date: '2026-07-22'
-  version: 1.3.0-dev
-  type: development
-  summary: Added versioned Works and BenchmarkUse relationships; normalized Anthropic's partial BixBench claim, SpatialBench paper/current snapshots, an explicitly third-party SpatialBench summary, and three private internal life-science delta evaluations; added a draft-PR paper intake system and Paper Explorer without inferring missing settings or plot values.
+  version: 1.3.0
+  type: release
+  summary: Released v1.3.0 with versioned Works and BenchmarkUse relationships; normalized Anthropic's partial BixBench claim, SpatialBench paper/current snapshots, an explicitly third-party SpatialBench summary, and three private internal life-science delta evaluations; added a draft-PR paper intake system and Paper Explorer without inferring missing settings or plot values.
   entity_ids: [registry-schema, anthropic-life-sciences, bixbench, spatialbench, spatialbench-preprint, spatialbench-repository-release, anthropic-healthcare-life-sciences, anthropic-key-life-sciences-evals, anthropic-scientific-figure-interpretation, anthropic-computational-biology, anthropic-protein-understanding, claude-opus-4-5]
 - date: '2026-07-22'
   version: 1.2.0

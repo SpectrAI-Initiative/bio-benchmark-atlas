@@ -430,6 +430,24 @@ def validate_registry() -> dict[str, list[dict[str, Any]]]:
         )
         if current["status"] == "superseded":
             raise RegistryValidationError(f"{work['id']}: current source version is superseded")
+        provenance = work.get("review_provenance")
+        if provenance:
+            if provenance["source_version_id"] not in version_ids_for_work:
+                raise RegistryValidationError(
+                    f"{work['id']}: review provenance references a source version from another Work"
+                )
+            reviewed_source = next(
+                item for item in work["source_versions"]
+                if item["id"] == provenance["source_version_id"]
+            )
+            missing_fingerprint_fields = [
+                key for key in ("source_access", "content_sha256", "content_type", "retrieved_at")
+                if not reviewed_source.get(key)
+            ]
+            if missing_fingerprint_fields:
+                raise RegistryValidationError(
+                    f"{work['id']}: AI-assisted source version lacks {missing_fingerprint_fields}"
+                )
         for version in work["source_versions"]:
             if version["id"] in permanent_ids:
                 raise RegistryValidationError(f"duplicate permanent ID {version['id']!r}")
@@ -628,6 +646,12 @@ def validate_registry() -> dict[str, list[dict[str, Any]]]:
                         raise RegistryValidationError(
                             f"{entity['id']}: evidence references missing work {source_id}"
                         )
+                    if source_type == "work" and by_type["work"][source_id].get("review_provenance"):
+                        locator = evidence["locator"]
+                        if not isinstance(locator, dict) or not locator.get("source_fragment_sha256"):
+                            raise RegistryValidationError(
+                                f"{entity['id']}: AI-assisted evidence requires a hashed structured locator"
+                            )
                     if source_type == "resource" and source_id not in resource_by_id:
                         raise RegistryValidationError(
                             f"{entity['id']}: evidence references missing resource {source_id}"

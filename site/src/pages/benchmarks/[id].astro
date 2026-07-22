@@ -29,6 +29,14 @@ const externalUses = uses.filter((use) => use!.relation_type === 'external-resul
 const nonEvaluationUses = uses.filter((use) => use!.relation_type !== 'evaluation' && use!.relation_type !== 'external-result-summary');
 const statusFor = (path: string) => fieldStatus(benchmark, path);
 const taskClassification = benchmark.scientific_task_classification;
+const headerTags = [
+  ...benchmark.domains.map((id) => ({ id, axis: 'domains', accent: true })),
+  ...taskClassification.entries.map((entry) => ({ id: entry.task_type_id, axis: 'scientific_tasks', accent: false })),
+];
+const graderSummary = benchmark.access.grader.length > 96 ? `${benchmark.access.grader.slice(0, 93)}…` : benchmark.access.grader;
+const implementationSummary = benchmark.implementations.length
+  ? `${benchmark.implementations.length} recorded · ${[...new Set(benchmark.implementations.map((implementation) => implementation.status))].join(', ')}`
+  : 'None recorded';
 const resultCharts = benchmark.access.level === 'private-internal' ? [] : runs.flatMap((run) => run!.metrics.filter((metric) => metric.kind === 'absolute').map((metric) => ({
   run: run!, metric,
   values: run!.results
@@ -47,7 +55,8 @@ const resultCharts = benchmark.access.level === 'private-internal' ? [] : runs.f
       <div class="breadcrumbs"><a href={withBase('/benchmarks/')}>Benchmarks</a><span>/</span>{parent && <><a href={withBase(`/benchmarks/${parent.id}/`)}>{parent.name}</a><span>/</span></>}<span>{benchmark.name}</span></div>
       <p class="eyebrow">{benchmark.kind} · {benchmark.audit.status} · verified {benchmark.verification.last_verified}</p>
       <h1>{benchmark.name}</h1><p class="lede">{benchmark.summary}</p>
-      <div class="tag-list">{benchmark.domains.map((id) => <Tag id={id} linked accent />)}</div>
+      <div class="tag-list">{headerTags.slice(0, 6).map((tag) => <Tag id={tag.id} axis={tag.axis} linked accent={tag.accent} />)}</div>
+      {headerTags.length > 6 && <details class="tag-overflow"><summary>+{headerTags.length - 6} more</summary><div class="tag-list">{headerTags.slice(6).map((tag) => <Tag id={tag.id} axis={tag.axis} linked accent={tag.accent} />)}</div></details>}
     </header>
     <div class="shell section detail-grid">
       <div>
@@ -95,14 +104,17 @@ const resultCharts = benchmark.access.level === 'private-internal' ? [] : runs.f
           {runs.length ? runs.map((run) => <RunCard run={run!} />) : childRunCount > 0 ? <div class="callout info">Evaluation settings and results are published on the child-track pages above.</div> : <div class="callout info">No normalized evaluation run is published yet. Creator evidence is still attached below.</div>}
         </section>
         {resultCharts.length > 0 && <section class="section-tight"><h2>Comparable result views</h2><div class:list={{grid: true, two: resultCharts.every((chart) => chart.values.length <= 12)}}>{resultCharts.map((chart) => <PlotCard title={chart.metric.source_label} description={`${chart.run.id} · ${chart.run.comparability_group}`} kind="dot" values={chart.values} csv="/data/evaluation-results.csv" tableColumns={[{key:'label',label:'Model'},{key:'value',label:'Value'},{key:'group',label:'Comparability group'}]} options={{xLabel: chart.metric.unit, order: 'descending'}} />)}</div></section>}
-        <section class="section-tight"><h2>Evidence and change history</h2><ul>{benchmark.evidence.map((evidence) => { const sourceId = evidenceSourceId(evidence); const work = sourceId ? workMap.get(sourceId) : undefined; const resource = benchmark.resources.find((item) => item.id === sourceId); return <li>{work ? <a href={withBase(`/works/${work.id}/`)}>{work.title}</a> : resource ? <a href={resource.url}>{resource.id}</a> : sourceId} — {evidenceLocator(evidence)}<br/><span class="small muted">Supports: {evidence.supports.join(', ')}</span></li>; })}</ul>{benchmark.field_status.length > 0 && <><h3>Unresolved field claims</h3><ul>{benchmark.field_status.map((status) => <li><code>{status.path}</code><StatusBadge status={status.status} confidence={status.confidence} reason={status.reason} /> — {status.reason}<br/><span class="small muted">Evidence: {status.evidence_ids.join(', ')}</span></li>)}</ul></>}<p><a href={`https://github.com/SpectrAI-Initiative/bio-benchmark-atlas/commits/main/registry/benchmarks/${benchmark.id}.yaml`}>View source-level modification history on GitHub →</a></p></section>
+        <section class="section-tight"><h2>Evidence and change history</h2><p class="muted">Source locators remain visible; expand an item to inspect the exact Registry fields it supports.</p><div class="evidence-list">{benchmark.evidence.map((evidence) => { const sourceId = evidenceSourceId(evidence); const work = sourceId ? workMap.get(sourceId) : undefined; const resource = benchmark.resources.find((item) => item.id === sourceId); const sourceLabel = work?.title ?? resource?.id ?? sourceId ?? 'Unresolved source'; const sourceHref = work ? withBase(`/works/${work.id}/`) : resource?.url; return <details class="evidence-item"><summary><strong>{sourceLabel}</strong> · {evidenceLocator(evidence)} · Supports {evidence.supports.length} {evidence.supports.length === 1 ? 'field' : 'fields'}</summary>{sourceHref && <p class="small"><a href={sourceHref}>Open source →</a></p>}<ul class="evidence-paths">{evidence.supports.map((path) => <li><code>{path}</code></li>)}</ul></details>; })}</div>{benchmark.field_status.length > 0 && <><h3>Unresolved field claims</h3><ul>{benchmark.field_status.map((status) => <li><code>{status.path}</code><StatusBadge status={status.status} confidence={status.confidence} reason={status.reason} /> — {status.reason}<br/><span class="small muted">Evidence: {status.evidence_ids.join(', ')}</span></li>)}</ul></>}<p><a href={`https://github.com/SpectrAI-Initiative/bio-benchmark-atlas/commits/main/registry/benchmarks/${benchmark.id}.yaml`}>View source-level modification history on GitHub →</a></p></section>
       </div>
-      <aside class="sidebar">
-        <div class="card"><p class="eyebrow">Access & reproducibility</p><dl class="definition-list">
+      <aside class="sidebar sidebar-stack">
+        <div class="card"><p class="eyebrow">Access & reproducibility</p><dl class="definition-list compact">
           <div><dt>Access</dt><dd>{termMaps.access_levels.get(benchmark.access.level)?.label ?? benchmark.access.level}{statusFor('/access/level') && <StatusBadge {...statusFor('/access/level')!} />}</dd></div>
-          <div><dt>Tasks</dt><dd>{benchmark.access.tasks}</dd></div><div><dt>Artifacts</dt><dd>{benchmark.access.artifacts}</dd></div><div><dt>Grader</dt><dd>{benchmark.access.grader}</dd></div><div><dt>License</dt><dd>{benchmark.access.license ?? 'Not reported'}{statusFor('/access/license') && <StatusBadge {...statusFor('/access/license')!} />}</dd></div>
+          <div><dt>License</dt><dd>{benchmark.access.license ?? 'Not reported'}{statusFor('/access/license') && <StatusBadge {...statusFor('/access/license')!} />}</dd></div>
+          <div><dt>Grader</dt><dd>{graderSummary}</dd></div>
+          <div><dt>Implementations</dt><dd>{implementationSummary}</dd></div>
         </dl></div>
-        <div class="card" style="margin-top:1rem"><h3>Primary resources</h3><ul>{benchmark.resources.map((resource) => <li><a href={resource.url}>{resource.id ?? resource.type}</a>{resource.license && <span class="muted small"> · {resource.license}</span>}<br/><span class="small muted">{resource.type}{resource.pin ? ` · ${resource.pin.kind} ${resource.pin.value}` : ''}{resource.last_checked ? ` · checked ${resource.last_checked}` : ''}</span></li>)}</ul><h3>Implementations</h3><ul>{benchmark.implementations.map((impl) => <li>{impl.url ? <a href={impl.url}>{impl.framework}</a> : impl.framework}<br/><span class="small muted">{impl.status}{impl.commit ? ` · ${impl.commit.slice(0, 8)}` : ''}</span></li>)}</ul></div>
+        <details class="card sidebar-details"><summary>Access details</summary><dl class="definition-list compact"><div><dt>Tasks</dt><dd>{benchmark.access.tasks}</dd></div><div><dt>Artifacts</dt><dd>{benchmark.access.artifacts}</dd></div><div><dt>Grader</dt><dd>{benchmark.access.grader}</dd></div><div><dt>Biosafety</dt><dd>{benchmark.access.biosafety_notes ?? 'Not reported'}</dd></div></dl></details>
+        <details class="card sidebar-details"><summary>Resources & implementations</summary><h3>Primary resources</h3><ul>{benchmark.resources.map((resource) => <li><a href={resource.url}>{resource.id ?? resource.type}</a>{resource.license && <span class="muted small"> · {resource.license}</span>}<br/><span class="small muted">{resource.type}{resource.pin ? ` · ${resource.pin.kind} ${resource.pin.value}` : ''}{resource.last_checked ? ` · checked ${resource.last_checked}` : ''}</span></li>)}</ul><h3>Implementations</h3>{benchmark.implementations.length ? <ul>{benchmark.implementations.map((impl) => <li>{impl.url ? <a href={impl.url}>{impl.framework}</a> : impl.framework}<br/><span class="small muted">{impl.status}{impl.commit ? ` · ${impl.commit.slice(0, 8)}` : ''}</span></li>)}</ul> : <p class="muted small">None recorded.</p>}</details>
       </aside>
     </div>
   </Layout>

@@ -28,6 +28,7 @@ import Layout from '../../components/Layout.astro';
     <div class="callout"><strong>保守比较：</strong>provisional/conflicted 总数不能证明全量评测；相同状态的结果行可以下载核查，但不会进入模型比较图。</div>
     <h2>证据</h2>
     <p>关键 setting 和公开结果需要永久 evidence ID、官方 work/resource、访问日期、精确 locator，以及能解析到真实字段的路径。第三方题目、附件和论文全文不镜像。</p>
-    <h2>论文持续入库</h2><p>你提交 DOI、arXiv/bioRxiv/medRxiv/ChemRxiv 或 publisher URL 后，系统先规范化身份、检查重复 Work 和 benchmark aliases，再自动建立一个不进入生产的 draft PR。人工审阅会区分真正复测、训练/微调、validation、model selection、第三方结果转述和纯 related-work 引用。</p><div class="callout info"><strong>自动化不会直接发布事实。</strong>只有完成版本、scope、n、metrics、工具、重复次数、grader 和 locator 核验后，记录才会进入 Registry；来源没报告的内容使用 partial BenchmarkUse 或 <code>null + not_reported</code>。</div>
+    <h2>论文持续入库</h2><p>系统每周从 Europe PMC、Crossref 和 arXiv 发现候选，最多创建 10 个 issue，并按 protein 4、DNA/RNA 2、small molecule 2、omics/cell 2 控制配额。候选 issue 不进入 Registry。你或具有 write/maintain/admin 权限的维护者提交时可立即抽取；外部提交和主动发现候选必须先由维护者添加 <code>approved-for-intake</code>。</p><p>只读取合法开放全文或提交者确认有权提供的 PDF；单篇上限 45 MiB、150 页。系统计算 SHA256，全文只临时上传并在 <code>finally</code> 中删除，不进入 Git、Release 或网站。</p>
+    <h2>双阶段独立核验</h2><p>第一阶段只生成受 Pydantic Schema 约束的 claim draft，不能写 YAML；第二阶段重新阅读原始 source，独立核对每条 claim 的页码、table、figure 和数字。只有双方都为 high confidence 且 locator 可解析的 claim 才交给确定性 generator。无数字标签的图、版本不明、模型身份不明或 subset n 不明，都只能形成 partial BenchmarkUse。</p><div class="callout info"><strong>Owner gate：</strong>bot 只能创建 Ready PR，不能自动合并。<code>paper-owner-gate</code> 只接受 <code>wang422003</code> 在 bot 最后一次 push 之后提交的 APPROVED review；bot 再 push 后必须重新批准。</div>
   </article>
 </Layout>

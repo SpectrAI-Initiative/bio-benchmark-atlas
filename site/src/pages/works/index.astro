@@ -8,13 +8,15 @@ const sourceClasses = [...new Set(data.works.map((work) => work.source_class))].
 const relations = [...new Set(data.benchmark_uses.map((use) => use.relation_type))].sort();
 const scopes = [...new Set(data.benchmark_uses.map((use) => use.scope.type))].sort();
 const usedBenchmarkIds = [...new Set(data.benchmark_uses.map((use) => use.benchmark_id))].sort();
+const reviewMethods = ['manual', 'automated-double-pass'];
 const rows = data.works.map((work) => {
   const uses = data.benchmark_uses.filter((use) => use.work_id === work.id);
   const evaluationUses = uses.filter((use) => use.relation_type === 'evaluation' || use.relation_type === 'external-result-summary');
   const completeness = evaluationUses.some((use) => use.status === 'partial' || use.reporting_gaps.length)
     ? 'partial'
     : evaluationUses.length && evaluationUses.every((use) => use.status === 'normalized') ? 'normalized' : 'non-evaluation';
-  return { work, uses, completeness };
+  const reviewMethod = work.review_provenance?.method ?? 'manual';
+  return { work, uses, completeness, reviewMethod };
 });
 ---
 <Layout title="Paper Explorer" canonicalPath="/works/">
@@ -29,15 +31,17 @@ const rows = data.works.map((work) => {
       <div class="field"><label for="relation">Relation</label><select id="relation" name="relation"><option value="">All relations</option>{relations.map((relation) => <option value={relation}>{relation.replaceAll('-', ' ')}</option>)}</select></div>
       <div class="field"><label for="scope">Scope</label><select id="scope" name="scope"><option value="">All scopes</option>{scopes.map((scope) => <option value={scope}>{scope}</option>)}</select></div>
       <div class="field"><label for="completeness">Completeness</label><select id="completeness" name="completeness"><option value="">All completeness</option><option value="normalized">Normalized</option><option value="partial">Partial</option><option value="non-evaluation">Non-evaluation</option></select></div>
+      <div class="field"><label for="review-method">Review method</label><select id="review-method" name="review"><option value="">All review methods</option>{reviewMethods.map((method) => <option value={method}>{method.replaceAll('-', ' ')}</option>)}</select></div>
     </form>
     <p class="small muted"><strong id="paper-count">{rows.length}</strong> works · <a href={withBase('/data/works.csv')} download>Download works CSV</a> · <a href={withBase('/data/benchmark-uses.csv')} download>Download benchmark-use CSV</a></p>
-    <div class="table-wrap"><table id="paper-table"><thead><tr><th>Work</th><th>Type / source</th><th>Published</th><th>Benchmark usage</th><th>Completeness</th></tr></thead><tbody>
-      {rows.map(({ work, uses, completeness }) => <tr
+    <div class="table-wrap"><table id="paper-table"><thead><tr><th>Work</th><th>Type / source</th><th>Published</th><th>Review</th><th>Benchmark usage</th><th>Completeness</th></tr></thead><tbody>
+      {rows.map(({ work, uses, completeness, reviewMethod }) => <tr
         data-search={`${work.title} ${work.authors.join(' ')} ${work.organizations.join(' ')}`.toLowerCase()}
         data-year={work.publication_date.slice(0,4)} data-type={work.work_type} data-source={work.source_class}
-        data-benchmarks={uses.map((use) => use.benchmark_id).join(' ')} data-relations={uses.map((use) => use.relation_type).join(' ')} data-scopes={uses.map((use) => use.scope.type).join(' ')} data-completeness={completeness}>
+        data-benchmarks={uses.map((use) => use.benchmark_id).join(' ')} data-relations={uses.map((use) => use.relation_type).join(' ')} data-scopes={uses.map((use) => use.scope.type).join(' ')} data-completeness={completeness} data-review={reviewMethod}>
         <td><a href={withBase(`/works/${work.id}/`)}>{work.title}</a><br/><span class="small muted">{work.organizations.join(' · ')}</span></td>
         <td>{work.work_type}<br/><span class="small muted">{work.source_class.replaceAll('_', ' ')}</span></td><td>{work.publication_date}</td>
+        <td>{work.review_provenance ? <><span class="usage-badge normalized">AI-assisted</span><br/><span class="small muted">owner-reviewed</span></> : <span class="small muted">manual</span>}</td>
         <td>{uses.length ? <>{[...new Set(uses.map((use) => use.benchmark_id))].length} benchmark(s)<br/><span class="small muted">{[...new Set(uses.map((use) => use.relation_type.replaceAll('-', ' ')))].join(', ')}</span></> : 'Metadata only'}</td>
         <td><span class:list={['usage-badge', completeness]}>{completeness.replaceAll('-', ' ')}</span></td>
       </tr>)}
@@ -49,7 +53,7 @@ const rows = data.works.map((work) => {
     const count = document.querySelector<HTMLElement>('#paper-count')!;
     const empty = document.querySelector<HTMLElement>('#paper-empty')!;
     const params = new URLSearchParams(location.search);
-    for (const name of ['q', 'year', 'type', 'source', 'benchmark', 'relation', 'scope', 'completeness']) {
+    for (const name of ['q', 'year', 'type', 'source', 'benchmark', 'relation', 'scope', 'completeness', 'review']) {
       const control = form.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement;
       control.value = params.get(name) ?? '';
     }
@@ -62,7 +66,8 @@ const rows = data.works.map((work) => {
           && (!values.year || row.dataset.year === values.year) && (!values.type || row.dataset.type === values.type)
           && (!values.source || row.dataset.source === values.source) && includes('benchmarks', values.benchmark)
           && includes('relations', values.relation) && includes('scopes', values.scope)
-          && (!values.completeness || row.dataset.completeness === values.completeness);
+          && (!values.completeness || row.dataset.completeness === values.completeness)
+          && (!values.review || row.dataset.review === values.review);
         row.hidden = !match;
         if (match) visible += 1;
       });

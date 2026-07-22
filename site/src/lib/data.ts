@@ -33,7 +33,27 @@ export type Benchmark = Omit<RawBenchmark, 'audit' | 'field_status' | 'resources
   versions?: BenchmarkVersion[];
   resources: Resource[];
 };
-export type Work = Registry['works'][number];
+type RawWork = Registry['works'][number];
+export type WorkSourceVersion = RawWork['source_versions'][number] & {
+  source_access?: 'open-url' | 'submitted-pdf' | 'metadata-only';
+  content_sha256?: string | null;
+  content_type?: string | null;
+  retrieved_at?: string | null;
+};
+export type Work = Omit<RawWork, 'source_versions'> & {
+  source_versions: WorkSourceVersion[];
+  review_provenance?: {
+    method: 'automated-double-pass';
+    pipeline_version: string;
+    prompt_version: string;
+    source_version_id: string;
+    extractor_model_requested: string;
+    extractor_model_resolved: string;
+    verifier_model_requested: string;
+    verifier_model_resolved: string;
+    generated_at: string;
+  };
+};
 export type Model = Registry['models'][number];
 export type EvaluationResult = RawEvaluationRun['results'][number] & {
   status?: 'verified' | 'provisional' | 'conflicted';
@@ -43,9 +63,10 @@ export type EvaluationResult = RawEvaluationRun['results'][number] & {
 export type EvaluationRun = Omit<RawEvaluationRun, 'results'> & { results: EvaluationResult[]; model_ids: string[] };
 export type BenchmarkUse = RawBenchmarkUse;
 
-export const data = registry as Omit<Registry, 'benchmarks' | 'evaluation_runs'> & {
+export const data = registry as Omit<Registry, 'benchmarks' | 'evaluation_runs' | 'works'> & {
   benchmarks: Benchmark[];
   evaluation_runs: EvaluationRun[];
+  works: Work[];
 };
 export const benchmarkMap = new Map(data.benchmarks.map((item) => [item.id, item]));
 export const workMap = new Map(data.works.map((item) => [item.id, item]));

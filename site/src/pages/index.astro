@@ -30,6 +30,19 @@ const objectTaskHeatmap = data.taxonomies.scientific_objects.flatMap((object) =>
     value: new Set(data.scientific_task_coverage.filter((row) => row.aggregate_eligible && taskIds.has(row.task_type_id)).map((row) => row.root_family_id)).size,
   };
 }));
+const releaseAsOf = new Date(`${data.meta.release_date}T00:00:00Z`);
+const withinDays = (value: string, days: number) => {
+  const observed = new Date(`${value.slice(0, 10)}T00:00:00Z`);
+  return releaseAsOf.getTime() - observed.getTime() <= days * 86400000 && observed <= releaseAsOf;
+};
+const recent = {
+  papers30: data.works.filter((work) => withinDays(work.review_provenance?.generated_at ?? work.verification.last_verified, 30)).length,
+  papers90: data.works.filter((work) => withinDays(work.review_provenance?.generated_at ?? work.verification.last_verified, 90)).length,
+  uses30: data.benchmark_uses.filter((use) => withinDays(use.verification.last_verified, 30)).length,
+  uses90: data.benchmark_uses.filter((use) => withinDays(use.verification.last_verified, 90)).length,
+  runs30: data.evaluation_runs.filter((run) => withinDays(run.verification.last_verified, 30)).length,
+  runs90: data.evaluation_runs.filter((run) => withinDays(run.verification.last_verified, 90)).length,
+};
 ---
 <Layout>
   <div class="shell">
@@ -92,6 +105,7 @@ const objectTaskHeatmap = data.taxonomies.scientific_objects.flatMap((object) =>
     <section class="section-tight">
       <PlotCard title="Benchmark release timeline" description="Initial public release date for each v1 benchmark family." kind="timeline" values={timeline} tableColumns={[{key:'label',label:'Benchmark'},{key:'date',label:'Release date'},{key:'group',label:'Kind'}]} options={{height: 510}} />
     </section>
+    <section class="section-tight"><p class="eyebrow">Registry activity</p><h2>New or re-verified evidence in the last 30 / 90 days</h2><div class="stat-grid" aria-label="Recent registry additions"><div class="stat"><strong>{recent.papers30} / {recent.papers90}</strong><span>papers and works</span></div><div class="stat"><strong>{recent.uses30} / {recent.uses90}</strong><span>benchmark-use relations</span></div><div class="stat"><strong>{recent.runs30} / {recent.runs90}</strong><span>normalized runs</span></div><div class="stat"><strong>{data.meta.release_date}</strong><span>registry as-of date</span></div></div><p class="small muted">Counts use versioned review timestamps, not paper publication dates. Candidate issues are excluded until owner-reviewed and merged.</p></section>
     <section class="section">
       <div class="grid two">
         <div><p class="eyebrow">Machine-readable by default</p><h2>One normalized object, every public surface.</h2><p class="lede">The website, JSON, and CSV exports are built from the same verified YAML records. Draft entries appear in previews, never in production exports.</p></div>

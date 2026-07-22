@@ -1,0 +1,41 @@
+entity_type: evaluation_run
+id: tape-creator-full
+work_id: tape-paper
+benchmark_id: tape
+benchmark_version: original-2019
+scope: {type: full, n: 5, subset_id: null, filter: All five supervised downstream tasks in the creator paper., reporting_status: reported}
+protocol:
+  shots: &tape-na {value: null, reporting_status: not_applicable, notes: Supervised representation learning; no in-context prompting.}
+  turns: *tape-na
+  system_prompt_public: *tape-na
+  reasoning: *tape-na
+  tools:
+    browser: *tape-na
+    internet: *tape-na
+    databases: *tape-na
+    code_execution: {value: null, reporting_status: not_applicable, notes: Model training is the benchmark procedure rather than an agent tool affordance.}
+    container: {value: null, reporting_status: not_reported, notes: The original paper does not prescribe a common container.}
+    external_tools: {value: task-specific supervised heads over frozen or fine-tuned protein representations, reporting_status: reported, notes: Alignment-based and one-hot baselines are also evaluated.}
+  token_budget: *tape-na
+  time_budget: {value: null, reporting_status: not_reported, notes: No common runtime budget is reported across tasks and architectures.}
+  temperature: *tape-na
+  seed: {value: null, reporting_status: not_reported, notes: Exact random seeds are not reported in the main paper.}
+  repeats: {value: null, reporting_status: not_reported, notes: A common repeat count is not stated for all main-table values.}
+  grader: {type: deterministic task-specific scorer, model: null, human_review: false, reporting_status: reported}
+  statistical: {value: 'Task-level evaluation only; no cross-task normalized aggregate.', reporting_status: reported, notes: Each task retains its native metric.}
+  contamination: {value: Sequence-identity filtering and biologically motivated held-out splits., reporting_status: reported, notes: Split rules differ by task.}
+metrics:
+  - {metric_id: per-residue-accuracy, source_label: Per-amino-acid accuracy, unit: proportion, range: [0, 1], higher_is_better: true, aggregation: across labeled residues, pass_threshold: null, tolerance: null}
+  - {metric_id: precision-at-l-over-5, source_label: L/5 medium and long-range precision, unit: proportion, range: [0, 1], higher_is_better: true, aggregation: per protein then task summary, pass_threshold: null, tolerance: null}
+  - {metric_id: classification-accuracy, source_label: Fold-level accuracy, unit: proportion, range: [0, 1], higher_is_better: true, aggregation: held-out test examples, pass_threshold: null, tolerance: null}
+  - {metric_id: spearman-correlation, source_label: Spearman's rho, unit: correlation, range: [-1, 1], higher_is_better: true, aggregation: held-out test examples, pass_threshold: null, tolerance: null}
+results: []
+comparability_group: tape-creator-task-native
+verification: {status: verified, last_verified: '2026-07-22', notes: Scope and native task metrics are verified; task-specific model result tables are intentionally not flattened into a cross-task ranking.}
+evidence:
+  - id: tape-creator-full-protocol-evidence
+    source_type: work
+    source_id: tape-paper
+    accessed_date: '2026-07-22'
+    locator: {type: section, value: 'Sections 4.2-5 and Table 2; Appendix A', note: 'Defines all five task splits, architectures, training procedures, native metrics, and creator comparison table.'}
+    supports: [/scope, /protocol, /metrics]

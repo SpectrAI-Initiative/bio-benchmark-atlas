@@ -1,0 +1,69 @@
+entity_type: benchmark
+id: tape
+name: TAPE
+aliases: [Tasks Assessing Protein Embeddings]
+summary: A five-task benchmark for protein representation learning spanning secondary structure, residue contacts, remote homology, fluorescence, and stability.
+kind: suite
+parent_id: null
+organizations: [University of California Berkeley]
+release_date: '2019-06-19'
+latest_version: original-2019
+domains: [protein-sequence, protein-structure, protein-design]
+capabilities: [prediction, classification, regression]
+modalities: [protein-sequence]
+task_formats: [sequence classification, per-residue classification, residue-pair classification, sequence regression]
+task_counts: &tape-counts
+  total: 5
+  basis: supervised downstream benchmark tasks
+  reporting_status: reported
+  subsets:
+    - {id: tape-structure-tasks, label: Structure prediction tasks, count: 2, basis: supervised downstream tasks, exclusive: true, exhaustive: true, reporting_status: reported, notes: Secondary structure and contact prediction.}
+    - {id: tape-evolution-task, label: Evolutionary understanding task, count: 1, basis: supervised downstream tasks, exclusive: true, exhaustive: true, reporting_status: reported, notes: Remote homology detection.}
+    - {id: tape-engineering-tasks, label: Protein engineering tasks, count: 2, basis: supervised downstream tasks, exclusive: true, exhaustive: true, reporting_status: reported, notes: Fluorescence and stability landscape prediction.}
+coverage_notes:
+  - {tag: protein-structure, coverage: explicitly-in-scope, count: 2, reporting_status: reported, notes: Secondary-structure and contact-map prediction are distinct tasks; TAPE is not a full 3D folding benchmark.}
+  - {tag: protein-design, coverage: explicitly-in-scope, count: 2, reporting_status: reported, notes: 'The paper calls fluorescence and stability protein-engineering tasks, but they evaluate prediction rather than sequence generation.'}
+access:
+  level: fully-open
+  tasks: The five supervised datasets, prescribed train/validation/test splits, and a Pfam pretraining corpus are publicly downloadable.
+  artifacts: The original TensorFlow implementation and a later PyTorch implementation publish loaders, training code, pretrained weights, and evaluators.
+  grader: Deterministic task-specific accuracy, precision, and rank-correlation scorers.
+  license: MIT for the original implementation; benchmark datasets retain their source-specific terms and citation requirements.
+  biosafety_notes: The registry stores no protein sequences or model outputs.
+resources:
+  - {id: tape-paper-resource, type: paper, url: 'https://proceedings.neurips.cc/paper/2019/file/37f65c068b7723cd7809ee2d31d7861c-Paper.pdf', license: null, access_notes: NeurIPS 2019 creator paper., last_checked: '2026-07-22', pin: null}
+  - id: tape-original-repository-resource
+    type: repository
+    url: https://github.com/songlab-cal/tape-neurips2019
+    license: MIT
+    access_notes: Original paper implementation; preferred over the later port for reproducing the paper tables.
+    last_checked: '2026-07-22'
+    pin: {kind: commit, value: dad242d0341379255213cb8715d33b57aa9369bb, url: 'https://github.com/songlab-cal/tape-neurips2019/tree/dad242d0341379255213cb8715d33b57aa9369bb'}
+implementations:
+  - {framework: TAPE original TensorFlow implementation, status: official, url: 'https://github.com/songlab-cal/tape-neurips2019/tree/dad242d0341379255213cb8715d33b57aa9369bb', commit: dad242d0341379255213cb8715d33b57aa9369bb, notes: 'Paper-associated code, data download links, pretrained weights, and task evaluators.'}
+versions:
+  - id: tape-original-2019
+    label: original-2019
+    status: current
+    release_date: '2019-06-19'
+    as_of: null
+    task_counts: *tape-counts
+    formal_tracks: []
+    notes: Fixed snapshot of the five downstream tasks in the NeurIPS 2019 paper; language-model pretraining is not counted as a sixth downstream task.
+    evidence_ids: [tape-paper-definition-evidence, tape-repository-evidence]
+audit: {status: audited, audited_date: '2026-07-22', unresolved_fields: 0, notes: Task definitions and primary metrics were checked against the paper and original commit-pinned implementation.}
+field_status: []
+verification: {status: verified, last_verified: '2026-07-22', notes: Creator paper and original implementation agree on five supervised downstream tasks.}
+evidence:
+  - id: tape-paper-definition-evidence
+    source_type: work
+    source_id: tape-paper
+    accessed_date: '2026-07-22'
+    locator: {type: section, value: 'Abstract; Sections 4.2 and 5; pp. 4-7, Table 2', note: 'Defines the five tasks, their three biological groups, splits, primary metrics, and creator evaluation.'}
+    supports: [/name, /aliases, /summary, /kind, /organizations, /release_date, /latest_version, /domains, /capabilities, /modalities, /task_formats, /task_counts/total, /task_counts/basis, /task_counts/subsets, /coverage_notes, /access/level, /access/license, /resources, /versions/0/release_date, /versions/0/task_counts/total, /versions/0/task_counts/basis, /versions/0/task_counts/subsets]
+  - id: tape-repository-evidence
+    source_type: resource
+    source_id: tape-original-repository-resource
+    accessed_date: '2026-07-22'
+    locator: {type: repository-path, value: 'README.md; tape/tasks; tape/data_utils at dad242d0341379255213cb8715d33b57aa9369bb', note: 'Confirms the five downloadable supervised datasets, evaluators, model list, and MIT code license.'}
+    supports: [/access/tasks, /access/artifacts, /access/grader, /access/license, /resources, /implementations, /versions/0/formal_tracks]

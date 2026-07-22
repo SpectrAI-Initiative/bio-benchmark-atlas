@@ -1,0 +1,13 @@
+entity_type: work
+id: beacon-paper
+title: 'BEACON: Benchmark for Comprehensive RNA Tasks and Language Models'
+authors: [Yuchen Ren, Zhiyuan Chen, Lifeng Qiao, Hongtai Jing, Yuchen Cai, Sheng Xu, Peng Ye, Xinzhu Ma, Siqi Sun, Hongliang Yan, Dong Yuan, Wanli Ouyang, Xihui Liu]
+organizations: [Shanghai Artificial Intelligence Laboratory, University of Sydney, University of Hong Kong, Shanghai Jiao Tong University, Fudan University, Chinese University of Hong Kong]
+work_type: paper
+source_class: benchmark_creator
+publication_date: '2024-12-10'
+canonical_url: https://proceedings.neurips.cc/paper_files/paper/2024/hash/a8ea503d91320fcfe12cba61c8a6d285-Abstract-Datasets_and_Benchmarks_Track.html
+doi: null
+arxiv: '2406.10391'
+status: published
+verification: {status: verified, last_verified: '2026-07-22', notes: Final NeurIPS 2024 Datasets and Benchmarks paper and official repository verified.}

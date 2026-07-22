@@ -1,0 +1,13 @@
+entity_type: work
+id: moleculenet-paper
+title: 'MoleculeNet: a benchmark for molecular machine learning'
+authors: [Zhenqin Wu, Bharath Ramsundar, Evan N. Feinberg, Joseph Gomes, Caleb Geniesse, Aneesh S. Pappu, Karl Leswing, Vijay Pande]
+organizations: [Stanford University, DeepChem]
+work_type: paper
+source_class: benchmark_creator
+publication_date: '2017-10-31'
+canonical_url: https://doi.org/10.1039/C7SC02664A
+doi: 10.1039/C7SC02664A
+arxiv: '1703.00564'
+status: published
+verification: {status: verified, last_verified: '2026-07-22', notes: Peer-reviewed Chemical Science creator paper and open DeepChem implementation verified.}

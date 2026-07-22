@@ -1,0 +1,45 @@
+entity_type: evaluation_run
+id: beacon-creator-full
+work_id: beacon-paper
+benchmark_id: beacon-rna
+benchmark_version: neurips-2024
+scope: {type: full, n: 13, subset_id: null, filter: All thirteen RNA tasks in final-paper Table 1., reporting_status: reported}
+protocol:
+  shots: &beacon-na {value: null, reporting_status: not_applicable, notes: Supervised fine-tuning benchmark; no in-context prompting.}
+  turns: *beacon-na
+  system_prompt_public: *beacon-na
+  reasoning: *beacon-na
+  tools:
+    browser: *beacon-na
+    internet: *beacon-na
+    databases: *beacon-na
+    code_execution: {value: null, reporting_status: not_applicable, notes: Model training is the evaluation procedure.}
+    container: {value: null, reporting_status: not_reported, notes: Dependencies are pinned but no common container is supplied.}
+    external_tools: {value: task-specific fine-tuning scripts over CNN/ResNet/LSTM and RNA language models, reporting_status: reported, notes: Tokenization and positional encoding are varied in separate ablations.}
+  token_budget: *beacon-na
+  time_budget: {value: null, reporting_status: not_reported, notes: Task-specific epoch and batch settings are public; no common wall-clock cap is defined.}
+  temperature: *beacon-na
+  seed: {value: null, reporting_status: not_reported, notes: The identities of the three random seeds are not printed.}
+  repeats: {value: 3, reporting_status: reported, notes: All experiments are repeated with three random seeds and tables report mean with variation.}
+  grader: {type: deterministic task-specific scorer, model: null, human_review: false, reporting_status: reported}
+  statistical: {value: Task-level mean and variation over three seeds; no cross-task total score., reporting_status: reported, notes: Native metrics retain percent or error direction as printed.}
+  contamination: {value: Task-specific source datasets and prescribed train/validation/test partitions., reporting_status: reported, notes: Table 1 provides every split size.}
+metrics:
+  - {metric_id: f1-score, source_label: F1, unit: percent, range: [0, 100], higher_is_better: true, aggregation: task-specific, pass_threshold: null, tolerance: null}
+  - {metric_id: precision-at-l, source_label: Top L Precision, unit: percent, range: [0, 100], higher_is_better: true, aggregation: contact-map task, pass_threshold: null, tolerance: null}
+  - {metric_id: r-squared, source_label: R2, unit: percent, range: null, higher_is_better: true, aggregation: task-specific regression, pass_threshold: null, tolerance: null}
+  - {metric_id: top-k-accuracy, source_label: Top-k ACC, unit: percent, range: [0, 100], higher_is_better: true, aggregation: splice-site task, pass_threshold: null, tolerance: null}
+  - {metric_id: classification-accuracy, source_label: ACC, unit: percent, range: [0, 100], higher_is_better: true, aggregation: sequence classification, pass_threshold: null, tolerance: null}
+  - {metric_id: auc, source_label: AUC, unit: percent, range: [0, 100], higher_is_better: true, aggregation: modification prediction, pass_threshold: null, tolerance: null}
+  - {metric_id: mcrmse, source_label: MCRMSE, unit: error, range: null, higher_is_better: false, aggregation: mean columnwise RMSE, pass_threshold: null, tolerance: null}
+  - {metric_id: spearman-correlation, source_label: Spearman Corr, unit: percent correlation, range: [-100, 100], higher_is_better: true, aggregation: CRISPR task examples, pass_threshold: null, tolerance: null}
+results: []
+comparability_group: beacon-creator-task-native
+verification: {status: verified, last_verified: '2026-07-22', notes: 'Full scope, all native metrics, and three-seed protocol are verified from final paper.'}
+evidence:
+  - id: beacon-creator-full-protocol-evidence
+    source_type: work
+    source_id: beacon-paper
+    accessed_date: '2026-07-22'
+    locator: {type: table, value: 'Tables 1 and 3; Sections 5.1-5.2; Appendix A.1', note: 'Gives split sizes, task metrics, model families, three random seeds, and task-specific training settings.'}
+    supports: [/scope, /protocol, /metrics]

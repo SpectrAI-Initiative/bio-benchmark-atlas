@@ -1,0 +1,13 @@
+entity_type: work
+id: genomic-benchmarks-paper
+title: 'Genomic benchmarks: a collection of datasets for genomic sequence classification'
+authors: [Katarína Grešová, Vlastimil Martinek, David Čechák, Petr Šimeček, Panagiotis Alexiou]
+organizations: [Masaryk University, CEITEC Masaryk University]
+work_type: paper
+source_class: benchmark_creator
+publication_date: '2023-05-01'
+canonical_url: https://doi.org/10.1186/s12863-023-01123-8
+doi: 10.1186/s12863-023-01123-8
+arxiv: null
+status: published
+verification: {status: verified, last_verified: '2026-07-22', notes: Peer-reviewed open-access creator paper; Crossref metadata and publisher text verified.}

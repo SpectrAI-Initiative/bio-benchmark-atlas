@@ -1,0 +1,74 @@
+entity_type: benchmark
+id: atom3d
+name: ATOM3D
+aliases: [Tasks On Molecules in Three Dimensions]
+summary: A living collection of eight curated 3D molecular-learning tasks spanning small molecules, protein interactions and mutations, ligand binding, and protein/RNA structure ranking.
+kind: suite
+parent_id: null
+organizations: [Stanford University]
+release_date: '2020-12-07'
+latest_version: v0.2.6
+domains: [protein-structure, protein-protein-binding, protein-ligand-binding, medchem]
+capabilities: [prediction, classification, regression]
+modalities: [structure-3d]
+task_formats: [3D molecular regression, 3D molecular classification, residue classification, structure ranking]
+task_counts: &atom3d-counts
+  total: 8
+  basis: curated 3D benchmark datasets
+  reporting_status: reported
+  subsets: []
+coverage_notes:
+  - {tag: protein-protein-binding, coverage: explicitly-in-scope, count: 1, reporting_status: reported, notes: Protein Interface Prediction is one of the eight official datasets.}
+  - {tag: protein-ligand-binding, coverage: explicitly-in-scope, count: 2, reporting_status: reported, notes: Ligand Binding Affinity and Ligand Efficacy Prediction are distinct official datasets.}
+  - {tag: protein-structure, coverage: explicitly-in-scope, count: 3, reporting_status: reported, notes: 'Residue Identity, Mutation Stability Prediction, and Protein Structure Ranking operate on protein structures; their task semantics remain distinct.'}
+access:
+  level: fully-open
+  tasks: All eight raw and prescribed-split datasets are publicly downloadable from the project site and Zenodo.
+  artifacts: The official Python package publishes standardized LMDB loaders, split utilities, and task-specific model examples.
+  grader: Deterministic MAE/RMSE, AUROC, accuracy, and rank-correlation evaluation depending on task.
+  license: MIT for code; datasets retain their original source licenses and citation requirements.
+  biosafety_notes: The suite contains public biomolecular structures and activity labels; this registry mirrors none of them.
+resources:
+  - {id: atom3d-paper-resource, type: paper, url: 'https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/c45147dee729311ef5b5c3003946c48f-Abstract-round1.html', license: null, access_notes: NeurIPS 2021 Datasets and Benchmarks creator paper., last_checked: '2026-07-22', pin: null}
+  - {id: atom3d-project-resource, type: website, url: 'https://www.atom3d.ai/', license: null, access_notes: 'Official task catalog with task definitions, splits, downloads, and dataset-specific license statements.', last_checked: '2026-07-22', pin: {kind: snapshot, value: '2026-07-22', url: 'https://www.atom3d.ai/'}}
+  - id: atom3d-repository-resource
+    type: repository
+    url: https://github.com/drorlab/atom3d
+    license: MIT
+    access_notes: Official package and task examples; package version v0.2.6.
+    last_checked: '2026-07-22'
+    pin: {kind: commit, value: 4c2f3b7e9efe128791b83f03b2e8cae91e78b018, url: 'https://github.com/drorlab/atom3d/tree/4c2f3b7e9efe128791b83f03b2e8cae91e78b018'}
+implementations:
+  - {framework: atom3d Python package, status: official, url: 'https://github.com/drorlab/atom3d/tree/4c2f3b7e9efe128791b83f03b2e8cae91e78b018', commit: 4c2f3b7e9efe128791b83f03b2e8cae91e78b018, notes: 'LMDB data tooling and task-specific CNN, GNN, and equivariant-network examples.'}
+versions:
+  - id: atom3d-v0-2-6
+    label: v0.2.6
+    status: rolling
+    release_date: '2020-12-07'
+    as_of: '2026-07-22'
+    task_counts: *atom3d-counts
+    formal_tracks: []
+    notes: As-of snapshot of the eight datasets listed by the living project site and package v0.2.6.
+    evidence_ids: [atom3d-paper-definition-evidence, atom3d-project-evidence, atom3d-repository-evidence]
+audit: {status: audited, audited_date: '2026-07-22', unresolved_fields: 0, notes: 'Eight task identities, task semantics, public access, and package version are source-verified; dataset item counts are intentionally not summed.'}
+field_status: []
+verification: {status: verified, last_verified: '2026-07-22', notes: 'The paper, project site, documentation, and pinned package agree on eight tasks.'}
+evidence:
+  - id: atom3d-paper-definition-evidence
+    source_type: work
+    source_id: atom3d-paper
+    accessed_date: '2026-07-22'
+    locator: {type: table, value: 'Sections 2-4 and Tables 1-2', note: 'Defines SMP, PIP, RES, MSP, LBA, LEP, PSR, and RSR and their task-specific evaluation.'}
+    supports: [/name, /aliases, /summary, /kind, /organizations, /release_date, /latest_version, /domains, /capabilities, /modalities, /task_formats, /task_counts/total, /task_counts/basis, /task_counts/subsets, /coverage_notes, /access/level, /access/license, /resources, /versions/0/release_date, /versions/0/task_counts/total, /versions/0/task_counts/basis, /versions/0/task_counts/subsets]
+  - id: atom3d-project-evidence
+    source_type: resource
+    source_id: atom3d-project-resource
+    accessed_date: '2026-07-22'
+    locator: {type: web-anchor, value: 'Datasets; SMP, PIP, RES, MSP, LBA, LEP, PSR, and RSR detail pages', note: 'Confirms the eight-task living catalog and gives exact task, split, download, and license statements for each dataset.'}
+    supports: [/summary, /domains, /modalities, /task_counts/total, /coverage_notes, /access/level, /access/tasks, /access/grader, /access/license, /resources, /versions/0/as_of]
+  - id: atom3d-repository-evidence
+    source_type: resource
+    source_id: atom3d-repository-resource
+    accessed_date: '2026-07-22'
+    locator: {type: repository-path, value: 'README.md; atom3d/__init__.py; examples/{smp,pip,res,msp,lba,lep,psr,rsr} at 4c2f3b7e9efe128791b83f03b2e8cae91e78b018', note: 'Confirms package version, public loaders, eight task implementations, and MIT license.'}
+    supports: [/latest_version, /access/tasks, /access/artifacts, /access/grader, /resources, /implementations, /versions/0/as_of, /versions/0/formal_tracks]

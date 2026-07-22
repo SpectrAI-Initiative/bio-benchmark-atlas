@@ -1,0 +1,43 @@
+entity_type: evaluation_run
+id: atom3d-creator-full
+work_id: atom3d-paper
+benchmark_id: atom3d
+benchmark_version: v0.2.6
+scope: {type: full, n: 8, subset_id: null, filter: The eight ATOM3D task datasets evaluated in the creator paper., reporting_status: reported}
+protocol:
+  shots: &atom-na {value: null, reporting_status: not_applicable, notes: Supervised 3D molecular learning; no prompting.}
+  turns: *atom-na
+  system_prompt_public: *atom-na
+  reasoning: *atom-na
+  tools:
+    browser: *atom-na
+    internet: *atom-na
+    databases: *atom-na
+    code_execution: {value: null, reporting_status: not_applicable, notes: Training code is part of the benchmark procedure.}
+    container: {value: null, reporting_status: not_reported, notes: Package dependencies are documented; no single evaluation container is prescribed.}
+    external_tools: {value: 'task-specific 3D CNN, graph neural network, and equivariant neural network pipelines', reporting_status: reported, notes: Not every architecture is applicable to every task.}
+  token_budget: *atom-na
+  time_budget: {value: null, reporting_status: not_reported, notes: No common task-wide runtime cap is reported.}
+  temperature: *atom-na
+  seed: {value: null, reporting_status: not_reported, notes: Exact seeds are not registered at suite level.}
+  repeats: {value: 3, reporting_status: reported, notes: Table 8 aggregates creator baseline metrics and standard deviations over three replicates.}
+  grader: {type: deterministic task-specific scorer, model: null, human_review: false, reporting_status: reported}
+  statistical: {value: 'Native per-task metrics with standard deviations over three replicates; structure-ranking correlations are computed per target before summary.', reporting_status: reported, notes: No cross-task total score.}
+  contamination: {value: 'Task-specific sequence-identity, time, target, or scaffold splits.', reporting_status: reported, notes: Users must preserve the selected official split.}
+metrics:
+  - {metric_id: mean-absolute-error, source_label: MAE, unit: task-specific, range: null, higher_is_better: false, aggregation: held-out examples, pass_threshold: null, tolerance: null}
+  - {metric_id: root-mean-squared-error, source_label: RMSE, unit: task-specific, range: null, higher_is_better: false, aggregation: held-out examples, pass_threshold: null, tolerance: null}
+  - {metric_id: auroc, source_label: AUROC, unit: area, range: [0, 1], higher_is_better: true, aggregation: held-out examples, pass_threshold: null, tolerance: null}
+  - {metric_id: classification-accuracy, source_label: Accuracy, unit: proportion, range: [0, 1], higher_is_better: true, aggregation: held-out examples, pass_threshold: null, tolerance: null}
+  - {metric_id: pearson-correlation, source_label: Pearson correlation, unit: correlation, range: [-1, 1], higher_is_better: true, aggregation: task-specific, pass_threshold: null, tolerance: null}
+  - {metric_id: spearman-correlation, source_label: Spearman correlation, unit: correlation, range: [-1, 1], higher_is_better: true, aggregation: target-level structure ranking, pass_threshold: null, tolerance: null}
+results: []
+comparability_group: atom3d-creator-task-native
+verification: {status: verified, last_verified: '2026-07-22', notes: 'Eight-task scope, task-dependent architectures, splits, three-replicate aggregation, and metric families are verified.'}
+evidence:
+  - id: atom3d-creator-full-protocol-evidence
+    source_type: work
+    source_id: atom3d-paper
+    accessed_date: '2026-07-22'
+    locator: {type: table, value: 'Sections 2-5 and Tables 1-8; Appendix D', note: 'Defines all eight datasets, official splits, model classes, native metrics, three-replicate aggregation, and creator baseline results.'}
+    supports: [/scope, /protocol, /metrics]

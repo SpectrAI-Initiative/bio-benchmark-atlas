@@ -1,0 +1,54 @@
+entity_type: evaluation_run
+id: scib-creator-full
+work_id: scib-paper
+benchmark_id: scib
+benchmark_version: paper-2021
+scope: {type: full, n: 13, subset_id: null, filter: 'Two simulation, five scRNA-seq, and six scATAC-seq integration tasks.', reporting_status: reported}
+protocol:
+  shots: &scib-na {value: null, reporting_status: not_applicable, notes: Data-integration methods; no prompting.}
+  turns: *scib-na
+  system_prompt_public: *scib-na
+  reasoning: *scib-na
+  tools:
+    browser: *scib-na
+    internet: *scib-na
+    databases: *scib-na
+    code_execution: {value: null, reporting_status: not_applicable, notes: Integration and metric code is the evaluation procedure.}
+    container: {value: task and method-specific environments in the Snakemake pipeline, reporting_status: reported, notes: Reproducibility workflow isolates method dependencies.}
+    external_tools: {value: 16 integration methods with four preprocessing combinations, reporting_status: reported, notes: Outputs are treated as separate integration runs.}
+  token_budget: *scib-na
+  time_budget: {value: null, reporting_status: not_reported, notes: Scalability is measured rather than enforced as a shared timeout.}
+  temperature: *scib-na
+  seed: {value: null, reporting_status: not_reported, notes: No single common seed is reported across all external tools.}
+  repeats: {value: null, reporting_status: not_reported, notes: No common repeat count applies across methods and tasks.}
+  grader: {type: deterministic single-cell integration metric suite, model: null, human_review: false, reporting_status: reported}
+  statistical: {value: Raw metrics are rescaled to higher-is-better; overall = 0.6 bio-conservation + 0.4 batch-removal., reporting_status: reported, notes: Category scores average applicable metrics so output types with unavailable metrics remain comparable.}
+  contamination: {value: Task-specific preprocessing and pre-annotation establish biological labels; simulations provide known ground truth., reporting_status: reported, notes: Preprocessing variations are explicit evaluation factors.}
+metrics:
+  - {metric_id: kbet, source_label: kBET, unit: normalized score, range: [0, 1], higher_is_better: true, aggregation: batch removal within labels, pass_threshold: null, tolerance: null}
+  - {metric_id: graph-connectivity, source_label: Graph connectivity, unit: normalized score, range: [0, 1], higher_is_better: true, aggregation: batch removal within labels, pass_threshold: null, tolerance: null}
+  - {metric_id: batch-asw, source_label: Batch ASW, unit: normalized score, range: [0, 1], higher_is_better: true, aggregation: batch removal within labels, pass_threshold: null, tolerance: null}
+  - {metric_id: graph-ilisi, source_label: Graph iLISI, unit: normalized score, range: [0, 1], higher_is_better: true, aggregation: label-independent batch removal, pass_threshold: null, tolerance: null}
+  - {metric_id: pcr-comparison, source_label: PCA regression, unit: normalized score, range: [0, 1], higher_is_better: true, aggregation: label-independent batch removal, pass_threshold: null, tolerance: null}
+  - {metric_id: graph-clisi, source_label: Graph cLISI, unit: normalized score, range: [0, 1], higher_is_better: true, aggregation: label conservation, pass_threshold: null, tolerance: null}
+  - {metric_id: adjusted-rand-index, source_label: ARI, unit: normalized score, range: [0, 1], higher_is_better: true, aggregation: cluster-label agreement, pass_threshold: null, tolerance: null}
+  - {metric_id: normalized-mutual-information, source_label: NMI, unit: normalized score, range: [0, 1], higher_is_better: true, aggregation: cluster-label agreement, pass_threshold: null, tolerance: null}
+  - {metric_id: cell-type-asw, source_label: Cell-type ASW, unit: normalized score, range: [0, 1], higher_is_better: true, aggregation: label conservation, pass_threshold: null, tolerance: null}
+  - {metric_id: isolated-label-f1, source_label: Isolated-label F1, unit: normalized score, range: [0, 1], higher_is_better: true, aggregation: rare labels, pass_threshold: null, tolerance: null}
+  - {metric_id: isolated-label-asw, source_label: Isolated-label ASW, unit: normalized score, range: [0, 1], higher_is_better: true, aggregation: rare labels, pass_threshold: null, tolerance: null}
+  - {metric_id: cell-cycle-conservation, source_label: Cell-cycle conservation, unit: normalized score, range: [0, 1], higher_is_better: true, aggregation: label-free biological conservation, pass_threshold: null, tolerance: null}
+  - {metric_id: hvg-conservation, source_label: HVG conservation, unit: normalized score, range: [0, 1], higher_is_better: true, aggregation: label-free biological conservation, pass_threshold: null, tolerance: null}
+  - {metric_id: trajectory-conservation, source_label: Trajectory conservation, unit: normalized score, range: [0, 1], higher_is_better: true, aggregation: label-free biological conservation, pass_threshold: null, tolerance: null}
+  - {metric_id: batch-removal-score, source_label: Batch-removal score, unit: normalized score, range: [0, 1], higher_is_better: true, aggregation: mean of applicable batch metrics, pass_threshold: null, tolerance: null}
+  - {metric_id: bio-conservation-score, source_label: Bio-conservation score, unit: normalized score, range: [0, 1], higher_is_better: true, aggregation: mean of applicable biological metrics, pass_threshold: null, tolerance: null}
+  - {metric_id: overall-integration-score, source_label: Overall score, unit: normalized score, range: [0, 1], higher_is_better: true, aggregation: 0.6 bio-conservation plus 0.4 batch-removal, pass_threshold: null, tolerance: null}
+results: []
+comparability_group: scib-paper-2021-native
+verification: {status: verified, last_verified: '2026-07-22', notes: 'Full 13-task scope, 16-method/four-preprocessing design, fourteen raw metrics, and weighted aggregation are verified.'}
+evidence:
+  - id: scib-creator-full-protocol-evidence
+    source_type: work
+    source_id: scib-paper
+    accessed_date: '2026-07-22'
+    locator: {type: section, value: 'Results: scIB; Figure 1; Table 1; Methods: Evaluation metrics and Metric aggregation', note: 'Defines tasks, methods, preprocessing, fourteen raw metrics, rescaling, category means, and 60/40 overall score.'}
+    supports: [/scope, /protocol, /metrics]

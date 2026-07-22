@@ -1,0 +1,68 @@
+entity_type: benchmark
+id: guacamol
+name: GuacaMol
+aliases: [GuacaMol generative chemistry benchmark]
+summary: A reproducible benchmark for de novo molecular design with five distribution-learning tests and twenty goal-directed generation problems in the current v2 suite.
+kind: suite
+parent_id: null
+organizations: [BenevolentAI]
+release_date: '2018-11-23'
+latest_version: suite-v2
+domains: [medchem]
+capabilities: [generation, optimization]
+modalities: [small-molecule-structure]
+task_formats: [unconditional molecular generation, goal-directed molecular optimization]
+task_counts: &guacamol-counts
+  total: 25
+  basis: formal benchmark problems
+  reporting_status: reported
+  subsets:
+    - {id: guacamol-distribution-learning, label: Distribution-learning benchmarks, count: 5, basis: formal benchmark problems, exclusive: true, exhaustive: true, reporting_status: reported, notes: 'Validity, uniqueness, novelty, KL divergence, and Fréchet ChemNet Distance.'}
+    - {id: guacamol-goal-directed-v2, label: Goal-directed v2 benchmarks, count: 20, basis: formal benchmark problems, exclusive: true, exhaustive: true, reporting_status: reported, notes: 'Rediscovery, similarity, isomer, median-molecule, and multi-property optimization problems.'}
+coverage_notes:
+  - {tag: medchem, coverage: explicitly-in-scope, count: 25, reporting_status: reported, notes: 'Counts formal evaluation problems, not generated molecules or scoring-function calls.'}
+access:
+  level: fully-open
+  tasks: Both benchmark suites, standardized ChEMBL-derived train/validation/test files, and the holdout set are public.
+  artifacts: The official package provides scorers; a companion creator repository provides baselines and a Docker environment.
+  grader: Deterministic validity, uniqueness, novelty, KL, FCD, and goal-directed scoring functions with scores normalized to higher-is-better.
+  license: MIT for GuacaMol code; the standardized molecular data derive from ChEMBL and retain applicable ChEMBL terms.
+  biosafety_notes: The benchmark optimizes drug-like small molecules; this registry mirrors no molecular datasets or generated compounds.
+resources:
+  - {id: guacamol-paper-resource, type: paper, url: 'https://doi.org/10.1021/acs.jcim.8b00839', license: null, access_notes: Peer-reviewed creator paper in Journal of Chemical Information and Modeling., last_checked: '2026-07-22', pin: null}
+  - id: guacamol-repository-resource
+    type: repository
+    url: https://github.com/BenevolentAI/guacamol
+    license: MIT
+    access_notes: Official benchmark package version 0.5.5 with v1/v2 suite definitions.
+    last_checked: '2026-07-22'
+    pin: {kind: commit, value: 60ebe1f6a396f16e08b834dce448e9343d259feb, url: 'https://github.com/BenevolentAI/guacamol/tree/60ebe1f6a396f16e08b834dce448e9343d259feb'}
+implementations:
+  - {framework: GuacaMol 0.5.5, status: official, url: 'https://github.com/BenevolentAI/guacamol/tree/60ebe1f6a396f16e08b834dce448e9343d259feb', commit: 60ebe1f6a396f16e08b834dce448e9343d259feb, notes: Reproducible distribution-learning and goal-directed suite runners and scoring functions.}
+  - {framework: GuacaMol baselines, status: official, url: 'https://github.com/BenevolentAI/guacamol_baselines/tree/ae43219c89d5db134028336243f508606d81995e', commit: ae43219c89d5db134028336243f508606d81995e, notes: Companion creator baselines and Dockerfile.}
+versions:
+  - id: guacamol-suite-v2
+    label: suite-v2
+    status: current
+    release_date: '2018-11-23'
+    as_of: null
+    task_counts: *guacamol-counts
+    formal_tracks: []
+    notes: Distribution-learning v1/v2 definitions are identical; the current goal-directed v2 list contains twenty problems.
+    evidence_ids: [guacamol-paper-definition-evidence, guacamol-repository-evidence]
+audit: {status: audited, audited_date: '2026-07-22', unresolved_fields: 0, notes: Suite counts were reproduced directly from the commit-pinned benchmark_suites.py; generated sample counts are kept separate.}
+field_status: []
+verification: {status: verified, last_verified: '2026-07-22', notes: Creator paper and v0.5.5 implementation define the two benchmark modes and their scorers.}
+evidence:
+  - id: guacamol-paper-definition-evidence
+    source_type: work
+    source_id: guacamol-paper
+    accessed_date: '2026-07-22'
+    locator: {type: section, value: 'Sections 2-4 and Tables 1-2', note: 'Defines distribution learning, goal-directed generation, standardized ChEMBL data, baseline evaluation, and score semantics.'}
+    supports: [/name, /aliases, /summary, /kind, /organizations, /release_date, /latest_version, /domains, /capabilities, /modalities, /task_formats, /task_counts/total, /task_counts/basis, /task_counts/subsets, /coverage_notes, /access/level, /access/license, /resources, /versions/0/release_date, /versions/0/task_counts/total, /versions/0/task_counts/basis, /versions/0/task_counts/subsets]
+  - id: guacamol-repository-evidence
+    source_type: resource
+    source_id: guacamol-repository-resource
+    accessed_date: '2026-07-22'
+    locator: {type: repository-path, value: 'README.md; guacamol/__init__.py; guacamol/benchmark_suites.py at 60ebe1f6a396f16e08b834dce448e9343d259feb', note: 'Confirms package version, five distribution benchmarks, twenty goal-directed v2 problems, public data hashes, and MIT license.'}
+    supports: [/latest_version, /task_counts/total, /task_counts/subsets, /access/tasks, /access/artifacts, /access/grader, /access/license, /resources, /implementations, /versions/0/task_counts/total, /versions/0/task_counts/subsets, /versions/0/formal_tracks]

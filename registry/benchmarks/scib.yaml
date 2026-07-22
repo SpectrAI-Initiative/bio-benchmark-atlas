@@ -1,0 +1,78 @@
+entity_type: benchmark
+id: scib
+name: scIB
+aliases: [Single-cell integration benchmarking, Benchmarking atlas-level data integration]
+summary: A 13-task benchmark of single-cell data integration across simulated, scRNA-seq, and scATAC-seq settings, evaluated with 14 batch-removal and biological-conservation metrics.
+kind: suite
+parent_id: null
+organizations: [Helmholtz Zentrum München, Technical University of Munich]
+release_date: '2021-12-23'
+latest_version: paper-2021
+domains: [single-cell, transcriptomics, epigenomics]
+capabilities: [data-analysis]
+modalities: [raw-omics, table]
+task_formats: [single-cell batch integration, representation evaluation]
+task_counts: &scib-counts
+  total: 13
+  basis: atlas-level integration tasks
+  reporting_status: reported
+  subsets:
+    - {id: scib-simulation, label: Simulation tasks, count: 2, basis: atlas-level integration tasks, exclusive: true, exhaustive: true, reporting_status: reported, notes: Two simulations with known ground truth.}
+    - {id: scib-scrna, label: scRNA-seq tasks, count: 5, basis: atlas-level integration tasks, exclusive: true, exhaustive: true, reporting_status: reported, notes: Five RNA integration settings.}
+    - {id: scib-scatac, label: scATAC-seq tasks, count: 6, basis: atlas-level integration tasks, exclusive: true, exhaustive: true, reporting_status: reported, notes: Six ATAC integration settings across feature spaces and scales.}
+coverage_notes:
+  - {tag: single-cell, coverage: explicitly-in-scope, count: 13, reporting_status: reported, notes: All thirteen tasks assess integration of single-cell datasets.}
+  - {tag: transcriptomics, coverage: explicitly-in-scope, count: 5, reporting_status: reported, notes: Five real scRNA-seq integration tasks; simulation is counted separately.}
+  - {tag: epigenomics, coverage: explicitly-in-scope, count: 6, reporting_status: reported, notes: Six scATAC-seq integration tasks.}
+access:
+  level: fully-open
+  tasks: Preprocessed integration tasks, result matrices, and source datasets are linked from the reproducibility project.
+  artifacts: The scIB package, Snakemake benchmarking pipeline, metrics, and reproducibility website are public.
+  grader: Fourteen deterministic metrics plus batch-removal, bio-conservation, and 60/40 weighted overall scores.
+  license: MIT for scIB code; source datasets from 23 publications retain their original terms.
+  biosafety_notes: No biosafety-specific restrictions are identified; the registry mirrors no cell-level data.
+resources:
+  - {id: scib-paper-resource, type: paper, url: 'https://doi.org/10.1038/s41592-021-01336-8', license: CC BY 4.0, access_notes: Peer-reviewed creator paper in Nature Methods., last_checked: '2026-07-22', pin: null}
+  - id: scib-repository-resource
+    type: repository
+    url: https://github.com/theislab/scib
+    license: MIT
+    access_notes: Official package implementing integration wrappers and metrics.
+    last_checked: '2026-07-22'
+    pin: {kind: commit, value: cd67913396b4c0430710b3d90f1d1841f5fa4468, url: 'https://github.com/theislab/scib/tree/cd67913396b4c0430710b3d90f1d1841f5fa4468'}
+  - id: scib-reproducibility-resource
+    type: repository
+    url: https://github.com/theislab/scib-reproducibility
+    license: MIT
+    access_notes: Paper-specific pipeline and reproducibility source.
+    last_checked: '2026-07-22'
+    pin: {kind: commit, value: 3afbffd3674726e5146797be21cf6bd7470a2c5f, url: 'https://github.com/theislab/scib-reproducibility/tree/3afbffd3674726e5146797be21cf6bd7470a2c5f'}
+implementations:
+  - {framework: scIB package, status: official, url: 'https://github.com/theislab/scib/tree/cd67913396b4c0430710b3d90f1d1841f5fa4468', commit: cd67913396b4c0430710b3d90f1d1841f5fa4468, notes: Integration wrappers and metric implementation.}
+  - {framework: scIB reproducibility pipeline, status: official, url: 'https://github.com/theislab/scib-reproducibility/tree/3afbffd3674726e5146797be21cf6bd7470a2c5f', commit: 3afbffd3674726e5146797be21cf6bd7470a2c5f, notes: 'Paper-specific tasks, preprocessing combinations, workflow, and result generation.'}
+versions:
+  - id: scib-paper-2021
+    label: paper-2021
+    status: current
+    release_date: '2021-12-23'
+    as_of: null
+    task_counts: *scib-counts
+    formal_tracks: []
+    notes: Fixed paper snapshot of thirteen integration tasks; later scIB/scib-metrics changes are not silently folded into this version.
+    evidence_ids: [scib-paper-definition-evidence, scib-repository-evidence]
+audit: {status: audited, audited_date: '2026-07-22', unresolved_fields: 0, notes: 'Task composition, 16 methods, four preprocessing combinations, 14 metrics, and weighted aggregation were checked against the paper.'}
+field_status: []
+verification: {status: verified, last_verified: '2026-07-22', notes: Paper and paper-specific reproducibility pipeline define the registered snapshot.}
+evidence:
+  - id: scib-paper-definition-evidence
+    source_type: work
+    source_id: scib-paper
+    accessed_date: '2026-07-22'
+    locator: {type: section, value: 'Abstract; Results pp. 41-50, Figure 1, Table 1, Methods: Metric aggregation', note: 'Reports 13 tasks as 2 simulation, 5 scRNA-seq, and 6 scATAC-seq; 16 methods, 4 preprocessing combinations, 14 metrics, and 0.6 bio plus 0.4 batch aggregation.'}
+    supports: [/name, /aliases, /summary, /kind, /organizations, /release_date, /latest_version, /domains, /capabilities, /modalities, /task_formats, /task_counts/total, /task_counts/basis, /task_counts/subsets, /coverage_notes, /access/level, /access/license, /resources, /versions/0/release_date, /versions/0/task_counts/total, /versions/0/task_counts/basis, /versions/0/task_counts/subsets]
+  - id: scib-repository-evidence
+    source_type: resource
+    source_id: scib-reproducibility-resource
+    accessed_date: '2026-07-22'
+    locator: {type: repository-path, value: 'README.md and workflow/config sources at 3afbffd3674726e5146797be21cf6bd7470a2c5f; scib package at cd67913396b4c0430710b3d90f1d1841f5fa4468', note: 'Pins public pipeline, task artifacts, metrics implementation, and code licenses.'}
+    supports: [/access/tasks, /access/artifacts, /access/grader, /access/license, /resources, /implementations, /versions/0/formal_tracks]

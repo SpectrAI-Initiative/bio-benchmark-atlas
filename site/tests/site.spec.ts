@@ -30,10 +30,10 @@ test('Scientific Task explorer supports aliases, filters, gaps, and URL restorat
   await expect(page.getByRole('link', { name: 'Protein-protein interaction prediction', exact: true })).toBeVisible();
   await page.locator('#object').selectOption('small-molecule');
   await page.locator('#coverage').selectOption('gap');
-  await page.locator('#q').fill('generation');
-  const generationRow = page.locator('#task-table tbody tr').filter({ has: page.getByRole('link', { name: 'Small-molecule generation', exact: true }) });
-  await expect(generationRow).toBeVisible();
-  await expect(generationRow.getByText('Coverage gap', { exact: true })).toBeVisible();
+  await page.locator('#q').fill('retrosynthesis');
+  const gapRow = page.locator('#task-table tbody tr').filter({ has: page.getByRole('link', { name: 'Retrosynthesis planning', exact: true }) });
+  await expect(gapRow).toBeVisible();
+  await expect(gapRow.getByText('Coverage gap', { exact: true })).toBeVisible();
   await expect(page.locator('.chart-card details[open] table').first()).toBeVisible();
 });
 
@@ -48,6 +48,10 @@ test('Scientific Task detail pages preserve evidence-backed counts and gaps', as
   await expect(page.getByRole('link', { name: /Viral protein–protein interactions/ }).first()).toBeVisible();
 
   await page.goto('/bio-benchmark-atlas/tasks/small-molecule-generation/');
+  await expect(page.getByRole('cell', { name: '25 problems' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'GuacaMol', exact: true }).first()).toBeVisible();
+
+  await page.goto('/bio-benchmark-atlas/tasks/retrosynthesis-planning/');
   await expect(page.getByText(/Registry coverage gap/)).toBeVisible();
 });
 

@@ -1,0 +1,43 @@
+entity_type: evaluation_run
+id: guacamol-creator-full
+work_id: guacamol-paper
+benchmark_id: guacamol
+benchmark_version: suite-v2
+scope: {type: full, n: 25, subset_id: null, filter: Five distribution-learning benchmarks and twenty goal-directed v2 problems., reporting_status: reported}
+protocol:
+  shots: &gcm-na {value: null, reporting_status: not_applicable, notes: Generative chemistry benchmark; no prompting protocol is prescribed.}
+  turns: *gcm-na
+  system_prompt_public: *gcm-na
+  reasoning: *gcm-na
+  tools:
+    browser: *gcm-na
+    internet: *gcm-na
+    databases: *gcm-na
+    code_execution: {value: null, reporting_status: not_applicable, notes: Generator execution is the evaluated system.}
+    container: {value: official Dockerfile, reporting_status: reported, notes: The companion baseline repository provides a reproducible environment.}
+    external_tools: {value: RDKit 2018.09.1 or newer and FCD 1.1, reporting_status: reported, notes: Dependency versions affect standardization and scoring.}
+  token_budget: *gcm-na
+  time_budget: {value: null, reporting_status: not_reported, notes: No universal generation-time budget is specified.}
+  temperature: {value: null, reporting_status: not_reported, notes: Sampling controls are model-specific.}
+  seed: {value: null, reporting_status: not_reported, notes: No universal seed is prescribed across generators.}
+  repeats: {value: null, reporting_status: not_reported, notes: Repeat count is model-specific.}
+  grader: {type: deterministic chemistry scoring functions, model: null, human_review: false, reporting_status: reported}
+  statistical: {value: Each formal benchmark returns a normalized score; no registry-wide sum is created., reporting_status: reported, notes: Distribution learning samples 10000 molecules by default.}
+  contamination: {value: Standardized ChEMBL training data exclude a designated holdout set and highly similar molecules., reporting_status: reported, notes: Published file hashes support reproducibility.}
+metrics:
+  - {metric_id: validity-score, source_label: Validity, unit: proportion, range: [0, 1], higher_is_better: true, aggregation: generated sample, pass_threshold: null, tolerance: null}
+  - {metric_id: uniqueness-score, source_label: Uniqueness, unit: proportion, range: [0, 1], higher_is_better: true, aggregation: generated sample, pass_threshold: null, tolerance: null}
+  - {metric_id: novelty-score, source_label: Novelty, unit: proportion, range: [0, 1], higher_is_better: true, aggregation: generated sample, pass_threshold: null, tolerance: null}
+  - {metric_id: kl-divergence-score, source_label: KL divergence score, unit: normalized score, range: [0, 1], higher_is_better: true, aggregation: physicochemical descriptor distributions, pass_threshold: null, tolerance: null}
+  - {metric_id: frechet-chemnet-distance-score, source_label: Fréchet ChemNet Distance score, unit: normalized score, range: [0, 1], higher_is_better: true, aggregation: generated versus reference distribution, pass_threshold: null, tolerance: null}
+  - {metric_id: goal-directed-score, source_label: Goal-directed benchmark score, unit: normalized score, range: [0, 1], higher_is_better: true, aggregation: benchmark-specific top generated molecules, pass_threshold: null, tolerance: null}
+results: []
+comparability_group: guacamol-v2-task-native
+verification: {status: verified, last_verified: '2026-07-22', notes: 'Full v2 scope, data holdout, default sample count, dependencies, and score direction are verified.'}
+evidence:
+  - id: guacamol-creator-full-protocol-evidence
+    source_type: work
+    source_id: guacamol-paper
+    accessed_date: '2026-07-22'
+    locator: {type: section, value: 'Sections 2-4 and Tables 1-2; official benchmark_suites.py v2', note: 'Defines both modes, data standardization, baseline generators, and scoring. The pinned implementation establishes the current twenty-problem v2 list.'}
+    supports: [/scope, /protocol, /metrics]

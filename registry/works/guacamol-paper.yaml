@@ -1,0 +1,13 @@
+entity_type: work
+id: guacamol-paper
+title: 'GuacaMol: Benchmarking Models for de Novo Molecular Design'
+authors: [Nathan Brown, Marco Fiscato, Marwin H. S. Segler, Alain C. Vaucher]
+organizations: [BenevolentAI]
+work_type: paper
+source_class: benchmark_creator
+publication_date: '2019-03-19'
+canonical_url: https://doi.org/10.1021/acs.jcim.8b00839
+doi: 10.1021/acs.jcim.8b00839
+arxiv: '1811.09621'
+status: published
+verification: {status: verified, last_verified: '2026-07-22', notes: 'Peer-reviewed creator paper, official package, and official companion baselines verified.'}

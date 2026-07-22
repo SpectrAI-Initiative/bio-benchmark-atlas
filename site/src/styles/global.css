@@ -64,6 +64,7 @@ button, input, select { font: inherit; }
 button, select { cursor: pointer; }
 img, svg { max-width: 100%; }
 code { font-family: "SFMono-Regular", Consolas, monospace; font-size: .9em; }
+.fingerprint { overflow-wrap: anywhere; word-break: break-all; }
 
 .skip-link { position: fixed; left: 1rem; top: -4rem; z-index: 100; background: var(--panel); padding: .7rem 1rem; border-radius: 8px; }
 .skip-link:focus { top: 1rem; }

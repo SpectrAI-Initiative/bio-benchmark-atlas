@@ -15,9 +15,13 @@ Independent evaluations use `source_class: independent_reproduction`. Ordinary b
 
 ## Paper intake workflow
 
-Use the `Review a paper` Issue Form for a DOI, preprint, or publisher link. The paper-intake action normalizes DOI/arXiv/URL/title identity, checks existing Works and benchmark labels, and opens a draft PR under `intake/papers/`. That scaffold is not part of the production Registry.
+Use the `Review a paper` Issue Form for a DOI, preprint, or publisher link plus a legal open or submitter-authorized full-text source. Trusted maintainer submissions may start immediately. External submissions and weekly candidates remain issues until a maintainer adds `approved-for-intake`; candidate issues do not enter Registry or Pages.
 
-A reviewer must then read the versioned primary source, distinguish actual evaluation from training, fine-tuning, validation, model selection, external result summary, and background citation, and replace the scaffold with verified Registry entities. One paper normally uses one PR. If the paper introduces an unregistered benchmark, add its creator source and official repository/data evidence in that same PR. If those primary sources cannot be established, keep the intake as an issue rather than publishing it.
+The production intake performs two independent OpenAI Responses API passes over the original source. Both are Pydantic Structured Outputs without tools, and the paper is treated as untrusted data. The extractor emits claims, not YAML. The verifier independently rechecks every claim and locator. Only high-confidence agreement reaches deterministic ID/YAML generation; unclear versions, model identities, or subset sizes stay partial, and unlabeled graph values are discarded.
+
+One paper normally uses one Ready PR. If the paper introduces an unregistered benchmark, creator and official repository/dataset evidence must be established in the same PR; otherwise the generator stops for human review. The bot cannot merge. `paper-owner-gate` requires `wang422003` to approve after the latest bot push, so any later push requires a fresh approval.
+
+Repository-owner setup and recovery procedures are documented in [`docs/paper-intake-operations.md`](docs/paper-intake-operations.md).
 
 ## Contribution workflow
 
@@ -73,8 +77,8 @@ pnpm --dir site test
 
 ## Rights and safety
 
-Do not add third-party questions, restricted benchmark artifacts, model outputs, or paper snapshots unless redistribution is explicitly permitted. Metadata contributions are CC BY 4.0; code contributions are Apache-2.0. Upstream assets retain their licenses.
+Do not add third-party questions, restricted benchmark artifacts, model outputs, or paper snapshots unless redistribution is explicitly permitted. Automated source retrieval is limited to 45 MiB and 150 PDF pages, records SHA256/content type/retrieval time, and deletes temporary OpenAI files in cleanup. Metadata contributions are CC BY 4.0; code contributions are Apache-2.0. Upstream assets retain their licenses.
 
 ## Review and publication
 
-All production changes use pull requests. Under the current repository rules, the owner may approve and merge their own PR after required CI checks pass; no non-author approval is required. Paper-intake scaffolds and draft entities never enter production exports. Deprecated records are retained with history and successor links rather than deleted.
+All production changes use pull requests. Ordinary PRs follow the repository's current owner-managed rules. Every `paper-intake/*` PR additionally requires `validate`, `playwright`, and a current `wang422003` APPROVED review through `paper-owner-gate`. The bot never auto-merges. Candidate issues, source documents, short verification excerpts, and rejected claims never enter production exports. Deprecated records are retained with history and successor links rather than deleted.

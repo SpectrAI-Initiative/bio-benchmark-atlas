@@ -16,6 +16,10 @@ body:
     attributes: {label: Scientific scope and task counts, description: Include basis, version, tracks, and any unknown counts.}
     validations: {required: true}
   - type: textarea
+    id: scientific_tasks
+    attributes: {label: Scientific Task mapping, description: List the most specific evidence-supported tasks, mapping method, count/unit/basis, and source locator. Say partial when the source taxonomy is not exhaustive.}
+    validations: {required: true}
+  - type: textarea
     id: access
     attributes: {label: Access, license, grader, and runnable implementation}
     validations: {required: true}

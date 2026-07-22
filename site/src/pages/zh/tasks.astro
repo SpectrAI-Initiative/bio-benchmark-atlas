@@ -1,0 +1,19 @@
+---
+import Layout from '../../components/Layout.astro';
+import { data, termMaps, withBase } from '../../lib/data';
+const examples = [
+  'protein-monomer-structure-prediction', 'protein-sequence-design',
+  'protein-protein-interaction-prediction', 'protein-ligand-binding-affinity',
+  'promoter-detection', 'rna-design', 'small-molecule-generation',
+  'cell-type-annotation', 'multiomics-integration', 'end-to-end-computational-analysis',
+].map((id) => data.scientific_tasks.find((task) => task.id === id)!);
+---
+<Layout title="科学任务体系" canonicalPath="/zh/tasks/" lang="zh-CN">
+  <header class="page-head shell"><p class="eyebrow">Scientific Task Atlas 中文导览</p><h1>把“测什么科学问题”单独归类。</h1><p class="lede">Domain 说明数据背景，Capability 说明模型要预测、设计还是调用工具；Scientific Task 则回答真正的问题：蛋白质折叠、PPI、蛋白质–小分子结合、DNA 调控、RNA 设计、单细胞注释或端到端组学分析。</p></header>
+  <div class="shell section prose">
+    <section><h2>三个受控词表</h2><div class="grid three"><div class="card"><h3>Scientific object</h3><p>问题围绕什么对象：protein、DNA、RNA、small molecule、cell、tissue、omics profile 等。</p></div><div class="card"><h3>Task family</h3><p>问题属于哪类科学操作：结构预测、设计生成、分子相互作用、组学分析、系统建模等。</p></div><div class="card"><h3>Scientific task</h3><p>最具体、可由证据支持的问题类型。只登记 leaf task；官方只给出宽泛描述时保留 parent task。</p></div></div></section>
+    <section><h2>分类原则</h2><ul><li>不会因为 benchmark 用于 protein engineering，就把 fitness prediction 自动改成 protein design。</li><li>binding 没有 subtype 证据时，不会猜成 PPI、pose 或 affinity。</li><li>每个 count 都保留 tasks、questions、examples、assays、targets、systems 等原始单位，不跨单位求和。</li><li>混合 suite 没有穷尽 taxonomy 时标为 partial；数量未公布时明确显示 Not reported。</li><li>零覆盖任务也保留在 taxonomy 中，用于展示 registry coverage gap，而不是伪装成数据错误。</li></ul></section>
+    <section><h2>典型任务</h2><div class="table-wrap"><table><thead><tr><th>任务</th><th>对象</th><th>任务族</th><th>定义</th></tr></thead><tbody>{examples.map((task) => <tr><td><a href={withBase(`/tasks/${task.id}/`)}>{task.label_zh}</a><br/><code>{task.id}</code></td><td>{task.object_ids.map((id) => termMaps.scientific_objects.get(id)?.label_zh ?? id).join('、')}</td><td>{termMaps.task_families.get(task.task_family_id)?.label_zh ?? task.task_family_id}</td><td>{task.definition}</td></tr>)}</tbody></table></div></section>
+    <section><h2>从哪里开始</h2><p><a class="button" href={withBase('/tasks/')}>打开 Scientific Task Explorer →</a></p><p>Explorer 支持 folding、PPI、docking、RNA design 等 aliases 搜索，并可按 object、task family、domain 与 coverage status 筛选。任务详情页继续使用英文 canonical URL，以保持永久 ID 稳定。</p><p><a href={withBase('/data/scientific-task-coverage.csv')}>下载完整 task coverage CSV</a> · <a href={withBase('/taxonomy/')}>查看完整 taxonomy</a></p></section>
+  </div>
+</Layout>

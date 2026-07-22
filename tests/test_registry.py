@@ -12,7 +12,7 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from registry_io import load_entities, load_meta  # noqa: E402
+from registry_io import load_entities, load_meta, load_taxonomies  # noqa: E402
 from check_sources import _sources  # noqa: E402
 import validate_registry as validator_module  # noqa: E402
 from validate_registry import RegistryValidationError, _resolve_pointer, validate_registry  # noqa: E402
@@ -1099,7 +1099,7 @@ def test_build_is_deterministic_and_surfaces_match() -> None:
         ROOT / "site" / "public" / "data" / "registry.json"
     ).read_bytes()
     payload = json.loads((ROOT / "exports" / "registry.json").read_text(encoding="utf-8"))
-    assert payload["meta"]["version"] == "1.1.0"
+    assert payload["meta"]["version"] == "1.2.0-dev"
     assert all("model_ids" in run for run in payload["evaluation_runs"])
 
 
@@ -1136,6 +1136,74 @@ def test_unapproved_legacy_record_is_rejected(monkeypatch) -> None:
         assert "virbench" in str(error)
     else:
         raise AssertionError("an undeclared legacy record unexpectedly passed validation")
+
+
+def test_scientific_task_taxonomy_and_core_mapping_contracts() -> None:
+    taxonomies = load_taxonomies()
+    entities = load_entities()
+    benchmarks = {item["id"]: item for item in entities["benchmark"]}
+    task_terms = {item["id"]: item for item in taxonomies["scientific_tasks"]}
+
+    assert len(taxonomies["scientific_objects"]) == 10
+    assert len(taxonomies["task_families"]) == 11
+    assert len(task_terms) >= 69
+    assert "protein folding" in task_terms["protein-monomer-structure-prediction"]["aliases"]
+    assert "PPI" in task_terms["protein-protein-interaction-prediction"]["aliases"]
+    assert set(task_terms["protein-ligand-binding-prediction"]["object_ids"]) == {
+        "protein", "small-molecule",
+    }
+
+    classifications = {
+        benchmark_id: benchmark["scientific_task_classification"]
+        for benchmark_id, benchmark in benchmarks.items()
+    }
+    assert {benchmark_id for benchmark_id, item in classifications.items() if item["status"] == "unclassified"} == {"virbench"}
+
+    lifescience = {item["task_type_id"]: item for item in classifications["lifescibench"]["entries"]}
+    assert lifescience["protein-design"]["count"] == 62
+    assert lifescience["protein-design"]["count_unit"] == "tasks"
+    assert lifescience["protein-protein-interaction-prediction"]["count"] is None
+    assert lifescience["protein-ligand-binding-prediction"]["reporting_status"] == "not_reported"
+
+    casp_tasks = {item["task_type_id"] for item in classifications["casp"]["entries"]}
+    assert {
+        "protein-monomer-structure-prediction", "protein-complex-structure-prediction",
+        "protein-model-quality-assessment", "protein-ligand-pose-prediction",
+        "protein-ligand-binding-affinity",
+    } <= casp_tasks
+    flip_tasks = {item["task_type_id"] for item in classifications["flip"]["entries"]}
+    assert flip_tasks == {"protein-fitness-prediction", "protein-mutation-effect-prediction"}
+    assert "protein-sequence-design" not in flip_tasks
+
+    biology = {item["task_type_id"]: item for item in classifications["bioinstruction"]["entries"]}
+    assert biology["protein-sequence-design"]["coverage"] == "not-in-scope"
+    assert biology["protein-sequence-design"]["count"] == 0
+    viral_ppi = {item["task_type_id"]: item for item in classifications["lab-bench-dbqa-viral-ppi"]["entries"]}
+    assert viral_ppi["protein-protein-interaction-prediction"]["count"] == 50
+    assert viral_ppi["protein-protein-interaction-prediction"]["count_unit"] == "questions"
+
+
+def test_scientific_task_exports_are_normalized_and_preserve_units() -> None:
+    subprocess.run([sys.executable, "scripts/build_registry.py"], cwd=ROOT, check=True)
+    tasks = json.loads((ROOT / "exports" / "scientific-tasks.json").read_text(encoding="utf-8"))
+    coverage = json.loads((ROOT / "exports" / "scientific-task-coverage.json").read_text(encoding="utf-8"))
+    assert len(tasks) >= 69
+    assert {item["root_family_id"] for item in coverage} == {
+        "lifescibench", "proteingym", "casp", "cameo", "flip", "proteinlmbench",
+        "bioinstruction", "lab-bench", "genebench-pro", "biomysterybench",
+        "compbiobench", "bixbench", "blade", "scigym",
+    }
+    generation = next(item for item in tasks if item["id"] == "small-molecule-generation")
+    assert generation["coverage_family_count"] == 0
+    units = {
+        item["count_unit"] for item in coverage
+        if item["count"] is not None and item["coverage"] != "not-in-scope"
+    }
+    assert {"tasks", "questions", "examples", "assays", "targets", "systems", "problems"} <= units
+    benchmark_header = (ROOT / "exports" / "benchmarks.csv").read_text(encoding="utf-8").splitlines()[0]
+    coverage_header = (ROOT / "exports" / "scientific-task-coverage.csv").read_text(encoding="utf-8").splitlines()[0]
+    assert {"scientific_task_ids", "task_classification_status"} <= set(benchmark_header.split(","))
+    assert {"task_type_id", "root_family_id", "count_unit", "evidence_ids", "aggregate_eligible"} <= set(coverage_header.split(","))
 
 
 def _audited_lifescibench_entities() -> dict[str, list[dict[str, object]]]:

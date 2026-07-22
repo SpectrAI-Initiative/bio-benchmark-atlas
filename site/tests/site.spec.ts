@@ -4,7 +4,7 @@ import { expect, test } from '@playwright/test';
 test('home renders charts and core navigation', async ({ page }) => {
   await page.goto('/bio-benchmark-atlas/');
   await expect(page.getByRole('heading', { name: /Map the benchmark/ })).toBeVisible();
-  await expect(page.locator('.plot-host svg').first()).toBeVisible();
+  await expect(page.locator('.plot-host:visible svg').first()).toBeVisible();
   await expect(page.getByRole('link', { name: 'Explorer' })).toBeVisible();
 });
 
@@ -17,6 +17,38 @@ test('explorer restores and updates URL filter state', async ({ page }) => {
   await expect(page).toHaveURL(/q=FLIP/);
   await expect(page.getByRole('link', { name: 'FLIP', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: 'ProteinGym', exact: true })).toBeHidden();
+});
+
+test('Scientific Task explorer supports aliases, filters, gaps, and URL restoration', async ({ page }) => {
+  await page.goto('/bio-benchmark-atlas/tasks/?object=protein&coverage=covered');
+  await expect(page.locator('#object')).toHaveValue('protein');
+  await expect(page.locator('#coverage')).toHaveValue('covered');
+  await page.locator('#q').fill('folding');
+  await expect(page).toHaveURL(/q=folding/);
+  await expect(page.getByRole('link', { name: 'Protein monomer structure prediction', exact: true })).toBeVisible();
+  await page.locator('#q').fill('PPI');
+  await expect(page.getByRole('link', { name: 'Protein-protein interaction prediction', exact: true })).toBeVisible();
+  await page.locator('#object').selectOption('small-molecule');
+  await page.locator('#coverage').selectOption('gap');
+  await page.locator('#q').fill('generation');
+  const generationRow = page.locator('#task-table tbody tr').filter({ has: page.getByRole('link', { name: 'Small-molecule generation', exact: true }) });
+  await expect(generationRow).toBeVisible();
+  await expect(generationRow.getByText('Coverage gap', { exact: true })).toBeVisible();
+  await expect(page.locator('.chart-card details[open] table').first()).toBeVisible();
+});
+
+test('Scientific Task detail pages preserve evidence-backed counts and gaps', async ({ page }) => {
+  await page.goto('/bio-benchmark-atlas/tasks/protein-design/');
+  await expect(page.getByRole('heading', { name: 'Protein design', exact: true })).toBeVisible();
+  await expect(page.getByRole('cell', { name: '62 tasks' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'LifeSciBench', exact: true }).first()).toBeVisible();
+
+  await page.goto('/bio-benchmark-atlas/tasks/protein-protein-interaction-prediction/');
+  await expect(page.getByRole('cell', { name: /50 questions/ }).first()).toBeVisible();
+  await expect(page.getByRole('link', { name: /Viral protein–protein interactions/ }).first()).toBeVisible();
+
+  await page.goto('/bio-benchmark-atlas/tasks/small-molecule-generation/');
+  await expect(page.getByText(/Registry coverage gap/)).toBeVisible();
 });
 
 test('LifeSciBench shows audited protein and binding counts', async ({ page }) => {
@@ -340,6 +372,7 @@ test('work, domain, archive, and Chinese guide routes render', async ({ page }) 
     ['/bio-benchmark-atlas/domains/protein-design/', 'Protein design'],
     ['/bio-benchmark-atlas/archive/', 'The registry remembers what changed.'],
     ['/bio-benchmark-atlas/zh/', '先弄清怎么测，再比较分数。'],
+    ['/bio-benchmark-atlas/zh/tasks/', '把“测什么科学问题”单独归类。'],
   ]) {
     await page.goto(path);
     await expect(page.getByRole('heading', { name: heading, exact: false }).first()).toBeVisible();
@@ -389,6 +422,8 @@ test('critical pages have no serious or critical axe violations', async ({ page 
     '/bio-benchmark-atlas/',
     '/bio-benchmark-atlas/benchmarks/',
     '/bio-benchmark-atlas/benchmarks/lifescibench/',
+    '/bio-benchmark-atlas/tasks/',
+    '/bio-benchmark-atlas/tasks/protein-design/',
     '/bio-benchmark-atlas/methodology/',
   ]) {
     await page.goto(path);

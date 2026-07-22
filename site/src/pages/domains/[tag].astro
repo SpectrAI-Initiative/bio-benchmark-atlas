@@ -2,15 +2,16 @@
 import Layout from '../../components/Layout.astro';
 import PlotCard from '../../components/PlotCard.astro';
 import Tag from '../../components/Tag.astro';
-import { data, termMaps, withBase } from '../../lib/data';
+import { benchmarkMap, data, termMaps, withBase } from '../../lib/data';
 export function getStaticPaths() { return data.taxonomies.domains.map((term) => ({ params: { tag: term.id }, props: { term } })); }
 const { term } = Astro.props;
 const benchmarks = data.benchmarks.filter((benchmark) => benchmark.domains.includes(term.id));
 const capabilityRows = data.taxonomies.capabilities.map((capability) => ({ label: capability.label, value: benchmarks.filter((b) => b.capabilities.includes(capability.id)).length })).filter((row) => row.value > 0);
 const parents = term.parent_id ? [termMaps.domains.get(term.parent_id)] : [];
+const scientificTaskIds = [...new Set(data.scientific_task_coverage.filter((row) => benchmarkMap.get(row.benchmark_id)?.domains.includes(term.id) && row.aggregate_eligible).map((row) => row.task_type_id))];
 ---
 <Layout title={term.label} description={term.definition} canonicalPath={`/domains/${term.id}/`}>
   <header class="page-head shell"><div class="breadcrumbs"><a href={withBase('/taxonomy/')}>Taxonomy</a><span>/</span>{parents.map((parent) => <><span>{parent?.label}</span><span>/</span></>)}<span>{term.label}</span></div><p class="eyebrow">Scientific domain</p><h1>{term.label}</h1><p class="lede">{term.definition}</p><p lang="zh-CN" class="muted">{term.label_zh}</p></header>
   <div class="shell section"><div class="grid two"><div><h2>{benchmarks.length} registered benchmarks and tracks</h2><div class="grid">{benchmarks.map((benchmark) => <article class="card"><div class="meta"><span>{benchmark.kind}</span><span>{benchmark.evaluation_run_ids.length} runs</span></div><h3><a class="stretched" href={withBase(`/benchmarks/${benchmark.id}/`)}>{benchmark.name}</a></h3><p>{benchmark.summary}</p><div class="tag-list">{benchmark.capabilities.slice(0,4).map((id) => <Tag id={id} axis="capabilities" />)}</div></article>)}</div></div>
-  <div><PlotCard title="Capability coverage" description={`Registry records tagged ${term.label}, counted by capability.`} kind="bar" values={capabilityRows} csv="/data/benchmarks.csv" tableColumns={[{key:'label',label:'Capability'},{key:'value',label:'Records'}]} /><div class="callout info"><strong>Coverage-gap reading:</strong> zero counts indicate a gap in this registry, not proof that no benchmark exists. Propose a primary source through the contribution form.</div></div></div></div>
+  <div><PlotCard title="Capability coverage" description={`Registry records tagged ${term.label}, counted by capability.`} kind="bar" values={capabilityRows} csv="/data/benchmarks.csv" tableColumns={[{key:'label',label:'Capability'},{key:'value',label:'Records'}]} /><div class="card" style="margin-top:1rem"><h3>Scientific Tasks in this domain</h3><div class="tag-list">{scientificTaskIds.length ? scientificTaskIds.map((id) => <Tag id={id} axis="scientific_tasks" linked />) : <span class="not-reported">No eligible task mapping yet</span>}</div><p class="small muted">Task mappings are evidence-backed and may be partial for mixed suites.</p></div><div class="callout info"><strong>Coverage-gap reading:</strong> zero counts indicate a gap in this registry, not proof that no benchmark exists. Propose a primary source through the contribution form.</div></div></div></div>
 </Layout>

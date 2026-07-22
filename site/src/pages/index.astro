@@ -21,6 +21,14 @@ const coverage = focusDomains.map((domain) => ({
 }));
 const timeline = families.map((b) => ({ label: b.name, date: new Date(`${b.release_date}T00:00:00Z`), group: b.kind }));
 const featured = ['lifescibench', 'genebench-pro', 'biomysterybench', 'proteingym', 'compbiobench', 'lab-bench'].map((id) => data.benchmarks.find((b) => b.id === id)!);
+const objectTaskHeatmap = data.taxonomies.scientific_objects.flatMap((object) => data.taxonomies.task_families.map((family) => {
+  const taskIds = new Set(data.scientific_tasks.filter((task) => task.object_ids.includes(object.id) && task.task_family_id === family.id).map((task) => task.id));
+  return {
+    y: object.label,
+    x: family.label,
+    value: new Set(data.scientific_task_coverage.filter((row) => row.aggregate_eligible && taskIds.has(row.task_type_id)).map((row) => row.root_family_id)).size,
+  };
+}));
 ---
 <Layout>
   <div class="shell">
@@ -75,6 +83,10 @@ const featured = ['lifescibench', 'genebench-pro', 'biomysterybench', 'proteingy
     <section class="section grid two">
       <PlotCard title="Domain × capability" description="Number of benchmark families tagged on both axes." kind="heatmap" values={heatmap} tableColumns={[{key:'y',label:'Domain'},{key:'x',label:'Capability'},{key:'value',label:'Families'}]} options={{height: 390}} />
       <PlotCard title="Protein and omics coverage" description="Registry family count by selected scientific domain." kind="bar" values={coverage} csv="/data/benchmarks.csv" tableColumns={[{key:'label',label:'Domain'},{key:'value',label:'Families'}]} options={{height: 390}} />
+    </section>
+    <section class="section-tight">
+      <PlotCard title="Scientific object × task family" description="Distinct benchmark families with eligible task mappings in each cell. Count units are not combined." kind="heatmap" values={objectTaskHeatmap} csv="/data/scientific-task-coverage.csv" tableColumns={[{key:'y',label:'Scientific object'},{key:'x',label:'Task family'},{key:'value',label:'Benchmark families'}]} options={{height: 540, marginLeft: 150}} />
+      <p><a href={withBase('/tasks/')}>Explore all Scientific Tasks, aliases, counts, and coverage gaps →</a></p>
     </section>
     <section class="section-tight">
       <PlotCard title="Benchmark release timeline" description="Initial public release date for each v1 benchmark family." kind="timeline" values={timeline} tableColumns={[{key:'label',label:'Benchmark'},{key:'date',label:'Release date'},{key:'group',label:'Kind'}]} options={{height: 510}} />

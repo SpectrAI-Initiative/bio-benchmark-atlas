@@ -1,4 +1,9 @@
 - date: '2026-07-22'
+  version: 1.2.0-dev
+  type: development
+  summary: Added the Scientific Task Atlas taxonomy, evidence-backed benchmark mappings, normalized task-coverage exports, task explorer and detail pages, and Chinese task-system guidance.
+  entity_ids: []
+- date: '2026-07-22'
   type: release
   entity_ids: [registry-schema, lifescibench, proteingym, casp, cameo, flip, proteinlmbench, bioinstruction, lab-bench, genebench-pro, biomysterybench, compbiobench, bixbench, blade, scigym, virbench]
   summary: Released v1.1.0 with field-level audits for fourteen launch families, structured versions and evidence, normalized official evaluation settings and results, and an explicit machine-validated VirBench legacy exception.

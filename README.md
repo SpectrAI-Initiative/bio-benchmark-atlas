@@ -4,7 +4,7 @@ BioBench Atlas is a source-grounded registry of benchmarks for protein science, 
 
 The website is published at **https://spectrai-initiative.github.io/bio-benchmark-atlas/**.
 
-The immutable `v1.1.0` release contains completed field-level reviews for fourteen of the fifteen launch families. The current `1.2.0-dev` registry adds a Scientific Task layer that distinguishes problems such as protein folding, protein sequence design, PPI, protein-ligand binding, DNA regulation, RNA design, small-molecule discovery, omics analysis, and scientific workflows. It also expands the atlas with creator-audited TAPE, Genomic Benchmarks, BEACON, MoleculeNet, ATOM3D, GuacaMol, and scIB records. VirBench's detailed audit and task classification remain intentionally deferred and visibly marked `legacy` / `unclassified`; this is the only CI-enforced exception.
+The immutable `v1.2.0` release adds a Scientific Task layer that distinguishes problems such as protein folding, protein sequence design, PPI, protein-ligand binding, DNA regulation, RNA design, small-molecule discovery, omics analysis, and scientific workflows. It also expands the atlas with creator-audited TAPE, Genomic Benchmarks, BEACON, MoleculeNet, ATOM3D, GuacaMol, and scIB records. VirBench's detailed audit and task classification remain intentionally deferred and visibly marked `legacy` / `unclassified`; this is the only CI-enforced exception.
 
 ## Principles
 

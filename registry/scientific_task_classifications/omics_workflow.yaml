@@ -1,0 +1,273 @@
+# Evidence-backed Scientific Task mappings for this curation area.
+classifications:
+  genebench-pro:
+    status: partial
+    benchmark_version: paper-v1
+    as_of: null
+    notes: Official primary domains and task styles are not an exhaustive scientific-task taxonomy.
+    entries:
+    - task_type_id: end-to-end-computational-analysis
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 129
+      count_unit: problems
+      count_basis: self-contained synthetic scientific-analysis problems (called evaluations in the paper abstract)
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - genebench-pro-paper-evidence
+      notes: Problems require multistage analysis, diagnostics, and judgment.
+    - task_type_id: omics-cellular-analysis
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: null
+      count_unit: problems
+      count_basis: Problems assigned to transcriptomics, epigenomics, single-cell, spatial, proteomics, microbiome, and related
+        official domains.
+      count_ref: null
+      reporting_status: not_reported
+      evidence_ids:
+      - genebench-pro-paper-evidence
+      notes: The official domain atlas supports broad omics coverage but not an exhaustive leaf-task subtotal.
+  biomysterybench:
+    status: partial
+    benchmark_version: v11
+    as_of: null
+    notes: Official modality examples support a broad end-to-end analysis mapping but not exhaustive task-topic counts.
+    entries:
+    - task_type_id: end-to-end-computational-analysis
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 90
+      count_unit: problems
+      count_basis: v11 mystery-bioinformatics problems after the June 2026 answer-key audit
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - biomysterybench-evidence-v11
+      notes: Each mystery is scored on its final answer rather than a prescribed analysis path.
+    - task_type_id: omics-cellular-analysis
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: null
+      count_unit: problems
+      count_basis: v11 mystery-bioinformatics problems using omics and cellular data.
+      count_ref: null
+      reporting_status: not_reported
+      evidence_ids:
+      - biomysterybench-evidence-taxonomy
+      notes: Single-cell, proteomics, metabolomics, and other modalities are explicit, without a leaf-task count.
+  bixbench:
+    status: partial
+    benchmark_version: v1.5
+    as_of: null
+    notes: Official categories are multi-label domains rather than an exhaustive scientific-task taxonomy.
+    entries:
+    - task_type_id: end-to-end-computational-analysis
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 205
+      count_unit: questions
+      count_basis: one question per row in the official v1.5 BixBench.jsonl
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - bixbench-evidence-v1-5-counts
+      notes: Questions are grounded in containerized published analysis capsules.
+    - task_type_id: omics-cellular-analysis
+      coverage: observed
+      mapping_method: official-taxonomy
+      confidence: high
+      count: null
+      count_unit: questions
+      count_basis: v1.5 questions carrying official genomics, transcriptomics, epigenomics, single-cell, proteomics, or integrative-omics
+        category labels.
+      count_ref: null
+      reporting_status: not_reported
+      evidence_ids:
+      - bixbench-evidence-taxonomy
+      notes: Official multi-label domain categories overlap, so no additive omics question total is asserted.
+  compbiobench:
+    status: partial
+    benchmark_version: v1
+    as_of: null
+    notes: Official domains are not an exhaustive scientific-task taxonomy; the runner establishes the end-to-end workflow.
+    entries:
+    - task_type_id: end-to-end-computational-analysis
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 100
+      count_unit: tasks
+      count_basis: v1 independent computational-biology tasks
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - compbiobench-evidence-counts
+      - compbiobench-evidence-runner-license
+      notes: Tasks require code, tools, and external resources.
+    - task_type_id: omics-cellular-analysis
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: null
+      count_unit: tasks
+      count_basis: v1 tasks in official genomics, transcriptomics, epigenetics, single-cell, and spatial domains.
+      count_ref: null
+      reporting_status: not_reported
+      evidence_ids:
+      - compbiobench-evidence-taxonomy
+      notes: The official domains establish broad omics coverage but do not provide an exhaustive Scientific Task breakdown.
+  blade:
+    status: partial
+    benchmark_version: arXiv v3
+    as_of: null
+    notes: BLADE is cross-domain; four source questions are biological or ecological.
+    entries:
+    - task_type_id: end-to-end-computational-analysis
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 12
+      count_unit: problems
+      count_basis: paired real-world research questions and datasets used as the source units for BLADE
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - blade-evidence-current-counts
+      notes: Coverage is suite-wide; only four source questions are in life science.
+  blade-analysis-generation:
+    status: complete
+    benchmark_version: arXiv v3
+    as_of: null
+    notes: Formal executable-analysis generation track.
+    entries:
+    - task_type_id: end-to-end-computational-analysis
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 12
+      count_unit: problems
+      count_basis: paired research questions and datasets requiring a complete generated analysis
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - blade-generation-evidence-counts
+      notes: The track grades complete analysis decisions and execution.
+  blade-mcq:
+    status: complete
+    benchmark_version: arXiv v3
+    as_of: null
+    notes: Formal decision-discrimination track.
+    entries:
+    - task_type_id: scientific-evidence-interpretation
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 188
+      count_unit: questions
+      count_basis: individual multiple-choice decision-discrimination questions
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - blade-mcq-evidence-counts
+      notes: Questions test defensibility of scientific analysis decisions.
+  scigym:
+    status: complete
+    benchmark_version: 2025 release
+    as_of: null
+    notes: All released systems use the same simulator-based reaction-network reconstruction task.
+    entries:
+    - task_type_id: reaction-network-reconstruction
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 350
+      count_unit: systems
+      count_basis: distinct curated BioModels systems released as SBML benchmark instances
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - scigym-evidence-release-counts
+      - scigym-evidence-taxonomy
+      notes: Hidden biological reactions are reconstructed from interventions and trajectories.
+    - task_type_id: simulation-based-experiment
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 350
+      count_unit: systems
+      count_basis: distinct curated BioModels systems released as SBML benchmark instances
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - scigym-evidence-release-counts
+      - scigym-evidence-taxonomy
+      notes: The same systems support iterative in-silico perturbation experiments; overlapping claims are not summed.
+  scigym-small:
+    status: complete
+    benchmark_version: 2025 release
+    as_of: null
+    notes: Official small-system split.
+    entries:
+    - task_type_id: reaction-network-reconstruction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 137
+      count_unit: systems
+      count_basis: unique SBML systems with fewer than 10 reactions in the official small Parquet split
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - scigym-small-evidence-count
+      notes: Split-specific system count.
+    - task_type_id: simulation-based-experiment
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 137
+      count_unit: systems
+      count_basis: unique SBML systems with fewer than 10 reactions in the official small Parquet split
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - scigym-small-evidence-count
+      notes: Same systems; overlapping task claim.
+  scigym-large:
+    status: complete
+    benchmark_version: 2025 release
+    as_of: null
+    notes: Official large-system split.
+    entries:
+    - task_type_id: reaction-network-reconstruction
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 213
+      count_unit: systems
+      count_basis: unique SBML systems in the official large Parquet split, containing the remaining systems with up to 400
+        reactions
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - scigym-large-evidence-count
+      notes: Split-specific system count.
+    - task_type_id: simulation-based-experiment
+      coverage: explicitly-in-scope
+      mapping_method: official-track
+      confidence: high
+      count: 213
+      count_unit: systems
+      count_basis: unique SBML systems in the official large Parquet split, containing the remaining systems with up to 400
+        reactions
+      count_ref: /task_counts/total
+      reporting_status: reported
+      evidence_ids:
+      - scigym-large-evidence-count
+      notes: Same systems; overlapping task claim.

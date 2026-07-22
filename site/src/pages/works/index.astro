@@ -1,0 +1,75 @@
+---
+import Layout from '../../components/Layout.astro';
+import { benchmarkMap, data, withBase } from '../../lib/data';
+
+const years = [...new Set(data.works.map((work) => work.publication_date.slice(0, 4)))].sort().reverse();
+const workTypes = [...new Set(data.works.map((work) => work.work_type))].sort();
+const sourceClasses = [...new Set(data.works.map((work) => work.source_class))].sort();
+const relations = [...new Set(data.benchmark_uses.map((use) => use.relation_type))].sort();
+const scopes = [...new Set(data.benchmark_uses.map((use) => use.scope.type))].sort();
+const usedBenchmarkIds = [...new Set(data.benchmark_uses.map((use) => use.benchmark_id))].sort();
+const rows = data.works.map((work) => {
+  const uses = data.benchmark_uses.filter((use) => use.work_id === work.id);
+  const evaluationUses = uses.filter((use) => use.relation_type === 'evaluation' || use.relation_type === 'external-result-summary');
+  const completeness = evaluationUses.some((use) => use.status === 'partial' || use.reporting_gaps.length)
+    ? 'partial'
+    : evaluationUses.length && evaluationUses.every((use) => use.status === 'normalized') ? 'normalized' : 'non-evaluation';
+  return { work, uses, completeness };
+});
+---
+<Layout title="Paper Explorer" canonicalPath="/works/">
+  <header class="page-head shell"><p class="eyebrow">Paper and work explorer</p><h1>Trace every benchmark claim back to a work.</h1><p class="lede">Filter creator papers, provider releases, and independent studies by benchmark relationship, realized scope, and reporting completeness.</p></header>
+  <div class="shell section-tight">
+    <form class="explorer-controls paper-controls" id="paper-controls" role="search">
+      <div class="field"><label for="q">Search</label><input id="q" name="q" type="search" placeholder="paper title, author, organization…" /></div>
+      <div class="field"><label for="year">Year</label><select id="year" name="year"><option value="">All years</option>{years.map((year) => <option value={year}>{year}</option>)}</select></div>
+      <div class="field"><label for="work-type">Work type</label><select id="work-type" name="type"><option value="">All work types</option>{workTypes.map((type) => <option value={type}>{type}</option>)}</select></div>
+      <div class="field"><label for="source-class">Source class</label><select id="source-class" name="source"><option value="">All source classes</option>{sourceClasses.map((source) => <option value={source}>{source.replaceAll('_', ' ')}</option>)}</select></div>
+      <div class="field"><label for="benchmark">Benchmark</label><select id="benchmark" name="benchmark"><option value="">All benchmarks</option>{usedBenchmarkIds.map((id) => <option value={id}>{benchmarkMap.get(id)?.name ?? id}</option>)}</select></div>
+      <div class="field"><label for="relation">Relation</label><select id="relation" name="relation"><option value="">All relations</option>{relations.map((relation) => <option value={relation}>{relation.replaceAll('-', ' ')}</option>)}</select></div>
+      <div class="field"><label for="scope">Scope</label><select id="scope" name="scope"><option value="">All scopes</option>{scopes.map((scope) => <option value={scope}>{scope}</option>)}</select></div>
+      <div class="field"><label for="completeness">Completeness</label><select id="completeness" name="completeness"><option value="">All completeness</option><option value="normalized">Normalized</option><option value="partial">Partial</option><option value="non-evaluation">Non-evaluation</option></select></div>
+    </form>
+    <p class="small muted"><strong id="paper-count">{rows.length}</strong> works · <a href={withBase('/data/works.csv')} download>Download works CSV</a> · <a href={withBase('/data/benchmark-uses.csv')} download>Download benchmark-use CSV</a></p>
+    <div class="table-wrap"><table id="paper-table"><thead><tr><th>Work</th><th>Type / source</th><th>Published</th><th>Benchmark usage</th><th>Completeness</th></tr></thead><tbody>
+      {rows.map(({ work, uses, completeness }) => <tr
+        data-search={`${work.title} ${work.authors.join(' ')} ${work.organizations.join(' ')}`.toLowerCase()}
+        data-year={work.publication_date.slice(0,4)} data-type={work.work_type} data-source={work.source_class}
+        data-benchmarks={uses.map((use) => use.benchmark_id).join(' ')} data-relations={uses.map((use) => use.relation_type).join(' ')} data-scopes={uses.map((use) => use.scope.type).join(' ')} data-completeness={completeness}>
+        <td><a href={withBase(`/works/${work.id}/`)}>{work.title}</a><br/><span class="small muted">{work.organizations.join(' · ')}</span></td>
+        <td>{work.work_type}<br/><span class="small muted">{work.source_class.replaceAll('_', ' ')}</span></td><td>{work.publication_date}</td>
+        <td>{uses.length ? <>{[...new Set(uses.map((use) => use.benchmark_id))].length} benchmark(s)<br/><span class="small muted">{[...new Set(uses.map((use) => use.relation_type.replaceAll('-', ' ')))].join(', ')}</span></> : 'Metadata only'}</td>
+        <td><span class:list={['usage-badge', completeness]}>{completeness.replaceAll('-', ' ')}</span></td>
+      </tr>)}
+    </tbody></table></div><p id="paper-empty" class="callout" hidden>No work matches this filter combination.</p>
+  </div>
+  <script>
+    const form = document.querySelector<HTMLFormElement>('#paper-controls')!;
+    const rows = [...document.querySelectorAll<HTMLTableRowElement>('#paper-table tbody tr')];
+    const count = document.querySelector<HTMLElement>('#paper-count')!;
+    const empty = document.querySelector<HTMLElement>('#paper-empty')!;
+    const params = new URLSearchParams(location.search);
+    for (const name of ['q', 'year', 'type', 'source', 'benchmark', 'relation', 'scope', 'completeness']) {
+      const control = form.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement;
+      control.value = params.get(name) ?? '';
+    }
+    function update() {
+      const values = Object.fromEntries(new FormData(form)) as Record<string, string>;
+      let visible = 0;
+      rows.forEach((row) => {
+        const includes = (key: string, value: string) => !value || row.dataset[key]?.split(' ').includes(value);
+        const match = (!values.q || row.dataset.search?.includes(values.q.toLowerCase()))
+          && (!values.year || row.dataset.year === values.year) && (!values.type || row.dataset.type === values.type)
+          && (!values.source || row.dataset.source === values.source) && includes('benchmarks', values.benchmark)
+          && includes('relations', values.relation) && includes('scopes', values.scope)
+          && (!values.completeness || row.dataset.completeness === values.completeness);
+        row.hidden = !match;
+        if (match) visible += 1;
+      });
+      count.textContent = String(visible); empty.hidden = visible !== 0;
+      const next = new URLSearchParams(); Object.entries(values).forEach(([key, value]) => value && next.set(key, value));
+      history.replaceState(null, '', `${location.pathname}${next.size ? `?${next}` : ''}`);
+    }
+    form.addEventListener('input', update); update();
+  </script>
+</Layout>

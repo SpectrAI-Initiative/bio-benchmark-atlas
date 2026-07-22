@@ -19,6 +19,62 @@ test('explorer restores and updates URL filter state', async ({ page }) => {
   await expect(page.getByRole('link', { name: 'ProteinGym', exact: true })).toBeHidden();
 });
 
+test('Paper Explorer restores relation filters and links both usage exports', async ({ page }) => {
+  await page.goto('/bio-benchmark-atlas/works/?source=official_model_provider&relation=external-result-summary');
+  await expect(page.locator('#source-class')).toHaveValue('official_model_provider');
+  await expect(page.locator('#relation')).toHaveValue('external-result-summary');
+  await expect(page.getByRole('link', { name: 'Advancing Claude in healthcare and the life sciences', exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Claude for Life Sciences', exact: true })).toBeHidden();
+  await page.locator('#q').fill('Anthropic');
+  await expect(page).toHaveURL(/q=Anthropic/);
+  await expect(page.getByRole('link', { name: 'Download works CSV' })).toHaveAttribute('href', '/bio-benchmark-atlas/data/works.csv');
+  await expect(page.getByRole('link', { name: 'Download benchmark-use CSV' })).toHaveAttribute('href', '/bio-benchmark-atlas/data/benchmark-uses.csv');
+});
+
+test('BixBench preserves Anthropic comparison as a partial claim', async ({ page }) => {
+  await page.goto('/bio-benchmark-atlas/benchmarks/bixbench/');
+  const use = page.locator('#anthropic-life-sciences-bixbench');
+  await expect(page.getByRole('heading', { name: 'Partial evaluation claims' })).toBeVisible();
+  await expect(use.getByText('Partial', { exact: true })).toBeVisible();
+  await expect(use).toContainText('unknown');
+  await expect(use).toContainText('benchmark version');
+  await expect(use).toContainText('numeric results');
+  await expect(use).toContainText('Linked runs');
+  await expect(use).toContainText('None');
+});
+
+test('SpatialBench separates versions and Anthropic external summary', async ({ page }) => {
+  await page.goto('/bio-benchmark-atlas/benchmarks/spatialbench/');
+  await expect(page.getByText(/paper v2 reports 146 problems/)).toBeVisible();
+  await expect(page.getByText(/current repository snapshot contains 159 evaluations/)).toBeVisible();
+  await expect(page.getByText(/sum to 147 rather than its stated 146 total/)).toBeVisible();
+  const external = page.locator('#anthropic-spatialbench-external-summary');
+  await expect(external.getByText('External summary', { exact: true })).toBeVisible();
+  await expect(external).toContainText('third-party result summary');
+  await expect(page.locator('#spatialbench-paper-v2-base')).toContainText('full · n=146');
+  await expect(page.locator('#spatialbench-repo-159-mini-swe-agent')).toContainText('full · n=159');
+});
+
+test('Anthropic private suite shows labeled deltas without absolute charts', async ({ page }) => {
+  await page.goto('/bio-benchmark-atlas/benchmarks/anthropic-key-life-sciences-evals/');
+  await expect(page.getByText(/Private\/internal benchmark/)).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Anthropic Scientific Figure Interpretation Eval', exact: true }).first()).toBeVisible();
+  await expect(page.locator('#anthropic-scientific-figure-delta')).toContainText('Δ 13.2');
+  await expect(page.locator('#anthropic-computational-biology-delta')).toContainText('Δ 10.5');
+  await expect(page.locator('#anthropic-protein-understanding-delta')).toContainText('Δ 10.3');
+  await expect(page.getByRole('heading', { name: 'Comparable result views' })).toHaveCount(0);
+  await expect(page.locator('.chart-card')).toHaveCount(0);
+});
+
+test('Work detail presents BenchmarkUse before normalized runs and preserves source versions', async ({ page }) => {
+  await page.goto('/bio-benchmark-atlas/works/spatialbench-preprint/');
+  await expect(page.getByRole('heading', { name: 'Benchmark usage' })).toBeVisible();
+  await expect(page.locator('#spatialbench-preprint-evaluation')).toContainText('Normalized');
+  await expect(page.getByText('spatialbench-preprint-v2', { exact: true }).first()).toBeVisible();
+  await expect(page.getByText('arXiv v1', { exact: true })).toBeVisible();
+  await expect(page.getByText('arXiv v2', { exact: true })).toBeVisible();
+});
+
 test('Scientific Task explorer supports aliases, filters, gaps, and URL restoration', async ({ page }) => {
   await page.goto('/bio-benchmark-atlas/tasks/?object=protein&coverage=covered');
   await expect(page.locator('#object')).toHaveValue('protein');

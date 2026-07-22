@@ -148,6 +148,18 @@ p { margin: 0 0 1rem; }
 .tag { display: inline-flex; align-items: center; padding: .24rem .58rem; border: 1px solid var(--line); border-radius: 999px; font-size: .75rem; color: var(--ink-soft); text-decoration: none; background: var(--panel); }
 .tag.accent { color: var(--mint-text); border-color: color-mix(in srgb, var(--mint) 45%, var(--line)); }
 .tag.warn { color: var(--coral-text); border-color: color-mix(in srgb, var(--coral) 45%, var(--line)); }
+.usage-badge { display: inline-flex; align-items: center; padding: .2rem .55rem; border-radius: 999px; border: 1px solid var(--line); font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; background: var(--panel); }
+.usage-badge.normalized { color: var(--mint-text); border-color: var(--mint); background: var(--mint-soft); }
+.usage-badge.partial { color: var(--coral-text); border-color: var(--coral); background: var(--coral-soft); }
+.usage-badge.non-evaluation { color: var(--ink-soft); }
+.usage-badge.external-summary { color: #755112; border-color: var(--amber); background: color-mix(in srgb, var(--amber) 18%, var(--panel)); }
+.usage-badge.internal { color: #785113; border-color: var(--amber); border-style: dashed; background: color-mix(in srgb, var(--amber) 14%, var(--panel)); }
+.use-card { margin: 1rem 0; padding: 1.2rem; border: 1px solid var(--line); border-left-width: 4px; border-radius: 15px; background: var(--panel); }
+.use-card.partial { border-left-color: var(--coral); }
+.use-card.normalized { border-left-color: var(--mint); }
+.use-card.external-summary, .use-card.internal { border-left-color: var(--amber); }
+.definition-list.compact > div { padding: .45rem 0; }
+.paper-controls { grid-template-columns: 2fr repeat(3, 1fr); }
 
 .band { background: var(--ink); color: var(--paper); margin: 2rem 0; padding: 4rem 0; }
 .band .muted { color: color-mix(in srgb, var(--paper) 70%, transparent); }

@@ -28,11 +28,13 @@ from discover_papers import (  # noqa: E402
 from generate_paper_records import build_records, stable_work_id, write_records  # noqa: E402
 from extract_paper import (  # noqa: E402
     EXTRACTOR_PROMPT,
+    CodexExecutionError,
     PaperExtractionError,
     VERIFIER_PROMPT,
     _child_environment,
     _codex_failure_diagnostic,
     _pdf_pages_for_visual_review,
+    _prepare_local_text_source,
     _render_pdf_pages,
     _run_stage,
     _structured_output_diagnostic,
@@ -601,6 +603,31 @@ def test_local_codex_stage_retries_only_transient_transport_failures(
     assert result.thread_id == "thread-retry"
 
 
+def test_local_codex_stage_has_a_non_retrying_wall_clock_limit(
+    tmp_path: Path,
+) -> None:
+    attempts = 0
+
+    def timeout_runner(command: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        nonlocal attempts
+        attempts += 1
+        assert kwargs["timeout"] == 45 * 60
+        raise subprocess.TimeoutExpired(command, kwargs["timeout"])
+
+    with pytest.raises(CodexExecutionError, match="45-minute wall-clock limit"):
+        _run_stage(
+            prompt="Synthetic prompt",
+            output_type=PaperEvidenceDraft,
+            schema_path=tmp_path / "schema.json",
+            output_path=tmp_path / "draft.json",
+            model="gpt-5.6-sol",
+            reasoning_effort="high",
+            binary="codex",
+            runner=timeout_runner,
+        )
+    assert attempts == 1
+
+
 class FakeResponse:
     def __init__(self, body: bytes, *, content_type: str = "application/pdf", declared: int | None = None):
         self.body = body
@@ -638,6 +665,24 @@ def test_pdf_visual_pages_are_temporary_numbered_image_inputs(
         "document-page-001.jpg",
         "document-page-002.jpg",
     ]
+
+
+def test_html_source_uses_visible_text_without_scripts(tmp_path: Path) -> None:
+    source = tmp_path / "source.txt"
+    visible_sentence = "BioMysteryBench has 99 questions and five trials per task. "
+    source.write_text(
+        "<!doctype html><html><head><script>private_payload = 'ignore me'</script></head>"
+        f"<body><article><h1>Official evaluation</h1><p>{visible_sentence * 20}</p>"
+        "</article></body></html>",
+        encoding="utf-8",
+    )
+    visible, original = _prepare_local_text_source(source, tmp_path)
+    assert visible.name == "source-visible.txt"
+    assert original is not None and original.name == "source-original.html"
+    normalized = visible.read_text(encoding="utf-8")
+    assert "BioMysteryBench has 99 questions" in normalized
+    assert "private_payload" not in normalized
+    assert "private_payload" in original.read_text(encoding="utf-8")
 
 
 def test_verifier_receives_only_extractor_cited_visual_pages(tmp_path: Path) -> None:

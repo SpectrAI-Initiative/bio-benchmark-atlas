@@ -13,6 +13,7 @@ import tempfile
 import time
 import uuid
 from dataclasses import dataclass
+from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any, Callable, TypeVar
 
@@ -26,12 +27,14 @@ ROOT = Path(__file__).resolve().parents[1]
 LOCAL_TMP_ROOT = ROOT / ".paper-intake-tmp"
 PIPELINE_VERSION = "1.4.0"
 PROMPT_VERSION = "paper-evidence-local-v1"
+SOURCE_INPUT_PROTOCOL_VERSION = "multimodal-visible-html-v1"
 DEFAULT_MODEL = "gpt-5.6-sol"
 REVIEW_METHOD = "local-codex-double-pass"
 EXECUTION_SURFACE = "local-codex-cli"
 LOCAL_PROVIDER_ID = "biobench_local"
 LOCAL_PROVIDER_BASE_URL = "https://chatgpt.com/backend-api/codex"
 CODEX_STAGE_ATTEMPTS = 3
+CODEX_STAGE_TIMEOUT_SECONDS = 45 * 60
 MAX_PDF_IMAGE_PAGES = 40
 PDF_IMAGE_DPI = 144
 VISUAL_PAGE_PATTERN = re.compile(
@@ -137,6 +140,51 @@ class CodexExecutionError(PaperExtractionError):
     """The local Codex executable or session failed before evidence could be reviewed."""
 
 
+class _VisibleHTMLParser(HTMLParser):
+    """Extract rendered prose while excluding executable and decorative page payloads."""
+
+    _SKIPPED = {"script", "style", "noscript", "svg", "template"}
+    _BLOCKS = {
+        "article", "aside", "blockquote", "br", "dd", "div", "dl", "dt",
+        "figcaption", "figure", "footer", "h1", "h2", "h3", "h4", "h5",
+        "h6", "header", "li", "main", "nav", "ol", "p", "section", "table",
+        "tbody", "tfoot", "thead", "tr", "ul",
+    }
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self._skip_depth = 0
+        self._parts: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        normalized = tag.casefold()
+        if normalized in self._SKIPPED:
+            self._skip_depth += 1
+        elif self._skip_depth == 0 and normalized in self._BLOCKS:
+            self._parts.append("\n")
+        elif self._skip_depth == 0 and normalized in {"td", "th"}:
+            self._parts.append("\t")
+
+    def handle_endtag(self, tag: str) -> None:
+        normalized = tag.casefold()
+        if normalized in self._SKIPPED and self._skip_depth:
+            self._skip_depth -= 1
+        elif self._skip_depth == 0 and normalized in self._BLOCKS:
+            self._parts.append("\n")
+
+    def handle_data(self, data: str) -> None:
+        if self._skip_depth == 0:
+            self._parts.append(data)
+
+    def visible_text(self) -> str:
+        lines = []
+        for raw_line in "".join(self._parts).splitlines():
+            line = " ".join(raw_line.split())
+            if line:
+                lines.append(line)
+        return "\n".join(lines) + "\n"
+
+
 @dataclass(frozen=True)
 class StageResult:
     payload: BaseModel
@@ -218,6 +266,35 @@ def _child_environment() -> dict[str, str]:
     ):
         environment.pop(name, None)
     return environment
+
+
+def _prepare_local_text_source(
+    local_source: Path,
+    session_dir: Path,
+) -> tuple[Path, Path | None]:
+    """Create a deterministic visible-text companion for downloaded HTML."""
+
+    if local_source.suffix.casefold() not in {".txt", ".html", ".htm"}:
+        return local_source, None
+    try:
+        raw_text = local_source.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return local_source, None
+    sample = raw_text[:4096].casefold()
+    if "<html" not in sample and "<!doctype html" not in sample:
+        return local_source, None
+    parser = _VisibleHTMLParser()
+    parser.feed(raw_text)
+    visible_text = parser.visible_text()
+    if len(visible_text.strip()) < 500:
+        raise PaperExtractionError(
+            "HTML visible-text normalization produced too little reviewable content"
+        )
+    original_source = session_dir / "source-original.html"
+    local_source.replace(original_source)
+    visible_source = session_dir / "source-visible.txt"
+    visible_source.write_text(visible_text, encoding="utf-8")
+    return visible_source, original_source
 
 
 def _page_has_embedded_image(page: Any) -> bool:
@@ -515,15 +592,22 @@ def _run_stage(
     command.extend(("--", "-"))
     for attempt in range(CODEX_STAGE_ATTEMPTS):
         output_path.unlink(missing_ok=True)
-        completed = runner(
-            command,
-            cwd=ROOT,
-            input=prompt,
-            text=True,
-            capture_output=True,
-            env=_child_environment(),
-            check=False,
-        )
+        try:
+            completed = runner(
+                command,
+                cwd=ROOT,
+                input=prompt,
+                text=True,
+                capture_output=True,
+                env=_child_environment(),
+                check=False,
+                timeout=CODEX_STAGE_TIMEOUT_SECONDS,
+            )
+        except subprocess.TimeoutExpired as error:
+            raise CodexExecutionError(
+                "local Codex stage exceeded the 45-minute wall-clock limit; "
+                "the source needs a fresh technical retry"
+            ) from error
         if completed.returncode == 0:
             break
         diagnostic = _codex_failure_diagnostic(completed.stdout, completed.stderr)
@@ -568,6 +652,13 @@ def run_double_pass(
         suffix = source_path.suffix.lower() or ".txt"
         local_source = session_dir / f"source{suffix}"
         shutil.copy2(source_path, local_source)
+        local_source, original_html = _prepare_local_text_source(local_source, session_dir)
+        source_instruction = f"Read the source at {local_source}"
+        if original_html is not None:
+            source_instruction += (
+                f". This is deterministic visible text from the downloaded HTML at {original_html}; "
+                "prefer the visible-text file and consult the original only to confirm visible content"
+            )
         context_path = session_dir / "registry-context.json"
         context_path.write_text(
             json.dumps(registry_context, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
@@ -593,7 +684,7 @@ def run_double_pass(
         extractor = _run_stage(
             prompt=(
                 f"{EXTRACTOR_PROMPT}\n\n"
-                f"Read the source at {local_source} and the Registry context at {context_path}. "
+                f"{source_instruction}. Read the Registry context at {context_path}. "
                 "Return only the schema-conforming evidence draft."
             ),
             output_type=PaperEvidenceDraft,
@@ -611,8 +702,8 @@ def run_double_pass(
         verifier = _run_stage(
             prompt=(
                 f"{VERIFIER_PROMPT}\n\n"
-                f"Read the original source at {local_source}, the Registry context at {context_path}, "
-                f"and the claims at {draft_output}. Return only the schema-conforming verification."
+                f"{source_instruction}. Read the Registry context at {context_path} and the claims "
+                f"at {draft_output}. Return only the schema-conforming verification."
             ),
             output_type=PaperEvidenceVerification,
             schema_path=verification_schema,

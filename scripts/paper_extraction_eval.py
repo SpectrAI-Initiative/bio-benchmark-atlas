@@ -15,6 +15,7 @@ from extract_paper import (
     DEFAULT_MODEL,
     EXTRACTOR_PROMPT,
     PROMPT_VERSION,
+    SOURCE_INPUT_PROTOCOL_VERSION,
     VERIFIER_PROMPT,
     codex_version,
     run_double_pass,
@@ -151,6 +152,7 @@ def evaluate_results(results: dict[str, Any]) -> dict[str, Any]:
 def golden_input_hash(extractor_model: str, verifier_model: str) -> str:
     payload = {
         "prompt_version": PROMPT_VERSION,
+        "source_input_protocol_version": SOURCE_INPUT_PROTOCOL_VERSION,
         "extractor_prompt": EXTRACTOR_PROMPT,
         "verifier_prompt": VERIFIER_PROMPT,
         "extractor_schema": PaperEvidenceDraft.model_json_schema(),

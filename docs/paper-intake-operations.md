@@ -49,6 +49,11 @@ records, a current local golden receipt, and exact synchronization between
 only under the ignored intake temporary directory and are deleted with the other
 private extraction artifacts.
 
+Each extractor or verifier invocation has a 45-minute wall-clock limit. A stage
+that exceeds it stops as a technical `intake-failed` condition; it is not treated
+as evidence that the paper omitted a field, and the orchestrator does not launch
+another expensive inference attempt automatically.
+
 At run start the orchestrator labels the Issue `local-intake-in-progress` and posts a claim comment containing a random local run ID, base SHA, and timestamp. A second active run for the same Issue stops. An existing branch or PR is resumed rather than duplicated.
 
 ## 3. Local double pass
@@ -79,7 +84,11 @@ The gate checks:
 - distinct SpatialBench 146 and 159 versions;
 - Anthropic × BixBench as a partial relationship without an invented score.
 
-The receipt is stored at `~/.codex/biobench-atlas/golden.json`. It contains only the date, prompt/schema hash, requested model, Codex CLI version, and pass/fail results. Production requires a successful receipt no older than 35 days, an identical prompt/schema/model hash, and the same Codex CLI major version.
+The receipt is stored at `~/.codex/biobench-atlas/golden.json`. It contains only
+the date, prompt/schema/source-input-protocol hash, requested model, Codex CLI
+version, and pass/fail results. Production requires a successful receipt no older
+than 35 days, an identical prompt/schema/source-input/model hash, and the same
+Codex CLI major version.
 
 ## 5. PR and exact-SHA owner gate
 

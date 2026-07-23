@@ -88,11 +88,26 @@ def _count(payloads: list[tuple[str, Any]], expected: int, label_pattern: str) -
     return False
 
 
+def _observed_count_values(payloads: list[tuple[str, Any]]) -> list[int]:
+    return sorted({
+        payload["count"]
+        for kind, payload in payloads
+        if (
+            kind == "benchmark-count"
+            and isinstance(payload, dict)
+            and isinstance(payload.get("count"), int)
+        )
+    })
+
+
 def evaluate_results(results: dict[str, Any]) -> dict[str, Any]:
     life = _claim_payloads(results["lifescibench"], "lifescibench")
     for expected, label in ((750, "total"), (136, "protein"), (62, "design")):
         if not _count(life, expected, label):
-            raise GoldenFailure(f"LifeSciBench missing verified {label} count {expected}")
+            raise GoldenFailure(
+                f"LifeSciBench missing verified {label} count {expected}; "
+                f"observed verified counts={_observed_count_values(life)}"
+            )
     for kind, payload in life:
         if kind == "benchmark-count" and isinstance(payload, dict):
             if "binding" in str(payload.get("label", "")).casefold() and payload.get("count") is not None:
@@ -101,7 +116,10 @@ def evaluate_results(results: dict[str, Any]) -> dict[str, Any]:
     mystery = _claim_payloads(results["biomysterybench"], "biomysterybench")
     for expected, label in ((99, "total"), (76, "human-solvable"), (23, "human-difficult")):
         if not _count(mystery, expected, label):
-            raise GoldenFailure(f"BioMysteryBench missing verified {label} count {expected}")
+            raise GoldenFailure(
+                f"BioMysteryBench missing verified {label} count {expected}; "
+                f"observed verified counts={_observed_count_values(mystery)}"
+            )
     if not any(kind == "repeats" and payload == 5 for kind, payload in mystery):
         raise GoldenFailure("BioMysteryBench missing five verified repeats")
 

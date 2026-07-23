@@ -9,6 +9,8 @@ The owner machine needs:
 - a clean clone of `SpectrAI-Initiative/bio-benchmark-atlas`;
 - `gh` authenticated as `wang422003`;
 - Codex CLI authenticated through the existing Codex/ChatGPT login;
+- Poppler `pdftoppm`, used to create temporary physical-page images so both
+  independent sessions can inspect labels that are absent from a PDF text layer;
 - Python 3.10+, Node 24, and pnpm.
 
 Do not configure a repository model API key. The local orchestrator removes API-key and paper-model environment overrides before launching its child sessions.
@@ -40,7 +42,12 @@ python scripts/local_paper_intake.py run --url https://doi.org/...
 python scripts/local_paper_intake.py resume --run-id <id>
 ```
 
-Preflight checks local Git, `gh`, Codex CLI, source rights, MIME, the 45 MiB / 150-page limits, duplicate Work/Issue/branch/PR records, a current local golden receipt, and exact synchronization between `main` and `origin/main`. It writes no Registry data.
+Preflight checks local Git, `gh`, Codex CLI, Poppler for PDF sources, source
+rights, MIME, the 45 MiB / 150-page limits, duplicate Work/Issue/branch/PR
+records, a current local golden receipt, and exact synchronization between
+`main` and `origin/main`. It writes no Registry data. PDF page images are created
+only under the ignored intake temporary directory and are deleted with the other
+private extraction artifacts.
 
 At run start the orchestrator labels the Issue `local-intake-in-progress` and posts a claim comment containing a random local run ID, base SHA, and timestamp. A second active run for the same Issue stops. An existing branch or PR is resumed rather than duplicated.
 

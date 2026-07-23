@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -324,6 +325,10 @@ def preflight_issue(
     source_url, rights_confirmed, discovered = _source_details(issue)
     source = retrieve_source(source_url, rights_confirmed=rights_confirmed, discovered=discovered)
     try:
+        if source.content_type == "application/pdf" and shutil.which("pdftoppm") is None:
+            raise LocalIntakeError(
+                "PDF visual review requires pdftoppm (Poppler); install it before intake"
+            )
         work_id, duplicate_ids = _work_hint(issue)
         return Preflight(
             issue_number=issue_number,

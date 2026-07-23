@@ -28,11 +28,15 @@ from discover_papers import (  # noqa: E402
 from generate_paper_records import build_records, stable_work_id, write_records  # noqa: E402
 from extract_paper import (  # noqa: E402
     EXTRACTOR_PROMPT,
+    PaperExtractionError,
     VERIFIER_PROMPT,
     _child_environment,
     _codex_failure_diagnostic,
+    _pdf_pages_for_visual_review,
+    _render_pdf_pages,
     _run_stage,
     _structured_output_diagnostic,
+    _verifier_source_images,
     run_double_pass,
 )
 from paper_models import (  # noqa: E402
@@ -466,7 +470,11 @@ def test_local_codex_double_pass_is_independent_read_only_and_ephemeral(
     assert not temporary_root.exists()
     assert "untrusted" in EXTRACTOR_PROMPT
     assert "Do not use the network" in EXTRACTOR_PROMPT
+    assert "formal subset or" in EXTRACTOR_PROMPT
+    assert "Do not collapse a" in EXTRACTOR_PROMPT
+    assert "document-page-NNN.jpg" in EXTRACTOR_PROMPT
     assert "independent verifier" in VERIFIER_PROMPT
+    assert "document-page-NNN.jpg" in VERIFIER_PROMPT
 
 
 def test_child_codex_environment_drops_remote_credentials(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -543,6 +551,8 @@ def test_local_codex_stage_retries_only_transient_transport_failures(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     output_path = tmp_path / "draft.json"
+    image_path = tmp_path / "document-page-018.jpg"
+    image_path.write_bytes(b"synthetic image")
     attempts = 0
     valid_draft = draft_payload([], {
         "mention_id": "mention-1",
@@ -558,6 +568,8 @@ def test_local_codex_stage_retries_only_transient_transport_failures(
     def transient_runner(command: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
         nonlocal attempts
         attempts += 1
+        assert command[command.index("--image") + 1] == str(image_path)
+        assert command[-2:] == ["--", "-"]
         if attempts == 1:
             return subprocess.CompletedProcess(
                 command,
@@ -583,6 +595,7 @@ def test_local_codex_stage_retries_only_transient_transport_failures(
         reasoning_effort="high",
         binary="codex",
         runner=transient_runner,
+        image_paths=[image_path],
     )
     assert attempts == 2
     assert result.thread_id == "thread-retry"
@@ -605,6 +618,77 @@ def pdf_bytes(pages: int) -> bytes:
     writer = PdfWriter()
     for _ in range(pages): writer.add_blank_page(width=72, height=72)
     output = io.BytesIO(); writer.write(output); return output.getvalue()
+
+
+def test_pdf_visual_pages_are_temporary_numbered_image_inputs(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source = tmp_path / "paper.pdf"
+    source.write_bytes(pdf_bytes(2))
+    monkeypatch.setattr("extract_paper.shutil.which", lambda _: "/usr/bin/pdftoppm")
+
+    def render_runner(command: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        Path(f"{command[-1]}.jpg").write_bytes(b"jpeg")
+        return subprocess.CompletedProcess(command, 0, "", "")
+
+    assert _pdf_pages_for_visual_review(source) == [1, 2]
+    images = _render_pdf_pages(source, tmp_path, runner=render_runner)
+    assert [path.name for path in images] == [
+        "document-page-001.jpg",
+        "document-page-002.jpg",
+    ]
+
+
+def test_verifier_receives_only_extractor_cited_visual_pages(tmp_path: Path) -> None:
+    images = [
+        tmp_path / "document-page-003.jpg",
+        tmp_path / "document-page-018.jpg",
+        tmp_path / "document-page-020.jpg",
+    ]
+    count_claim = claim(
+        "claim-1",
+        "benchmark-count",
+        {
+            "label": "Protein domain total",
+            "count": 136,
+            "unit": "tasks",
+            "basis": "Figure cell total",
+            "reporting_status": "reported",
+            "subset_id": "protein",
+            "exclusive": False,
+            "exhaustive": False,
+            "partition_group": None,
+        },
+    )
+    count_claim["locators"] = [locator() | {
+        "locator_type": "figure",
+        "value": "Figure 13",
+        "document_page": 18,
+    }]
+    draft = PaperEvidenceDraft.model_validate(draft_payload(
+        [count_claim],
+        {
+            "mention_id": "mention-1",
+            "benchmark_name": "LifeSciBench",
+            "registry_benchmark_id": "lifescibench",
+            "relation_type": "evaluation",
+            "is_new_benchmark": False,
+            "background_only": False,
+            "claim_ids": ["claim-1"],
+            "reporting_gaps": [],
+        },
+    ))
+    assert _verifier_source_images(images, draft) == [images[1]]
+
+
+def test_long_image_only_pdf_stops_instead_of_silently_skipping_visual_pages(
+    tmp_path: Path,
+) -> None:
+    source = tmp_path / "long-paper.pdf"
+    source.write_bytes(pdf_bytes(41))
+    with pytest.raises(PaperExtractionError, match="more than 40 pages requiring visual review"):
+        _pdf_pages_for_visual_review(source)
 
 
 def test_source_rights_mime_size_pages_and_sha(monkeypatch: pytest.MonkeyPatch) -> None:

@@ -13,7 +13,8 @@ Accepted invocations are `$biobench-paper-intake issue 44` and `$biobench-paper-
 
 1. Read [evidence-policy.md](references/evidence-policy.md) before reviewing claims.
 2. Read [registry-mapping.md](references/registry-mapping.md) before generating records.
-3. Start from a clean, current `main`. Run a preflight:
+3. Start from a clean, current `main`. For PDF sources, ensure Poppler
+   `pdftoppm` is installed so visual labels can be reviewed. Run a preflight:
 
    ```bash
    python3 scripts/local_paper_intake.py preflight --issue <number>

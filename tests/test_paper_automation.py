@@ -39,6 +39,7 @@ from extract_paper import (  # noqa: E402
     _run_stage,
     _structured_output_diagnostic,
     _verifier_source_images,
+    review_source_sha256,
     run_double_pass,
 )
 from paper_models import (  # noqa: E402
@@ -688,6 +689,29 @@ def test_html_source_uses_visible_text_without_scripts(tmp_path: Path) -> None:
     assert "BioMysteryBench has 99 questions" in normalized
     assert "private_payload" not in normalized
     assert "private_payload" in original.read_text(encoding="utf-8")
+
+
+def test_html_review_fingerprint_ignores_scripts_but_detects_visible_changes(
+    tmp_path: Path,
+) -> None:
+    first = tmp_path / "first.html"
+    second = tmp_path / "second.html"
+    third = tmp_path / "third.html"
+    visible = "SpatialBench contains 146 verifiable benchmark problems. " * 12
+    first.write_text(
+        f"<html><body><p>{visible}</p><script>build='a'</script></body></html>",
+        encoding="utf-8",
+    )
+    second.write_text(
+        f"<html><body><p>{visible}</p><script>build='b'</script></body></html>",
+        encoding="utf-8",
+    )
+    third.write_text(
+        f"<html><body><p>{visible}Visible revision.</p><script>build='b'</script></body></html>",
+        encoding="utf-8",
+    )
+    assert review_source_sha256(first) == review_source_sha256(second)
+    assert review_source_sha256(first) != review_source_sha256(third)
 
 
 def test_golden_checkpoint_requires_matching_case_and_source_fingerprints() -> None:

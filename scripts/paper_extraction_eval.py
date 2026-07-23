@@ -18,6 +18,7 @@ from extract_paper import (
     SOURCE_INPUT_PROTOCOL_VERSION,
     VERIFIER_PROMPT,
     codex_version,
+    review_source_sha256,
     run_double_pass,
 )
 from paper_models import PaperEvidenceDraft, PaperEvidenceVerification, accepted_claims
@@ -284,7 +285,8 @@ def run_golden(
                     rights_confirmed=True,
                 )
             current_fingerprints = {
-                name: retrieved_sources[name].content_sha256 for name in source_names
+                name: review_source_sha256(retrieved_sources[name].path)
+                for name in source_names
             }
             if _checkpoint_case_current(progress, case_name, current_fingerprints):
                 print(f"golden case {case_name}: resumed from matching safe checkpoint", flush=True)
@@ -318,6 +320,7 @@ def run_golden(
                 "codex_cli_version": cli_version,
                 "completed_cases": sorted(completed_cases),
                 "source_fingerprints": fingerprints,
+                "source_fingerprint_kind": "normalized-review-source-v1",
                 "updated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
                 "note": "Safe checkpoint only; no claims, excerpts, or model output are retained.",
             }

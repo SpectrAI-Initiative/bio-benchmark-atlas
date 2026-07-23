@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -280,9 +281,22 @@ def _prepare_local_text_source(
         raw_text = local_source.read_text(encoding="utf-8", errors="replace")
     except OSError:
         return local_source, None
+    visible_text = _normalized_visible_html(raw_text)
+    if visible_text is None:
+        return local_source, None
+    original_source = session_dir / "source-original.html"
+    local_source.replace(original_source)
+    visible_source = session_dir / "source-visible.txt"
+    visible_source.write_text(visible_text, encoding="utf-8")
+    return visible_source, original_source
+
+
+def _normalized_visible_html(raw_text: str) -> str | None:
+    """Return deterministic visible HTML text, or None when the input is not HTML."""
+
     sample = raw_text[:4096].casefold()
     if "<html" not in sample and "<!doctype html" not in sample:
-        return local_source, None
+        return None
     parser = _VisibleHTMLParser()
     parser.feed(raw_text)
     visible_text = parser.visible_text()
@@ -290,11 +304,19 @@ def _prepare_local_text_source(
         raise PaperExtractionError(
             "HTML visible-text normalization produced too little reviewable content"
         )
-    original_source = session_dir / "source-original.html"
-    local_source.replace(original_source)
-    visible_source = session_dir / "source-visible.txt"
-    visible_source.write_text(visible_text, encoding="utf-8")
-    return visible_source, original_source
+    return visible_text
+
+
+def review_source_sha256(source_path: Path) -> str:
+    """Hash the exact review input, ignoring non-visible HTML build payloads."""
+
+    raw = source_path.read_bytes()
+    raw_text = raw.decode("utf-8", errors="replace")
+    visible_text = _normalized_visible_html(raw_text)
+    if visible_text is None:
+        return hashlib.sha256(raw).hexdigest()
+    payload = b"normalized-visible-html-v1\0" + visible_text.encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
 
 
 def _page_has_embedded_image(page: Any) -> bool:

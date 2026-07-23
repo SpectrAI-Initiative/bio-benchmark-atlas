@@ -97,6 +97,11 @@ and timestamps—never claims, excerpts, or model output. A resumed run skips a
 case only when its source fingerprints and all input versions still match. The
 checkpoint is deleted after the final receipt is written.
 
+For HTML sources, the checkpoint SHA256 is computed from the same deterministic
+visible-text view used for review, so unrelated site scripts and build metadata
+do not invalidate a scientific-content checkpoint. Registry provenance continues
+to store the SHA256 of the complete original download.
+
 ## 5. PR and exact-SHA owner gate
 
 One paper produces one Ready PR from:

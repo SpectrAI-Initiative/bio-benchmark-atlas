@@ -11,9 +11,11 @@ import re
 import shutil
 import subprocess
 import tempfile
+import threading
 import time
 import uuid
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any, Callable, TypeVar
@@ -36,6 +38,8 @@ LOCAL_PROVIDER_ID = "biobench_local"
 LOCAL_PROVIDER_BASE_URL = "https://chatgpt.com/backend-api/codex"
 CODEX_STAGE_ATTEMPTS = 3
 CODEX_STAGE_TIMEOUT_SECONDS = 45 * 60
+HEARTBEAT_INTERVAL_SECONDS = 60
+HEARTBEAT_PATH = Path.home() / ".codex" / "biobench-atlas" / "heartbeat.json"
 MAX_PDF_IMAGE_PAGES = 40
 PDF_IMAGE_DPI = 144
 VISUAL_PAGE_PATTERN = re.compile(
@@ -139,6 +143,79 @@ class PaperExtractionError(RuntimeError):
 
 class CodexExecutionError(PaperExtractionError):
     """The local Codex executable or session failed before evidence could be reviewed."""
+
+
+class _StageHeartbeat:
+    """Persist privacy-safe liveness metadata while a blocking Codex stage runs."""
+
+    def __init__(self, *, run_id: str, run_label: str, stage: str) -> None:
+        self.run_id = run_id
+        self.run_label = run_label
+        self.stage = stage
+        self.started_at = datetime.now(timezone.utc).replace(microsecond=0)
+        self.started_monotonic = time.monotonic()
+        self._stop = threading.Event()
+        self._thread: threading.Thread | None = None
+
+    def _payload(self, status: str, *, error_type: str | None = None) -> dict[str, Any]:
+        now = datetime.now(timezone.utc).replace(microsecond=0)
+        payload: dict[str, Any] = {
+            "run_id": self.run_id,
+            "run_label": self.run_label,
+            "stage": self.stage,
+            "status": status,
+            "process_pid": os.getpid(),
+            "started_at": self.started_at.isoformat(),
+            "updated_at": now.isoformat(),
+            "elapsed_seconds": max(0, round(time.monotonic() - self.started_monotonic)),
+            "heartbeat_interval_seconds": HEARTBEAT_INTERVAL_SECONDS,
+            "stage_timeout_seconds": CODEX_STAGE_TIMEOUT_SECONDS,
+            "note": "Privacy-safe liveness metadata only; no source text, claims, or model output.",
+        }
+        if status != "running":
+            payload["finished_at"] = now.isoformat()
+        if error_type:
+            payload["error_type"] = error_type
+        return payload
+
+    @staticmethod
+    def _write(payload: dict[str, Any]) -> None:
+        HEARTBEAT_PATH.parent.mkdir(parents=True, exist_ok=True)
+        temporary = HEARTBEAT_PATH.with_suffix(".tmp")
+        temporary.write_text(
+            json.dumps(payload, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+        temporary.replace(HEARTBEAT_PATH)
+
+    def _pulse(self) -> None:
+        while not self._stop.wait(HEARTBEAT_INTERVAL_SECONDS):
+            payload = self._payload("running")
+            self._write(payload)
+            print(
+                "paper-intake heartbeat: "
+                f"stage={self.stage} elapsed={payload['elapsed_seconds']}s status=running",
+                flush=True,
+            )
+
+    def __enter__(self) -> _StageHeartbeat:
+        self._write(self._payload("running"))
+        print(f"paper-intake heartbeat: stage={self.stage} status=started", flush=True)
+        self._thread = threading.Thread(
+            target=self._pulse,
+            name=f"paper-intake-heartbeat-{self.stage}",
+            daemon=True,
+        )
+        self._thread.start()
+        return self
+
+    def __exit__(self, error_type: type[BaseException] | None, *_: Any) -> None:
+        self._stop.set()
+        if self._thread is not None:
+            self._thread.join(timeout=2)
+        status = "failed" if error_type else "completed"
+        self._write(self._payload(status, error_type=error_type.__name__ if error_type else None))
+        print(f"paper-intake heartbeat: stage={self.stage} status={status}", flush=True)
 
 
 class _VisibleHTMLParser(HTMLParser):
@@ -661,6 +738,7 @@ def run_double_pass(
     extractor_model: str = DEFAULT_MODEL,
     verifier_model: str = DEFAULT_MODEL,
     local_run_id: str | None = None,
+    heartbeat_label: str | None = None,
     binary: str | None = None,
     runner: CommandRunner = subprocess.run,
 ) -> DoublePassResult:
@@ -703,39 +781,49 @@ def run_double_pass(
         )
 
         draft_output = session_dir / "draft.json"
-        extractor = _run_stage(
-            prompt=(
-                f"{EXTRACTOR_PROMPT}\n\n"
-                f"{source_instruction}. Read the Registry context at {context_path}. "
-                "Return only the schema-conforming evidence draft."
-            ),
-            output_type=PaperEvidenceDraft,
-            schema_path=draft_schema,
-            output_path=draft_output,
-            model=extractor_model,
-            reasoning_effort="high",
-            binary=selected_binary,
-            runner=runner,
-            image_paths=source_images,
-        )
+        with _StageHeartbeat(
+            run_id=run_id,
+            run_label=heartbeat_label or "paper-intake",
+            stage="extractor",
+        ):
+            extractor = _run_stage(
+                prompt=(
+                    f"{EXTRACTOR_PROMPT}\n\n"
+                    f"{source_instruction}. Read the Registry context at {context_path}. "
+                    "Return only the schema-conforming evidence draft."
+                ),
+                output_type=PaperEvidenceDraft,
+                schema_path=draft_schema,
+                output_path=draft_output,
+                model=extractor_model,
+                reasoning_effort="high",
+                binary=selected_binary,
+                runner=runner,
+                image_paths=source_images,
+            )
 
         verification_output = session_dir / "verification.json"
         verifier_images = _verifier_source_images(source_images, extractor.payload)
-        verifier = _run_stage(
-            prompt=(
-                f"{VERIFIER_PROMPT}\n\n"
-                f"{source_instruction}. Read the Registry context at {context_path} and the claims "
-                f"at {draft_output}. Return only the schema-conforming verification."
-            ),
-            output_type=PaperEvidenceVerification,
-            schema_path=verification_schema,
-            output_path=verification_output,
-            model=verifier_model,
-            reasoning_effort="max",
-            binary=selected_binary,
-            runner=runner,
-            image_paths=verifier_images,
-        )
+        with _StageHeartbeat(
+            run_id=run_id,
+            run_label=heartbeat_label or "paper-intake",
+            stage="verifier",
+        ):
+            verifier = _run_stage(
+                prompt=(
+                    f"{VERIFIER_PROMPT}\n\n"
+                    f"{source_instruction}. Read the Registry context at {context_path} and the claims "
+                    f"at {draft_output}. Return only the schema-conforming verification."
+                ),
+                output_type=PaperEvidenceVerification,
+                schema_path=verification_schema,
+                output_path=verification_output,
+                model=verifier_model,
+                reasoning_effort="max",
+                binary=selected_binary,
+                runner=runner,
+                image_paths=verifier_images,
+            )
         if extractor.thread_id == verifier.thread_id:
             raise PaperExtractionError("extractor and verifier unexpectedly reused the same Codex thread")
         verification = verifier.payload

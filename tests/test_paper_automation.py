@@ -5,6 +5,7 @@ import csv
 import json
 import subprocess
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -53,6 +54,7 @@ from paper_extraction_eval import (  # noqa: E402
     _has_count_value,
     _has_evaluation_size,
 )
+from local_paper_intake import heartbeat_status  # noqa: E402
 from paper_source import (  # noqa: E402
     MAX_SOURCE_BYTES,
     SourceAcquisitionError,
@@ -452,7 +454,9 @@ def test_local_codex_double_pass_is_independent_read_only_and_ephemeral(
         return subprocess.CompletedProcess(command, 0, stdout + "\n", "")
 
     temporary_root = tmp_path / "local-evidence"
+    heartbeat_path = tmp_path / "heartbeat.json"
     monkeypatch.setattr("extract_paper.LOCAL_TMP_ROOT", temporary_root)
+    monkeypatch.setattr("extract_paper.HEARTBEAT_PATH", heartbeat_path)
     secret_name = "OPENAI" + "_API_KEY"
     monkeypatch.setenv(secret_name, "must-not-propagate")
     result = run_double_pass(
@@ -483,6 +487,34 @@ def test_local_codex_double_pass_is_independent_read_only_and_ephemeral(
     assert "document-page-NNN.jpg" in EXTRACTOR_PROMPT
     assert "independent verifier" in VERIFIER_PROMPT
     assert "document-page-NNN.jpg" in VERIFIER_PROMPT
+    heartbeat = json.loads(heartbeat_path.read_text(encoding="utf-8"))
+    assert heartbeat["stage"] == "verifier"
+    assert heartbeat["status"] == "completed"
+    assert heartbeat["run_label"] == "paper-intake"
+    assert heartbeat["stage_timeout_seconds"] == 45 * 60
+    serialized_heartbeat = json.dumps(heartbeat)
+    assert "Synthetic evidence source" not in serialized_heartbeat
+    assert "claim-1" not in serialized_heartbeat
+
+
+def test_heartbeat_status_marks_dead_running_process_stale(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    heartbeat_path = tmp_path / "heartbeat.json"
+    heartbeat_path.write_text(json.dumps({
+        "run_id": "safe-run-id",
+        "run_label": "golden/spatialbench-version-separation/spatialbench-paper-v2",
+        "stage": "verifier",
+        "status": "running",
+        "process_pid": 999_999_999,
+        "updated_at": "2026-07-23T10:00:00+00:00",
+    }), encoding="utf-8")
+    monkeypatch.setattr("local_paper_intake.HEARTBEAT_PATH", heartbeat_path)
+    state = heartbeat_status(now=datetime.fromisoformat("2026-07-23T10:01:00+00:00"))
+    assert state["process_alive"] is False
+    assert state["stale"] is True
+    assert state["heartbeat_age_seconds"] == 60
 
 
 def test_child_codex_environment_drops_remote_credentials(monkeypatch: pytest.MonkeyPatch) -> None:

@@ -299,6 +299,7 @@ def run_golden(
                     registry_context=registry_context(),
                     extractor_model=extractor_model,
                     verifier_model=verifier_model,
+                    heartbeat_label=f"golden/{case_name}/{name}",
                 )
                 for name in source_names
             }

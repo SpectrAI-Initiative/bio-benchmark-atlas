@@ -216,6 +216,10 @@ def main() -> None:
             "ai_assisted": "yes" if item.get("review_provenance") else "no",
             "owner_reviewed": "yes" if item.get("review_provenance") else "not-applicable",
             "pipeline_version": (item.get("review_provenance") or {}).get("pipeline_version", ""),
+            "review_surface": (item.get("review_provenance") or {}).get("execution_surface", ""),
+            "codex_cli_version": (item.get("review_provenance") or {}).get("codex_cli_version", ""),
+            "model_resolution_status": (item.get("review_provenance") or {}).get("model_resolution_status", ""),
+            "local_run_id": (item.get("review_provenance") or {}).get("local_run_id", ""),
             "source_content_sha256": next((
                 version.get("content_sha256") or ""
                 for version in item["source_versions"]
@@ -223,7 +227,7 @@ def main() -> None:
             ), ""),
             "last_verified": item["verification"]["last_verified"],
         })
-    work_fields = ["id", "title", "publication_date", "work_type", "source_class", "status", "organizations", "current_version_id", "doi", "arxiv", "canonical_url", "benchmark_ids", "benchmark_use_ids", "evaluation_run_ids", "review_method", "ai_assisted", "owner_reviewed", "pipeline_version", "source_content_sha256", "last_verified"]
+    work_fields = ["id", "title", "publication_date", "work_type", "source_class", "status", "organizations", "current_version_id", "doi", "arxiv", "canonical_url", "benchmark_ids", "benchmark_use_ids", "evaluation_run_ids", "review_method", "ai_assisted", "owner_reviewed", "pipeline_version", "review_surface", "codex_cli_version", "model_resolution_status", "local_run_id", "source_content_sha256", "last_verified"]
     write_csv(exports / "works.csv", work_fields, work_rows)
     shutil.copy2(exports / "works.csv", public_data / "works.csv")
 

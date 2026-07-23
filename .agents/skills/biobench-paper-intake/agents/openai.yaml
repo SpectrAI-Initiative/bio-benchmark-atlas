@@ -1,0 +1,4 @@
+interface:
+  display_name: "BioBench Paper Intake"
+  short_description: "Audit bio and chemistry papers into BioBench Atlas"
+  default_prompt: "Use $biobench-paper-intake to audit a paper URL or GitHub issue into a reviewable Registry PR."

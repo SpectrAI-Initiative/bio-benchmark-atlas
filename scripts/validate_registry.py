@@ -448,6 +448,23 @@ def validate_registry() -> dict[str, list[dict[str, Any]]]:
                 raise RegistryValidationError(
                     f"{work['id']}: AI-assisted source version lacks {missing_fingerprint_fields}"
                 )
+            if provenance["method"] == "local-codex-double-pass":
+                resolved_values = (
+                    provenance["extractor_model_resolved"],
+                    provenance["verifier_model_resolved"],
+                )
+                if provenance["model_resolution_status"] == "reported" and any(
+                    value is None for value in resolved_values
+                ):
+                    raise RegistryValidationError(
+                        f"{work['id']}: reported local model resolution requires both resolved model IDs"
+                    )
+                if provenance["model_resolution_status"] == "not-reported" and any(
+                    value is not None for value in resolved_values
+                ):
+                    raise RegistryValidationError(
+                        f"{work['id']}: unresolved local model IDs must both be null"
+                    )
         for version in work["source_versions"]:
             if version["id"] in permanent_ids:
                 raise RegistryValidationError(f"duplicate permanent ID {version['id']!r}")

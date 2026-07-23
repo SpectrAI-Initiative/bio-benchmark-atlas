@@ -261,16 +261,27 @@
       "type": "object", "additionalProperties": false,
       "required": ["method", "pipeline_version", "prompt_version", "source_version_id", "extractor_model_requested", "extractor_model_resolved", "verifier_model_requested", "verifier_model_resolved", "generated_at"],
       "properties": {
-        "method": {"const": "automated-double-pass"},
+        "method": {"enum": ["automated-double-pass", "local-codex-double-pass"]},
+        "execution_surface": {"enum": ["github-actions-responses-api", "local-codex-cli"]},
         "pipeline_version": {"type": "string", "minLength": 1},
         "prompt_version": {"type": "string", "minLength": 1},
         "source_version_id": {"$ref": "#/$defs/Id"},
         "extractor_model_requested": {"type": "string", "minLength": 1},
-        "extractor_model_resolved": {"type": "string", "minLength": 1},
+        "extractor_model_resolved": {"type": ["string", "null"], "minLength": 1},
         "verifier_model_requested": {"type": "string", "minLength": 1},
-        "verifier_model_resolved": {"type": "string", "minLength": 1},
+        "verifier_model_resolved": {"type": ["string", "null"], "minLength": 1},
+        "model_resolution_status": {"enum": ["reported", "not-reported"]},
+        "codex_cli_version": {"type": "string", "minLength": 1},
+        "local_run_id": {"type": "string", "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-[1-5][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"},
         "generated_at": {"type": "string", "format": "date-time"}
-      }
+      },
+      "allOf": [{
+        "if": {"properties": {"method": {"const": "local-codex-double-pass"}}, "required": ["method"]},
+        "then": {
+          "required": ["execution_surface", "model_resolution_status", "codex_cli_version", "local_run_id"],
+          "properties": {"execution_surface": {"const": "local-codex-cli"}}
+        }
+      }]
     },
     "Model": {
       "type": "object", "additionalProperties": false,

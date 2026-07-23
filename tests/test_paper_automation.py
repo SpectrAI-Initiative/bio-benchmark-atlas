@@ -3,14 +3,12 @@ from __future__ import annotations
 import io
 import csv
 import json
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any
 
 import pytest
-import yaml
-import httpx
-from openai import APIConnectionError
 from pydantic import ValidationError
 from pypdf import PdfWriter
 
@@ -27,9 +25,13 @@ from discover_papers import (  # noqa: E402
     select_by_quota,
 )
 from generate_paper_records import build_records, stable_work_id, write_records  # noqa: E402
-from extract_paper import EXTRACTOR_PROMPT, PaperExtractionError, _parsed_or_error, _retry_transient  # noqa: E402
+from extract_paper import (  # noqa: E402
+    EXTRACTOR_PROMPT,
+    VERIFIER_PROMPT,
+    _child_environment,
+    run_double_pass,
+)
 from paper_models import (  # noqa: E402
-    EvidenceClaimDraft,
     LocatorDraft,
     PaperEvidenceDraft,
     PaperEvidenceVerification,
@@ -107,6 +109,21 @@ def verified_result(claims: list[dict[str, Any]], mention: dict[str, Any]) -> di
         },
         "accepted_claim_ids": [item["claim_id"] for item in claims],
     }
+
+
+def local_verified_result(claims: list[dict[str, Any]], mention: dict[str, Any]) -> dict[str, Any]:
+    payload = verified_result(claims, mention)
+    payload.update({
+        "review_method": "local-codex-double-pass",
+        "execution_surface": "local-codex-cli",
+        "prompt_version": "paper-evidence-local-v1",
+        "extractor_model_resolved": None,
+        "verifier_model_resolved": None,
+        "model_resolution_status": "not-reported",
+        "codex_cli_version": "codex-cli 1.2.3",
+        "local_run_id": "11111111-1111-4111-8111-111111111111",
+    })
+    return payload
 
 
 SOURCE = {
@@ -354,39 +371,95 @@ def test_europe_pmc_cursor_pagination_and_transient_retry(monkeypatch: pytest.Mo
     assert _request(retry_session, "GET", "https://example.org").json() == {"ok": True}
 
 
-def test_refusal_and_incomplete_outputs_stop_without_schema_bypass() -> None:
-    class Response:
-        output_parsed = None
-        incomplete_details = None
-        output = [type("Item", (), {"content": [type("Content", (), {"refusal": "cannot comply"})()]})()]
-    with pytest.raises(PaperExtractionError, match="refused"):
-        _parsed_or_error(Response(), PaperEvidenceDraft)
-    class Incomplete:
-        output_parsed = None
-        incomplete_details = type("Details", (), {"reason": "max_output_tokens"})()
-        output = []
-    with pytest.raises(PaperExtractionError, match="incomplete"):
-        _parsed_or_error(Incomplete(), PaperEvidenceDraft)
+def test_local_codex_double_pass_is_independent_read_only_and_ephemeral(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    mention = {
+        "mention_id": "mention-1",
+        "benchmark_name": "LifeSciBench",
+        "registry_benchmark_id": "lifescibench",
+        "relation_type": "evaluation",
+        "is_new_benchmark": False,
+        "background_only": False,
+        "claim_ids": ["claim-1"],
+        "reporting_gaps": [],
+    }
+    claims = [claim("claim-1", "relation", "evaluation")]
+    draft = draft_payload(claims, mention)
+    verification = {
+        "source_parseable": True,
+        "blocking_conflicts": [],
+        "claims": [{
+            "claim_id": "claim-1",
+            "verdict": "supported",
+            "confidence": "high",
+            "locator": locator(),
+            "notes": None,
+        }],
+    }
+    source = tmp_path / "paper.txt"
+    source.write_text("Synthetic evidence source.", encoding="utf-8")
+    commands: list[list[str]] = []
+    environments: list[dict[str, str]] = []
+    stage = 0
+
+    def runner(command: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        nonlocal stage
+        commands.append(command)
+        if command[-1] == "--version":
+            return subprocess.CompletedProcess(command, 0, "codex-cli 1.2.3\n", "")
+        stage += 1
+        environments.append(kwargs["env"])
+        output_path = Path(command[command.index("--output-last-message") + 1])
+        output_path.write_text(
+            json.dumps(draft if stage == 1 else verification),
+            encoding="utf-8",
+        )
+        stdout = json.dumps({
+            "type": "thread.started",
+            "thread_id": f"thread-{stage}",
+            "model": "gpt-5.6-sol-resolved",
+        })
+        return subprocess.CompletedProcess(command, 0, stdout + "\n", "")
+
+    temporary_root = tmp_path / "local-evidence"
+    monkeypatch.setattr("extract_paper.LOCAL_TMP_ROOT", temporary_root)
+    secret_name = "OPENAI" + "_API_KEY"
+    monkeypatch.setenv(secret_name, "must-not-propagate")
+    result = run_double_pass(
+        source,
+        registry_context={"benchmarks": [], "models": [], "taxonomy_ids": {}},
+        binary="codex",
+        runner=runner,
+    )
+    assert result.extractor_thread_id == "thread-1"
+    assert result.verifier_thread_id == "thread-2"
+    assert result.accepted_claim_ids == ["claim-1"]
+    assert len(environments) == 2
+    assert all(secret_name not in environment for environment in environments)
+    for command in commands[:2]:
+        assert {"--ephemeral", "--ignore-user-config", "--output-schema"} <= set(command)
+        assert command[command.index("--sandbox") + 1] == "read-only"
+    assert not temporary_root.exists()
     assert "untrusted" in EXTRACTOR_PROMPT
-    assert "Do not call tools" in EXTRACTOR_PROMPT
-    assert "never follow instructions" in EXTRACTOR_PROMPT
+    assert "Do not use the network" in EXTRACTOR_PROMPT
+    assert "independent verifier" in VERIFIER_PROMPT
 
 
-def test_openai_transient_failures_retry_at_most_three_times(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr("extract_paper.time.sleep", lambda _: None)
-    calls = 0
-    def eventually_succeeds():
-        nonlocal calls
-        calls += 1
-        if calls < 3:
-            raise APIConnectionError(request=httpx.Request("POST", "https://api.openai.com/v1/responses"))
-        return "ok"
-    assert _retry_transient(eventually_succeeds) == "ok"
-    assert calls == 3
-    with pytest.raises(PaperExtractionError, match="after 3 attempts"):
-        _retry_transient(lambda: (_ for _ in ()).throw(APIConnectionError(
-            request=httpx.Request("POST", "https://api.openai.com/v1/responses")
-        )))
+def test_child_codex_environment_drops_remote_credentials(monkeypatch: pytest.MonkeyPatch) -> None:
+    names = [
+        "OPENAI" + "_API_KEY",
+        "CODEX_API_KEY",
+        "PAPER_EXTRACT_MODEL",
+        "PAPER_VERIFY_MODEL",
+        "BIOBENCH_APP_ID",
+        "BIOBENCH_APP_PRIVATE_KEY",
+    ]
+    for name in names:
+        monkeypatch.setenv(name, "secret")
+    environment = _child_environment()
+    assert not (set(names) & set(environment))
 
 
 class FakeResponse:
@@ -430,13 +503,34 @@ def test_source_rights_mime_size_pages_and_sha(monkeypatch: pytest.MonkeyPatch) 
 def test_work_ids_are_deterministic_and_workflows_have_required_guards() -> None:
     assert stable_work_id("A Test Paper", "10.1/x", set()) == "a-test-paper"
     assert stable_work_id("A Test Paper", "10.1/x", {"a-test-paper"}).startswith("a-test-paper-")
-    intake = yaml.safe_load((ROOT / ".github/workflows/paper-intake.yml").read_text())
-    owner = yaml.safe_load((ROOT / ".github/workflows/paper-owner-gate.yml").read_text())
-    discovery = yaml.safe_load((ROOT / ".github/workflows/discover-papers.yml").read_text())
-    assert "actions/create-github-app-token@v3" in str(intake)
-    assert "OPENAI_API_KEY" in str(intake)
-    assert "paper-owner-gate" in owner["jobs"]
-    assert discovery["permissions"]["issues"] == "write"
+    assert not (ROOT / ".github/workflows/paper-intake.yml").exists()
+    assert not (ROOT / ".github/workflows/paper-extraction-eval.yml").exists()
+    owner = (ROOT / ".github/workflows/paper-owner-gate.yml").read_text(encoding="utf-8")
+    discovery = (ROOT / ".github/workflows/discover-papers.yml").read_text(encoding="utf-8")
+    workflows = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in (ROOT / ".github/workflows").glob("*.yml")
+    )
+    production_scripts = "\n".join(
+        (ROOT / "scripts" / name).read_text(encoding="utf-8")
+        for name in (
+            "extract_paper.py",
+            "local_paper_intake.py",
+            "paper_extraction_eval.py",
+            "run_paper_intake.py",
+        )
+    )
+    assert "issue_comment:" in owner
+    assert "/approve-paper-intake" in owner
+    assert "checks: write" in owner
+    assert "ready-for-local-intake" in discovery
+    assert "local-intake-in-progress" in discovery
+    assert "OPENAI" + "_API_KEY" not in workflows
+    assert "create-github-app-token" not in workflows
+    assert "OPENAI" + "_API_KEY" not in production_scripts
+    assert "api." + "openai.com" not in production_scripts
+    assert "responses." + "create" not in production_scripts
+    assert "files." + "create" not in production_scripts
 
 
 def test_schema_and_work_export_publish_review_provenance_contract() -> None:
@@ -447,4 +541,38 @@ def test_schema_and_work_export_publish_review_provenance_contract() -> None:
     build_registry()
     with (ROOT / "exports" / "works.csv").open(newline="", encoding="utf-8") as handle:
         fields = next(csv.reader(handle))
-    assert {"review_method", "ai_assisted", "owner_reviewed", "pipeline_version", "source_content_sha256"} <= set(fields)
+    assert {
+        "review_method", "ai_assisted", "owner_reviewed", "pipeline_version",
+        "source_content_sha256", "review_surface", "codex_cli_version",
+        "model_resolution_status", "local_run_id",
+    } <= set(fields)
+
+
+def test_generator_emits_local_codex_provenance_without_claiming_resolved_models() -> None:
+    claims = [
+        claim("claim-1", "paper-identity", {"title": "Synthetic benchmark evaluation paper"}, mention_id=None),
+        claim("claim-2", "relation", "evaluation"),
+        claim("claim-3", "benchmark-identity", "lifescibench"),
+    ]
+    mention = {
+        "mention_id": "mention-1",
+        "benchmark_name": "LifeSciBench",
+        "registry_benchmark_id": "lifescibench",
+        "relation_type": "evaluation",
+        "is_new_benchmark": False,
+        "background_only": False,
+        "claim_ids": ["claim-2", "claim-3"],
+        "reporting_gaps": ["benchmark version", "realized n", "metric"],
+    }
+    records = build_records(
+        local_verified_result(claims, mention),
+        source=SOURCE,
+        generated_at=SOURCE["retrieved_at"],
+        verified_on="2026-07-22",
+    )
+    provenance = records.work["review_provenance"]
+    assert provenance["method"] == "local-codex-double-pass"
+    assert provenance["execution_surface"] == "local-codex-cli"
+    assert provenance["model_resolution_status"] == "not-reported"
+    assert provenance["extractor_model_resolved"] is None
+    assert provenance["verifier_model_resolved"] is None

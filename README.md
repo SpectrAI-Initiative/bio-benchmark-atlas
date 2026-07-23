@@ -6,7 +6,7 @@ The website is published at **https://spectrai-initiative.github.io/bio-benchmar
 
 The immutable `v1.2.0` release adds a Scientific Task layer that distinguishes problems such as protein folding, protein sequence design, PPI, protein-ligand binding, DNA regulation, RNA design, small-molecule discovery, omics analysis, and scientific workflows. It also expands the atlas with creator-audited TAPE, Genomic Benchmarks, BEACON, MoleculeNet, ATOM3D, GuacaMol, and scIB records. VirBench's detailed audit and task classification remain intentionally deferred and visibly marked `legacy` / `unclassified`; this is the only CI-enforced exception.
 
-The immutable `v1.3.1` release contains the v1.3 relationship layer plus dependency and workflow maintenance. Development toward `v1.4.0` adds weekly Europe PMC/Crossref/arXiv discovery, an OpenAI Responses API double-pass evidence review, deterministic Registry generation, and a mandatory post-push owner approval gate. Candidate issues and source files are never public data records.
+The immutable `v1.3.1` release contains the v1.3 relationship layer plus dependency and workflow maintenance. Development toward `v1.4.0` adds weekly Europe PMC/Crossref/arXiv discovery, an owner-triggered local Codex double-pass evidence review, deterministic Registry generation, and an exact-head-SHA owner approval gate. GitHub Actions only discovers candidate papers; it never sends paper content to a model. Candidate issues, source files, excerpts, and local session artifacts are never public data records.
 
 ## Principles
 
@@ -20,7 +20,7 @@ The immutable `v1.3.1` release contains the v1.3 relationship layer plus depende
 
 - `registry/`: human-maintained YAML records for benchmarks, works, models, evaluations, and taxonomy.
 - `schema/`: the public JSON Schema for registry entities.
-- `scripts/`: validation, deterministic export generation, source monitoring, paper discovery, and guarded evidence extraction.
+- `scripts/`: validation, deterministic export generation, source monitoring, paper discovery, and the guarded local Codex intake orchestrator.
 - `site/`: the Astro website deployed to GitHub Pages.
 - `exports/`: generated JSON and CSV release assets.
 
@@ -74,7 +74,7 @@ pnpm site:dev
 
 ## Contributing
 
-Use the issue forms or open a pull request. Paper submissions must include a legal open or submitter-authorized source; full text is fingerprinted temporarily and never committed. Every factual claim must cite a primary/versioned source with a page, section, figure, or table locator when available. See [CONTRIBUTING.md](CONTRIBUTING.md), the website methodology, and the contribution guide for the full policy.
+Use the issue forms or open a pull request. Paper submissions must include a legal open or submitter-authorized source; full text is fingerprinted temporarily on the owner's machine and never committed. The owner starts intake explicitly with the repository skill; two independent local Codex sessions must agree before deterministic generation. Every factual claim must cite a primary/versioned source with a page, section, figure, or table locator when available. See [CONTRIBUTING.md](CONTRIBUTING.md), the website methodology, and the contribution guide for the full policy.
 
 ## Citation
 

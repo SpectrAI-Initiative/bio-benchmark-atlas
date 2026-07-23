@@ -1,17 +1,25 @@
 #!/usr/bin/env python3
-"""Live golden evaluation for the pinned paper extraction prompt/model pair."""
+"""Local Codex golden evaluation for the pinned paper evidence prompt/model pair."""
 
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
-import os
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from extract_paper import DEFAULT_MODEL, run_double_pass
-from paper_models import accepted_claims
+from extract_paper import (
+    DEFAULT_MODEL,
+    EXTRACTOR_PROMPT,
+    PROMPT_VERSION,
+    VERIFIER_PROMPT,
+    codex_version,
+    run_double_pass,
+)
+from paper_models import PaperEvidenceDraft, PaperEvidenceVerification, accepted_claims
 from paper_source import retrieve_source
 from run_paper_intake import registry_context
 
@@ -115,18 +123,33 @@ def evaluate_results(results: dict[str, Any]) -> dict[str, Any]:
         raise GoldenFailure("Anthropic × BixBench evaluation relation is missing")
     return {
         "passed": True,
-        "cases": len(SOURCES),
+        "cases": 4,
+        "sources": len(SOURCES),
         "assertions": 13,
         "note": "Only aggregate pass/fail metadata is retained; paper excerpts are not persisted.",
     }
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--extractor-model", default=os.environ.get("PAPER_EXTRACT_MODEL", DEFAULT_MODEL))
-    parser.add_argument("--verifier-model", default=os.environ.get("PAPER_VERIFY_MODEL", DEFAULT_MODEL))
-    args = parser.parse_args()
+def golden_input_hash(extractor_model: str, verifier_model: str) -> str:
+    payload = {
+        "prompt_version": PROMPT_VERSION,
+        "extractor_prompt": EXTRACTOR_PROMPT,
+        "verifier_prompt": VERIFIER_PROMPT,
+        "extractor_schema": PaperEvidenceDraft.model_json_schema(),
+        "verifier_schema": PaperEvidenceVerification.model_json_schema(),
+        "extractor_model": extractor_model,
+        "verifier_model": verifier_model,
+    }
+    encoded = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def run_golden(
+    *,
+    output: Path,
+    extractor_model: str = DEFAULT_MODEL,
+    verifier_model: str = DEFAULT_MODEL,
+) -> dict[str, Any]:
     results = {}
     for source in SOURCES:
         retrieved = retrieve_source(source.url, rights_confirmed=True)
@@ -134,16 +157,37 @@ def main() -> int:
             results[source.name] = run_double_pass(
                 retrieved.path,
                 registry_context=registry_context(),
-                extractor_model=args.extractor_model,
-                verifier_model=args.verifier_model,
+                extractor_model=extractor_model,
+                verifier_model=verifier_model,
             )
         finally:
             retrieved.path.unlink(missing_ok=True)
     summary = evaluate_results(results)
-    args.output.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    summary.update({
+        "completed_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+        "input_hash": golden_input_hash(extractor_model, verifier_model),
+        "extractor_model_requested": extractor_model,
+        "verifier_model_requested": verifier_model,
+        "codex_cli_version": codex_version(),
+    })
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return summary
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--extractor-model", default=DEFAULT_MODEL)
+    parser.add_argument("--verifier-model", default=DEFAULT_MODEL)
+    args = parser.parse_args()
+    run_golden(
+        output=args.output,
+        extractor_model=args.extractor_model,
+        verifier_model=args.verifier_model,
+    )
     return 0
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

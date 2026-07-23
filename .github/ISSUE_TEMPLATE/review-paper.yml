@@ -1,7 +1,7 @@
 name: Review a paper
 description: Submit a bio/chem paper for benchmark-use auditing and registry intake.
 title: "[Paper intake]: "
-labels: [paper-intake]
+labels: [paper-intake, paper-candidate]
 body:
   - type: input
     id: url
@@ -46,7 +46,7 @@ body:
     id: source_rights
     attributes:
       label: Source-use confirmation
-      description: Automated extraction cannot start without this confirmation.
+      description: Local owner-triggered review cannot start without this confirmation.
       options:
-        - label: The source is legally open for automated reading, or I am authorized to provide it for this review. I understand the full text will not be committed or redistributed.
+        - label: The source is legally open for local machine reading, or I am authorized to provide it for this review. I understand the full text will not be committed or redistributed.
           required: true

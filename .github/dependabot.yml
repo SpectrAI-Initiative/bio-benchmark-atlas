@@ -14,7 +14,6 @@ updates:
     groups:
       pip-minor-patch:
         update-types: [minor, patch]
-        exclude-patterns: [openai]
   - package-ecosystem: github-actions
     directory: /
     schedule: {interval: weekly}

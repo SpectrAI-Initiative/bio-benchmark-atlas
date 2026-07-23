@@ -47,7 +47,11 @@ from paper_models import (  # noqa: E402
     PaperEvidenceVerification,
     accepted_claims,
 )
-from paper_extraction_eval import _checkpoint_case_current, _has_count_value  # noqa: E402
+from paper_extraction_eval import (  # noqa: E402
+    _checkpoint_case_current,
+    _has_count_value,
+    _has_evaluation_size,
+)
 from paper_source import (  # noqa: E402
     MAX_SOURCE_BYTES,
     SourceAcquisitionError,
@@ -720,6 +724,15 @@ def test_golden_total_count_does_not_depend_on_model_generated_label_wording() -
     )]
     assert _has_count_value(payloads, 99)
     assert not _has_count_value(payloads, 100)
+
+
+def test_spatial_golden_accepts_verified_scope_or_result_sample_size() -> None:
+    assert _has_evaluation_size([("scope-n", 146)], 146)
+    assert _has_evaluation_size([(
+        "result",
+        {"n": 159, "value": 53.67, "numeric_source": "table"},
+    )], 159)
+    assert not _has_evaluation_size([("scope-n", 147)], 146)
 
 
 def test_verifier_receives_only_extractor_cited_visual_pages(tmp_path: Path) -> None:

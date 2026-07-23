@@ -98,6 +98,29 @@ def _has_count_value(payloads: list[tuple[str, Any]], expected: int) -> bool:
     )
 
 
+def _has_evaluation_size(payloads: list[tuple[str, Any]], expected: int) -> bool:
+    for kind, payload in payloads:
+        if kind == "benchmark-count" and isinstance(payload, dict):
+            if payload.get("count") == expected:
+                return True
+        elif kind == "scope-n" and payload == expected:
+            return True
+        elif kind == "result" and isinstance(payload, dict):
+            if payload.get("n") == expected:
+                return True
+    return False
+
+
+def _observed_evaluation_sizes(payloads: list[tuple[str, Any]]) -> list[int]:
+    values = set(_observed_count_values(payloads))
+    for kind, payload in payloads:
+        if kind == "scope-n" and isinstance(payload, int):
+            values.add(payload)
+        elif kind == "result" and isinstance(payload, dict) and isinstance(payload.get("n"), int):
+            values.add(payload["n"])
+    return sorted(values)
+
+
 def _observed_count_values(payloads: list[tuple[str, Any]]) -> list[int]:
     return sorted({
         payload["count"]
@@ -144,10 +167,16 @@ def _evaluate_biomysterybench(result: Any) -> None:
 def _evaluate_spatialbench(paper_result: Any, repository_result: Any) -> None:
     spatial_paper = _claim_payloads(paper_result, "spatialbench")
     spatial_repo = _claim_payloads(repository_result, "spatialbench")
-    if not any(kind == "benchmark-count" and isinstance(payload, dict) and payload.get("count") == 146 for kind, payload in spatial_paper):
-        raise GoldenFailure("SpatialBench paper-v2 count 146 is missing")
-    if not any(kind == "benchmark-count" and isinstance(payload, dict) and payload.get("count") == 159 for kind, payload in spatial_repo):
-        raise GoldenFailure("SpatialBench repository snapshot count 159 is missing")
+    if not _has_evaluation_size(spatial_paper, 146):
+        raise GoldenFailure(
+            "SpatialBench paper-v2 evaluation size 146 is missing; "
+            f"observed verified sizes={_observed_evaluation_sizes(spatial_paper)}"
+        )
+    if not _has_evaluation_size(spatial_repo, 159):
+        raise GoldenFailure(
+            "SpatialBench repository snapshot size 159 is missing; "
+            f"observed verified sizes={_observed_evaluation_sizes(spatial_repo)}"
+        )
     paper_versions = {str(payload) for kind, payload in spatial_paper if kind == "benchmark-version"}
     repo_versions = {str(payload) for kind, payload in spatial_repo if kind == "benchmark-version"}
     if paper_versions & repo_versions:

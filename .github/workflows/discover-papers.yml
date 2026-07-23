@@ -33,7 +33,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: python scripts/discover_papers.py --create-issues --close-stale --output paper-candidates.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: paper-candidate-audit
           path: paper-candidates.json

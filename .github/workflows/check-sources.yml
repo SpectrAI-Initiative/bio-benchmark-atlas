@@ -45,7 +45,7 @@ jobs:
         with:
           path: .source-monitor-state.json
           key: source-monitor-state-${{ github.run_id }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: source-check-${{ github.run_id }}

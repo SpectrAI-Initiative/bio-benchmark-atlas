@@ -90,6 +90,13 @@ version, and pass/fail results. Production requires a successful receipt no olde
 than 35 days, an identical prompt/schema/source-input/model hash, and the same
 Codex CLI major version.
 
+The golden runner checkpoints each completed regression case in
+`~/.codex/biobench-atlas/golden-progress.json`. The checkpoint contains only
+case names, the input hash, the Codex CLI version, official-source SHA256 values,
+and timestamps—never claims, excerpts, or model output. A resumed run skips a
+case only when its source fingerprints and all input versions still match. The
+checkpoint is deleted after the final receipt is written.
+
 ## 5. PR and exact-SHA owner gate
 
 One paper produces one Ready PR from:

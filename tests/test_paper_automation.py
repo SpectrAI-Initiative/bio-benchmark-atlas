@@ -47,6 +47,7 @@ from paper_models import (  # noqa: E402
     PaperEvidenceVerification,
     accepted_claims,
 )
+from paper_extraction_eval import _checkpoint_case_current  # noqa: E402
 from paper_source import (  # noqa: E402
     MAX_SOURCE_BYTES,
     SourceAcquisitionError,
@@ -683,6 +684,28 @@ def test_html_source_uses_visible_text_without_scripts(tmp_path: Path) -> None:
     assert "BioMysteryBench has 99 questions" in normalized
     assert "private_payload" not in normalized
     assert "private_payload" in original.read_text(encoding="utf-8")
+
+
+def test_golden_checkpoint_requires_matching_case_and_source_fingerprints() -> None:
+    progress = {
+        "completed_cases": ["lifescibench"],
+        "source_fingerprints": {"lifescibench": "sha256-a"},
+    }
+    assert _checkpoint_case_current(
+        progress,
+        "lifescibench",
+        {"lifescibench": "sha256-a"},
+    )
+    assert not _checkpoint_case_current(
+        progress,
+        "lifescibench",
+        {"lifescibench": "sha256-b"},
+    )
+    assert not _checkpoint_case_current(
+        progress,
+        "biomysterybench",
+        {"biomysterybench": "sha256-a"},
+    )
 
 
 def test_verifier_receives_only_extractor_cited_visual_pages(tmp_path: Path) -> None:

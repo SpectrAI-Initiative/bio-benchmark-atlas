@@ -1,57 +1,100 @@
-# Paper intake operations
+# Local paper intake operations
 
-The paper pipeline is intentionally inert until the repository owner configures both repository-scoped authentication systems and completes a live golden run.
+GitHub Actions discovers candidate papers only. Production intake starts only after `wang422003` explicitly selects an Issue or URL in local Codex. No GitHub App or repository model API credential is required.
 
-## 1. Create the organization GitHub App
+## 1. Local prerequisites
 
-Create `biobench-atlas-bot` under `SpectrAI-Initiative` and install it only on `bio-benchmark-atlas`.
+The owner machine needs:
 
-Repository permissions:
+- a clean clone of `SpectrAI-Initiative/bio-benchmark-atlas`;
+- `gh` authenticated as `wang422003`;
+- Codex CLI authenticated through the existing Codex/ChatGPT login;
+- Python 3.10+, Node 24, and pnpm.
 
-- Contents: Read and write
-- Issues: Read and write
-- Pull requests: Read and write
-- Metadata: Read
+Do not configure a repository model API key. The local orchestrator removes API-key and paper-model environment overrides before launching its child sessions.
 
-Do not configure a webhook. Record the App ID and generate a private key. Add:
+Validate the shared repository Skill:
 
-- repository variable `BIOBENCH_APP_ID`
-- repository secret `BIOBENCH_APP_PRIVATE_KEY`
+```bash
+python3 /Users/aaronwang/.codex/skills/.system/skill-creator/scripts/quick_validate.py \
+  .agents/skills/biobench-paper-intake
+```
 
-The workflow exchanges these long-lived credentials for a short-lived installation token with `actions/create-github-app-token`. The App can create branches and Ready PRs but the workflow contains no merge operation.
+## 2. Candidate and preflight
 
-## 2. Configure OpenAI extraction
+Weekly discovery and external submissions create `paper-candidate` Issues. Selecting a paper in Codex changes it to `ready-for-local-intake`; discovery never starts extraction.
 
-Add repository secret `OPENAI_API_KEY`. Add repository variables:
+The normal entry points are:
 
-- `PAPER_EXTRACT_MODEL=gpt-5.6-sol`
-- `PAPER_VERIFY_MODEL=gpt-5.6-sol`
+```text
+$biobench-paper-intake issue 44
+$biobench-paper-intake https://doi.org/...
+```
 
-The pinned Python dependency is `openai==2.46.0`. Model aliases may not be changed in production until the proposed combination passes the live golden workflow. Full-text sources are uploaded with Files API purpose `user_data`, both Responses use `store: false`, and deletion is attempted in a `finally` block.
+The Skill runs one of:
 
-## 3. Run and verify the live golden evaluation
+```bash
+python scripts/local_paper_intake.py preflight --issue 44
+python scripts/local_paper_intake.py run --issue 44
+python scripts/local_paper_intake.py run --url https://doi.org/...
+python scripts/local_paper_intake.py resume --run-id <id>
+```
 
-Manually run `Paper extraction eval`. It must verify:
+Preflight checks local Git, `gh`, Codex CLI, source rights, MIME, the 45 MiB / 150-page limits, duplicate Work/Issue/branch/PR records, a current local golden receipt, and exact synchronization between `main` and `origin/main`. It writes no Registry data.
+
+At run start the orchestrator labels the Issue `local-intake-in-progress` and posts a claim comment containing a random local run ID, base SHA, and timestamp. A second active run for the same Issue stops. An existing branch or PR is resumed rather than duplicated.
+
+## 3. Local double pass
+
+The orchestrator launches two separate, ephemeral `codex exec` sessions:
+
+1. an extractor with high reasoning and the `PaperEvidenceDraft` output schema;
+2. an independent verifier with max reasoning and the `PaperEvidenceVerification` output schema.
+
+Both use a read-only sandbox, ignore repository-specific user configuration, receive no network tools, and treat paper content as untrusted data. The sessions have different thread IDs. The verifier receives the original source, Registry context, and extractor claims, but not the extractor conversation.
+
+Only claims supported with high confidence in both passes can reach deterministic generation. Unsupported, conflicted, or not-verifiable claims are withheld. Unknown benchmark version, model identity, or subset size produces a partial `BenchmarkUse`; it cannot be upgraded by inference.
+
+Sources, short excerpts, transcripts, and structured drafts live only under the ignored `.paper-intake-tmp/` directory and are deleted in cleanup. They must never appear in Git diff, Actions artifacts, Pages, or a Release.
+
+## 4. Local golden gate
+
+Run:
+
+```bash
+python scripts/local_paper_intake.py golden
+```
+
+The gate checks:
 
 - LifeSciBench 750 / 136 / 62 and no invented binding count;
 - BioMysteryBench 99 / 76 / 23 and five repeats;
-- distinct SpatialBench 146 and 159 snapshots;
-- Anthropic × BixBench as a relationship without a numeric result.
+- distinct SpatialBench 146 and 159 versions;
+- Anthropic × BixBench as a partial relationship without an invented score.
 
-Only aggregate pass/fail metadata is retained. Production intake refuses to run when the latest success is older than 35 days.
+The receipt is stored at `~/.codex/biobench-atlas/golden.json`. It contains only the date, prompt/schema hash, requested model, Codex CLI version, and pass/fail results. Production requires a successful receipt no older than 35 days, an identical prompt/schema/model hash, and the same Codex CLI major version.
 
-## 4. Protect paper intake PRs
+## 5. PR and exact-SHA owner gate
 
-After the owner-gate workflow exists on `main`, add required status check `paper-owner-gate` alongside `validate` and `playwright`. Keep required approval count at zero for ordinary PRs: the custom check applies only to branches named `paper-intake/*` and accepts only a `wang422003` APPROVED review submitted after the latest head commit.
+One paper produces one Ready PR from:
 
-Do not enable auto-merge. If the bot pushes again, the commit timestamp becomes newer than the old approval and the gate fails until the owner re-approves.
+```text
+paper-intake/<work-id>-<issue-number>
+```
 
-## 5. Recovery
+The PR contains normalized Registry records and an audit summary, never the source or model drafts. After `validate` and `playwright` pass, retrieve the full current head SHA and comment:
 
-- `needs-human-review`: do not retry around refusals, parse failures, source conflicts, missing creator evidence, or unresolved identity/version/count claims.
-- `extraction-failed`: retry only after a transient connection, 429, or 5xx failure is understood; the client itself performs at most three exponential-backoff attempts.
-- stale candidate: a candidate closes after 60 days without approval. Reopen it and re-add `approved-for-intake` to start a new idempotent run.
-- temporary OpenAI file cleanup warning: use the file ID in the private Actions log to delete the file manually before retrying.
+```text
+/approve-paper-intake <full-40-character-head-sha>
+```
 
-Candidate issues, PDFs/full text, and short verification excerpts are never release assets or website data.
+`paper-owner-gate` accepts only an exact comment by `wang422003` whose timestamp is later than the current head commit. Other users, abbreviated or stale SHAs, edited mismatches, and old comments fail. A new push changes the SHA and requires another comment. Auto-merge remains disabled.
 
+## 6. Recovery
+
+- `needs-human-review`: source rights, identity, version, creator evidence, or a critical claim is unresolved. Correct the source or make the decision explicitly; do not convert the problem to `not_reported`.
+- `intake-failed`: local CLI, network retrieval, or another transient technical step failed. Fix the technical cause before resuming.
+- stale candidate: discovery may close an unselected candidate after 60 days. Reopen it before selecting it locally.
+- existing run/branch/PR: use `resume --run-id`, never start a second intake.
+
+When the PR merges, close the Issue and remove in-progress labels. Candidate Issues and local working material remain outside the Registry.

@@ -3,34 +3,73 @@ name: Paper owner gate
 on:
   pull_request_target:
     types: [opened, reopened, synchronize, ready_for_review]
-  pull_request_review:
-    types: [submitted, dismissed]
+  issue_comment:
+    types: [created, edited, deleted]
 
 permissions:
+  checks: write
   contents: read
+  issues: read
   pull-requests: read
 
 jobs:
-  paper-owner-gate:
+  owner-gate-evaluator:
+    if: github.event_name != 'issue_comment' || github.event.issue.pull_request
     runs-on: ubuntu-latest
     steps:
-      - name: Require wang422003 approval after the latest paper-intake push
+      - name: Check out trusted default-branch policy code
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+
+      - name: Evaluate and publish the paper-owner-gate check
         env:
           GH_TOKEN: ${{ github.token }}
           REPOSITORY: ${{ github.repository }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          HEAD_REF: ${{ github.event.pull_request.head.ref }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          EVENT_NAME: ${{ github.event_name }}
+          COMMENT_PR_NUMBER: ${{ github.event.issue.number }}
+          PULL_REQUEST_NUMBER: ${{ github.event.pull_request.number }}
+          RUNNER_TEMP_DIR: ${{ runner.temp }}
         run: |
-          [[ "$HEAD_REF" == paper-intake/* ]] || { echo "Non-paper intake PR: gate passes."; exit 0; }
-          commit_time=$(gh api "repos/${REPOSITORY}/commits/${HEAD_SHA}" --jq '.commit.committer.date')
-          approval_time=$(gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}/reviews" --paginate \
-            --jq '[.[] | select(.user.login == "wang422003" and .state == "APPROVED") | .submitted_at] | max // ""')
-          [[ -n "$approval_time" ]] || { echo "wang422003 approval is required"; exit 1; }
-          python - "$commit_time" "$approval_time" <<'PY'
-          import datetime as dt, sys
-          commit = dt.datetime.fromisoformat(sys.argv[1].replace("Z", "+00:00"))
-          approval = dt.datetime.fromisoformat(sys.argv[2].replace("Z", "+00:00"))
-          if approval <= commit: raise SystemExit("approval predates the latest bot push; re-approval is required")
-          PY
+          set -euo pipefail
+          if [[ "$EVENT_NAME" == "issue_comment" ]]; then
+            pr_number="$COMMENT_PR_NUMBER"
+          else
+            pr_number="$PULL_REQUEST_NUMBER"
+          fi
 
+          pr_json="$RUNNER_TEMP_DIR/paper-owner-pr.json"
+          comments_json="$RUNNER_TEMP_DIR/paper-owner-comments.json"
+          gh api "repos/${REPOSITORY}/pulls/${pr_number}" > "$pr_json"
+          head_ref=$(jq -r '.head.ref' "$pr_json")
+          head_sha=$(jq -r '.head.sha' "$pr_json")
+
+          conclusion=success
+          title="Paper owner approval is not required"
+          summary="This is not a paper-intake branch."
+
+          if [[ "$head_ref" == paper-intake/* ]]; then
+            commit_time=$(gh api "repos/${REPOSITORY}/commits/${head_sha}" --jq '.commit.committer.date')
+            gh api "repos/${REPOSITORY}/issues/${pr_number}/comments" --paginate --slurp \
+              --jq 'add' > "$comments_json"
+            if python scripts/check_paper_owner_gate.py \
+              --head-sha "$head_sha" \
+              --commit-time "$commit_time" \
+              --comments-file "$comments_json"; then
+              title="Current paper-intake head approved"
+              summary="wang422003 approved the exact current 40-character head SHA after it was committed."
+            else
+              conclusion=failure
+              title="Current paper-intake head needs owner approval"
+              summary="Comment exactly: /approve-paper-intake ${head_sha}"
+            fi
+          fi
+
+          gh api --method POST "repos/${REPOSITORY}/check-runs" \
+            -f name='paper-owner-gate' \
+            -f head_sha="$head_sha" \
+            -f status='completed' \
+            -f conclusion="$conclusion" \
+            -f "output[title]=$title" \
+            -f "output[summary]=$summary"

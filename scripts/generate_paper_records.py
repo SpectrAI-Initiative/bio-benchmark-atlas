@@ -15,7 +15,12 @@ from typing import Any
 
 import yaml
 
-from extract_paper import PIPELINE_VERSION, PROMPT_VERSION
+from extract_paper import (
+    EXECUTION_SURFACE,
+    PIPELINE_VERSION,
+    PROMPT_VERSION,
+    REVIEW_METHOD,
+)
 from paper_models import PaperEvidenceDraft, PaperEvidenceVerification, accepted_claims
 from registry_io import ROOT, load_entities, load_taxonomies
 from triage_paper import duplicate_work_candidates, normalize_arxiv, normalize_doi, normalize_url, title_fingerprint
@@ -619,7 +624,7 @@ def build_records(
             }],
             "current_version_id": work_version_id,
             "review_provenance": {
-                "method": "automated-double-pass",
+                "method": result_payload.get("review_method", "automated-double-pass"),
                 "pipeline_version": result_payload.get("pipeline_version", PIPELINE_VERSION),
                 "prompt_version": result_payload.get("prompt_version", PROMPT_VERSION),
                 "source_version_id": work_version_id,
@@ -632,9 +637,16 @@ def build_records(
             "verification": {
                 "status": "verified",
                 "last_verified": verified_on,
-                "notes": "AI-assisted double-pass extraction; production inclusion still requires wang422003 PR approval.",
+                "notes": "AI-assisted double-pass extraction; production inclusion still requires the owner SHA-comment gate.",
             },
         }
+        if output.work["review_provenance"]["method"] == REVIEW_METHOD:
+            output.work["review_provenance"].update({
+                "execution_surface": result_payload.get("execution_surface", EXECUTION_SURFACE),
+                "model_resolution_status": result_payload["model_resolution_status"],
+                "codex_cli_version": result_payload["codex_cli_version"],
+                "local_run_id": result_payload["local_run_id"],
+            })
 
     benchmarks = {item["id"]: item for item in entities["benchmark"]}
     new_benchmark_ids_by_name: dict[str, str] = {}
@@ -837,7 +849,7 @@ def build_records(
             "verification": {
                 "status": "verified",
                 "last_verified": verified_on,
-                "notes": "Ready for production only after owner approval of this paper-intake PR.",
+                "notes": "Ready for production only after owner approval of this paper-intake PR's exact head SHA.",
             },
             "evidence": _evidence_for_claims(
                 use_evidence_claims, verdicts, owner_id=use_id, work_id=work_id,
@@ -904,7 +916,7 @@ def write_records(records: GeneratedRecords) -> list[Path]:
                 "date": verified_on,
                 "version": "1.4.0-dev",
                 "type": "paper-intake",
-                "summary": f"AI-assisted double-pass paper intake ({marker}); production inclusion required owner approval after the final bot push.",
+                "summary": f"AI-assisted double-pass paper intake ({marker}); production inclusion required owner approval of the final head SHA.",
                 "entity_ids": entity_ids,
             }
             prefix = yaml.safe_dump([entry], sort_keys=False, allow_unicode=True, width=120)
@@ -914,9 +926,9 @@ def write_records(records: GeneratedRecords) -> list[Path]:
 
 
 def chinese_summary(records: GeneratedRecords) -> str:
-    lines = ["## 自动论文审计摘要", ""]
+    lines = ["## 本地 Codex 论文审计摘要", ""]
     if records.work:
-        lines.append(f"- 新增 Work：`{records.work['id']}`（双阶段 AI 辅助抽取，仍需 owner 审阅）")
+        lines.append(f"- 新增 Work：`{records.work['id']}`（本地双阶段 Codex 辅助抽取，仍需 owner 审阅）")
     if records.benchmarks:
         lines.append("- 新增 root benchmark：" + "、".join(f"`{item['id']}`" for item in records.benchmarks) + "；creator source、official repository 与 commit pin 已同时生成。")
     lines.append(f"- BenchmarkUse：{len(records.uses)} 条；normalized run：{len(records.runs)} 条；新增模型：{len(records.models)} 个。")
@@ -932,7 +944,7 @@ def chinese_summary(records: GeneratedRecords) -> str:
     if records.blocked_reasons:
         lines.append("- 需要人工处理：" + "；".join(records.blocked_reasons) + "。")
     lines.append("")
-    lines.append("合并前必须由 `wang422003` 提交 APPROVED review；bot 后续 push 会使旧批准失效。")
+    lines.append("合并前必须由 `wang422003` 评论 `/approve-paper-intake <完整 head SHA>`；后续 push 会使旧批准失效。")
     return "\n".join(lines) + "\n"
 
 

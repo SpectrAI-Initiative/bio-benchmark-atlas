@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""End-to-end, non-interactive paper intake used by the GitHub Actions bot."""
+"""Generate paper records from an issue body with two local Codex evidence passes."""
 
 from __future__ import annotations
 
@@ -114,7 +114,8 @@ def process_issue(
     extractor_model: str,
     verifier_model: str,
     write: bool,
-) -> tuple[object, RetrievedSource]:
+    local_run_id: str | None = None,
+) -> tuple[object, RetrievedSource, object]:
     sections = parse_issue_form(body)
     paper_url = sections.get("Paper or preprint URL")
     if not paper_url:
@@ -147,6 +148,7 @@ def process_issue(
             registry_context=registry_context(),
             extractor_model=extractor_model,
             verifier_model=verifier_model,
+            local_run_id=local_run_id,
         )
         records = build_records(
             result.as_dict(),
@@ -165,7 +167,7 @@ def process_issue(
             raise GenerationBlocked("; ".join(records.blocked_reasons))
         if write:
             write_records(records)
-        return records, source
+        return records, source, result
     finally:
         source.path.unlink(missing_ok=True)
 
@@ -176,19 +178,22 @@ def main() -> int:
     parser.add_argument("--summary", type=Path, required=True)
     parser.add_argument("--discovered", action="store_true")
     parser.add_argument("--write", action="store_true")
-    parser.add_argument("--extractor-model", default=os.environ.get("PAPER_EXTRACT_MODEL", DEFAULT_MODEL))
-    parser.add_argument("--verifier-model", default=os.environ.get("PAPER_VERIFY_MODEL", DEFAULT_MODEL))
+    parser.add_argument("--extractor-model", default=DEFAULT_MODEL)
+    parser.add_argument("--verifier-model", default=DEFAULT_MODEL)
+    parser.add_argument("--local-run-id")
     args = parser.parse_args()
-    records, source = process_issue(
+    records, source, result = process_issue(
         args.issue_body_file.read_text(encoding="utf-8"),
         discovered=args.discovered,
         extractor_model=args.extractor_model,
         verifier_model=args.verifier_model,
         write=args.write,
+        local_run_id=args.local_run_id,
     )
     summary = chinese_summary(records)
     summary += f"\nSource SHA256: `{source.content_sha256}`  \n"
-    summary += f"Extractor: `{args.extractor_model}` · Verifier: `{args.verifier_model}`\n"
+    summary += f"Extractor: `{args.extractor_model}` · Verifier: `{args.verifier_model}`  \n"
+    summary += f"Local run: `{result.local_run_id}`\n"
     args.summary.write_text(summary, encoding="utf-8")
     return 0
 

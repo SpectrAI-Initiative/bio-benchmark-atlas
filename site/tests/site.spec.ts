@@ -44,6 +44,7 @@ test('Paper Explorer restores relation and review filters and links both usage e
   await expect(page.locator('#source-class')).toHaveValue('official_model_provider');
   await expect(page.locator('#relation')).toHaveValue('external-result-summary');
   await expect(page.locator('#review-method')).toHaveValue('manual');
+  await expect(page.locator('#review-method option[value="local-codex-double-pass"]')).toHaveText('local codex double pass');
   await expect(page.locator('[data-advanced-filter]')).toHaveAttribute('open', '');
   await expect(page.locator('[data-advanced-count]')).toHaveText('(2)');
   await expect(page.getByRole('link', { name: 'Advancing Claude in healthcare and the life sciences', exact: true })).toBeVisible();
@@ -472,7 +473,8 @@ test('methodology discloses the deferred VirBench audit', async ({ page }) => {
   await page.goto('/bio-benchmark-atlas/methodology/');
   await expect(page.locator('main')).toContainText('14 of the 15 launch families');
   await expect(page.locator('main')).toContainText("VirBench's detailed audit was intentionally deferred");
-  await expect(page.locator('main')).toContainText('Independent double-pass verification');
+  await expect(page.locator('main')).toContainText('Independent local double-pass verification');
+  await expect(page.locator('main')).toContainText('/approve-paper-intake <full-current-head-sha>');
   await expect(page.locator('main')).toContainText('paper-owner-gate');
 
   await page.goto('/bio-benchmark-atlas/zh/methodology/');

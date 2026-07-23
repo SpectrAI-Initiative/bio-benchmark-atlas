@@ -43,14 +43,18 @@ export type WorkSourceVersion = RawWork['source_versions'][number] & {
 export type Work = Omit<RawWork, 'source_versions'> & {
   source_versions: WorkSourceVersion[];
   review_provenance?: {
-    method: 'automated-double-pass';
+    method: 'automated-double-pass' | 'local-codex-double-pass';
+    execution_surface?: 'github-actions-responses-api' | 'local-codex-cli';
     pipeline_version: string;
     prompt_version: string;
     source_version_id: string;
     extractor_model_requested: string;
-    extractor_model_resolved: string;
+    extractor_model_resolved: string | null;
     verifier_model_requested: string;
-    verifier_model_resolved: string;
+    verifier_model_resolved: string | null;
+    model_resolution_status?: 'reported' | 'not-reported';
+    codex_cli_version?: string;
+    local_run_id?: string;
     generated_at: string;
   };
 };

@@ -8,7 +8,7 @@ const sourceClasses = [...new Set(data.works.map((work) => work.source_class))].
 const relations = [...new Set(data.benchmark_uses.map((use) => use.relation_type))].sort();
 const scopes = [...new Set(data.benchmark_uses.map((use) => use.scope.type))].sort();
 const usedBenchmarkIds = [...new Set(data.benchmark_uses.map((use) => use.benchmark_id))].sort();
-const reviewMethods = ['manual', 'automated-double-pass'];
+const reviewMethods = ['manual', 'automated-double-pass', 'local-codex-double-pass'];
 const rows = data.works.map((work) => {
   const uses = data.benchmark_uses.filter((use) => use.work_id === work.id);
   const evaluationUses = uses.filter((use) => use.relation_type === 'evaluation' || use.relation_type === 'external-result-summary');

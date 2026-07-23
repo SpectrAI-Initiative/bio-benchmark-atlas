@@ -519,7 +519,15 @@ def close_stale_candidates(session: requests.Session, repository: str, token: st
     for issue in response.json():
         labels = {item["name"] for item in issue.get("labels", [])}
         created = datetime.fromisoformat(issue["created_at"].replace("Z", "+00:00"))
-        if "approved-for-intake" in labels or created >= cutoff:
+        if (
+            labels
+            & {
+                "ready-for-local-intake",
+                "local-intake-in-progress",
+                "paper-intake-pr",
+            }
+            or created >= cutoff
+        ):
             continue
         number = issue["number"]
         _request(session, "PATCH", f"https://api.github.com/repos/{repository}/issues/{number}", json={

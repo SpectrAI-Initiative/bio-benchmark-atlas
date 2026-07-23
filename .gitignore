@@ -16,5 +16,6 @@ site/playwright-report/
 .source-monitor-state.json
 source-check-report.json
 source-issues.json
+.paper-intake-tmp/
 *.egg-info/
 .DS_Store

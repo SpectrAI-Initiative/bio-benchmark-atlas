@@ -89,6 +89,15 @@ def _count(payloads: list[tuple[str, Any]], expected: int, label_pattern: str) -
     return False
 
 
+def _has_count_value(payloads: list[tuple[str, Any]], expected: int) -> bool:
+    return any(
+        kind == "benchmark-count"
+        and isinstance(payload, dict)
+        and payload.get("count") == expected
+        for kind, payload in payloads
+    )
+
+
 def _observed_count_values(payloads: list[tuple[str, Any]]) -> list[int]:
     return sorted({
         payload["count"]
@@ -117,7 +126,12 @@ def _evaluate_lifescibench(result: Any) -> None:
 
 def _evaluate_biomysterybench(result: Any) -> None:
     mystery = _claim_payloads(result, "biomysterybench")
-    for expected, label in ((99, "total"), (76, "human-solvable"), (23, "human-difficult")):
+    if not _has_count_value(mystery, 99):
+        raise GoldenFailure(
+            "BioMysteryBench missing verified benchmark count 99; "
+            f"observed verified counts={_observed_count_values(mystery)}"
+        )
+    for expected, label in ((76, "human-solvable"), (23, "human-difficult")):
         if not _count(mystery, expected, label):
             raise GoldenFailure(
                 f"BioMysteryBench missing verified {label} count {expected}; "

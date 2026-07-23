@@ -47,7 +47,7 @@ from paper_models import (  # noqa: E402
     PaperEvidenceVerification,
     accepted_claims,
 )
-from paper_extraction_eval import _checkpoint_case_current  # noqa: E402
+from paper_extraction_eval import _checkpoint_case_current, _has_count_value  # noqa: E402
 from paper_source import (  # noqa: E402
     MAX_SOURCE_BYTES,
     SourceAcquisitionError,
@@ -706,6 +706,20 @@ def test_golden_checkpoint_requires_matching_case_and_source_fingerprints() -> N
         "biomysterybench",
         {"biomysterybench": "sha256-a"},
     )
+
+
+def test_golden_total_count_does_not_depend_on_model_generated_label_wording() -> None:
+    payloads = [(
+        "benchmark-count",
+        {
+            "label": "Questions in BioMysteryBench",
+            "count": 99,
+            "unit": "questions",
+            "reporting_status": "reported",
+        },
+    )]
+    assert _has_count_value(payloads, 99)
+    assert not _has_count_value(payloads, 100)
 
 
 def test_verifier_receives_only_extractor_cited_visual_pages(tmp_path: Path) -> None:

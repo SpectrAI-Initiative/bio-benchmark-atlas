@@ -7,6 +7,7 @@ import ipaddress
 import mimetypes
 import socket
 import tempfile
+import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -32,6 +33,7 @@ OPEN_SOURCE_HOSTS = {
     "www.ebi.ac.uk",
     "pmc.ncbi.nlm.nih.gov",
 }
+SOURCE_DOWNLOAD_ATTEMPTS = 3
 
 
 class SourceAcquisitionError(RuntimeError):
@@ -79,6 +81,39 @@ def _normalized_content_type(value: str | None, url: str) -> str:
     return raw
 
 
+def _request_source(url: str, *, timeout: float) -> requests.Response:
+    headers = {
+        "User-Agent": (
+            "BioBench-Atlas/1.4 "
+            "(+https://github.com/SpectrAI-Initiative/bio-benchmark-atlas)"
+        )
+    }
+    last_error: requests.RequestException | None = None
+    for attempt in range(SOURCE_DOWNLOAD_ATTEMPTS):
+        try:
+            response = requests.get(url, stream=True, timeout=timeout, headers=headers)
+            response.raise_for_status()
+            return response
+        except requests.RequestException as error:
+            response = getattr(error, "response", None)
+            status = getattr(response, "status_code", None)
+            retryable = (
+                isinstance(error, (requests.ConnectionError, requests.Timeout))
+                or status == 429
+                or (isinstance(status, int) and status >= 500)
+            )
+            if not retryable:
+                raise SourceAcquisitionError(
+                    f"source download failed: HTTP {status or 'error'}"
+                ) from error
+            last_error = error
+            if attempt + 1 < SOURCE_DOWNLOAD_ATTEMPTS:
+                time.sleep(2**attempt)
+    raise SourceAcquisitionError(
+        f"source download failed after {SOURCE_DOWNLOAD_ATTEMPTS} attempts"
+    ) from last_error
+
+
 def retrieve_source(
     url: str,
     *,
@@ -89,13 +124,7 @@ def retrieve_source(
     if not is_automatic_source_allowed(url, rights_confirmed=rights_confirmed, discovered=discovered):
         raise SourceAcquisitionError("source use was not confirmed and the URL is not a recognized open source")
 
-    response = requests.get(
-        url,
-        stream=True,
-        timeout=timeout,
-        headers={"User-Agent": "BioBench-Atlas/1.4 (+https://github.com/SpectrAI-Initiative/bio-benchmark-atlas)"},
-    )
-    response.raise_for_status()
+    response = _request_source(url, timeout=timeout)
     declared = response.headers.get("Content-Length")
     if declared and int(declared) > MAX_SOURCE_BYTES:
         raise SourceAcquisitionError("source exceeds the 45 MiB download limit")

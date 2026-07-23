@@ -65,16 +65,17 @@ class StrictModel(BaseModel):
 class LocatorDraft(StrictModel):
     locator_type: Literal["page", "section", "figure", "table", "repository-path", "other"]
     value: str = Field(min_length=1)
-    document_page: int | None = Field(default=None, ge=1)
-    printed_page: str | None = None
+    document_page: int | None = Field(ge=1)
+    printed_page: str | None
     excerpt: str = Field(min_length=1)
 
-    @field_validator("excerpt")
+    @field_validator("excerpt", mode="before")
     @classmethod
-    def excerpt_is_short(cls, value: str) -> str:
-        if len(re.findall(r"\S+", value)) > 20:
-            raise ValueError("evidence excerpts are limited to 20 words")
-        return value
+    def excerpt_is_short(cls, value: object) -> object:
+        if not isinstance(value, str):
+            return value
+        words = re.findall(r"\S+", value)
+        return " ".join(words[:20])
 
 
 class PaperIdentityDraft(StrictModel):

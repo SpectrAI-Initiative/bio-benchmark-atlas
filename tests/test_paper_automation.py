@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+import requests
 from pydantic import ValidationError
 from pypdf import PdfWriter
 
@@ -29,6 +30,9 @@ from extract_paper import (  # noqa: E402
     EXTRACTOR_PROMPT,
     VERIFIER_PROMPT,
     _child_environment,
+    _codex_failure_diagnostic,
+    _run_stage,
+    _structured_output_diagnostic,
     run_double_pass,
 )
 from paper_models import (  # noqa: E402
@@ -135,9 +139,10 @@ SOURCE = {
 }
 
 
-def test_structured_output_rejects_long_quotes_and_unlabeled_graph_values() -> None:
-    with pytest.raises(ValidationError):
-        LocatorDraft(**locator(" ".join(["word"] * 21)))
+def test_structured_output_bounds_long_quotes_and_rejects_unlabeled_graph_values() -> None:
+    bounded = LocatorDraft(**locator(" ".join(f"word-{index}" for index in range(21))))
+    assert len(bounded.excerpt.split()) == 20
+    assert "word-20" not in bounded.excerpt
     claims = [
         claim("claim-1", "paper-identity", {"title": "x"}, mention_id=None),
         claim("claim-2", "result", {
@@ -156,6 +161,17 @@ def test_structured_output_rejects_long_quotes_and_unlabeled_graph_values() -> N
     draft = PaperEvidenceDraft.model_validate(payload["draft"])
     verification = PaperEvidenceVerification.model_validate(payload["verification"])
     assert [item.claim_id for item in accepted_claims(draft, verification)] == ["claim-1"]
+
+
+def test_model_facing_schemas_require_every_declared_property() -> None:
+    for model in (PaperEvidenceDraft, PaperEvidenceVerification):
+        schema = model.model_json_schema()
+        objects = [schema, *schema.get("$defs", {}).values()]
+        for definition in objects:
+            properties = definition.get("properties")
+            if properties is not None:
+                assert set(definition.get("required", [])) == set(properties)
+                assert definition.get("additionalProperties") is False
 
 
 def test_generator_downgrades_incomplete_evaluation_to_partial_use() -> None:
@@ -440,6 +456,12 @@ def test_local_codex_double_pass_is_independent_read_only_and_ephemeral(
     assert all(secret_name not in environment for environment in environments)
     for command in commands[:2]:
         assert {"--ephemeral", "--ignore-user-config", "--output-schema"} <= set(command)
+        assert 'model_provider="biobench_local"' in command
+        assert "model_providers.biobench_local.supports_websockets=false" in command
+        assert 'web_search="disabled"' in command
+        assert "features.apps=false" in command
+        assert "features.remote_plugin=false" in command
+        assert "features.multi_agent=false" in command
         assert command[command.index("--sandbox") + 1] == "read-only"
     assert not temporary_root.exists()
     assert "untrusted" in EXTRACTOR_PROMPT
@@ -460,6 +482,110 @@ def test_child_codex_environment_drops_remote_credentials(monkeypatch: pytest.Mo
         monkeypatch.setenv(name, "secret")
     environment = _child_environment()
     assert not (set(names) & set(environment))
+
+
+def test_codex_failure_diagnostic_surfaces_errors_without_agent_content() -> None:
+    stdout = "\n".join([
+        json.dumps({
+            "type": "item.completed",
+            "item": {
+                "type": "agent_message",
+                "text": "Sensitive paper excerpt and extracted claim must stay private.",
+            },
+        }),
+        json.dumps({
+            "type": "error",
+            "message": (
+                "Structured output failed in "
+                f"{ROOT}/.paper-intake-tmp/run/source.pdf"
+            ),
+        }),
+    ])
+    stderr = (
+        "WebSocket connection failed with 403\n"
+        "authorization: bearer should-not-appear\n"
+    )
+    diagnostic = _codex_failure_diagnostic(stdout, stderr)
+    assert "Structured output failed" in diagnostic
+    assert "<repo>/.paper-intake-tmp/run/source.pdf" in diagnostic
+    assert "WebSocket connection failed with 403" in diagnostic
+    assert "Sensitive paper excerpt" not in diagnostic
+    assert "should-not-appear" not in diagnostic
+
+
+def test_structured_output_diagnostic_omits_claim_values() -> None:
+    with pytest.raises(ValidationError) as captured:
+        PaperEvidenceVerification.model_validate({
+            "claims": [{
+                "claim_id": "claim-1",
+                "verdict": "supported",
+                "confidence": "high",
+                "locator": {
+                    "locator_type": "table",
+                    "value": "Sensitive source text must not appear",
+                    "document_page": 0,
+                    "printed_page": None,
+                    "excerpt": "Sensitive excerpt must not appear",
+                },
+                "notes": None,
+            }],
+            "blocking_conflicts": [],
+            "source_parseable": True,
+        })
+    diagnostic = _structured_output_diagnostic(captured.value)
+    assert "claims.0.locator.document_page" in diagnostic
+    assert "greater_than_equal" in diagnostic
+    assert "Sensitive" not in diagnostic
+
+
+def test_local_codex_stage_retries_only_transient_transport_failures(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    output_path = tmp_path / "draft.json"
+    attempts = 0
+    valid_draft = draft_payload([], {
+        "mention_id": "mention-1",
+        "benchmark_name": "Synthetic",
+        "registry_benchmark_id": None,
+        "relation_type": "background-citation",
+        "is_new_benchmark": False,
+        "background_only": True,
+        "claim_ids": [],
+        "reporting_gaps": [],
+    })
+
+    def transient_runner(command: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        nonlocal attempts
+        attempts += 1
+        if attempts == 1:
+            return subprocess.CompletedProcess(
+                command,
+                1,
+                json.dumps({"type": "error", "message": "stream disconnected before completion"}),
+                "",
+            )
+        output_path.write_text(json.dumps(valid_draft), encoding="utf-8")
+        return subprocess.CompletedProcess(
+            command,
+            0,
+            json.dumps({"type": "thread.started", "thread_id": "thread-retry"}) + "\n",
+            "",
+        )
+
+    monkeypatch.setattr("extract_paper.time.sleep", lambda _: None)
+    result = _run_stage(
+        prompt="Synthetic prompt",
+        output_type=PaperEvidenceDraft,
+        schema_path=tmp_path / "schema.json",
+        output_path=output_path,
+        model="gpt-5.6-sol",
+        reasoning_effort="high",
+        binary="codex",
+        runner=transient_runner,
+    )
+    assert attempts == 2
+    assert result.thread_id == "thread-retry"
 
 
 class FakeResponse:
@@ -498,6 +624,37 @@ def test_source_rights_mime_size_pages_and_sha(monkeypatch: pytest.MonkeyPatch) 
     monkeypatch.setattr("paper_source.requests.get", lambda *args, **kwargs: FakeResponse(pdf_bytes(151)))
     with pytest.raises(SourceAcquisitionError, match="150-page"):
         retrieve_source("https://arxiv.org/pdf/2601.00001.pdf", rights_confirmed=False, discovered=True)
+
+
+def test_source_download_retries_transient_connection_errors(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "paper_source.socket.getaddrinfo",
+        lambda *args, **kwargs: [(2, 1, 6, "", ("151.101.1.69", 443))],
+    )
+    calls = 0
+    body = pdf_bytes(1)
+
+    def transient_get(*args: Any, **kwargs: Any) -> FakeResponse:
+        nonlocal calls
+        calls += 1
+        if calls < 3:
+            raise requests.exceptions.SSLError("transient TLS EOF")
+        return FakeResponse(body)
+
+    monkeypatch.setattr("paper_source.requests.get", transient_get)
+    monkeypatch.setattr("paper_source.time.sleep", lambda _: None)
+    source = retrieve_source(
+        "https://arxiv.org/pdf/2601.00001.pdf",
+        rights_confirmed=False,
+        discovered=True,
+    )
+    try:
+        assert calls == 3
+        assert source.page_count == 1
+    finally:
+        source.path.unlink(missing_ok=True)
 
 
 def test_work_ids_are_deterministic_and_workflows_have_required_guards() -> None:

@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -64,6 +65,11 @@ SOURCES = [
 
 class GoldenFailure(RuntimeError):
     pass
+
+
+def _codex_cli_major(version: str) -> str:
+    match = re.search(r"\b(\d+)(?:\.\d+)+", version)
+    return match.group(1) if match else version.strip()
 
 
 def _claim_payloads(result: Any, benchmark_id: str, claim_type: str | None = None) -> list[tuple[str, Any]]:
@@ -252,16 +258,30 @@ def run_golden(
         progress = json.loads(progress_path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         progress = {}
+    progress_cli_major = progress.get("codex_cli_major") or _codex_cli_major(
+        str(progress.get("codex_cli_version", ""))
+    )
     if (
         progress.get("input_hash") != input_hash
-        or progress.get("codex_cli_version") != cli_version
+        or progress_cli_major != _codex_cli_major(cli_version)
     ):
         progress = {
             "input_hash": input_hash,
             "codex_cli_version": cli_version,
+            "codex_cli_major": _codex_cli_major(cli_version),
+            "codex_cli_versions": [cli_version],
             "completed_cases": [],
             "source_fingerprints": {},
         }
+    else:
+        prior_versions = progress.get("codex_cli_versions")
+        if not isinstance(prior_versions, list):
+            prior_versions = [progress.get("codex_cli_version")]
+        progress["codex_cli_versions"] = sorted({
+            str(version) for version in prior_versions + [cli_version] if version
+        })
+        progress["codex_cli_version"] = cli_version
+        progress["codex_cli_major"] = _codex_cli_major(cli_version)
 
     sources_by_name = {source.name: source for source in SOURCES}
     case_sources = {
@@ -319,6 +339,8 @@ def run_golden(
             progress = {
                 "input_hash": input_hash,
                 "codex_cli_version": cli_version,
+                "codex_cli_major": _codex_cli_major(cli_version),
+                "codex_cli_versions": progress["codex_cli_versions"],
                 "completed_cases": sorted(completed_cases),
                 "source_fingerprints": fingerprints,
                 "source_fingerprint_kind": "normalized-review-source-v1",
@@ -349,6 +371,7 @@ def run_golden(
         "extractor_model_requested": extractor_model,
         "verifier_model_requested": verifier_model,
         "codex_cli_version": cli_version,
+        "codex_cli_versions": progress["codex_cli_versions"],
     })
     output.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     progress_path.unlink(missing_ok=True)

@@ -51,6 +51,7 @@ from paper_models import (  # noqa: E402
 )
 from paper_extraction_eval import (  # noqa: E402
     _checkpoint_case_current,
+    _codex_cli_major,
     _has_count_value,
     _has_evaluation_size,
 )
@@ -515,6 +516,12 @@ def test_heartbeat_status_marks_dead_running_process_stale(
     assert state["process_alive"] is False
     assert state["stale"] is True
     assert state["heartbeat_age_seconds"] == 60
+
+
+def test_golden_checkpoint_cli_compatibility_uses_major_version() -> None:
+    assert _codex_cli_major("codex-cli 0.145.0-alpha.30") == "0"
+    assert _codex_cli_major("codex-cli 0.146.0-alpha.3.1") == "0"
+    assert _codex_cli_major("codex-cli 2.1.0") == "2"
 
 
 def test_child_codex_environment_drops_remote_credentials(monkeypatch: pytest.MonkeyPatch) -> None:

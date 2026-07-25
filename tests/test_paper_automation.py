@@ -44,6 +44,7 @@ from extract_paper import (  # noqa: E402
     run_double_pass,
 )
 from paper_models import (  # noqa: E402
+    EvidenceClaimDraft,
     LocatorDraft,
     PaperEvidenceDraft,
     PaperEvidenceVerification,
@@ -591,6 +592,41 @@ def test_structured_output_diagnostic_omits_claim_values() -> None:
     assert "claims.0.locator.document_page" in diagnostic
     assert "greater_than_equal" in diagnostic
     assert "Sensitive" not in diagnostic
+
+
+def test_claim_value_json_normalizes_safe_json_like_output() -> None:
+    scalar = EvidenceClaimDraft.model_validate({
+        "claim_id": "claim-1",
+        "mention_id": "mention-1",
+        "claim_type": "scope-type",
+        "field_path": "/scope/type",
+        "value_json": "full",
+        "confidence": "high",
+        "locators": [locator()],
+    })
+    assert json.loads(scalar.value_json) == "full"
+
+    structured = EvidenceClaimDraft.model_validate({
+        "claim_id": "claim-2",
+        "mention_id": "mention-1",
+        "claim_type": "benchmark-count",
+        "field_path": "/task_counts/0",
+        "value_json": "{'label': 'total', 'count': 146}",
+        "confidence": "high",
+        "locators": [locator()],
+    })
+    assert json.loads(structured.value_json) == {"label": "total", "count": 146}
+
+    with pytest.raises(ValidationError):
+        EvidenceClaimDraft.model_validate({
+            "claim_id": "claim-3",
+            "mention_id": "mention-1",
+            "claim_type": "result",
+            "field_path": "/results/0",
+            "value_json": "not a structured result",
+            "confidence": "high",
+            "locators": [locator()],
+        })
 
 
 def test_local_codex_stage_retries_only_transient_transport_failures(

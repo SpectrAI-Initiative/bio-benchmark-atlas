@@ -597,7 +597,10 @@ def _codex_failure_diagnostic(stdout: str, stderr: str) -> str:
     return " | ".join(messages[-8:]) or "no structured CLI error was reported"
 
 
-def _structured_output_diagnostic(error: Exception) -> str:
+def _structured_output_diagnostic(
+    error: Exception,
+    raw_payload: dict[str, Any] | None = None,
+) -> str:
     """Summarize schema failures without including model-produced field values."""
 
     if isinstance(error, ValidationError):
@@ -605,7 +608,20 @@ def _structured_output_diagnostic(error: Exception) -> str:
         for item in error.errors(include_url=False, include_context=False, include_input=False)[:8]:
             location = ".".join(str(part) for part in item.get("loc", ())) or "<root>"
             error_type = str(item.get("type") or "validation_error")
-            summaries.append(f"{location}: {error_type}")
+            claim_type = ""
+            parts = item.get("loc", ())
+            if (
+                raw_payload
+                and len(parts) >= 2
+                and parts[0] == "claims"
+                and isinstance(parts[1], int)
+            ):
+                claims = raw_payload.get("claims")
+                if isinstance(claims, list) and parts[1] < len(claims):
+                    raw_claim = claims[parts[1]]
+                    if isinstance(raw_claim, dict) and isinstance(raw_claim.get("claim_type"), str):
+                        claim_type = f" (claim_type={raw_claim['claim_type']})"
+            summaries.append(f"{location}: {error_type}{claim_type}")
         return "schema validation failed at " + ", ".join(summaries)
     if isinstance(error, json.JSONDecodeError):
         return f"response was not JSON (line {error.lineno}, column {error.colno})"
@@ -726,7 +742,7 @@ def _run_stage(
     except (OSError, json.JSONDecodeError, ValidationError) as error:
         raise PaperExtractionError(
             "local Codex stage did not produce valid structured output: "
-            f"{_structured_output_diagnostic(error)}"
+            f"{_structured_output_diagnostic(error, raw_payload if isinstance(raw_payload, dict) else None)}"
         ) from error
     return StageResult(payload=payload, thread_id=thread_id, resolved_model=resolved_model)
 

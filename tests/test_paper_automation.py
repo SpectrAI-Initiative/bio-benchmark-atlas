@@ -726,11 +726,14 @@ def test_local_codex_double_pass_is_independent_read_only_and_ephemeral(
     assert "Do not use the network" in EXTRACTOR_PROMPT
     assert "formal subset or" in EXTRACTOR_PROMPT
     assert "Do not collapse a" in EXTRACTOR_PROMPT
+    assert "both the domain row and capability" in EXTRACTOR_PROMPT
+    assert "design/optimization" in EXTRACTOR_PROMPT
     assert "both introduces and evaluates the same" in EXTRACTOR_PROMPT
     assert "Issue hints may help find" in EXTRACTOR_PROMPT
     assert "document-page-NNN.jpg" in EXTRACTOR_PROMPT
     assert "independent verifier" in VERIFIER_PROMPT
     assert "semantic source claim" in VERIFIER_PROMPT
+    assert "full meaning preserved in the label" in VERIFIER_PROMPT
     assert "ordinary scientific prose" in VERIFIER_PROMPT
     assert "document-page-NNN.jpg" in VERIFIER_PROMPT
     heartbeat = json.loads(heartbeat_path.read_text(encoding="utf-8"))

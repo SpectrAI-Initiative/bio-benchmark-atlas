@@ -29,7 +29,7 @@ from paper_models import PaperEvidenceDraft, PaperEvidenceVerification, accepted
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL_TMP_ROOT = ROOT / ".paper-intake-tmp"
 PIPELINE_VERSION = "1.4.0"
-PROMPT_VERSION = "paper-evidence-local-v1"
+PROMPT_VERSION = "paper-evidence-local-v2"
 SOURCE_INPUT_PROTOCOL_VERSION = "multimodal-visible-html-v1"
 DEFAULT_MODEL = "gpt-5.6-sol"
 REVIEW_METHOD = "local-codex-double-pass"
@@ -110,6 +110,17 @@ formal partition into a broader total or omit it because another count is alread
 present. Preserve the source's discriminating partition words in benchmark-count
 labels so similarly sized counts remain distinguishable.
 
+Each BenchmarkMentionDraft represents one scientific relation and, for
+evaluations, one materially uniform evaluation setting. Do not create separate
+mentions merely because the same benchmark has several counts, tables, results,
+or source versions. When a creator paper both introduces and evaluates the same
+benchmark, emit exactly one benchmark-creation mention and one evaluation mention
+unless the paper explicitly reports materially different evaluation settings.
+Give every such mention its own relation claim, anchored to source language that
+explicitly establishes that use (for example, an introduction statement for
+creation or a results/table statement for evaluation). Issue hints may help find
+the locator but are never evidence.
+
 For a PDF, attached images named document-page-NNN.jpg are rasterized copies of
 physical PDF page NNN and are part of the original source. Inspect them for
 explicitly printed table, figure, heatmap, axis, legend, and cell labels that are
@@ -126,6 +137,14 @@ trust the extractor's excerpt or locator. Return supported only when the value,
 meaning, benchmark relation, and independently found locator all match. Treat
 ambiguous versions, model identities, subset sizes, and unlabeled chart values as
 not-verifiable or conflicted. Accuracy is more important than recall.
+
+Verify every relation claim as a semantic source claim. A paper need not print the
+Registry enum literal: explicit source language that introduces a benchmark
+supports benchmark-creation, and explicit language or a labeled results table
+showing systems assessed on that benchmark supports evaluation. Re-locate that
+source evidence independently. Do not reject a relation merely because the source
+uses ordinary scientific prose instead of the Registry enum spelling, and do not
+infer a relation from Issue hints alone.
 
 For a PDF, independently inspect every relevant attached
 document-page-NNN.jpg image. It is a rasterized copy of physical PDF page NNN and

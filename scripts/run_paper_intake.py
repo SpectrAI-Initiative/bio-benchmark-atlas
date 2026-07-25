@@ -138,6 +138,7 @@ def process_issue(
     verifier_model: str,
     write: bool,
     local_run_id: str | None = None,
+    owner_conflict_resolution: dict[str, object] | None = None,
 ) -> tuple[object, RetrievedSource, object]:
     sections = parse_issue_form(body)
     paper_url = sections.get("Paper or preprint URL")
@@ -197,6 +198,7 @@ def process_issue(
             },
             generated_at=source.retrieved_at,
             verified_on=source.retrieved_at[:10],
+            owner_conflict_resolution=owner_conflict_resolution,
         )
         if records.blocked_reasons:
             raise GenerationBlocked("; ".join(records.blocked_reasons))

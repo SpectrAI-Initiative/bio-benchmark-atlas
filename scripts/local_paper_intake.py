@@ -45,6 +45,7 @@ from triage_paper import (
 
 ROOT = Path(__file__).resolve().parents[1]
 REPOSITORY = "SpectrAI-Initiative/bio-benchmark-atlas"
+OWNER_LOGIN = "wang422003"
 STATE_ROOT = Path.home() / ".codex" / "biobench-atlas"
 RUN_ROOT = STATE_ROOT / "runs"
 GOLDEN_RECEIPT = STATE_ROOT / "golden.json"
@@ -159,11 +160,44 @@ def check_local_tools(*, runner: CommandRunner = subprocess.run) -> str:
 def _issue(number: int, *, runner: CommandRunner = subprocess.run) -> dict[str, Any]:
     payload = _json_command([
         "gh", "issue", "view", str(number), "--repo", REPOSITORY,
-        "--json", "number,title,body,labels,state,url",
+        "--json", "number,title,body,labels,state,url,author,comments",
     ], runner=runner)
     if payload.get("state") != "OPEN":
         raise LocalIntakeError(f"issue #{number} is not open")
     return payload
+
+
+def _owner_conflict_resolution(issue: dict[str, Any]) -> dict[str, Any] | None:
+    """Read the single narrow conflict override supported by local intake.
+
+    The command does not accept prose or arbitrary field paths. It only lets the
+    repository owner preserve an independently supported root total while
+    excluding every conflicted benchmark subcount.
+    """
+
+    pattern = re.compile(
+        r"^/resolve-paper-conflict benchmark-total=(\d+) exclude=benchmark-subcounts$"
+    )
+    resolutions: list[dict[str, Any]] = []
+    for comment in issue.get("comments", []):
+        author = (comment.get("author") or {}).get("login")
+        if author != OWNER_LOGIN:
+            continue
+        match = pattern.fullmatch(str(comment.get("body") or "").strip())
+        if not match:
+            continue
+        total = int(match.group(1))
+        if total <= 0:
+            continue
+        resolutions.append({
+            "benchmark_total": total,
+            "exclude": "benchmark-subcounts",
+            "approved_by": OWNER_LOGIN,
+            "approved_at": comment.get("createdAt"),
+        })
+    if len(resolutions) > 1 and len({item["benchmark_total"] for item in resolutions}) > 1:
+        raise LocalIntakeError("owner conflict-resolution comments disagree")
+    return resolutions[-1] if resolutions else None
 
 
 def _issue_labels(issue: dict[str, Any]) -> set[str]:
@@ -431,7 +465,14 @@ def _ensure_labels(*, runner: CommandRunner = subprocess.run) -> None:
         )
 
 
-def _claim_issue(issue: dict[str, Any], run_id: str, base_sha: str, *, runner: CommandRunner) -> None:
+def _claim_issue(
+    issue: dict[str, Any],
+    run_id: str,
+    base_sha: str,
+    *,
+    conflict_resolution: dict[str, Any] | None = None,
+    runner: CommandRunner,
+) -> None:
     labels = _issue_labels(issue)
     if "local-intake-in-progress" in labels:
         raise LocalIntakeError("issue already has an active local intake")
@@ -443,6 +484,8 @@ def _claim_issue(issue: dict[str, Any], run_id: str, base_sha: str, *, runner: C
     ]
     if "paper-candidate" in labels:
         arguments.extend(["--remove-label", "paper-candidate"])
+    if conflict_resolution and "needs-human-review" in labels:
+        arguments.extend(["--remove-label", "needs-human-review"])
     _gh(*arguments, runner=runner)
     started = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
     _gh(
@@ -571,6 +614,7 @@ def run_issue(
     if preflight.golden_status != "current":
         raise LocalIntakeError(preflight.golden_status)
     issue = _issue(issue_number, runner=runner)
+    conflict_resolution = _owner_conflict_resolution(issue)
     _save_state(selected_run_id, {
         "run_id": selected_run_id,
         "issue_number": issue_number,
@@ -578,7 +622,13 @@ def run_issue(
         "status": "claimed",
         "started_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
     })
-    _claim_issue(issue, selected_run_id, preflight.base_sha, runner=runner)
+    _claim_issue(
+        issue,
+        selected_run_id,
+        preflight.base_sha,
+        conflict_resolution=conflict_resolution,
+        runner=runner,
+    )
     records, source, result = process_issue(
         issue["body"],
         discovered="paper-candidate" in _issue_labels(issue),
@@ -586,6 +636,7 @@ def run_issue(
         verifier_model=DEFAULT_MODEL,
         write=True,
         local_run_id=selected_run_id,
+        owner_conflict_resolution=conflict_resolution,
     )
     _save_state(selected_run_id, {
         "run_id": selected_run_id,
@@ -611,6 +662,12 @@ def run_issue(
         "Confirmed: no paper full text, long excerpt, Codex transcript, extraction draft, "
         "or verification draft is included in this PR.\n"
     )
+    if conflict_resolution:
+        summary += (
+            "\nOwner-approved conflict handling: preserve the independently supported "
+            f"root total `{conflict_resolution['benchmark_total']}`; exclude all conflicted "
+            "benchmark subcounts and publish the inventory caveat.\n"
+        )
     pr_url = _publish_records(
         issue=issue,
         work_id=work_id,

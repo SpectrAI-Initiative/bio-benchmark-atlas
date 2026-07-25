@@ -56,6 +56,14 @@ output.
 ## Stop conditions
 
 - Stop with `needs-human-review` for source conflicts, ambiguous benchmark identity/version/count, missing creator evidence, unparseable sources, refusals, or invalid structured output.
+- A count conflict may continue only after `wang422003` posts the exact Issue comment
+  `/resolve-paper-conflict benchmark-total=<N> exclude=benchmark-subcounts`.
+  The approved root total must still be independently supported with high
+  confidence in both passes. The generator omits all conflicted benchmark and
+  scientific-task subcounts, records a machine-readable conflicted
+  `field_status`, and marks the benchmark `audited-with-caveats`. This command
+  cannot override benchmark identity/version, model, protocol, metric, or result
+  conflicts.
 - Use `intake-failed` only for local CLI, network, or temporary technical failures.
 - Never treat a failed extraction as `not_reported`.
 - Never retry by switching to a different model or remote API.

@@ -29,7 +29,7 @@ from paper_models import PaperEvidenceDraft, PaperEvidenceVerification, accepted
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL_TMP_ROOT = ROOT / ".paper-intake-tmp"
 PIPELINE_VERSION = "1.4.0"
-PROMPT_VERSION = "paper-evidence-local-v2"
+PROMPT_VERSION = "paper-evidence-local-v3"
 SOURCE_INPUT_PROTOCOL_VERSION = "multimodal-visible-html-v1"
 DEFAULT_MODEL = "gpt-5.6-sol"
 REVIEW_METHOD = "local-codex-double-pass"
@@ -108,7 +108,11 @@ exhaustively extract every explicitly printed benchmark total, formal subset or
 partition count, scope size, repeat count, version, and metric. Do not collapse a
 formal partition into a broader total or omit it because another count is already
 present. Preserve the source's discriminating partition words in benchmark-count
-labels so similarly sized counts remain distinguishable.
+labels so similarly sized counts remain distinguishable. A benchmark-count label
+must be self-contained: for a table cell or intersection, include every scientific
+axis needed to identify that number, such as both the domain row and capability
+column. Never replace a printed label such as design/optimization with a generic
+phrase such as matching tasks.
 
 Each BenchmarkMentionDraft represents one scientific relation and, for
 evaluations, one materially uniform evaluation setting. Do not create separate
@@ -145,6 +149,11 @@ showing systems assessed on that benchmark supports evaluation. Re-locate that
 source evidence independently. Do not reject a relation merely because the source
 uses ordinary scientific prose instead of the Registry enum spelling, and do not
 infer a relation from Issue hints alone.
+
+For benchmark-count claims, independently verify both the numeric value and the
+full meaning preserved in the label. For a table intersection, the supported
+label must retain the relevant row and column semantics; do not support a generic
+label that loses a discriminating domain, capability, subset, or partition term.
 
 For a PDF, independently inspect every relevant attached
 document-page-NNN.jpg image. It is a rasterized copy of physical PDF page NNN and

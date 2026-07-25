@@ -11,6 +11,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import uuid
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta, timezone
@@ -53,6 +54,17 @@ OWNER = "wang422003"
 MAX_GOLDEN_AGE = timedelta(days=35)
 
 CommandRunner = Callable[..., subprocess.CompletedProcess[str]]
+GH_TRANSIENT_ERRORS = (
+    "connection reset",
+    "eof",
+    "stream error",
+    "tls handshake timeout",
+    "timeout awaiting response headers",
+    " 502 ",
+    " 503 ",
+    " 504 ",
+)
+GH_MAX_ATTEMPTS = 3
 
 
 class LocalIntakeError(RuntimeError):
@@ -120,18 +132,24 @@ def _run(
     input_text: str | None = None,
     check: bool = True,
 ) -> subprocess.CompletedProcess[str]:
-    completed = runner(
-        command,
-        cwd=ROOT,
-        input=input_text,
-        text=True,
-        capture_output=True,
-        check=False,
-    )
-    if check and completed.returncode != 0:
+    attempts = GH_MAX_ATTEMPTS if command and command[0] == "gh" else 1
+    for attempt in range(attempts):
+        completed = runner(
+            command,
+            cwd=ROOT,
+            input=input_text,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if completed.returncode == 0 or not check:
+            return completed
         detail = (completed.stderr or completed.stdout)[-2000:].strip()
-        raise LocalIntakeError(f"{command[0]} command failed: {detail}")
-    return completed
+        transient = any(marker in f" {detail.casefold()} " for marker in GH_TRANSIENT_ERRORS)
+        if not transient or attempt == attempts - 1:
+            raise LocalIntakeError(f"{command[0]} command failed: {detail}")
+        time.sleep(2 ** attempt)
+    raise AssertionError("command retry loop exited without returning")
 
 
 def _json_command(command: list[str], *, runner: CommandRunner = subprocess.run) -> Any:

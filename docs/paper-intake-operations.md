@@ -67,6 +67,32 @@ Both use a read-only sandbox, ignore repository-specific user configuration, rec
 
 Only claims supported with high confidence in both passes can reach deterministic generation. Unsupported, conflicted, or not-verifiable claims are withheld. Unknown benchmark version, model identity, or subset size produces a partial `BenchmarkUse`; it cannot be upgraded by inference.
 
+### Owner-reviewed count conflicts
+
+When official sources independently support a root benchmark total but conflict
+on a supposedly exhaustive subcount inventory, intake first stops with
+`needs-human-review`. The repository owner may choose the narrow
+“verified-total only” policy by posting this exact Issue comment:
+
+```text
+/resolve-paper-conflict benchmark-total=<positive-integer> exclude=benchmark-subcounts
+```
+
+Only a comment authored by `wang422003` is accepted. The command does not turn
+the owner's preference into evidence: both local passes must still support that
+root total with high confidence, and a verifier-located count conflict must
+exist. The generator then:
+
+- retains the independently supported root total;
+- omits all conflicted benchmark and scientific-task subcounts;
+- records the omitted inventory as a machine-readable conflicted field;
+- marks the benchmark `audited-with-caveats`.
+
+The exception is intentionally limited to a newly created benchmark's counts. It
+cannot override conflicts in benchmark identity or version, models, protocols,
+metrics, or results. A fresh double-pass run and the normal exact-head-SHA PR
+approval are still required.
+
 Sources, short excerpts, transcripts, and structured drafts live only under the ignored `.paper-intake-tmp/` directory and are deleted in cleanup. They must never appear in Git diff, Actions artifacts, Pages, or a Release.
 
 ## 4. Local golden gate

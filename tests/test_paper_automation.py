@@ -61,7 +61,7 @@ from paper_extraction_eval import (  # noqa: E402
     _has_count_value,
     _has_evaluation_size,
 )
-from local_paper_intake import heartbeat_status  # noqa: E402
+from local_paper_intake import _owner_conflict_resolution, heartbeat_status  # noqa: E402
 from paper_source import (  # noqa: E402
     MAX_SOURCE_BYTES,
     SourceAcquisitionError,
@@ -344,6 +344,166 @@ def test_new_benchmark_without_creator_repository_pin_stops_production() -> None
     )
     assert records.benchmarks == []
     assert any("lacks verified claims" in reason for reason in records.blocked_reasons)
+
+
+def test_owner_conflict_resolution_requires_exact_owner_command() -> None:
+    issue = {
+        "comments": [
+            {
+                "author": {"login": "outside-contributor"},
+                "body": "/resolve-paper-conflict benchmark-total=12 exclude=benchmark-subcounts",
+                "createdAt": "2026-07-25T00:00:00Z",
+            },
+            {
+                "author": {"login": "wang422003"},
+                "body": "/resolve-paper-conflict benchmark-total=394 exclude=benchmark-subcounts",
+                "createdAt": "2026-07-25T01:00:00Z",
+            },
+        ],
+    }
+    assert _owner_conflict_resolution(issue) == {
+        "benchmark_total": 394,
+        "exclude": "benchmark-subcounts",
+        "approved_by": "wang422003",
+        "approved_at": "2026-07-25T01:00:00Z",
+    }
+    issue["comments"][1]["body"] = "/resolve-paper-conflict benchmark-total=394 exclude=anything"
+    assert _owner_conflict_resolution(issue) is None
+
+
+def test_owner_can_preserve_supported_root_total_but_not_conflicted_subcounts() -> None:
+    metadata = {
+        "name": "ConflictCountBench",
+        "aliases": [],
+        "summary": "A synthetic benchmark whose appendix inventory conflicts with its supported root total.",
+        "kind": "dataset",
+        "organizations": ["Example Institute"],
+        "release_date": "2026-07-01",
+        "domains": ["single-cell"],
+        "capabilities": ["data-analysis"],
+        "modalities": ["raw-omics"],
+        "task_formats": ["agent episode"],
+        "access": {
+            "level": "partially-open",
+            "tasks": "Representative examples are public.",
+            "artifacts": "The full benchmark is withheld.",
+            "grader": "Deterministic grader",
+            "license": "Apache-2.0",
+            "biosafety_notes": None,
+        },
+    }
+    claims = [
+        claim("claim-1", "paper-identity", {"title": "Synthetic benchmark evaluation paper"}, mention_id=None),
+        claim("claim-2", "relation", "benchmark-creation"),
+        claim("claim-3", "benchmark-identity", "ConflictCountBench"),
+        claim("claim-4", "benchmark-metadata", metadata),
+        claim("claim-5", "benchmark-version", "paper-v1"),
+        claim("claim-6", "benchmark-count", {
+            "label": "total problems",
+            "count": 394,
+            "unit": "problems",
+            "basis": "Problems used in the creator evaluation",
+            "reporting_status": "reported",
+            "subset_id": None,
+            "exclusive": False,
+            "exhaustive": False,
+            "partition_group": None,
+        }),
+        claim("claim-7", "creator-source", {"url": "https://doi.org/10.9999/synthetic.1"}),
+        claim("claim-8", "official-repository", {
+            "url": "https://github.com/example/conflictcountbench",
+            "license": "Apache-2.0",
+        }),
+        claim("claim-9", "scientific-task", {
+            "task_type_id": "cell-type-annotation",
+            "coverage": "explicitly-in-scope",
+            "mapping_method": "official-taxonomy",
+            "count": None,
+            "count_unit": "problems",
+            "count_basis": "Appendix inventory is conflicted",
+            "reporting_status": "not_reported",
+            "notes": "Coverage is explicit; its count is intentionally omitted.",
+        }),
+        claim("claim-10", "benchmark-count", {
+            "label": "appendix platform inventory",
+            "count": 390,
+            "unit": "problems",
+            "basis": "Conflicted appendix inventory",
+            "reporting_status": "reported",
+            "subset_id": "appendix-inventory",
+            "exclusive": False,
+            "exhaustive": False,
+            "partition_group": None,
+        }),
+    ]
+    mention = {
+        "mention_id": "mention-1",
+        "benchmark_name": "ConflictCountBench",
+        "registry_benchmark_id": None,
+        "relation_type": "benchmark-creation",
+        "is_new_benchmark": True,
+        "background_only": False,
+        "claim_ids": [item["claim_id"] for item in claims if item["mention_id"]],
+        "reporting_gaps": ["appendix inventory subcounts conflict with the supported root total"],
+    }
+    payload = verified_result(claims, mention)
+    payload["verification"]["blocking_conflicts"] = ["Root total and appendix inventory disagree."]
+    for item in payload["verification"]["claims"]:
+        if item["claim_id"] == "claim-10":
+            item.update({
+                "verdict": "conflicted",
+                "confidence": "high",
+                "locator": locator() | {"value": "Appendix Table 7"},
+            })
+    source = {**SOURCE, "repository_pins": {
+        "https://github.com/example/conflictcountbench": {
+            "kind": "commit",
+            "value": "c" * 40,
+            "url": "https://github.com/example/conflictcountbench/commit/" + "c" * 40,
+        }
+    }}
+    with pytest.raises(GenerationBlocked, match="blocking source conflicts"):
+        build_records(
+            payload,
+            source=source,
+            generated_at=SOURCE["retrieved_at"],
+            verified_on="2026-07-25",
+        )
+    records = build_records(
+        payload,
+        source=source,
+        generated_at=SOURCE["retrieved_at"],
+        verified_on="2026-07-25",
+        owner_conflict_resolution={
+            "benchmark_total": 394,
+            "exclude": "benchmark-subcounts",
+            "approved_by": "wang422003",
+            "approved_at": "2026-07-25T01:00:00Z",
+        },
+    )
+    benchmark = records.benchmarks[0]
+    assert benchmark["task_counts"]["total"] == 394
+    assert benchmark["task_counts"]["subsets"] == []
+    assert benchmark["audit"]["status"] == "audited-with-caveats"
+    assert benchmark["field_status"][0]["path"] == "/task_counts/subsets"
+    assert benchmark["field_status"][0]["status"] == "conflicted"
+    assert records.classifications["conflictcountbench"]["entries"][0]["count"] is None
+    for item in payload["verification"]["claims"]:
+        if item["claim_id"] == "claim-5":
+            item.update({"verdict": "conflicted", "confidence": "high"})
+    with pytest.raises(GenerationBlocked, match="cannot override conflicted claim types"):
+        build_records(
+            payload,
+            source=source,
+            generated_at=SOURCE["retrieved_at"],
+            verified_on="2026-07-25",
+            owner_conflict_resolution={
+                "benchmark_total": 394,
+                "exclude": "benchmark-subcounts",
+                "approved_by": "wang422003",
+                "approved_at": "2026-07-25T01:00:00Z",
+            },
+        )
 
 
 def test_discovery_high_precision_dedup_and_area_quotas() -> None:

@@ -339,6 +339,7 @@ def _build_new_benchmark(
     work_id: str,
     source: dict[str, Any],
     verified_on: str,
+    resolved_count_conflict: dict[str, Any] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     by_type: dict[str, list[Any]] = {}
     for claim in claims:
@@ -451,6 +452,28 @@ def _build_new_benchmark(
             "supports": ["/latest_version", "/versions/0"],
         },
     ]
+    field_status: list[dict[str, Any]] = []
+    if resolved_count_conflict:
+        conflict_claim = resolved_count_conflict["conflict_claim"]
+        conflict_evidence_id = f"{benchmark_id}-automated-count-conflict-evidence"
+        evidence.append({
+            "id": conflict_evidence_id,
+            "source_type": "work",
+            "source_id": work_id,
+            "accessed_date": verified_on,
+            "locator": _source_locator(verdicts[conflict_claim.claim_id]),
+            "supports": ["/task_counts/subsets"],
+        })
+        field_status.append({
+            "path": "/task_counts/subsets",
+            "status": "conflicted",
+            "confidence": "high",
+            "reason": (
+                "The owner approved the independently supported root total while all "
+                "conflicted inventory subcounts were excluded from publication."
+            ),
+            "evidence_ids": [conflict_evidence_id],
+        })
     classification_entries = []
     for index, task_claim in enumerate(by_type["scientific-task"]):
         payload = _claim_value(task_claim)
@@ -525,14 +548,39 @@ def _build_new_benchmark(
         "versions": [{
             "id": f"{benchmark_id}-{slugify(version_label, maximum=30)}-version",
             "label": version_label, "status": "current", "release_date": metadata["release_date"],
-            "as_of": None, "task_counts": task_counts, "formal_tracks": [], "notes": None,
+            "as_of": None,
+            "task_counts": task_counts,
+            "formal_tracks": [],
+            "notes": (
+                "Root total retained after owner review; conflicted appendix inventory "
+                "subcounts are intentionally omitted."
+                if resolved_count_conflict else None
+            ),
             "evidence_ids": [f"{benchmark_id}-automated-count-evidence", f"{benchmark_id}-automated-version-evidence"],
         }],
-        "audit": {"status": "audited", "audited_date": verified_on, "unresolved_fields": 0,
-                  "notes": "Automated double-pass extraction plus deterministic repository pin; owner approval required."},
-        "field_status": [],
+        "audit": {
+            "status": "audited-with-caveats" if resolved_count_conflict else "audited",
+            "audited_date": verified_on,
+            "unresolved_fields": len(field_status),
+            "notes": (
+                "Automated double-pass extraction plus deterministic repository pin. "
+                "Owner review preserved the corroborated root total and excluded conflicted "
+                "appendix inventory subcounts."
+                if resolved_count_conflict else
+                "Automated double-pass extraction plus deterministic repository pin; "
+                "owner approval required."
+            ),
+        },
+        "field_status": field_status,
         "verification": {"status": "verified", "last_verified": verified_on,
-                         "notes": "New family admitted only after creator source, official repository, and owner PR review."},
+                         "notes": (
+                             "New family admitted with an explicit count-inventory caveat after "
+                             "creator source, official repository, double-pass verification, and "
+                             "owner conflict resolution."
+                             if resolved_count_conflict else
+                             "New family admitted only after creator source, official repository, "
+                             "and owner PR review."
+                         )},
         "evidence": evidence,
     }
     classification = {
@@ -545,18 +593,122 @@ def _build_new_benchmark(
     return benchmark, classification
 
 
+def _apply_owner_count_conflict_resolution(
+    draft: PaperEvidenceDraft,
+    verification: PaperEvidenceVerification,
+    accepted: list[Any],
+    resolution: dict[str, Any] | None,
+) -> tuple[list[Any], dict[str, Any] | None]:
+    """Preserve one supported root total while excluding conflicted subcounts."""
+
+    if not verification.blocking_conflicts:
+        return accepted, None
+    if not resolution:
+        raise GenerationBlocked(
+            "blocking source conflicts: " + "; ".join(verification.blocking_conflicts)
+        )
+    if resolution.get("exclude") != "benchmark-subcounts":
+        raise GenerationBlocked("owner conflict resolution has an unsupported exclusion policy")
+    expected_total = resolution.get("benchmark_total")
+    if not isinstance(expected_total, int) or expected_total <= 0:
+        raise GenerationBlocked("owner conflict resolution has an invalid benchmark total")
+
+    draft_by_id = {claim.claim_id: claim for claim in draft.claims}
+    conflicted = [
+        draft_by_id[item.claim_id]
+        for item in verification.claims
+        if item.verdict == "conflicted" and item.claim_id in draft_by_id
+    ]
+    if not conflicted:
+        raise GenerationBlocked("blocking conflict has no claim-level conflicted locator")
+    disallowed = sorted({
+        claim.claim_type
+        for claim in conflicted
+        if claim.claim_type not in {"benchmark-count", "scientific-task"}
+    })
+    if disallowed:
+        raise GenerationBlocked(
+            "owner count resolution cannot override conflicted claim types: "
+            + ", ".join(disallowed)
+        )
+
+    creation_mentions = {
+        mention.mention_id
+        for mention in draft.benchmark_mentions
+        if mention.is_new_benchmark
+        and mention.relation_type == "benchmark-creation"
+        and not mention.background_only
+    }
+    if len(creation_mentions) != 1:
+        raise GenerationBlocked(
+            "owner count resolution requires exactly one newly created benchmark"
+        )
+    mention_id = next(iter(creation_mentions))
+    root_totals = [
+        claim
+        for claim in accepted
+        if claim.mention_id == mention_id
+        and claim.claim_type == "benchmark-count"
+        and isinstance(_claim_value(claim), dict)
+        and _claim_value(claim).get("subset_id") is None
+        and _claim_value(claim).get("count") == expected_total
+        and _claim_value(claim).get("reporting_status") == "reported"
+    ]
+    if not root_totals:
+        raise GenerationBlocked(
+            "owner-approved root total is not independently supported at high confidence"
+        )
+    conflict_claim = next(
+        (
+            claim for claim in conflicted
+            if claim.mention_id == mention_id and claim.claim_type == "benchmark-count"
+        ),
+        None,
+    )
+    if conflict_claim is None:
+        raise GenerationBlocked(
+            "owner count resolution lacks a conflicted benchmark-count locator"
+        )
+
+    filtered: list[Any] = []
+    for claim in accepted:
+        if claim.mention_id != mention_id:
+            filtered.append(claim)
+            continue
+        if claim.claim_type == "benchmark-count":
+            payload = _claim_value(claim)
+            if isinstance(payload, dict) and payload.get("subset_id") is not None:
+                continue
+        if claim.claim_type == "scientific-task":
+            payload = _claim_value(claim)
+            if isinstance(payload, dict) and payload.get("count") is not None:
+                continue
+        filtered.append(claim)
+    return filtered, {
+        "benchmark_total": expected_total,
+        "conflict_claim": conflict_claim,
+        "approved_by": resolution.get("approved_by"),
+        "approved_at": resolution.get("approved_at"),
+    }
+
+
 def build_records(
     result_payload: dict[str, Any],
     *,
     source: dict[str, Any],
     generated_at: str,
     verified_on: str,
+    owner_conflict_resolution: dict[str, Any] | None = None,
 ) -> GeneratedRecords:
     draft = PaperEvidenceDraft.model_validate(result_payload["draft"])
     verification = PaperEvidenceVerification.model_validate(result_payload["verification"])
-    if verification.blocking_conflicts:
-        raise GenerationBlocked("blocking source conflicts: " + "; ".join(verification.blocking_conflicts))
     accepted = accepted_claims(draft, verification)
+    accepted, resolved_count_conflict = _apply_owner_count_conflict_resolution(
+        draft,
+        verification,
+        accepted,
+        owner_conflict_resolution,
+    )
     identity_claims = [claim for claim in accepted if claim.claim_type == "paper-identity"]
     if not identity_claims:
         raise GenerationBlocked("paper identity was not independently verified at high confidence")
@@ -669,6 +821,7 @@ def build_records(
             benchmark, classification = _build_new_benchmark(
                 benchmark_id=benchmark_id, claims=claims, verdicts=verdicts, work_id=work_id,
                 source=source, verified_on=verified_on,
+                resolved_count_conflict=resolved_count_conflict,
             )
         except GenerationBlocked as error:
             output.blocked_reasons.append(str(error))

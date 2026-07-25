@@ -457,10 +457,17 @@ def _ensure_labels(*, runner: CommandRunner = subprocess.run) -> None:
         "intake-failed": ("b60205", "Local paper intake stopped on a technical failure"),
         "paper-intake-pr": ("6f42c1", "Paper intake has a reviewable pull request"),
     }
+    current = _json_command([
+        "gh", "label", "list", "--repo", REPOSITORY,
+        "--limit", "100", "--json", "name",
+    ], runner=runner)
+    existing = {str(item.get("name")) for item in current}
     for name, (color, description) in definitions.items():
+        if name in existing:
+            continue
         _gh(
             "label", "create", name, "--repo", REPOSITORY,
-            "--color", color, "--description", description, "--force",
+            "--color", color, "--description", description,
             runner=runner,
         )
 

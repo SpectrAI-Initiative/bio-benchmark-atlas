@@ -61,7 +61,11 @@ from paper_extraction_eval import (  # noqa: E402
     _has_count_value,
     _has_evaluation_size,
 )
-from local_paper_intake import _owner_conflict_resolution, heartbeat_status  # noqa: E402
+from local_paper_intake import (  # noqa: E402
+    _ensure_labels,
+    _owner_conflict_resolution,
+    heartbeat_status,
+)
 from paper_source import (  # noqa: E402
     MAX_SOURCE_BYTES,
     SourceAcquisitionError,
@@ -369,6 +373,32 @@ def test_owner_conflict_resolution_requires_exact_owner_command() -> None:
     }
     issue["comments"][1]["body"] = "/resolve-paper-conflict benchmark-total=394 exclude=anything"
     assert _owner_conflict_resolution(issue) is None
+
+
+def test_local_intake_only_creates_missing_issue_labels() -> None:
+    existing = [
+        "paper-candidate",
+        "ready-for-local-intake",
+        "local-intake-in-progress",
+        "needs-human-review",
+        "intake-failed",
+    ]
+    calls: list[list[str]] = []
+
+    def runner(command: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        calls.append(command)
+        if command[:3] == ["gh", "label", "list"]:
+            return subprocess.CompletedProcess(
+                command, 0, json.dumps([{"name": name} for name in existing]), "",
+            )
+        return subprocess.CompletedProcess(command, 0, "", "")
+
+    _ensure_labels(runner=runner)
+
+    mutations = [command for command in calls if command[:3] == ["gh", "label", "create"]]
+    assert len(mutations) == 1
+    assert mutations[0][3] == "paper-intake-pr"
+    assert "--force" not in mutations[0]
 
 
 def test_owner_can_preserve_supported_root_total_but_not_conflicted_subcounts() -> None:

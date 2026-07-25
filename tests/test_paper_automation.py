@@ -5,6 +5,7 @@ import csv
 import json
 import subprocess
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -25,22 +26,42 @@ from discover_papers import (  # noqa: E402
     score_candidate,
     select_by_quota,
 )
-from generate_paper_records import build_records, stable_work_id, write_records  # noqa: E402
+from generate_paper_records import (  # noqa: E402
+    GenerationBlocked,
+    build_records,
+    stable_work_id,
+    write_records,
+)
 from extract_paper import (  # noqa: E402
     EXTRACTOR_PROMPT,
+    CodexExecutionError,
+    PaperExtractionError,
     VERIFIER_PROMPT,
     _child_environment,
     _codex_failure_diagnostic,
+    _pdf_pages_for_visual_review,
+    _prepare_local_text_source,
+    _render_pdf_pages,
     _run_stage,
     _structured_output_diagnostic,
+    _verifier_source_images,
+    review_source_sha256,
     run_double_pass,
 )
 from paper_models import (  # noqa: E402
+    EvidenceClaimDraft,
     LocatorDraft,
     PaperEvidenceDraft,
     PaperEvidenceVerification,
     accepted_claims,
 )
+from paper_extraction_eval import (  # noqa: E402
+    _checkpoint_case_current,
+    _codex_cli_major,
+    _has_count_value,
+    _has_evaluation_size,
+)
+from local_paper_intake import heartbeat_status  # noqa: E402
 from paper_source import (  # noqa: E402
     MAX_SOURCE_BYTES,
     SourceAcquisitionError,
@@ -48,6 +69,7 @@ from paper_source import (  # noqa: E402
     retrieve_source,
 )
 from registry_io import load_entities  # noqa: E402
+from run_paper_intake import _focus_pdf_pages  # noqa: E402
 from validate_registry import validate_registry  # noqa: E402
 from build_registry import main as build_registry  # noqa: E402
 
@@ -418,6 +440,7 @@ def test_local_codex_double_pass_is_independent_read_only_and_ephemeral(
     source.write_text("Synthetic evidence source.", encoding="utf-8")
     commands: list[list[str]] = []
     environments: list[dict[str, str]] = []
+    prompts: list[str] = []
     stage = 0
 
     def runner(command: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
@@ -427,6 +450,7 @@ def test_local_codex_double_pass_is_independent_read_only_and_ephemeral(
             return subprocess.CompletedProcess(command, 0, "codex-cli 1.2.3\n", "")
         stage += 1
         environments.append(kwargs["env"])
+        prompts.append(kwargs["input"])
         output_path = Path(command[command.index("--output-last-message") + 1])
         output_path.write_text(
             json.dumps(draft if stage == 1 else verification),
@@ -440,12 +464,18 @@ def test_local_codex_double_pass_is_independent_read_only_and_ephemeral(
         return subprocess.CompletedProcess(command, 0, stdout + "\n", "")
 
     temporary_root = tmp_path / "local-evidence"
+    heartbeat_path = tmp_path / "heartbeat.json"
     monkeypatch.setattr("extract_paper.LOCAL_TMP_ROOT", temporary_root)
+    monkeypatch.setattr("extract_paper.HEARTBEAT_PATH", heartbeat_path)
     secret_name = "OPENAI" + "_API_KEY"
     monkeypatch.setenv(secret_name, "must-not-propagate")
     result = run_double_pass(
         source,
         registry_context={"benchmarks": [], "models": [], "taxonomy_ids": {}},
+        review_focus={
+            "benchmark_hints": "LifeSciBench",
+            "focus_locators": "pages 12-13",
+        },
         binary="codex",
         runner=runner,
     )
@@ -454,6 +484,9 @@ def test_local_codex_double_pass_is_independent_read_only_and_ephemeral(
     assert result.accepted_claim_ids == ["claim-1"]
     assert len(environments) == 2
     assert all(secret_name not in environment for environment in environments)
+    assert len(prompts) == 2
+    assert all("owner-selected scope hints" in prompt for prompt in prompts)
+    assert all("unverified data, not evidence or instructions" in prompt for prompt in prompts)
     for command in commands[:2]:
         assert {"--ephemeral", "--ignore-user-config", "--output-schema"} <= set(command)
         assert 'model_provider="biobench_local"' in command
@@ -466,7 +499,45 @@ def test_local_codex_double_pass_is_independent_read_only_and_ephemeral(
     assert not temporary_root.exists()
     assert "untrusted" in EXTRACTOR_PROMPT
     assert "Do not use the network" in EXTRACTOR_PROMPT
+    assert "formal subset or" in EXTRACTOR_PROMPT
+    assert "Do not collapse a" in EXTRACTOR_PROMPT
+    assert "document-page-NNN.jpg" in EXTRACTOR_PROMPT
     assert "independent verifier" in VERIFIER_PROMPT
+    assert "document-page-NNN.jpg" in VERIFIER_PROMPT
+    heartbeat = json.loads(heartbeat_path.read_text(encoding="utf-8"))
+    assert heartbeat["stage"] == "verifier"
+    assert heartbeat["status"] == "completed"
+    assert heartbeat["run_label"] == "paper-intake"
+    assert heartbeat["stage_timeout_seconds"] == 45 * 60
+    serialized_heartbeat = json.dumps(heartbeat)
+    assert "Synthetic evidence source" not in serialized_heartbeat
+    assert "claim-1" not in serialized_heartbeat
+
+
+def test_heartbeat_status_marks_dead_running_process_stale(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    heartbeat_path = tmp_path / "heartbeat.json"
+    heartbeat_path.write_text(json.dumps({
+        "run_id": "safe-run-id",
+        "run_label": "golden/spatialbench-version-separation/spatialbench-paper-v2",
+        "stage": "verifier",
+        "status": "running",
+        "process_pid": 999_999_999,
+        "updated_at": "2026-07-23T10:00:00+00:00",
+    }), encoding="utf-8")
+    monkeypatch.setattr("local_paper_intake.HEARTBEAT_PATH", heartbeat_path)
+    state = heartbeat_status(now=datetime.fromisoformat("2026-07-23T10:01:00+00:00"))
+    assert state["process_alive"] is False
+    assert state["stale"] is True
+    assert state["heartbeat_age_seconds"] == 60
+
+
+def test_golden_checkpoint_cli_compatibility_uses_major_version() -> None:
+    assert _codex_cli_major("codex-cli 0.145.0-alpha.30") == "0"
+    assert _codex_cli_major("codex-cli 0.146.0-alpha.3.1") == "0"
+    assert _codex_cli_major("codex-cli 2.1.0") == "2"
 
 
 def test_child_codex_environment_drops_remote_credentials(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -538,11 +609,48 @@ def test_structured_output_diagnostic_omits_claim_values() -> None:
     assert "Sensitive" not in diagnostic
 
 
+def test_claim_value_json_normalizes_safe_json_like_output() -> None:
+    scalar = EvidenceClaimDraft.model_validate({
+        "claim_id": "claim-1",
+        "mention_id": "mention-1",
+        "claim_type": "scope-type",
+        "field_path": "/scope/type",
+        "value_json": "full",
+        "confidence": "high",
+        "locators": [locator()],
+    })
+    assert json.loads(scalar.value_json) == "full"
+
+    structured = EvidenceClaimDraft.model_validate({
+        "claim_id": "claim-2",
+        "mention_id": "mention-1",
+        "claim_type": "benchmark-count",
+        "field_path": "/task_counts/0",
+        "value_json": "{'label': 'total', 'count': 146}",
+        "confidence": "high",
+        "locators": [locator()],
+    })
+    assert json.loads(structured.value_json) == {"label": "total", "count": 146}
+
+    with pytest.raises(ValidationError):
+        EvidenceClaimDraft.model_validate({
+            "claim_id": "claim-3",
+            "mention_id": "mention-1",
+            "claim_type": "result",
+            "field_path": "/results/0",
+            "value_json": "not a structured result",
+            "confidence": "high",
+            "locators": [locator()],
+        })
+
+
 def test_local_codex_stage_retries_only_transient_transport_failures(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     output_path = tmp_path / "draft.json"
+    image_path = tmp_path / "document-page-018.jpg"
+    image_path.write_bytes(b"synthetic image")
     attempts = 0
     valid_draft = draft_payload([], {
         "mention_id": "mention-1",
@@ -558,6 +666,8 @@ def test_local_codex_stage_retries_only_transient_transport_failures(
     def transient_runner(command: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
         nonlocal attempts
         attempts += 1
+        assert command[command.index("--image") + 1] == str(image_path)
+        assert command[-2:] == ["--", "-"]
         if attempts == 1:
             return subprocess.CompletedProcess(
                 command,
@@ -583,9 +693,35 @@ def test_local_codex_stage_retries_only_transient_transport_failures(
         reasoning_effort="high",
         binary="codex",
         runner=transient_runner,
+        image_paths=[image_path],
     )
     assert attempts == 2
     assert result.thread_id == "thread-retry"
+
+
+def test_local_codex_stage_has_a_non_retrying_wall_clock_limit(
+    tmp_path: Path,
+) -> None:
+    attempts = 0
+
+    def timeout_runner(command: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        nonlocal attempts
+        attempts += 1
+        assert kwargs["timeout"] == 45 * 60
+        raise subprocess.TimeoutExpired(command, kwargs["timeout"])
+
+    with pytest.raises(CodexExecutionError, match="45-minute wall-clock limit"):
+        _run_stage(
+            prompt="Synthetic prompt",
+            output_type=PaperEvidenceDraft,
+            schema_path=tmp_path / "schema.json",
+            output_path=tmp_path / "draft.json",
+            model="gpt-5.6-sol",
+            reasoning_effort="high",
+            binary="codex",
+            runner=timeout_runner,
+        )
+    assert attempts == 1
 
 
 class FakeResponse:
@@ -605,6 +741,181 @@ def pdf_bytes(pages: int) -> bytes:
     writer = PdfWriter()
     for _ in range(pages): writer.add_blank_page(width=72, height=72)
     output = io.BytesIO(); writer.write(output); return output.getvalue()
+
+
+def test_pdf_visual_pages_are_temporary_numbered_image_inputs(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source = tmp_path / "paper.pdf"
+    source.write_bytes(pdf_bytes(2))
+    monkeypatch.setattr("extract_paper.shutil.which", lambda _: "/usr/bin/pdftoppm")
+
+    def render_runner(command: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        Path(f"{command[-1]}.jpg").write_bytes(b"jpeg")
+        return subprocess.CompletedProcess(command, 0, "", "")
+
+    assert _pdf_pages_for_visual_review(source) == [1, 2]
+    images = _render_pdf_pages(source, tmp_path, runner=render_runner)
+    assert [path.name for path in images] == [
+        "document-page-001.jpg",
+        "document-page-002.jpg",
+    ]
+    assert _pdf_pages_for_visual_review(source, preferred_pages=[2, 2]) == [2]
+    focused_images = _render_pdf_pages(
+        source,
+        tmp_path / "focused",
+        preferred_pages=[2],
+        runner=render_runner,
+    )
+    assert [path.name for path in focused_images] == ["document-page-002.jpg"]
+
+
+def test_pdf_focus_parses_only_explicit_page_locators() -> None:
+    assert _focus_pdf_pages(
+        "Review pages 15-25, page 18, and pages 187\u2013190. "
+        "The benchmark has 1260 attempts and 57 participants."
+    ) == [*range(15, 26), *range(187, 191)]
+    assert _focus_pdf_pages("Section 8.17 and 1260 attempts") is None
+    with pytest.raises(GenerationBlocked, match="at most 40 pages"):
+        _focus_pdf_pages("pages 1-41")
+
+
+def test_html_source_uses_visible_text_without_scripts(tmp_path: Path) -> None:
+    source = tmp_path / "source.txt"
+    visible_sentence = "BioMysteryBench has 99 questions and five trials per task. "
+    source.write_text(
+        "<!doctype html><html><head><script>private_payload = 'ignore me'</script></head>"
+        f"<body><article><h1>Official evaluation</h1><p>{visible_sentence * 20}</p>"
+        "</article></body></html>",
+        encoding="utf-8",
+    )
+    visible, original = _prepare_local_text_source(source, tmp_path)
+    assert visible.name == "source-visible.txt"
+    assert original is not None and original.name == "source-original.html"
+    normalized = visible.read_text(encoding="utf-8")
+    assert "BioMysteryBench has 99 questions" in normalized
+    assert "private_payload" not in normalized
+    assert "private_payload" in original.read_text(encoding="utf-8")
+
+
+def test_html_review_fingerprint_ignores_scripts_but_detects_visible_changes(
+    tmp_path: Path,
+) -> None:
+    first = tmp_path / "first.html"
+    second = tmp_path / "second.html"
+    third = tmp_path / "third.html"
+    visible = "SpatialBench contains 146 verifiable benchmark problems. " * 12
+    first.write_text(
+        f"<html><body><p>{visible}</p><script>build='a'</script></body></html>",
+        encoding="utf-8",
+    )
+    second.write_text(
+        f"<html><body><p>{visible}</p><script>build='b'</script></body></html>",
+        encoding="utf-8",
+    )
+    third.write_text(
+        f"<html><body><p>{visible}Visible revision.</p><script>build='b'</script></body></html>",
+        encoding="utf-8",
+    )
+    assert review_source_sha256(first) == review_source_sha256(second)
+    assert review_source_sha256(first) != review_source_sha256(third)
+
+
+def test_golden_checkpoint_requires_matching_case_and_source_fingerprints() -> None:
+    progress = {
+        "completed_cases": ["lifescibench"],
+        "source_fingerprints": {"lifescibench": "sha256-a"},
+    }
+    assert _checkpoint_case_current(
+        progress,
+        "lifescibench",
+        {"lifescibench": "sha256-a"},
+    )
+    assert not _checkpoint_case_current(
+        progress,
+        "lifescibench",
+        {"lifescibench": "sha256-b"},
+    )
+    assert not _checkpoint_case_current(
+        progress,
+        "biomysterybench",
+        {"biomysterybench": "sha256-a"},
+    )
+
+
+def test_golden_total_count_does_not_depend_on_model_generated_label_wording() -> None:
+    payloads = [(
+        "benchmark-count",
+        {
+            "label": "Questions in BioMysteryBench",
+            "count": 99,
+            "unit": "questions",
+            "reporting_status": "reported",
+        },
+    )]
+    assert _has_count_value(payloads, 99)
+    assert not _has_count_value(payloads, 100)
+
+
+def test_spatial_golden_accepts_verified_scope_or_result_sample_size() -> None:
+    assert _has_evaluation_size([("scope-n", 146)], 146)
+    assert _has_evaluation_size([(
+        "result",
+        {"n": 159, "value": 53.67, "numeric_source": "table"},
+    )], 159)
+    assert not _has_evaluation_size([("scope-n", 147)], 146)
+
+
+def test_verifier_receives_only_extractor_cited_visual_pages(tmp_path: Path) -> None:
+    images = [
+        tmp_path / "document-page-003.jpg",
+        tmp_path / "document-page-018.jpg",
+        tmp_path / "document-page-020.jpg",
+    ]
+    count_claim = claim(
+        "claim-1",
+        "benchmark-count",
+        {
+            "label": "Protein domain total",
+            "count": 136,
+            "unit": "tasks",
+            "basis": "Figure cell total",
+            "reporting_status": "reported",
+            "subset_id": "protein",
+            "exclusive": False,
+            "exhaustive": False,
+            "partition_group": None,
+        },
+    )
+    count_claim["locators"] = [locator() | {
+        "locator_type": "figure",
+        "value": "Figure 13",
+        "document_page": 18,
+    }]
+    draft = PaperEvidenceDraft.model_validate(draft_payload(
+        [count_claim],
+        {
+            "mention_id": "mention-1",
+            "benchmark_name": "LifeSciBench",
+            "registry_benchmark_id": "lifescibench",
+            "relation_type": "evaluation",
+            "is_new_benchmark": False,
+            "background_only": False,
+            "claim_ids": ["claim-1"],
+            "reporting_gaps": [],
+        },
+    ))
+    assert _verifier_source_images(images, draft) == [images[1]]
+
+
+def test_long_image_only_pdf_stops_instead_of_silently_skipping_visual_pages(
+    tmp_path: Path,
+) -> None:
+    source = tmp_path / "long-paper.pdf"
+    source.write_bytes(pdf_bytes(41))
+    with pytest.raises(PaperExtractionError, match="more than 40 pages requiring visual review"):
+        _pdf_pages_for_visual_review(source)
 
 
 def test_source_rights_mime_size_pages_and_sha(monkeypatch: pytest.MonkeyPatch) -> None:

@@ -5,7 +5,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -18,6 +20,8 @@ from typing import Any, Callable
 from extract_paper import (
     DEFAULT_MODEL,
     EXTRACTOR_PROMPT,
+    HEARTBEAT_INTERVAL_SECONDS,
+    HEARTBEAT_PATH,
     PROMPT_VERSION,
     VERIFIER_PROMPT,
     CodexExecutionError,
@@ -52,6 +56,43 @@ CommandRunner = Callable[..., subprocess.CompletedProcess[str]]
 
 class LocalIntakeError(RuntimeError):
     """A local workflow precondition or lifecycle operation failed."""
+
+
+def heartbeat_status(*, now: datetime | None = None) -> dict[str, Any]:
+    """Return safe liveness state without exposing source or model content."""
+
+    if not HEARTBEAT_PATH.exists():
+        return {
+            "status": "not-started",
+            "heartbeat_path": str(HEARTBEAT_PATH),
+            "stale": False,
+        }
+    try:
+        payload = json.loads(HEARTBEAT_PATH.read_text(encoding="utf-8"))
+        updated_at = datetime.fromisoformat(str(payload["updated_at"]))
+    except (OSError, KeyError, ValueError, json.JSONDecodeError) as error:
+        raise LocalIntakeError("local heartbeat is unreadable") from error
+    current = now or datetime.now(timezone.utc)
+    if updated_at.tzinfo is None:
+        updated_at = updated_at.replace(tzinfo=timezone.utc)
+    age_seconds = max(0, round((current - updated_at).total_seconds()))
+    process_pid = payload.get("process_pid")
+    process_alive = False
+    if isinstance(process_pid, int) and process_pid > 0:
+        try:
+            os.kill(process_pid, 0)
+            process_alive = True
+        except (OSError, ValueError):
+            process_alive = False
+    stale_after = max(150, HEARTBEAT_INTERVAL_SECONDS * 2 + 30)
+    payload["heartbeat_age_seconds"] = age_seconds
+    payload["process_alive"] = process_alive
+    payload["stale"] = (
+        payload.get("status") == "running"
+        and (age_seconds > stale_after or not process_alive)
+    )
+    payload["heartbeat_path"] = str(HEARTBEAT_PATH)
+    return payload
 
 
 @dataclass(frozen=True)
@@ -324,6 +365,10 @@ def preflight_issue(
     source_url, rights_confirmed, discovered = _source_details(issue)
     source = retrieve_source(source_url, rights_confirmed=rights_confirmed, discovered=discovered)
     try:
+        if source.content_type == "application/pdf" and shutil.which("pdftoppm") is None:
+            raise LocalIntakeError(
+                "PDF visual review requires pdftoppm (Poppler); install it before intake"
+            )
         work_id, duplicate_ids = _work_hint(issue)
         return Preflight(
             issue_number=issue_number,
@@ -607,10 +652,14 @@ def main() -> int:
     resume = subparsers.add_parser("resume")
     resume.add_argument("--run-id", required=True)
     subparsers.add_parser("golden")
+    subparsers.add_parser("status")
     args = parser.parse_args()
 
     issue_number: int | None = None
     try:
+        if args.command == "status":
+            print(json.dumps(heartbeat_status(), ensure_ascii=False, indent=2, sort_keys=True))
+            return 0
         if args.command == "golden":
             receipt = run_golden(output=GOLDEN_RECEIPT)
             print(json.dumps(receipt, ensure_ascii=False, indent=2, sort_keys=True))

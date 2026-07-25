@@ -13,7 +13,8 @@ Accepted invocations are `$biobench-paper-intake issue 44` and `$biobench-paper-
 
 1. Read [evidence-policy.md](references/evidence-policy.md) before reviewing claims.
 2. Read [registry-mapping.md](references/registry-mapping.md) before generating records.
-3. Start from a clean, current `main`. Run a preflight:
+3. Start from a clean, current `main`. For PDF sources, ensure Poppler
+   `pdftoppm` is installed so visual labels can be reviewed. Run a preflight:
 
    ```bash
    python3 scripts/local_paper_intake.py preflight --issue <number>
@@ -44,6 +45,13 @@ Accepted invocations are `$biobench-paper-intake issue 44` and `$biobench-paper-
 - `run --issue N`: execute the local double pass, generate records, validate, commit, push, and open a PR.
 - `resume --run-id ID`: restart from the stored issue reference; full text and model drafts are reacquired, never persisted.
 - `golden`: run the local precision regression groups and save a sanitized receipt under `~/.codex/biobench-atlas/`.
+- `status`: inspect the current stage heartbeat and detect a stale or exited local run.
+
+Long extractor and verifier stages write privacy-safe liveness metadata every
+60 seconds to `~/.codex/biobench-atlas/heartbeat.json`. The heartbeat contains
+only the run label, stage, process ID, timestamps, elapsed time, and terminal
+status. It must never contain paper text, source paths, claims, excerpts, or model
+output.
 
 ## Stop conditions
 

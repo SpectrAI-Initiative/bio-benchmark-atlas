@@ -7,11 +7,12 @@ pass has accepted each claim.
 
 from __future__ import annotations
 
+import ast
 import json
 import re
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator
 
 
 Confidence = Literal["high", "medium", "low"]
@@ -109,11 +110,33 @@ class EvidenceClaimDraft(StrictModel):
     confidence: Confidence
     locators: list[LocatorDraft] = Field(min_length=1)
 
-    @field_validator("value_json")
+    @field_validator("value_json", mode="before")
     @classmethod
-    def value_is_json(cls, value: str) -> str:
-        json.loads(value)
-        return value
+    def value_is_json(cls, value: object, info: ValidationInfo) -> object:
+        if not isinstance(value, str):
+            return value
+        try:
+            parsed = json.loads(value)
+        except json.JSONDecodeError:
+            try:
+                parsed = ast.literal_eval(value)
+            except (SyntaxError, ValueError):
+                string_claims = {
+                    "relation",
+                    "benchmark-identity",
+                    "benchmark-version",
+                    "scope-type",
+                    "subset-id",
+                    "selection",
+                    "selection-method",
+                    "prompt",
+                    "reasoning",
+                }
+                if info.data.get("claim_type") in string_claims and value.strip():
+                    parsed = value.strip()
+                else:
+                    raise ValueError("value_json must contain valid JSON") from None
+        return json.dumps(parsed, ensure_ascii=False, separators=(",", ":"))
 
 
 class PaperEvidenceDraft(StrictModel):

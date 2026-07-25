@@ -9,6 +9,8 @@ The owner machine needs:
 - a clean clone of `SpectrAI-Initiative/bio-benchmark-atlas`;
 - `gh` authenticated as `wang422003`;
 - Codex CLI authenticated through the existing Codex/ChatGPT login;
+- Poppler `pdftoppm`, used to create temporary physical-page images so both
+  independent sessions can inspect labels that are absent from a PDF text layer;
 - Python 3.10+, Node 24, and pnpm.
 
 Do not configure a repository model API key. The local orchestrator removes API-key and paper-model environment overrides before launching its child sessions.
@@ -40,7 +42,17 @@ python scripts/local_paper_intake.py run --url https://doi.org/...
 python scripts/local_paper_intake.py resume --run-id <id>
 ```
 
-Preflight checks local Git, `gh`, Codex CLI, source rights, MIME, the 45 MiB / 150-page limits, duplicate Work/Issue/branch/PR records, a current local golden receipt, and exact synchronization between `main` and `origin/main`. It writes no Registry data.
+Preflight checks local Git, `gh`, Codex CLI, Poppler for PDF sources, source
+rights, MIME, the 45 MiB / 150-page limits, duplicate Work/Issue/branch/PR
+records, a current local golden receipt, and exact synchronization between
+`main` and `origin/main`. It writes no Registry data. PDF page images are created
+only under the ignored intake temporary directory and are deleted with the other
+private extraction artifacts.
+
+Each extractor or verifier invocation has a 45-minute wall-clock limit. A stage
+that exceeds it stops as a technical `intake-failed` condition; it is not treated
+as evidence that the paper omitted a field, and the orchestrator does not launch
+another expensive inference attempt automatically.
 
 At run start the orchestrator labels the Issue `local-intake-in-progress` and posts a claim comment containing a random local run ID, base SHA, and timestamp. A second active run for the same Issue stops. An existing branch or PR is resumed rather than duplicated.
 
@@ -72,7 +84,23 @@ The gate checks:
 - distinct SpatialBench 146 and 159 versions;
 - Anthropic × BixBench as a partial relationship without an invented score.
 
-The receipt is stored at `~/.codex/biobench-atlas/golden.json`. It contains only the date, prompt/schema hash, requested model, Codex CLI version, and pass/fail results. Production requires a successful receipt no older than 35 days, an identical prompt/schema/model hash, and the same Codex CLI major version.
+The receipt is stored at `~/.codex/biobench-atlas/golden.json`. It contains only
+the date, prompt/schema/source-input-protocol hash, requested model, Codex CLI
+version, and pass/fail results. Production requires a successful receipt no older
+than 35 days, an identical prompt/schema/source-input/model hash, and the same
+Codex CLI major version.
+
+The golden runner checkpoints each completed regression case in
+`~/.codex/biobench-atlas/golden-progress.json`. The checkpoint contains only
+case names, the input hash, the Codex CLI version, official-source SHA256 values,
+and timestamps—never claims, excerpts, or model output. A resumed run skips a
+case only when its source fingerprints and all input versions still match. The
+checkpoint is deleted after the final receipt is written.
+
+For HTML sources, the checkpoint SHA256 is computed from the same deterministic
+visible-text view used for review, so unrelated site scripts and build metadata
+do not invalidate a scientific-content checkpoint. Registry provenance continues
+to store the SHA256 of the complete original download.
 
 ## 5. PR and exact-SHA owner gate
 

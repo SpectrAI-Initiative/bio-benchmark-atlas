@@ -39,6 +39,29 @@ def _first_url(value: str | None) -> str | None:
     return match.group(0).rstrip(".,") if match else None
 
 
+def _focus_pdf_pages(value: str | None) -> list[int] | None:
+    """Expand explicit owner-supplied physical page locators, never free-form numbers."""
+
+    if not value:
+        return None
+    pages: set[int] = set()
+    for match in re.finditer(
+        r"\bpages?\s+(\d+)(?:\s*[-\N{EN DASH}\N{EM DASH}]\s*(\d+))?",
+        value,
+        flags=re.IGNORECASE,
+    ):
+        start = int(match.group(1))
+        end = int(match.group(2) or start)
+        if end < start:
+            start, end = end, start
+        if end - start + 1 > 40:
+            raise GenerationBlocked("a PDF focus range may contain at most 40 pages")
+        pages.update(range(start, end + 1))
+    if len(pages) > 40:
+        raise GenerationBlocked("combined PDF focus ranges may contain at most 40 pages")
+    return sorted(pages) or None
+
+
 def registry_context() -> dict[str, object]:
     entities = load_entities()
     taxonomies = load_taxonomies()
@@ -143,12 +166,24 @@ def process_issue(
         pass
     source = retrieve_source(source_url, rights_confirmed=rights_confirmed, discovered=discovered)
     try:
+        benchmark_hints = sections.get("Possible benchmarks", "")
+        focus_locators = sections.get("Relevant tables, figures, or sections", "")
+        review_focus = {
+            key: value[:6000]
+            for key, value in {
+                "benchmark_hints": benchmark_hints,
+                "focus_locators": focus_locators,
+            }.items()
+            if value and value.strip() and value.strip() != "_No response_"
+        }
         result = run_double_pass(
             source.path,
             registry_context=registry_context(),
             extractor_model=extractor_model,
             verifier_model=verifier_model,
             local_run_id=local_run_id,
+            review_focus=review_focus or None,
+            preferred_pdf_pages=_focus_pdf_pages(focus_locators),
         )
         records = build_records(
             result.as_dict(),

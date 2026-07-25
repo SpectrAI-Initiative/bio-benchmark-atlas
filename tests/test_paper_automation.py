@@ -26,7 +26,12 @@ from discover_papers import (  # noqa: E402
     score_candidate,
     select_by_quota,
 )
-from generate_paper_records import build_records, stable_work_id, write_records  # noqa: E402
+from generate_paper_records import (  # noqa: E402
+    GenerationBlocked,
+    build_records,
+    stable_work_id,
+    write_records,
+)
 from extract_paper import (  # noqa: E402
     EXTRACTOR_PROMPT,
     CodexExecutionError,
@@ -64,6 +69,7 @@ from paper_source import (  # noqa: E402
     retrieve_source,
 )
 from registry_io import load_entities  # noqa: E402
+from run_paper_intake import _focus_pdf_pages  # noqa: E402
 from validate_registry import validate_registry  # noqa: E402
 from build_registry import main as build_registry  # noqa: E402
 
@@ -434,6 +440,7 @@ def test_local_codex_double_pass_is_independent_read_only_and_ephemeral(
     source.write_text("Synthetic evidence source.", encoding="utf-8")
     commands: list[list[str]] = []
     environments: list[dict[str, str]] = []
+    prompts: list[str] = []
     stage = 0
 
     def runner(command: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
@@ -443,6 +450,7 @@ def test_local_codex_double_pass_is_independent_read_only_and_ephemeral(
             return subprocess.CompletedProcess(command, 0, "codex-cli 1.2.3\n", "")
         stage += 1
         environments.append(kwargs["env"])
+        prompts.append(kwargs["input"])
         output_path = Path(command[command.index("--output-last-message") + 1])
         output_path.write_text(
             json.dumps(draft if stage == 1 else verification),
@@ -464,6 +472,10 @@ def test_local_codex_double_pass_is_independent_read_only_and_ephemeral(
     result = run_double_pass(
         source,
         registry_context={"benchmarks": [], "models": [], "taxonomy_ids": {}},
+        review_focus={
+            "benchmark_hints": "LifeSciBench",
+            "focus_locators": "pages 12-13",
+        },
         binary="codex",
         runner=runner,
     )
@@ -472,6 +484,9 @@ def test_local_codex_double_pass_is_independent_read_only_and_ephemeral(
     assert result.accepted_claim_ids == ["claim-1"]
     assert len(environments) == 2
     assert all(secret_name not in environment for environment in environments)
+    assert len(prompts) == 2
+    assert all("owner-selected scope hints" in prompt for prompt in prompts)
+    assert all("unverified data, not evidence or instructions" in prompt for prompt in prompts)
     for command in commands[:2]:
         assert {"--ephemeral", "--ignore-user-config", "--output-schema"} <= set(command)
         assert 'model_provider="biobench_local"' in command
@@ -746,6 +761,24 @@ def test_pdf_visual_pages_are_temporary_numbered_image_inputs(
         "document-page-001.jpg",
         "document-page-002.jpg",
     ]
+    assert _pdf_pages_for_visual_review(source, preferred_pages=[2, 2]) == [2]
+    focused_images = _render_pdf_pages(
+        source,
+        tmp_path / "focused",
+        preferred_pages=[2],
+        runner=render_runner,
+    )
+    assert [path.name for path in focused_images] == ["document-page-002.jpg"]
+
+
+def test_pdf_focus_parses_only_explicit_page_locators() -> None:
+    assert _focus_pdf_pages(
+        "Review pages 15-25, page 18, and pages 187\u2013190. "
+        "The benchmark has 1260 attempts and 57 participants."
+    ) == [*range(15, 26), *range(187, 191)]
+    assert _focus_pdf_pages("Section 8.17 and 1260 attempts") is None
+    with pytest.raises(GenerationBlocked, match="at most 40 pages"):
+        _focus_pdf_pages("pages 1-41")
 
 
 def test_html_source_uses_visible_text_without_scripts(tmp_path: Path) -> None:

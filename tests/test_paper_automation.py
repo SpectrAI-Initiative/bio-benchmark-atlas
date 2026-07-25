@@ -62,8 +62,10 @@ from paper_extraction_eval import (  # noqa: E402
     _has_evaluation_size,
 )
 from local_paper_intake import (  # noqa: E402
+    LocalIntakeError,
     _ensure_labels,
     _owner_conflict_resolution,
+    _run,
     heartbeat_status,
 )
 from paper_source import (  # noqa: E402
@@ -399,6 +401,39 @@ def test_local_intake_only_creates_missing_issue_labels() -> None:
     assert len(mutations) == 1
     assert mutations[0][3] == "paper-intake-pr"
     assert "--force" not in mutations[0]
+
+
+def test_local_intake_retries_transient_gh_failure_only(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    attempts = 0
+    sleeps: list[int] = []
+
+    def runner(command: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        nonlocal attempts
+        attempts += 1
+        if attempts < 3:
+            return subprocess.CompletedProcess(
+                command, 1, "", 'Post "https://api.github.com/graphql": EOF',
+            )
+        return subprocess.CompletedProcess(command, 0, "ok\n", "")
+
+    monkeypatch.setattr("local_paper_intake.time.sleep", sleeps.append)
+    completed = _run(["gh", "issue", "view", "69"], runner=runner)
+    assert completed.stdout == "ok\n"
+    assert attempts == 3
+    assert sleeps == [1, 2]
+
+    auth_attempts = 0
+
+    def auth_runner(command: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        nonlocal auth_attempts
+        auth_attempts += 1
+        return subprocess.CompletedProcess(command, 1, "", "authentication failed")
+
+    with pytest.raises(LocalIntakeError, match="authentication failed"):
+        _run(["gh", "auth", "status"], runner=auth_runner)
+    assert auth_attempts == 1
 
 
 def test_owner_can_preserve_supported_root_total_but_not_conflicted_subcounts() -> None:

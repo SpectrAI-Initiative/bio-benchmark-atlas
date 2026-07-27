@@ -403,9 +403,15 @@ def test_owner_conflict_resolution_requires_exact_owner_command() -> None:
     assert _owner_conflict_resolution(issue) == {
         "benchmark_total": 394,
         "exclude": "benchmark-subcounts",
+        "exclude_creator_evaluation": False,
         "approved_by": "wang422003",
         "approved_at": "2026-07-25T01:00:00Z",
     }
+    issue["comments"][1]["body"] = (
+        "/resolve-paper-conflict benchmark-total=394 "
+        "exclude=benchmark-subcounts,creator-evaluation"
+    )
+    assert _owner_conflict_resolution(issue)["exclude_creator_evaluation"] is True
     issue["comments"][1]["body"] = "/resolve-paper-conflict benchmark-total=394 exclude=anything"
     assert _owner_conflict_resolution(issue) is None
 
@@ -600,6 +606,163 @@ def test_owner_can_preserve_supported_root_total_but_not_conflicted_subcounts() 
                 "exclude": "benchmark-subcounts",
                 "approved_by": "wang422003",
                 "approved_at": "2026-07-25T01:00:00Z",
+            },
+        )
+
+
+def test_owner_can_downgrade_conflicted_creator_evaluation_to_partial_use() -> None:
+    metadata = {
+        "name": "ConservativeBench",
+        "aliases": [],
+        "summary": "A synthetic benchmark used to verify conservative creator-evaluation publication.",
+        "kind": "agentic_eval",
+        "organizations": ["Example Institute"],
+        "release_date": "2026-07-01",
+        "domains": ["single-cell"],
+        "capabilities": ["data-analysis"],
+        "modalities": ["raw-omics"],
+        "task_formats": ["agent episode"],
+        "access": {
+            "level": "partially-open",
+            "tasks": "Representative examples are public.",
+            "artifacts": "The full benchmark is withheld.",
+            "grader": "Deterministic grader",
+            "license": "Apache-2.0",
+            "biosafety_notes": None,
+        },
+    }
+    creation_claims = [
+        claim("claim-1", "paper-identity", {"title": "Synthetic benchmark evaluation paper"}, mention_id=None),
+        claim("claim-2", "relation", "benchmark-creation"),
+        claim("claim-3", "benchmark-identity", "ConservativeBench"),
+        claim("claim-4", "benchmark-metadata", metadata),
+        claim("claim-5", "benchmark-version", "paper-v1"),
+        claim("claim-6", "benchmark-count", {
+            "label": "total problems", "count": 394, "unit": "problems",
+            "basis": "Problems released by the creators", "reporting_status": "reported",
+            "subset_id": None, "exclusive": False, "exhaustive": False,
+            "partition_group": None,
+        }),
+        claim("claim-7", "creator-source", {"url": "https://doi.org/10.9999/synthetic.1"}),
+        claim("claim-8", "official-repository", {
+            "url": "https://github.com/example/conservativebench", "license": "Apache-2.0",
+        }),
+        claim("claim-9", "scientific-task", {
+            "task_type_id": "cell-type-annotation", "coverage": "explicitly-in-scope",
+            "mapping_method": "official-taxonomy", "count": None, "count_unit": "problems",
+            "count_basis": "Conflicted subcounts are withheld", "reporting_status": "not_reported",
+            "notes": None,
+        }),
+        claim("claim-10", "benchmark-count", {
+            "label": "appendix inventory", "count": 390, "unit": "problems",
+            "basis": "Conflicted appendix inventory", "reporting_status": "reported",
+            "subset_id": "appendix-inventory", "exclusive": False, "exhaustive": False,
+            "partition_group": None,
+        }),
+    ]
+    evaluation_claims = [
+        claim("claim-11", "relation", "evaluation", mention_id="mention-2"),
+        claim("claim-12", "benchmark-identity", "ConservativeBench", mention_id="mention-2"),
+        claim("claim-13", "model", {
+            "name": "Example Model", "provider": "Example Provider",
+            "version_string": "example-model-2026-07-01", "release_date": "2026-07-01",
+        }, mention_id="mention-2"),
+        claim("claim-14", "benchmark-metadata", metadata, mention_id="mention-2"),
+        claim("claim-15", "benchmark-version", "paper-v1-conflicted", mention_id="mention-2"),
+        claim("claim-16", "scope-type", "full", mention_id="mention-2"),
+        claim("claim-17", "scope-n", 390, mention_id="mention-2"),
+        claim("claim-18", "metric", {
+            "source_label": "Accuracy", "unit": "fraction", "range": [0, 1],
+            "higher_is_better": True, "aggregation": "macro", "pass_threshold": None,
+            "tolerance": None, "kind": "absolute", "baseline_model_name": None,
+            "statistical": None,
+        }, mention_id="mention-2"),
+        claim("claim-19", "result", {
+            "model_name": "Example Model", "metric_source_label": "Accuracy", "value": 0.5,
+            "ci_low": None, "ci_high": None, "n": 390, "notes": None,
+            "numeric_source": "table",
+        }, mention_id="mention-2"),
+    ]
+    claims = creation_claims + evaluation_claims
+    creation_mention = {
+        "mention_id": "mention-1", "benchmark_name": "ConservativeBench",
+        "registry_benchmark_id": None, "relation_type": "benchmark-creation",
+        "is_new_benchmark": True, "background_only": False,
+        "claim_ids": [item["claim_id"] for item in creation_claims if item["mention_id"]],
+        "reporting_gaps": ["appendix inventory conflicts with the supported root total"],
+    }
+    evaluation_mention = {
+        "mention_id": "mention-2", "benchmark_name": "ConservativeBench",
+        "registry_benchmark_id": None, "relation_type": "evaluation",
+        "is_new_benchmark": True, "background_only": False,
+        "claim_ids": [item["claim_id"] for item in evaluation_claims],
+        "reporting_gaps": [],
+    }
+    payload = verified_result(claims, creation_mention)
+    payload["draft"]["benchmark_mentions"] = [creation_mention, evaluation_mention]
+    payload["verification"]["blocking_conflicts"] = [
+        "Appendix counts and creator-evaluation settings disagree."
+    ]
+    for item in payload["verification"]["claims"]:
+        if item["claim_id"] in {"claim-10", "claim-14", "claim-15", "claim-17", "claim-18", "claim-19"}:
+            item.update({"verdict": "conflicted", "confidence": "high"})
+    source = {**SOURCE, "repository_pins": {
+        "https://github.com/example/conservativebench": {
+            "kind": "commit", "value": "d" * 40,
+            "url": "https://github.com/example/conservativebench/commit/" + "d" * 40,
+        }
+    }}
+    count_only = {
+        "benchmark_total": 394,
+        "exclude": "benchmark-subcounts",
+        "exclude_creator_evaluation": False,
+        "approved_by": "wang422003",
+        "approved_at": "2026-07-27T01:00:00Z",
+    }
+    with pytest.raises(GenerationBlocked, match="cannot override conflicted claim types"):
+        build_records(
+            payload, source=source, generated_at=SOURCE["retrieved_at"],
+            verified_on="2026-07-27", owner_conflict_resolution=count_only,
+        )
+
+    records = build_records(
+        payload, source=source, generated_at=SOURCE["retrieved_at"],
+        verified_on="2026-07-27",
+        owner_conflict_resolution={
+            **count_only,
+            "exclude": "benchmark-subcounts,creator-evaluation",
+            "exclude_creator_evaluation": True,
+        },
+    )
+    benchmark = records.benchmarks[0]
+    assert benchmark["task_counts"]["total"] == 394
+    assert benchmark["task_counts"]["subsets"] == []
+    evaluation_use = next(item for item in records.uses if item["relation_type"] == "evaluation")
+    assert evaluation_use["status"] == "partial"
+    assert evaluation_use["benchmark_version"] is None
+    assert evaluation_use["scope"]["type"] == "unknown"
+    assert evaluation_use["scope"]["n"] is None
+    assert evaluation_use["model_ids"] == ["example-provider-example-model"]
+    assert evaluation_use["metric_labels"] == []
+    assert evaluation_use["evaluation_run_ids"] == []
+    assert records.runs == []
+    for gap in (
+        "benchmark version", "realized n/scope", "metric", "numeric result",
+        "prompt and tools", "grader and repeats",
+    ):
+        assert gap in evaluation_use["reporting_gaps"]
+
+    for item in payload["verification"]["claims"]:
+        if item["claim_id"] == "claim-5":
+            item.update({"verdict": "conflicted", "confidence": "high"})
+    with pytest.raises(GenerationBlocked, match="cannot override conflicted claim types"):
+        build_records(
+            payload, source=source, generated_at=SOURCE["retrieved_at"],
+            verified_on="2026-07-27",
+            owner_conflict_resolution={
+                **count_only,
+                "exclude": "benchmark-subcounts,creator-evaluation",
+                "exclude_creator_evaluation": True,
             },
         )
 

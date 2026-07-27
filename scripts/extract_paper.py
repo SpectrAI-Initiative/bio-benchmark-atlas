@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import hashlib
 import json
 import os
@@ -711,6 +712,40 @@ def _structured_output_diagnostic(
     return f"structured output could not be read ({type(error).__name__})"
 
 
+def _normalize_temporary_claim_ids(raw_payload: dict[str, Any]) -> dict[str, Any]:
+    """Assign deterministic draft-local claim IDs before schema validation.
+
+    Claim IDs only connect the extractor draft to the independent verifier; they
+    are not Registry IDs.  Rebuilding them from claim order and authoritative
+    claim ``mention_id`` values prevents a model numbering collision from making
+    otherwise structured evidence unreadable.  Claim values, locators,
+    confidence, and mention ownership are left unchanged.
+    """
+
+    claims = raw_payload.get("claims")
+    mentions = raw_payload.get("benchmark_mentions")
+    if not isinstance(claims, list) or not isinstance(mentions, list):
+        return raw_payload
+
+    normalized = copy.deepcopy(raw_payload)
+    normalized_claims = normalized["claims"]
+    normalized_mentions = normalized["benchmark_mentions"]
+    for index, claim in enumerate(normalized_claims, start=1):
+        if isinstance(claim, dict):
+            claim["claim_id"] = f"claim-{index}"
+
+    for mention in normalized_mentions:
+        if not isinstance(mention, dict):
+            continue
+        mention_id = mention.get("mention_id")
+        mention["claim_ids"] = [
+            claim["claim_id"]
+            for claim in normalized_claims
+            if isinstance(claim, dict) and claim.get("mention_id") == mention_id
+        ]
+    return normalized
+
+
 def _codex_stage_retryable(diagnostic: str) -> bool:
     lowered = diagnostic.casefold()
     return any(
@@ -821,6 +856,8 @@ def _run_stage(
     thread_id, resolved_model = _extract_thread_and_model(completed.stdout)
     try:
         raw_payload = json.loads(output_path.read_text(encoding="utf-8"))
+        if output_type is PaperEvidenceDraft and isinstance(raw_payload, dict):
+            raw_payload = _normalize_temporary_claim_ids(raw_payload)
         payload = output_type.model_validate(raw_payload)
     except (OSError, json.JSONDecodeError, ValidationError) as error:
         raise PaperExtractionError(

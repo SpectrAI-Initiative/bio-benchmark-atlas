@@ -39,6 +39,7 @@ from extract_paper import (  # noqa: E402
     VERIFIER_PROMPT,
     _child_environment,
     _codex_failure_diagnostic,
+    _normalize_temporary_claim_ids,
     _pdf_pages_for_visual_review,
     _prepare_local_text_source,
     _render_pdf_pages,
@@ -1083,6 +1084,42 @@ def test_claim_value_json_normalizes_safe_json_like_output() -> None:
             "confidence": "high",
             "locators": [locator()],
         })
+
+
+def test_temporary_claim_ids_are_deterministically_rebuilt_from_mention_ownership() -> None:
+    raw = draft_payload(
+        [
+            claim("claim-1", "relation", "evaluation"),
+            claim("claim-1", "benchmark-identity", "lifescibench"),
+            claim(
+                "not-a-valid-claim-id",
+                "paper-identity",
+                {"title": "Synthetic", "doi": None, "arxiv": None},
+                mention_id=None,
+            ),
+        ],
+        {
+            "mention_id": "mention-1",
+            "benchmark_name": "LifeSciBench",
+            "registry_benchmark_id": "lifescibench",
+            "relation_type": "evaluation",
+            "is_new_benchmark": False,
+            "background_only": False,
+            "claim_ids": ["claim-1"],
+            "reporting_gaps": [],
+        },
+    )
+
+    normalized = _normalize_temporary_claim_ids(raw)
+
+    assert [item["claim_id"] for item in normalized["claims"]] == [
+        "claim-1",
+        "claim-2",
+        "claim-3",
+    ]
+    assert normalized["benchmark_mentions"][0]["claim_ids"] == ["claim-1", "claim-2"]
+    assert raw["claims"][1]["claim_id"] == "claim-1"
+    PaperEvidenceDraft.model_validate(normalized)
 
 
 def test_local_codex_stage_retries_only_transient_transport_failures(

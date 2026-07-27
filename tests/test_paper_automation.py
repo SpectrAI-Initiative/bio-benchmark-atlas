@@ -370,6 +370,22 @@ def test_new_benchmark_requires_creator_repo_pin_and_builds_same_pr_entities() -
     assert records.benchmarks[0]["resources"][1]["pin"]["value"] == "b" * 40
     assert records.classifications["syntheticbiobench"]["entries"][0]["task_type_id"] == "protein-fitness-prediction"
     assert records.uses[0]["relation_type"] == "benchmark-creation"
+
+    conservative_claims = [
+        item for item in claims
+        if item["claim_type"] not in {"benchmark-version", "scientific-task"}
+    ]
+    conservative_records = build_records(
+        verified_result(conservative_claims, mention), source=source,
+        generated_at=SOURCE["retrieved_at"], verified_on="2026-07-22",
+    )
+    conservative_benchmark = conservative_records.benchmarks[0]
+    assert conservative_benchmark["latest_version"] == "initial-release"
+    assert "does not report a formal benchmark version" in conservative_benchmark["versions"][0]["notes"]
+    assert conservative_records.classifications["syntheticbiobench"]["entries"] == []
+    assert "pending a targeted official-source audit" in (
+        conservative_records.classifications["syntheticbiobench"]["notes"]
+    )
     changelog = ROOT / "registry" / "changelog.yaml"
     original_changelog = changelog.read_text(encoding="utf-8")
     written: list[Path] = []

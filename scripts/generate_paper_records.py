@@ -469,6 +469,10 @@ def _build_new_benchmark(
             "status": "conflicted",
             "confidence": "high",
             "reason": (
+                "The verifier reported a count/inventory-only blocking conflict without "
+                "binding it to a claim-level conflicted verdict; the owner approved the "
+                "independently supported root total and excluded every other count."
+                if resolved_count_conflict.get("unanchored_count_conflict") else
                 "The owner approved the independently supported root total while all "
                 "conflicted inventory subcounts were excluded from publication."
             ),
@@ -627,8 +631,27 @@ def _apply_owner_count_conflict_resolution(
         for item in verification.claims
         if item.verdict == "conflicted" and item.claim_id in draft_by_id
     ]
+    unanchored_count_conflict = False
     if not conflicted:
-        raise GenerationBlocked("blocking conflict has no claim-level conflicted locator")
+        allowed_terms = (
+            "count", "total", "inventory", "appendix", "table", "platform",
+            "task categor", "problem", "question", "evaluation size",
+        )
+        forbidden_terms = (
+            "identity", "version", "repository", "license", "relation",
+            "benchmark creation", "paper title", "author", "doi", "arxiv",
+            "model identity",
+        )
+        normalized_conflicts = [item.casefold() for item in verification.blocking_conflicts]
+        if any(
+            not any(term in item for term in allowed_terms)
+            or any(term in item for term in forbidden_terms)
+            for item in normalized_conflicts
+        ):
+            raise GenerationBlocked(
+                "blocking conflict without a claim-level locator is not count/inventory-only"
+            )
+        unanchored_count_conflict = True
     creation_mentions = {
         mention.mention_id
         for mention in draft.benchmark_mentions
@@ -696,6 +719,7 @@ def _apply_owner_count_conflict_resolution(
         raise GenerationBlocked(
             "owner-approved root total is not independently supported at high confidence"
         )
+    verdicts = {item.claim_id: item for item in verification.claims}
     conflict_claim = next(
         (
             claim for claim in conflicted
@@ -703,6 +727,30 @@ def _apply_owner_count_conflict_resolution(
         ),
         None,
     )
+    if conflict_claim is None and unanchored_count_conflict:
+        conflict_claim = next(
+            (
+                claim
+                for claim in draft.claims
+                if claim.mention_id == mention_id
+                and claim.claim_type == "benchmark-count"
+                and isinstance(_claim_value(claim), dict)
+                and _claim_value(claim).get("count") != expected_total
+                and any(
+                    marker in " ".join([
+                        str(_claim_value(claim).get("label") or ""),
+                        str(_claim_value(claim).get("basis") or ""),
+                        *(locator.value for locator in claim.locators),
+                    ]).casefold()
+                    for marker in ("appendix", "inventory", "table 7")
+                )
+                and claim.claim_id in verdicts
+                and verdicts[claim.claim_id].confidence == "high"
+                and verdicts[claim.claim_id].verdict in {"supported", "conflicted"}
+                and verdicts[claim.claim_id].locator is not None
+            ),
+            None,
+        )
     if conflict_claim is None:
         raise GenerationBlocked(
             "owner count resolution lacks a conflicted benchmark-count locator"
@@ -718,8 +766,9 @@ def _apply_owner_count_conflict_resolution(
             continue
         if claim.claim_type == "benchmark-count":
             payload = _claim_value(claim)
-            if isinstance(payload, dict) and payload.get("subset_id") is not None:
-                continue
+            if isinstance(payload, dict):
+                if payload.get("subset_id") is not None or payload.get("count") != expected_total:
+                    continue
         if claim.claim_type == "scientific-task":
             payload = _claim_value(claim)
             if isinstance(payload, dict) and payload.get("count") is not None:
@@ -730,6 +779,7 @@ def _apply_owner_count_conflict_resolution(
         "conflict_claim": conflict_claim,
         "approved_by": resolution.get("approved_by"),
         "approved_at": resolution.get("approved_at"),
+        "unanchored_count_conflict": unanchored_count_conflict,
         "creator_evaluation_mentions": sorted(creator_evaluation_mentions)
         if exclude_creator_evaluation else [],
     }

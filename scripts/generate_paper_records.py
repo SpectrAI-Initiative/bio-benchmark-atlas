@@ -649,7 +649,8 @@ def _apply_owner_count_conflict_resolution(
             for item in normalized_conflicts
         ):
             raise GenerationBlocked(
-                "blocking conflict without a claim-level locator is not count/inventory-only"
+                "blocking conflict without a claim-level locator is not count/inventory-only: "
+                + "; ".join(verification.blocking_conflicts)
             )
         unanchored_count_conflict = True
     creation_mentions = {

@@ -633,7 +633,13 @@ def test_owner_can_preserve_supported_root_total_but_not_conflicted_subcounts() 
     unsafe_unanchored["verification"]["blocking_conflicts"] = [
         "Benchmark version and repository identity disagree."
     ]
-    with pytest.raises(GenerationBlocked, match="not count/inventory-only"):
+    with pytest.raises(
+        GenerationBlocked,
+        match=(
+            "not count/inventory-only: "
+            "Benchmark version and repository identity disagree"
+        ),
+    ):
         build_records(
             unsafe_unanchored,
             source=source,

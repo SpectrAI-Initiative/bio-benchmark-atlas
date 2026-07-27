@@ -227,6 +227,33 @@ def test_generator_downgrades_incomplete_evaluation_to_partial_use() -> None:
     assert records.work["source_versions"][0]["content_sha256"] == "a" * 64
 
 
+def test_generator_uses_claim_mention_id_when_redundant_claim_ids_omit_relation() -> None:
+    claims = [
+        claim("claim-1", "paper-identity", {"title": "Synthetic benchmark evaluation paper"}, mention_id=None),
+        claim("claim-2", "relation", "evaluation"),
+        claim("claim-3", "benchmark-identity", "lifescibench"),
+    ]
+    mention = {
+        "mention_id": "mention-1",
+        "benchmark_name": "LifeSciBench",
+        "registry_benchmark_id": "lifescibench",
+        "relation_type": "evaluation",
+        "is_new_benchmark": False,
+        "background_only": False,
+        "claim_ids": ["claim-3"],
+        "reporting_gaps": ["benchmark version", "realized n", "metric"],
+    }
+    records = build_records(
+        verified_result(claims, mention),
+        source=SOURCE,
+        generated_at=SOURCE["retrieved_at"],
+        verified_on="2026-07-27",
+    )
+    assert records.blocked_reasons == []
+    assert records.uses[0]["relation_type"] == "evaluation"
+    assert records.uses[0]["status"] == "partial"
+
+
 def test_generator_creates_normalized_run_only_from_supported_numeric_claims() -> None:
     claims = [
         claim("claim-1", "paper-identity", {"title": "Synthetic benchmark evaluation paper"}, mention_id=None),
@@ -301,7 +328,13 @@ def test_new_benchmark_requires_creator_repo_pin_and_builds_same_pr_entities() -
         "mention_id": "mention-1", "benchmark_name": "SyntheticBioBench",
         "registry_benchmark_id": None, "relation_type": "benchmark-creation",
         "is_new_benchmark": True, "background_only": False,
-        "claim_ids": [item["claim_id"] for item in claims if item["mention_id"]], "reporting_gaps": [],
+        # The claim's mention_id is authoritative; the model-facing claim_ids
+        # summary is redundant and may omit an otherwise verified relation.
+        "claim_ids": [
+            item["claim_id"] for item in claims
+            if item["mention_id"] and item["claim_id"] != "claim-2"
+        ],
+        "reporting_gaps": [],
     }
     source = {**SOURCE, "repository_pins": {
         "https://github.com/example/syntheticbiobench": {

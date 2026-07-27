@@ -805,10 +805,7 @@ def build_records(
     for mention in draft.benchmark_mentions:
         if not mention.is_new_benchmark or mention.relation_type != "benchmark-creation" or mention.background_only:
             continue
-        claims = [
-            claim for claim in accepted_by_mention.get(mention.mention_id, [])
-            if claim.claim_id in set(mention.claim_ids)
-        ]
+        claims = accepted_by_mention.get(mention.mention_id, [])
         relation_claim = next((item for item in claims if item.claim_type == "relation"), None)
         if relation_claim is None or _claim_value(relation_claim) != "benchmark-creation":
             output.blocked_reasons.append(f"{mention.benchmark_name}: creation relation was not independently verified")
@@ -838,8 +835,6 @@ def build_records(
             output.skipped_background_mentions.append(mention.benchmark_name)
             continue
         claims = accepted_by_mention.get(mention.mention_id, [])
-        declared_claim_ids = set(mention.claim_ids)
-        claims = [claim for claim in claims if claim.claim_id in declared_claim_ids]
         if not claims or not any(item.claim_type == "relation" for item in claims):
             output.blocked_reasons.append(f"{mention.benchmark_name}: relation was not independently verified")
             continue

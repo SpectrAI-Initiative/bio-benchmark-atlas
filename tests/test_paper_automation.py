@@ -1386,6 +1386,17 @@ def test_golden_source_fingerprint_includes_owner_selected_review_focus(tmp_path
     assert _golden_source_fingerprint(focused, source_path) != review_source_sha256(source_path)
 
 
+def test_biomystery_golden_focus_excludes_related_work_without_answer_values() -> None:
+    from paper_extraction_eval import SOURCES
+
+    source = next(item for item in SOURCES if item.name == "biomysterybench")
+    assert source.review_focus is not None
+    focus = " ".join(source.review_focus.values())
+    assert "other named benchmarks as background" in focus
+    assert "Human-solvable and Human-difficult" in focus
+    assert not any(value in focus.split() for value in ("99", "76", "23"))
+
+
 def test_golden_total_count_does_not_depend_on_model_generated_label_wording() -> None:
     payloads = [(
         "benchmark-count",

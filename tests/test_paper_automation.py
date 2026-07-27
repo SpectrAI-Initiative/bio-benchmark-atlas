@@ -1560,6 +1560,9 @@ def test_work_ids_are_deterministic_and_workflows_have_required_guards() -> None
     assert "issue_comment:" in owner
     assert "/approve-paper-intake" in owner
     assert "checks: write" in owner
+    assert "comment_pages_json" in owner
+    assert "jq 'add' \"$comment_pages_json\"" in owner
+    assert "--slurp \\\n              --jq" not in owner
     assert "ready-for-local-intake" in discovery
     assert "local-intake-in-progress" in discovery
     assert "OPENAI" + "_API_KEY" not in workflows

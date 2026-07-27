@@ -29,7 +29,7 @@ from paper_models import PaperEvidenceDraft, PaperEvidenceVerification, accepted
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL_TMP_ROOT = ROOT / ".paper-intake-tmp"
 PIPELINE_VERSION = "1.4.0"
-PROMPT_VERSION = "paper-evidence-local-v5"
+PROMPT_VERSION = "paper-evidence-local-v6"
 SOURCE_INPUT_PROTOCOL_VERSION = "multimodal-visible-html-v1"
 DEFAULT_MODEL = "gpt-5.6-sol"
 REVIEW_METHOD = "local-codex-double-pass"
@@ -113,6 +113,15 @@ must be self-contained: for a table cell or intersection, include every scientif
 axis needed to identify that number, such as both the domain row and capability
 column. Never replace a printed label such as design/optimization with a generic
 phrase such as matching tasks.
+
+Before extracting subcounts, explicitly inspect the abstract, introduction, and
+benchmark or dataset overview for an overall benchmark or evaluation size. When
+the source states that the benchmark comprises or contains N problems, tasks,
+questions, examples, evaluations, or equivalent items, emit a dedicated
+benchmark-count claim labeled as the overall total. Do not let detailed table
+rows, platform counts, task-category counts, or other subcounts cause an explicit
+overall total to be omitted. This is a source-review rule, not permission to sum
+subcounts or infer an unprinted total.
 
 For a new benchmark, keep benchmark-metadata count-, version-, protocol-, and
 result-neutral. Its summary and access descriptions must not repeat task totals,

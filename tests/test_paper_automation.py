@@ -205,11 +205,13 @@ def test_model_facing_schemas_require_every_declared_property() -> None:
 def test_verifier_prompt_treats_creator_and_evaluation_relations_as_compatible() -> None:
     from extract_paper import EXTRACTOR_PROMPT, PROMPT_VERSION, VERIFIER_PROMPT
 
-    assert PROMPT_VERSION == "paper-evidence-local-v5"
+    assert PROMPT_VERSION == "paper-evidence-local-v6"
     assert "Benchmark-creation and evaluation are compatible" in VERIFIER_PROMPT
     assert "Their coexistence is not a conflict" in VERIFIER_PROMPT
     assert "keep benchmark-metadata count-, version-, protocol-, and" in EXTRACTOR_PROMPT
     assert "Do not duplicate those creator-only claims" in EXTRACTOR_PROMPT
+    assert "explicitly inspect the abstract, introduction" in EXTRACTOR_PROMPT
+    assert "not permission to sum" in EXTRACTOR_PROMPT
     assert "must not be copied into benchmark-metadata" in VERIFIER_PROMPT
 
 

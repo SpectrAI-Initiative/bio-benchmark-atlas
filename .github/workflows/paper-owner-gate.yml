@@ -40,6 +40,7 @@ jobs:
           fi
 
           pr_json="$RUNNER_TEMP_DIR/paper-owner-pr.json"
+          comment_pages_json="$RUNNER_TEMP_DIR/paper-owner-comment-pages.json"
           comments_json="$RUNNER_TEMP_DIR/paper-owner-comments.json"
           gh api "repos/${REPOSITORY}/pulls/${pr_number}" > "$pr_json"
           head_ref=$(jq -r '.head.ref' "$pr_json")
@@ -52,7 +53,8 @@ jobs:
           if [[ "$head_ref" == paper-intake/* ]]; then
             commit_time=$(gh api "repos/${REPOSITORY}/commits/${head_sha}" --jq '.commit.committer.date')
             gh api "repos/${REPOSITORY}/issues/${pr_number}/comments" --paginate --slurp \
-              --jq 'add' > "$comments_json"
+              > "$comment_pages_json"
+            jq 'add' "$comment_pages_json" > "$comments_json"
             if python scripts/check_paper_owner_gate.py \
               --head-sha "$head_sha" \
               --commit-time "$commit_time" \

@@ -57,8 +57,10 @@ from paper_models import (  # noqa: E402
     accepted_claims,
 )
 from paper_extraction_eval import (  # noqa: E402
+    GoldenSource,
     _checkpoint_case_current,
     _codex_cli_major,
+    _golden_source_fingerprint,
     _has_count_value,
     _has_evaluation_size,
 )
@@ -1320,6 +1322,21 @@ def test_golden_checkpoint_requires_matching_case_and_source_fingerprints() -> N
         "biomysterybench",
         {"biomysterybench": "sha256-a"},
     )
+
+
+def test_golden_source_fingerprint_includes_owner_selected_review_focus(tmp_path: Path) -> None:
+    source_path = tmp_path / "source.txt"
+    source_path.write_text("BixBench official benchmark comparison. " * 20, encoding="utf-8")
+    plain = GoldenSource("plain", "https://example.test/plain", "bixbench")
+    focused = GoldenSource(
+        "focused",
+        "https://example.test/focused",
+        "bixbench",
+        review_focus={"benchmark_hints": "BixBench"},
+    )
+
+    assert _golden_source_fingerprint(plain, source_path) == review_source_sha256(source_path)
+    assert _golden_source_fingerprint(focused, source_path) != review_source_sha256(source_path)
 
 
 def test_golden_total_count_does_not_depend_on_model_generated_label_wording() -> None:

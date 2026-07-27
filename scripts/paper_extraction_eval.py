@@ -32,6 +32,7 @@ class GoldenSource:
     name: str
     url: str
     benchmark_id: str
+    review_focus: dict[str, str] | None = None
 
 
 SOURCES = [
@@ -59,12 +60,27 @@ SOURCES = [
         "anthropic-bixbench",
         "https://www.anthropic.com/news/claude-for-life-sciences",
         "bixbench",
+        review_focus={"benchmark_hints": "BixBench"},
     ),
 ]
 
 
 class GoldenFailure(RuntimeError):
     pass
+
+
+def _golden_source_fingerprint(source: GoldenSource, path: Path) -> str:
+    """Bind safe checkpoints to both visible source content and review scope."""
+
+    source_hash = review_source_sha256(path)
+    if not source.review_focus:
+        return source_hash
+    payload = {
+        "review_source_sha256": source_hash,
+        "review_focus": source.review_focus,
+    }
+    encoded = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
+    return hashlib.sha256(encoded).hexdigest()
 
 
 def _codex_cli_major(version: str) -> str:
@@ -195,7 +211,11 @@ def _evaluate_anthropic_bixbench(result: Any) -> None:
     if any(kind == "result" for kind, _ in bix):
         raise GoldenFailure("Anthropic × BixBench produced a numeric result claim")
     if not any(kind == "relation" and payload == "evaluation" for kind, payload in bix):
-        raise GoldenFailure("Anthropic × BixBench evaluation relation is missing")
+        observed = sorted({str(payload) for kind, payload in bix if kind == "relation"})
+        raise GoldenFailure(
+            "Anthropic × BixBench evaluation relation is missing; "
+            f"observed verified relations={observed}"
+        )
 
 
 def evaluate_results(results: dict[str, Any]) -> dict[str, Any]:
@@ -305,7 +325,10 @@ def run_golden(
                     rights_confirmed=True,
                 )
             current_fingerprints = {
-                name: review_source_sha256(retrieved_sources[name].path)
+                name: _golden_source_fingerprint(
+                    sources_by_name[name],
+                    retrieved_sources[name].path,
+                )
                 for name in source_names
             }
             if _checkpoint_case_current(progress, case_name, current_fingerprints):
@@ -320,6 +343,7 @@ def run_golden(
                     extractor_model=extractor_model,
                     verifier_model=verifier_model,
                     heartbeat_label=f"golden/{case_name}/{name}",
+                    review_focus=sources_by_name[name].review_focus,
                 )
                 for name in source_names
             }

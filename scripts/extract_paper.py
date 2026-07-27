@@ -29,7 +29,7 @@ from paper_models import PaperEvidenceDraft, PaperEvidenceVerification, accepted
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL_TMP_ROOT = ROOT / ".paper-intake-tmp"
 PIPELINE_VERSION = "1.4.0"
-PROMPT_VERSION = "paper-evidence-local-v4"
+PROMPT_VERSION = "paper-evidence-local-v5"
 SOURCE_INPUT_PROTOCOL_VERSION = "multimodal-visible-html-v1"
 DEFAULT_MODEL = "gpt-5.6-sol"
 REVIEW_METHOD = "local-codex-double-pass"
@@ -114,6 +114,15 @@ axis needed to identify that number, such as both the domain row and capability
 column. Never replace a printed label such as design/optimization with a generic
 phrase such as matching tasks.
 
+For a new benchmark, keep benchmark-metadata count-, version-, protocol-, and
+result-neutral. Its summary and access descriptions must not repeat task totals,
+subset counts, benchmark versions, model scores, confidence intervals, repeats,
+or harness settings; emit those only as their dedicated claim types. In a creator
+paper that also evaluates the same benchmark, attach benchmark-metadata,
+creator-source, official-repository, benchmark-count, and scientific-task claims
+only to the benchmark-creation mention. Do not duplicate those creator-only claims
+under the evaluation mention.
+
 Each BenchmarkMentionDraft represents one scientific relation and, for
 evaluations, one materially uniform evaluation setting. Do not create separate
 mentions merely because the same benchmark has several counts, tables, results,
@@ -161,6 +170,12 @@ For benchmark-count claims, independently verify both the numeric value and the
 full meaning preserved in the label. For a table intersection, the supported
 label must retain the relevant row and column semantics; do not support a generic
 label that loses a discriminating domain, capability, subset, or partition term.
+
+For new benchmark metadata, verify the count-, version-, protocol-, and
+result-neutral metadata fields independently from dedicated count, version,
+setting, metric, and result claims. A conflict in one of those dedicated claims
+must not be copied into benchmark-metadata. Creator-only metadata and resource
+claims belong to the benchmark-creation mention, not its evaluation mention.
 
 For a PDF, independently inspect every relevant attached
 document-page-NNN.jpg image. It is a rasterized copy of physical PDF page NNN and

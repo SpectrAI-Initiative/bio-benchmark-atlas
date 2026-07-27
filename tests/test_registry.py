@@ -22,7 +22,7 @@ from build_registry import _build_payload  # noqa: E402
 def test_registry_validates_and_has_v1_depth() -> None:
     entities = validate_registry()
     families = [item for item in entities["benchmark"] if item["parent_id"] is None]
-    assert len(families) == 24
+    assert len(families) == 25
     assert len(entities["evaluation_run"]) >= 15
     assert {work["source_class"] for work in entities["work"]} <= {
         "benchmark_creator",
@@ -49,6 +49,31 @@ def test_bixbench_anthropic_claim_remains_partial_without_invented_results() -> 
     gaps = " · ".join(use["reporting_gaps"])
     for phrase in ("benchmark version", "realized n", "metric", "numeric results", "prompt"):
         assert phrase in gaps
+
+
+def test_scbench_creator_intake_preserves_the_count_conflict_and_partial_evaluation() -> None:
+    entities = load_entities()
+    benchmark = next(item for item in entities["benchmark"] if item["id"] == "scbench")
+    assert benchmark["task_counts"]["total"] == 394
+    assert benchmark["task_counts"]["subsets"] == []
+    assert benchmark["audit"]["status"] == "audited-with-caveats"
+    assert any(
+        status["path"] == "/task_counts/subsets" and status["status"] == "conflicted"
+        for status in benchmark["field_status"]
+    )
+
+    use = next(
+        item
+        for item in entities["benchmark_use"]
+        if item["id"] == "scbench-evaluating-ai-agents-on-single-cell-rna-seq-an-scbench-2-use"
+    )
+    assert use["status"] == "partial"
+    assert use["scope"]["type"] == "unknown"
+    assert use["scope"]["n"] is None
+    assert use["metric_labels"] == []
+    assert use["evaluation_run_ids"] == []
+    assert "scbench-gemini-2-5-pro-unversioned" in use["model_ids"]
+    assert "scigym-gemini-2-5-pro-preview-03-25" not in use["model_ids"]
 
 
 def test_spatialbench_versions_harnesses_and_external_summary_are_separate() -> None:
@@ -1201,7 +1226,7 @@ def test_v11_exports_surface_audit_and_result_status_columns() -> None:
     }
     assert legacy_ids == exemption_ids == {"virbench"}
     root_benchmarks = [benchmark for benchmark in payload["benchmarks"] if benchmark["parent_id"] is None]
-    assert sum(benchmark["audit"]["status"] != "legacy" for benchmark in root_benchmarks) == 23
+    assert sum(benchmark["audit"]["status"] != "legacy" for benchmark in root_benchmarks) == 24
 
 
 def test_unapproved_legacy_record_is_rejected(monkeypatch) -> None:

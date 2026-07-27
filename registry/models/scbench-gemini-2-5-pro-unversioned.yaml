@@ -1,0 +1,13 @@
+entity_type: model
+id: scbench-gemini-2-5-pro-unversioned
+name: Gemini 2.5 Pro (scBench paper label)
+provider: Google
+release_date: null
+version_string: null
+version_status: not_reported
+aliases:
+- Gemini 2.5 Pro
+verification:
+  status: verified
+  last_verified: '2026-07-27'
+  notes: The scBench creator paper reports only the display label Gemini 2.5 Pro; it does not identify an exact API snapshot, so this record is not merged with the SCIGYM preview-specific model.

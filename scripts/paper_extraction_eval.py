@@ -45,6 +45,17 @@ SOURCES = [
         "biomysterybench",
         "https://www.anthropic.com/research/Evaluating-Claude-For-Bioinformatics-With-BioMysteryBench",
         "biomysterybench",
+        review_focus={
+            "benchmark_hints": (
+                "BioMysteryBench is the target benchmark. Review its benchmark definition "
+                "and creator evaluation; treat other named benchmarks as background."
+            ),
+            "focus_locators": (
+                "Benchmarking models on verifiable biological tasks with BioMysteryBench; "
+                "Human baselining, including Human-solvable and Human-difficult; figure "
+                "captions and the per-problem repeat/consistency discussion."
+            ),
+        },
     ),
     GoldenSource(
         "spatialbench-paper-v2",

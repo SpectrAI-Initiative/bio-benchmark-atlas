@@ -345,8 +345,7 @@ def _build_new_benchmark(
     for claim in claims:
         by_type.setdefault(claim.claim_type, []).append(claim)
     required = {
-        "benchmark-metadata", "benchmark-version", "benchmark-count", "creator-source",
-        "official-repository", "scientific-task",
+        "benchmark-metadata", "benchmark-count", "creator-source", "official-repository",
     }
     missing = sorted(required - set(by_type))
     if missing:
@@ -354,7 +353,10 @@ def _build_new_benchmark(
             f"{benchmark_id}: new benchmark lacks verified claims: {', '.join(missing)}"
         )
     metadata = _claim_value(by_type["benchmark-metadata"][0])
-    version_label = str(_claim_value(by_type["benchmark-version"][0]))
+    version_claim = next(iter(by_type.get("benchmark-version", [])), None)
+    version_label = (
+        str(_claim_value(version_claim)) if version_claim is not None else "initial-release"
+    )
     creator = _claim_value(by_type["creator-source"][0])
     repository = _claim_value(by_type["official-repository"][0])
     repository_url = normalize_url(repository.get("url"))
@@ -415,7 +417,7 @@ def _build_new_benchmark(
     metadata_claim = by_type["benchmark-metadata"][0]
     repository_claim = by_type["official-repository"][0]
     creator_claim = by_type["creator-source"][0]
-    version_claim = by_type["benchmark-version"][0]
+    version_evidence_claim = version_claim or creator_claim
     evidence = [
         {
             "id": f"{benchmark_id}-automated-metadata-evidence",
@@ -423,7 +425,7 @@ def _build_new_benchmark(
             "locator": _source_locator(verdicts[metadata_claim.claim_id]),
             "supports": [
                 "/name", "/aliases", "/summary", "/kind", "/organizations", "/release_date",
-                "/latest_version", "/domains", "/capabilities", "/modalities", "/task_formats",
+                "/domains", "/capabilities", "/modalities", "/task_formats",
                 "/access/level", "/access/license",
             ],
         },
@@ -448,7 +450,7 @@ def _build_new_benchmark(
         {
             "id": f"{benchmark_id}-automated-version-evidence",
             "source_type": "work", "source_id": work_id, "accessed_date": verified_on,
-            "locator": _source_locator(verdicts[version_claim.claim_id]),
+            "locator": _source_locator(verdicts[version_evidence_claim.claim_id]),
             "supports": ["/latest_version", "/versions/0"],
         },
     ]
@@ -479,7 +481,7 @@ def _build_new_benchmark(
             "evidence_ids": [conflict_evidence_id],
         })
     classification_entries = []
-    for index, task_claim in enumerate(by_type["scientific-task"]):
+    for index, task_claim in enumerate(by_type.get("scientific-task", [])):
         payload = _claim_value(task_claim)
         task_id = payload.get("task_type_id")
         if task_id not in controlled["scientific_tasks"]:
@@ -559,6 +561,10 @@ def _build_new_benchmark(
                 "Root total retained after owner review; conflicted appendix inventory "
                 "subcounts are intentionally omitted."
                 if resolved_count_conflict else None
+            ) or (
+                "Atlas snapshot label for the creator-paper release; the source does not "
+                "report a formal benchmark version."
+                if version_claim is None else None
             ),
             "evidence_ids": [f"{benchmark_id}-automated-count-evidence", f"{benchmark_id}-automated-version-evidence"],
         }],
@@ -591,7 +597,12 @@ def _build_new_benchmark(
         "status": "partial",
         "benchmark_version": version_label,
         "as_of": None,
-        "notes": "Only high-confidence Scientific Tasks explicitly supported by the creator source are mapped.",
+        "notes": (
+            "Only high-confidence Scientific Tasks explicitly supported by the creator source are mapped."
+            if classification_entries else
+            "No Scientific Task claim passed independent high-confidence verification; "
+            "task mapping remains pending a targeted official-source audit."
+        ),
         "entries": classification_entries,
     }
     return benchmark, classification

@@ -64,6 +64,13 @@ output.
   `field_status`, and marks the benchmark `audited-with-caveats`. This command
   cannot override benchmark identity/version, model, protocol, metric, or result
   conflicts.
+- If the same creator paper also contains an evaluation whose version, scope,
+  settings, metrics, or results conflict, the owner may instead post
+  `/resolve-paper-conflict benchmark-total=<N> exclude=benchmark-subcounts,creator-evaluation`.
+  This does not resolve those claims: it removes all evaluation settings and
+  outcomes and publishes only the independently verified relation (plus exact
+  model identities, when supported) as a partial `BenchmarkUse`. Creation
+  identity/version and relation conflicts remain blocking.
 - Use `intake-failed` only for local CLI, network, or temporary technical failures.
 - Never treat a failed extraction as `not_reported`.
 - Never retry by switching to a different model or remote API.

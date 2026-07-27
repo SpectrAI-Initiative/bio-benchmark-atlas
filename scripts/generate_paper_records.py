@@ -599,7 +599,12 @@ def _apply_owner_count_conflict_resolution(
     accepted: list[Any],
     resolution: dict[str, Any] | None,
 ) -> tuple[list[Any], dict[str, Any] | None]:
-    """Preserve one supported root total while excluding conflicted subcounts."""
+    """Preserve one supported root total and optionally downgrade its creator evaluation.
+
+    The owner command is an omission policy, never evidence. Creation identity and
+    version conflicts remain blocking. The optional creator-evaluation policy drops
+    all settings and outcomes, leaving only a verified partial relationship.
+    """
 
     if not verification.blocking_conflicts:
         return accepted, None
@@ -607,7 +612,10 @@ def _apply_owner_count_conflict_resolution(
         raise GenerationBlocked(
             "blocking source conflicts: " + "; ".join(verification.blocking_conflicts)
         )
-    if resolution.get("exclude") != "benchmark-subcounts":
+    if resolution.get("exclude") not in {
+        "benchmark-subcounts",
+        "benchmark-subcounts,creator-evaluation",
+    }:
         raise GenerationBlocked("owner conflict resolution has an unsupported exclusion policy")
     expected_total = resolution.get("benchmark_total")
     if not isinstance(expected_total, int) or expected_total <= 0:
@@ -621,17 +629,6 @@ def _apply_owner_count_conflict_resolution(
     ]
     if not conflicted:
         raise GenerationBlocked("blocking conflict has no claim-level conflicted locator")
-    disallowed = sorted({
-        claim.claim_type
-        for claim in conflicted
-        if claim.claim_type not in {"benchmark-count", "scientific-task"}
-    })
-    if disallowed:
-        raise GenerationBlocked(
-            "owner count resolution cannot override conflicted claim types: "
-            + ", ".join(disallowed)
-        )
-
     creation_mentions = {
         mention.mention_id
         for mention in draft.benchmark_mentions
@@ -644,6 +641,37 @@ def _apply_owner_count_conflict_resolution(
             "owner count resolution requires exactly one newly created benchmark"
         )
     mention_id = next(iter(creation_mentions))
+    creation_mention = next(
+        mention for mention in draft.benchmark_mentions if mention.mention_id == mention_id
+    )
+    exclude_creator_evaluation = bool(resolution.get("exclude_creator_evaluation"))
+    creator_evaluation_mentions = {
+        mention.mention_id
+        for mention in draft.benchmark_mentions
+        if mention.relation_type == "evaluation"
+        and not mention.background_only
+        and slugify(mention.benchmark_name) == slugify(creation_mention.benchmark_name)
+    }
+
+    disallowed_claims = []
+    for claim in conflicted:
+        if claim.mention_id == mention_id and claim.claim_type in {
+            "benchmark-count", "scientific-task",
+        }:
+            continue
+        if (
+            exclude_creator_evaluation
+            and claim.mention_id in creator_evaluation_mentions
+            and claim.claim_type not in {"relation", "benchmark-identity"}
+        ):
+            continue
+        disallowed_claims.append(claim)
+    if disallowed_claims:
+        disallowed = sorted({claim.claim_type for claim in disallowed_claims})
+        raise GenerationBlocked(
+            "owner count resolution cannot override conflicted claim types: "
+            + ", ".join(disallowed)
+        )
     root_totals = [
         claim
         for claim in accepted
@@ -672,6 +700,9 @@ def _apply_owner_count_conflict_resolution(
 
     filtered: list[Any] = []
     for claim in accepted:
+        if exclude_creator_evaluation and claim.mention_id in creator_evaluation_mentions:
+            if claim.claim_type not in {"relation", "benchmark-identity", "model"}:
+                continue
         if claim.mention_id != mention_id:
             filtered.append(claim)
             continue
@@ -689,6 +720,8 @@ def _apply_owner_count_conflict_resolution(
         "conflict_claim": conflict_claim,
         "approved_by": resolution.get("approved_by"),
         "approved_at": resolution.get("approved_at"),
+        "creator_evaluation_mentions": sorted(creator_evaluation_mentions)
+        if exclude_creator_evaluation else [],
     }
 
 
@@ -725,6 +758,9 @@ def build_records(
     for claim in accepted:
         if claim.mention_id:
             accepted_by_mention.setdefault(claim.mention_id, []).append(claim)
+    downgraded_creator_evaluations = set(
+        (resolved_count_conflict or {}).get("creator_evaluation_mentions", [])
+    )
 
     entities = load_entities()
     existing_work_ids = {item["id"] for item in entities["work"]}
@@ -958,6 +994,15 @@ def build_records(
             output.blocked_reasons.append(f"{mention.benchmark_name}: no publishable relationship evidence")
             continue
         gaps = list(dict.fromkeys(mention.reporting_gaps))
+        if mention.mention_id in downgraded_creator_evaluations:
+            gaps.extend([
+                "benchmark version",
+                "realized n/scope",
+                "metric",
+                "numeric result",
+                "prompt and tools",
+                "grader and repeats",
+            ])
         if not can_normalize and mention.relation_type in {"evaluation", "external-result-summary"}:
             requirements = {
                 "benchmark version": benchmark_version,
@@ -993,7 +1038,13 @@ def build_records(
             "metric_labels": [item["source_label"] for item in metrics],
             "evaluation_run_ids": [run_id] if can_normalize else [],
             "reporting_gaps": [] if use_status == "normalized" else list(dict.fromkeys(gaps)),
-            "notes": "AI-assisted double-pass extraction; values are limited to independently supported claims.",
+            "notes": (
+                "Owner-reviewed conservative publication: the creator evaluation is retained "
+                "only as a partial relationship; conflicted settings and outcomes are omitted "
+                "pending manual reconciliation."
+                if mention.mention_id in downgraded_creator_evaluations else
+                "AI-assisted double-pass extraction; values are limited to independently supported claims."
+            ),
             "verification": {
                 "status": "verified",
                 "last_verified": verified_on,

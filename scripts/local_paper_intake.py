@@ -194,7 +194,8 @@ def _owner_conflict_resolution(issue: dict[str, Any]) -> dict[str, Any] | None:
     """
 
     pattern = re.compile(
-        r"^/resolve-paper-conflict benchmark-total=(\d+) exclude=benchmark-subcounts$"
+        r"^/resolve-paper-conflict benchmark-total=(\d+) "
+        r"exclude=(benchmark-subcounts(?:,creator-evaluation)?)$"
     )
     resolutions: list[dict[str, Any]] = []
     for comment in issue.get("comments", []):
@@ -209,7 +210,8 @@ def _owner_conflict_resolution(issue: dict[str, Any]) -> dict[str, Any] | None:
             continue
         resolutions.append({
             "benchmark_total": total,
-            "exclude": "benchmark-subcounts",
+            "exclude": match.group(2),
+            "exclude_creator_evaluation": match.group(2).endswith(",creator-evaluation"),
             "approved_by": OWNER_LOGIN,
             "approved_at": comment.get("createdAt"),
         })
@@ -693,6 +695,12 @@ def run_issue(
             f"root total `{conflict_resolution['benchmark_total']}`; exclude all conflicted "
             "benchmark subcounts and publish the inventory caveat.\n"
         )
+        if conflict_resolution.get("exclude_creator_evaluation"):
+            summary += (
+                "The creator-paper evaluation is published only as a partial relationship: "
+                "conflicted version, scope, protocol, metric, and result claims are excluded "
+                "pending manual reconciliation.\n"
+            )
     pr_url = _publish_records(
         issue=issue,
         work_id=work_id,

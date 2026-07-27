@@ -93,6 +93,20 @@ cannot override conflicts in benchmark identity or version, models, protocols,
 metrics, or results. A fresh double-pass run and the normal exact-head-SHA PR
 approval are still required.
 
+If the creator paper's own evaluation also contains irreconcilable setting or
+result claims, the owner may choose a stricter omission policy:
+
+```text
+/resolve-paper-conflict benchmark-total=<positive-integer> exclude=benchmark-subcounts,creator-evaluation
+```
+
+This command still cannot resolve or override evidence. It retains the supported
+benchmark-creation record, omits conflicted subcounts, and reduces the creator
+evaluation to a partial `BenchmarkUse`. Benchmark version, scope and realized
+`n`, protocol, metrics, and numeric results are all withheld for later manual
+reconciliation. Independently supported exact model identities may remain.
+Creation identity/version conflicts and relation conflicts always stop intake.
+
 Sources, short excerpts, transcripts, and structured drafts live only under the ignored `.paper-intake-tmp/` directory and are deleted in cleanup. They must never appear in Git diff, Actions artifacts, Pages, or a Release.
 
 ## 4. Local golden gate

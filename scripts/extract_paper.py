@@ -30,7 +30,7 @@ from paper_models import PaperEvidenceDraft, PaperEvidenceVerification, accepted
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL_TMP_ROOT = ROOT / ".paper-intake-tmp"
 PIPELINE_VERSION = "1.4.0"
-PROMPT_VERSION = "paper-evidence-local-v6"
+PROMPT_VERSION = "paper-evidence-local-v7"
 SOURCE_INPUT_PROTOCOL_VERSION = "multimodal-visible-html-v1"
 DEFAULT_MODEL = "gpt-5.6-sol"
 REVIEW_METHOD = "local-codex-double-pass"
@@ -102,6 +102,13 @@ Use these exact JSON payload contracts in value_json:
   "ci_low": number|null, "ci_high": number|null, "n": integer|null,
   "notes": string|null, "numeric_source": "body"|"table"|"labeled-figure"|"unlabeled-figure"}
 
+The top-level paper object and the paper-identity claim must use exactly the same
+title, DOI, and arXiv values. Normalize arXiv identifiers to the base numeric ID
+without an `arXiv:` prefix or version suffix (for example, `2602.09063`, not
+`arXiv:2602.09063v1`) in both places. Preserve the source version separately in
+the top-level version_label (for example, `arXiv v1`). A missing DOI is null and
+is not evidence of an identity conflict.
+
 Every non-background mention needs relation and benchmark-identity claims. Every
 claim_id belonging to a mention must appear in that mention's claim_ids. Emit one
 paper-identity claim with mention_id=null. For each non-background mention,
@@ -160,6 +167,12 @@ trust the extractor's excerpt or locator. Return supported only when the value,
 meaning, benchmark relation, and independently found locator all match. Treat
 ambiguous versions, model identities, subset sizes, and unlabeled chart values as
 not-verifiable or conflicted. Accuracy is more important than recall.
+
+For paper-identity claims, compare normalized identifiers. An arXiv base ID and
+the same ID printed with an `arXiv:` prefix or `vN` suffix identify the same paper;
+the suffix belongs to the paper version and is not an identity conflict. Do not
+treat a null DOI as contradictory when the source does not report a DOI. The
+top-level paper object and paper-identity claim should otherwise agree exactly.
 
 Verify every relation claim as a semantic source claim. A paper need not print the
 Registry enum literal: explicit source language that introduces a benchmark

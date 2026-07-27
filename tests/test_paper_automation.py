@@ -202,6 +202,14 @@ def test_model_facing_schemas_require_every_declared_property() -> None:
                 assert definition.get("additionalProperties") is False
 
 
+def test_verifier_prompt_treats_creator_and_evaluation_relations_as_compatible() -> None:
+    from extract_paper import PROMPT_VERSION, VERIFIER_PROMPT
+
+    assert PROMPT_VERSION == "paper-evidence-local-v4"
+    assert "Benchmark-creation and evaluation are compatible" in VERIFIER_PROMPT
+    assert "Their coexistence is not a conflict" in VERIFIER_PROMPT
+
+
 def test_generator_downgrades_incomplete_evaluation_to_partial_use() -> None:
     claims = [
         claim("claim-1", "paper-identity", {"title": "Synthetic benchmark evaluation paper"}, mention_id=None),

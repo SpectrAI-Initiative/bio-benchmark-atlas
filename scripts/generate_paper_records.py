@@ -667,7 +667,17 @@ def _apply_owner_count_conflict_resolution(
             continue
         disallowed_claims.append(claim)
     if disallowed_claims:
-        disallowed = sorted({claim.claim_type for claim in disallowed_claims})
+        mention_relations = {
+            mention.mention_id: mention.relation_type
+            for mention in draft.benchmark_mentions
+        }
+        disallowed = sorted({
+            (
+                f"{claim.claim_type}@{claim.mention_id}"
+                f"({mention_relations.get(claim.mention_id, 'unassigned')})"
+            )
+            for claim in disallowed_claims
+        })
         raise GenerationBlocked(
             "owner count resolution cannot override conflicted claim types: "
             + ", ".join(disallowed)

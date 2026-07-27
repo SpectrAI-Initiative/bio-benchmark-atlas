@@ -29,7 +29,7 @@ from paper_models import PaperEvidenceDraft, PaperEvidenceVerification, accepted
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL_TMP_ROOT = ROOT / ".paper-intake-tmp"
 PIPELINE_VERSION = "1.4.0"
-PROMPT_VERSION = "paper-evidence-local-v3"
+PROMPT_VERSION = "paper-evidence-local-v4"
 SOURCE_INPUT_PROTOCOL_VERSION = "multimodal-visible-html-v1"
 DEFAULT_MODEL = "gpt-5.6-sol"
 REVIEW_METHOD = "local-codex-double-pass"
@@ -149,6 +149,13 @@ showing systems assessed on that benchmark supports evaluation. Re-locate that
 source evidence independently. Do not reject a relation merely because the source
 uses ordinary scientific prose instead of the Registry enum spelling, and do not
 infer a relation from Issue hints alone.
+
+Benchmark-creation and evaluation are compatible, distinct relations when a
+creator paper both introduces its benchmark and reports systems assessed on it.
+Their coexistence is not a conflict and is not duplicate evidence. Verify each
+relation against its own explicit introduction statement or labeled results
+table. Mark a relation conflicted only when the source contradicts that semantic
+use, not merely because another mention represents the other relation.
 
 For benchmark-count claims, independently verify both the numeric value and the
 full meaning preserved in the label. For a table intersection, the supported

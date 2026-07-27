@@ -608,6 +608,45 @@ def test_owner_can_preserve_supported_root_total_but_not_conflicted_subcounts() 
     assert benchmark["field_status"][0]["path"] == "/task_counts/subsets"
     assert benchmark["field_status"][0]["status"] == "conflicted"
     assert records.classifications["conflictcountbench"]["entries"][0]["count"] is None
+
+    unanchored = json.loads(json.dumps(payload))
+    for item in unanchored["verification"]["claims"]:
+        if item["claim_id"] == "claim-10":
+            item.update({"verdict": "supported", "confidence": "high"})
+    unanchored_records = build_records(
+        unanchored,
+        source=source,
+        generated_at=SOURCE["retrieved_at"],
+        verified_on="2026-07-25",
+        owner_conflict_resolution={
+            "benchmark_total": 394,
+            "exclude": "benchmark-subcounts",
+            "approved_by": "wang422003",
+            "approved_at": "2026-07-25T01:00:00Z",
+        },
+    )
+    unanchored_benchmark = unanchored_records.benchmarks[0]
+    assert unanchored_benchmark["task_counts"] == benchmark["task_counts"]
+    assert "without binding it to a claim-level" in unanchored_benchmark["field_status"][0]["reason"]
+
+    unsafe_unanchored = json.loads(json.dumps(unanchored))
+    unsafe_unanchored["verification"]["blocking_conflicts"] = [
+        "Benchmark version and repository identity disagree."
+    ]
+    with pytest.raises(GenerationBlocked, match="not count/inventory-only"):
+        build_records(
+            unsafe_unanchored,
+            source=source,
+            generated_at=SOURCE["retrieved_at"],
+            verified_on="2026-07-25",
+            owner_conflict_resolution={
+                "benchmark_total": 394,
+                "exclude": "benchmark-subcounts",
+                "approved_by": "wang422003",
+                "approved_at": "2026-07-25T01:00:00Z",
+            },
+        )
+
     for item in payload["verification"]["claims"]:
         if item["claim_id"] == "claim-5":
             item.update({"verdict": "conflicted", "confidence": "high"})

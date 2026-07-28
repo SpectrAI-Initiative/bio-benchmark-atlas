@@ -753,6 +753,46 @@ def test_existing_evaluation_setting_conflict_downgrades_to_partial_use() -> Non
     assert inconsistent_records.uses[0]["status"] == "partial"
     assert inconsistent_records.uses[0]["benchmark_version"] is None
 
+    display_name = json.loads(json.dumps(payload))
+    for item in display_name["draft"]["claims"]:
+        if item["claim_id"] == "claim-3":
+            item["value_json"] = json.dumps("LifeSciBench")
+    display_name_records = build_records(
+        display_name,
+        source=SOURCE,
+        generated_at=SOURCE["retrieved_at"],
+        verified_on="2026-07-28",
+    )
+    assert display_name_records.uses[0]["benchmark_id"] == "lifescibench"
+
+    provider_variant = json.loads(json.dumps(payload))
+    provider_variant["draft"]["benchmark_mentions"][0]["benchmark_name"] = "LifeSciBench Hard"
+    for item in provider_variant["draft"]["claims"]:
+        if item["claim_id"] == "claim-3":
+            item["value_json"] = json.dumps("LifeSciBench Hard")
+    provider_variant_records = build_records(
+        provider_variant,
+        source=SOURCE,
+        generated_at=SOURCE["retrieved_at"],
+        verified_on="2026-07-28",
+    )
+    assert provider_variant_records.runs == []
+    assert provider_variant_records.uses[0]["status"] == "partial"
+
+    unrelated_identity = json.loads(json.dumps(payload))
+    for item in unrelated_identity["draft"]["claims"]:
+        if item["claim_id"] == "claim-3":
+            item["value_json"] = json.dumps("UnrelatedBench")
+    unrelated_records = build_records(
+        unrelated_identity,
+        source=SOURCE,
+        generated_at=SOURCE["retrieved_at"],
+        verified_on="2026-07-28",
+    )
+    assert unrelated_records.blocked_reasons == [
+        "LifeSciBench: benchmark identity was not independently verified"
+    ]
+
     unanchored = json.loads(json.dumps(payload))
     unanchored["verification"]["blocking_conflicts"] = [
         "LifeSciBench Verified is a variant, not a registered benchmark version or artifact revision."

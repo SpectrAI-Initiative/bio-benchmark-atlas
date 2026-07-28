@@ -1,7 +1,7 @@
 classifications:
   scbench:
     status: partial
-    benchmark_version: initial-release
+    benchmark_version: repository-195-evaluations
     as_of: null
     notes: No Scientific Task claim passed independent high-confidence verification; task mapping remains pending a targeted
       official-source audit.

@@ -29,6 +29,8 @@ from discover_papers import (  # noqa: E402
 )
 from generate_paper_records import (  # noqa: E402
     GenerationBlocked,
+    _scope,
+    _use_scope,
     build_records,
     stable_work_id,
     write_records,
@@ -689,6 +691,47 @@ def test_owner_can_preserve_supported_root_total_but_not_conflicted_subcounts() 
                 "approved_at": "2026-07-25T01:00:00Z",
             },
         )
+
+
+def test_paper_use_scope_normalizes_source_descriptions_and_subset_labels() -> None:
+    claims = [
+        EvidenceClaimDraft.model_validate(
+            claim("claim-1", "scope-type", "subset")
+        ),
+        EvidenceClaimDraft.model_validate(
+            claim("claim-2", "subset-id", "Human Solvable")
+        ),
+        EvidenceClaimDraft.model_validate(
+            claim(
+                "claim-3",
+                "selection",
+                "Problems that independent human experts were able to solve",
+            )
+        ),
+    ]
+
+    scope = _use_scope(_scope(claims))
+
+    assert scope["subset_id"] == "human-solvable"
+    assert scope["selection"] == "filtered"
+    assert scope["selection_method"] == (
+        "Problems that independent human experts were able to solve"
+    )
+
+    unknown_claims = [
+        EvidenceClaimDraft.model_validate(
+            claim("claim-1", "scope-type", "unknown")
+        ),
+        EvidenceClaimDraft.model_validate(
+            claim("claim-2", "scope-n", 195)
+        ),
+        EvidenceClaimDraft.model_validate(
+            claim("claim-3", "selection", "Standard single-cell workflows")
+        ),
+    ]
+    unknown_scope = _use_scope(_scope(unknown_claims))
+    assert unknown_scope["selection"] is None
+    assert unknown_scope["selection_method"] == "Standard single-cell workflows"
 
 
 def test_existing_evaluation_setting_conflict_downgrades_to_partial_use() -> None:

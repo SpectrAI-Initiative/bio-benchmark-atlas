@@ -31,7 +31,7 @@ from paper_source import MAX_PDF_PAGES
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL_TMP_ROOT = ROOT / ".paper-intake-tmp"
 PIPELINE_VERSION = "1.4.0"
-PROMPT_VERSION = "paper-evidence-local-v7"
+PROMPT_VERSION = "paper-evidence-local-v8"
 SOURCE_INPUT_PROTOCOL_VERSION = "multimodal-focused-long-pdf-v3"
 DEFAULT_MODEL = "gpt-5.6-sol"
 REVIEW_METHOD = "local-codex-double-pass"
@@ -123,6 +123,15 @@ axis needed to identify that number, such as both the domain row and capability
 column. Never replace a printed label such as design/optimization with a generic
 phrase such as matching tasks.
 
+A source may append a provider qualifier to a supplied Registry benchmark name or
+alias, for example `SpatialBench Verified` or `ProteinGym Hard`. Keep the complete
+printed label in benchmark_name and benchmark-identity so its meaning is auditable.
+It may identify the registered root benchmark only when the registered name or
+alias is a complete leading label followed by a clear qualifier. Preserve that
+qualifier in subset-id, selection, or selection-method when the source describes a
+subset. Never treat the qualifier as evidence of a registered benchmark version,
+formal track, or normalized evaluation setting.
+
 Before extracting subcounts, explicitly inspect the abstract, introduction, and
 benchmark or dataset overview for an overall benchmark or evaluation size. When
 the source states that the benchmark comprises or contains N problems, tasks,
@@ -189,6 +198,15 @@ Their coexistence is not a conflict and is not duplicate evidence. Verify each
 relation against its own explicit introduction statement or labeled results
 table. Mark a relation conflicted only when the source contradicts that semantic
 use, not merely because another mention represents the other relation.
+
+For benchmark-identity claims, a provider-qualified printed label such as
+`SpatialBench Verified` or `ProteinGym Hard` can support the corresponding
+registered root benchmark when the Registry context supplies that exact root name
+or alias as a complete leading label and the source clearly uses the qualified
+label as a benchmark. Re-locate the full qualified label independently. The
+qualifier does not verify a benchmark version, formal track, subset size, or
+normalized run; keep those claims not-verifiable unless separately printed and
+supported. Do not use loose substring matches or Issue hints to establish identity.
 
 For benchmark-count claims, independently verify both the numeric value and the
 full meaning preserved in the label. For a table intersection, the supported

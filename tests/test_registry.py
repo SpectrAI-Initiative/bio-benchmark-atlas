@@ -55,6 +55,7 @@ def test_scbench_creator_intake_preserves_the_count_conflict_and_partial_evaluat
     entities = load_entities()
     benchmark = next(item for item in entities["benchmark"] if item["id"] == "scbench")
     assert benchmark["task_counts"]["total"] == 195
+    assert "SingleCellBench" in benchmark["aliases"]
     assert benchmark["task_counts"]["subsets"] == []
     assert benchmark["latest_version"] == "repository-195-evaluations"
     versions = {version["label"]: version for version in benchmark["versions"]}

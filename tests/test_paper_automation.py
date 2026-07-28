@@ -1096,21 +1096,30 @@ def test_local_codex_double_pass_is_independent_read_only_and_ephemeral(
         "relation_type": "evaluation",
         "is_new_benchmark": False,
         "background_only": False,
-        "claim_ids": ["claim-1"],
+        "claim_ids": ["claim-1", "claim-2"],
         "reporting_gaps": [],
     }
-    claims = [claim("claim-1", "relation", "evaluation")]
+    claims = [
+        claim("claim-1", "relation", "evaluation"),
+        claim("claim-2", "benchmark-identity", "lifescibench"),
+        claim(
+            "claim-3",
+            "paper-identity",
+            {"title": "Synthetic benchmark evaluation paper", "doi": None, "arxiv": None},
+            mention_id=None,
+        ),
+    ]
     draft = draft_payload(claims, mention)
     verification = {
         "source_parseable": True,
         "blocking_conflicts": [],
         "claims": [{
-            "claim_id": "claim-1",
+            "claim_id": claim_id,
             "verdict": "supported",
             "confidence": "high",
             "locator": locator(),
             "notes": None,
-        }],
+        } for claim_id in ("claim-1", "claim-2", "claim-3")],
     }
     source = tmp_path / "paper.txt"
     source.write_text("Synthetic evidence source.", encoding="utf-8")
@@ -1157,7 +1166,7 @@ def test_local_codex_double_pass_is_independent_read_only_and_ephemeral(
     )
     assert result.extractor_thread_id == "thread-1"
     assert result.verifier_thread_id == "thread-2"
-    assert result.accepted_claim_ids == ["claim-1"]
+    assert result.accepted_claim_ids == ["claim-1", "claim-2", "claim-3"]
     assert len(environments) == 2
     assert all(secret_name not in environment for environment in environments)
     assert len(prompts) == 2
@@ -1208,20 +1217,29 @@ def test_long_pdf_double_pass_exposes_only_owner_selected_pages(
         "relation_type": "evaluation",
         "is_new_benchmark": False,
         "background_only": False,
-        "claim_ids": ["claim-1"],
+        "claim_ids": ["claim-1", "claim-2"],
         "reporting_gaps": [],
     }
-    draft = draft_payload([claim("claim-1", "relation", "evaluation")], mention)
+    draft = draft_payload([
+        claim("claim-1", "relation", "evaluation"),
+        claim("claim-2", "benchmark-identity", "lifescibench"),
+        claim(
+            "claim-3",
+            "paper-identity",
+            {"title": "Synthetic benchmark evaluation paper", "doi": None, "arxiv": None},
+            mention_id=None,
+        ),
+    ], mention)
     verification = {
         "source_parseable": True,
         "blocking_conflicts": [],
         "claims": [{
-            "claim_id": "claim-1",
+            "claim_id": claim_id,
             "verdict": "supported",
             "confidence": "high",
             "locator": locator(),
             "notes": None,
-        }],
+        } for claim_id in ("claim-1", "claim-2", "claim-3")],
     }
     source = tmp_path / "long.pdf"
     source.write_bytes(pdf_bytes(151))

@@ -865,6 +865,53 @@ def test_existing_evaluation_setting_conflict_downgrades_to_partial_use() -> Non
         for gap in use["reporting_gaps"]
     )
 
+    multi_metric = json.loads(json.dumps(payload))
+    metric_payload = {
+        "source_label": "Score",
+        "unit": "fraction",
+        "range": None,
+        "higher_is_better": True,
+        "aggregation": None,
+        "pass_threshold": None,
+        "tolerance": None,
+        "kind": "absolute",
+        "baseline_model_name": None,
+        "statistical": None,
+    }
+    multi_metric["draft"]["claims"].extend([
+        claim("claim-7", "metric", metric_payload),
+        claim("claim-8", "metric", metric_payload),
+    ])
+    multi_metric["draft"]["benchmark_mentions"][0]["claim_ids"].extend([
+        "claim-7", "claim-8",
+    ])
+    multi_metric["verification"]["claims"].extend([
+        {
+            "claim_id": claim_id,
+            "verdict": "conflicted",
+            "confidence": "high",
+            "locator": locator(),
+            "notes": "The printed metric range conflicts with the draft.",
+        }
+        for claim_id in ("claim-7", "claim-8")
+    ])
+    multi_metric["verification"]["blocking_conflicts"] = [
+        "Metric claims claim-7 and claim-8 conflict with the printed Score (0-1) range."
+    ]
+    multi_metric_records = build_records(
+        multi_metric,
+        source=SOURCE,
+        generated_at=SOURCE["retrieved_at"],
+        verified_on="2026-07-28",
+    )
+    assert multi_metric_records.runs == []
+    assert multi_metric_records.uses[0]["status"] == "partial"
+    assert multi_metric_records.uses[0]["metric_labels"] == []
+    assert any(
+        "Conflicted metric claim omitted" in gap
+        for gap in multi_metric_records.uses[0]["reporting_gaps"]
+    )
+
     inconsistent = json.loads(json.dumps(payload))
     for item in inconsistent["verification"]["claims"]:
         if item["claim_id"] == "claim-4":

@@ -721,6 +721,32 @@ def test_paper_use_scope_normalizes_source_descriptions_and_subset_labels() -> N
         "Problems that independent human experts were able to solve"
     )
 
+    partial_scope = _use_scope(_scope(claims), partial_use=True)
+    assert partial_scope == {
+        "type": "unknown",
+        "subset_kind": "not-reported",
+        "n": None,
+        "subset_id": "human-solvable",
+        "selection": "filtered",
+        "selection_method": (
+            "Problems that independent human experts were able to solve"
+        ),
+        "reporting_status": "not_reported",
+    }
+
+    complete_claims = [
+        *claims,
+        EvidenceClaimDraft.model_validate(
+            claim("claim-4", "scope-n", 17)
+        ),
+    ]
+    complete_partial_scope = _use_scope(
+        _scope(complete_claims), partial_use=True
+    )
+    assert complete_partial_scope["type"] == "subset"
+    assert complete_partial_scope["subset_kind"] == "paper-specific"
+    assert complete_partial_scope["n"] == 17
+
     unknown_claims = [
         EvidenceClaimDraft.model_validate(
             claim("claim-1", "scope-type", "unknown")

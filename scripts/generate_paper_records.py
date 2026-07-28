@@ -271,7 +271,11 @@ def _scope(claims: list[Any]) -> dict[str, Any]:
     }
 
 
-def _use_scope(run_scope: dict[str, Any]) -> dict[str, Any]:
+def _use_scope(
+    run_scope: dict[str, Any],
+    *,
+    partial_use: bool = False,
+) -> dict[str, Any]:
     if run_scope["type"] == "subset":
         paper_specific = run_scope["selection"] not in {None, "formal-subset"}
         subset_kind = "paper-specific" if paper_specific else "formal-subset"
@@ -279,7 +283,7 @@ def _use_scope(run_scope: dict[str, Any]) -> dict[str, Any]:
         subset_kind = "not-reported"
     else:
         subset_kind = "not-applicable"
-    return {
+    scope = {
         "type": run_scope["type"],
         "subset_kind": subset_kind,
         "n": run_scope["n"],
@@ -288,6 +292,26 @@ def _use_scope(run_scope: dict[str, Any]) -> dict[str, Any]:
         "selection_method": run_scope["filter"],
         "reporting_status": run_scope["reporting_status"],
     }
+    incomplete_paper_subset = (
+        scope["type"] == "subset"
+        and scope["subset_kind"] == "paper-specific"
+        and (
+            scope["n"] is None
+            or scope["selection"] in {None, "formal-subset"}
+            or not scope["selection_method"]
+        )
+    )
+    if partial_use and incomplete_paper_subset:
+        # Preserve the source-described label and selection notes, but do not
+        # publish an incomplete custom subset as a normalized subset scope.
+        # A partial BenchmarkUse is the registry's lossless representation for
+        # "the paper evaluated this slice, but did not report realized n".
+        scope.update({
+            "type": "unknown",
+            "subset_kind": "not-reported",
+            "reporting_status": "not_reported",
+        })
+    return scope
 
 
 def _metrics_and_results(
@@ -1304,7 +1328,7 @@ def build_records(
                 "benchmark-creation", "training", "fine-tuning", "validation", "model-selection"
             } else "partial"
         )
-        use_scope = _use_scope(scope)
+        use_scope = _use_scope(scope, partial_use=use_status == "partial")
         if use_status == "non-evaluation":
             use_scope = {
                 "type": "unknown", "subset_kind": "not-applicable", "n": None,

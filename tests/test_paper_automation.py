@@ -753,6 +753,61 @@ def test_existing_evaluation_setting_conflict_downgrades_to_partial_use() -> Non
     assert inconsistent_records.uses[0]["status"] == "partial"
     assert inconsistent_records.uses[0]["benchmark_version"] is None
 
+    unanchored = json.loads(json.dumps(payload))
+    unanchored["verification"]["blocking_conflicts"] = [
+        "LifeSciBench Verified is a variant, not a registered benchmark version or artifact revision."
+    ]
+    for item in unanchored["verification"]["claims"]:
+        if item["claim_id"] == "claim-4":
+            item.update({"verdict": "supported", "confidence": "high"})
+    unanchored_records = build_records(
+        unanchored,
+        source=SOURCE,
+        generated_at=SOURCE["retrieved_at"],
+        verified_on="2026-07-28",
+    )
+    assert unanchored_records.runs == []
+    assert unanchored_records.uses[0]["status"] == "partial"
+    assert unanchored_records.uses[0]["benchmark_version"] is None
+
+    unresolved = json.loads(json.dumps(payload))
+    unresolved["draft"]["benchmark_mentions"].append({
+        "mention_id": "mention-2",
+        "benchmark_name": "Organic chemistry, V2",
+        "registry_benchmark_id": None,
+        "relation_type": "evaluation",
+        "is_new_benchmark": False,
+        "background_only": False,
+        "claim_ids": ["claim-7", "claim-8"],
+        "reporting_gaps": [],
+    })
+    unresolved["draft"]["claims"].extend([
+        claim("claim-7", "relation", "evaluation", mention_id="mention-2"),
+        claim("claim-8", "scope-n", 1260, mention_id="mention-2"),
+    ])
+    unresolved["verification"]["claims"].extend([
+        {
+            "claim_id": claim_id,
+            "verdict": "supported",
+            "confidence": "high",
+            "locator": locator(),
+            "notes": None,
+        }
+        for claim_id in ("claim-7", "claim-8")
+    ])
+    unresolved["verification"]["blocking_conflicts"] = [
+        "Organic chemistry attempt counts encode a non-exclusive timeout partition."
+    ]
+    unresolved_records = build_records(
+        unresolved,
+        source=SOURCE,
+        generated_at=SOURCE["retrieved_at"],
+        verified_on="2026-07-28",
+    )
+    assert unresolved_records.uses
+    assert unresolved_records.omitted_unresolved_mentions == ["Organic chemistry, V2"]
+    assert all(use["benchmark_id"] != "organic-chemistry-v2" for use in unresolved_records.uses)
+
     unsafe = json.loads(json.dumps(payload))
     unsafe["verification"]["blocking_conflicts"] = [
         "claim-3: The benchmark identity is contradicted by the source."

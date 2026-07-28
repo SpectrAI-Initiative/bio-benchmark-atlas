@@ -1,7 +1,8 @@
 entity_type: benchmark
 id: scbench
 name: scBench
-aliases: []
+aliases:
+- SingleCellBench
 summary: Agentic evaluation suite for data-grounded single-cell analysis across diverse sequencing technologies and workflow
   stages.
 kind: agentic-eval
@@ -57,6 +58,16 @@ resources:
     kind: commit
     value: 0bc34032bfa402dad29fc40b4cf10ea8fc03193e
     url: https://github.com/latchbio/scbench/commit/0bc34032bfa402dad29fc40b4cf10ea8fc03193e
+- id: scbench-anthropic-opus-5-system-card-resource
+  type: paper
+  url: https://www-cdn.anthropic.com/b514064af1408018e64b1ad24e7d5e75850b4ffd/Claude%20Opus%205%20System%20Card.pdf
+  license: null
+  access_notes: Official model-provider source using SingleCellBench for LatchBio's 195-problem single-cell evaluation variant.
+  last_checked: '2026-07-28'
+  pin:
+    kind: snapshot
+    value: sha256:897768f0f6f1724f3109279ab3f6458c9fbf496b56d5d2be14cab3a4f91ca472
+    url: https://www-cdn.anthropic.com/b514064af1408018e64b1ad24e7d5e75850b4ffd/Claude%20Opus%205%20System%20Card.pdf
 implementations:
 - framework: official repository
   status: official
@@ -230,3 +241,16 @@ evidence:
     source_fragment_sha256: cf989ea142f203f532233fa944ee1d8d5acfe6f6875e4d611f515ee108ba26df
   supports:
   - /access/license
+- id: scbench-singlecellbench-provider-alias-evidence
+  source_type: resource
+  source_id: scbench-anthropic-opus-5-system-card-resource
+  accessed_date: '2026-07-28'
+  locator:
+    type: section
+    value: Section 8.17.2, LatchBio Bioinformatics
+    note: Provider-used evaluation label; not represented as a creator-preferred benchmark name.
+    document_page: 188
+    printed_page: '188'
+    source_fragment_sha256: 47cd5e22fa724cb5b4b57941fdf618750c717cee0eb0e3577eddaddaad53f201
+  supports:
+  - /aliases/0

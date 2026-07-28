@@ -39,6 +39,7 @@ class GeneratedRecords:
     uses: list[dict[str, Any]] = field(default_factory=list)
     runs: list[dict[str, Any]] = field(default_factory=list)
     skipped_background_mentions: list[str] = field(default_factory=list)
+    omitted_unresolved_mentions: list[str] = field(default_factory=list)
     blocked_reasons: list[str] = field(default_factory=list)
 
 
@@ -840,26 +841,103 @@ def _downgrade_safe_existing_evaluation_conflicts(
     verdicts = {item.claim_id: item for item in verification.claims}
     mentions = {mention.mention_id: mention for mention in draft.benchmark_mentions}
     conflict_claims: list[tuple[Any, str]] = []
+    omitted_mention_ids: set[str] = set()
+    omitted_mention_names: list[str] = []
+    benchmarks = {item["id"]: item for item in load_entities()["benchmark"]}
+
+    def message_mentions(message: str) -> list[Any]:
+        normalized_message = " ".join(re.findall(r"[a-z0-9]+", message.casefold()))
+        message_words = set(normalized_message.split())
+        matches = []
+        for mention in draft.benchmark_mentions:
+            labels = [mention.benchmark_name]
+            benchmark = benchmarks.get(mention.registry_benchmark_id or "")
+            if benchmark:
+                labels.extend([benchmark["id"], benchmark["name"], *benchmark.get("aliases", [])])
+            matched = False
+            for label in labels:
+                normalized_label = " ".join(re.findall(r"[a-z0-9]+", str(label).casefold()))
+                if len(normalized_label) >= 5 and normalized_label in normalized_message:
+                    matched = True
+                    break
+                core_words = [
+                    word for word in normalized_label.split()
+                    if word not in {"benchmark", "variant", "version", "v2", "v3"}
+                ]
+                if len(core_words) >= 2 and set(core_words) <= message_words:
+                    matched = True
+                    break
+            if matched:
+                matches.append(mention)
+        return matches
+
     for message in verification.blocking_conflicts:
         claim_ids = re.findall(r"\bclaim-[A-Za-z0-9_-]+\b", message)
-        if len(claim_ids) != 1:
+        if len(claim_ids) == 1:
+            claim = claims_by_id.get(claim_ids[0])
+            verdict = verdicts.get(claim_ids[0])
+            mention = mentions.get(claim.mention_id) if claim is not None else None
+            if (
+                claim is None
+                or verdict is None
+                or mention is None
+                or mention.is_new_benchmark
+                or mention.registry_benchmark_id is None
+                or mention.relation_type != "evaluation"
+                or claim.claim_type not in SAFE_EXISTING_EVALUATION_CONFLICT_TYPES
+            ):
+                return draft, verification
+            conflict_claims.append((claim, message))
+            continue
+        if claim_ids:
             return draft, verification
-        claim = claims_by_id.get(claim_ids[0])
-        verdict = verdicts.get(claim_ids[0])
-        mention = mentions.get(claim.mention_id) if claim is not None else None
-        if (
-            claim is None
-            or verdict is None
-            or mention is None
-            or mention.is_new_benchmark
-            or mention.registry_benchmark_id is None
-            or mention.relation_type != "evaluation"
-            or claim.claim_type not in SAFE_EXISTING_EVALUATION_CONFLICT_TYPES
-        ):
+
+        matched_mentions = message_mentions(message)
+        if len(matched_mentions) != 1:
             return draft, verification
-        conflict_claims.append((claim, message))
+        mention = matched_mentions[0]
+        if mention.is_new_benchmark or mention.relation_type != "evaluation":
+            return draft, verification
+        if mention.registry_benchmark_id is None:
+            omitted_mention_ids.add(mention.mention_id)
+            omitted_mention_names.append(mention.benchmark_name)
+            continue
+
+        normalized_message = message.casefold()
+        if "identity" in normalized_message:
+            return draft, verification
+        if any(term in normalized_message for term in ("variant", "version", "artifact revision")):
+            safe_types = {"benchmark-version"}
+        elif any(term in normalized_message for term in ("attempt", "timeout", "partition")):
+            safe_types = {"scope-n", "repeats", "budget"}
+        else:
+            return draft, verification
+        candidates = [
+            claim for claim in draft.claims
+            if claim.mention_id == mention.mention_id and claim.claim_type in safe_types
+        ]
+        if not candidates:
+            return draft, verification
+        conflict_claims.extend((claim, message) for claim in candidates)
 
     downgraded_draft = draft.model_copy(deep=True)
+    if omitted_mention_ids:
+        omitted_claim_ids = {
+            claim.claim_id for claim in downgraded_draft.claims
+            if claim.mention_id in omitted_mention_ids
+        }
+        downgraded_draft.benchmark_mentions = [
+            mention for mention in downgraded_draft.benchmark_mentions
+            if mention.mention_id not in omitted_mention_ids
+        ]
+        downgraded_draft.claims = [
+            claim for claim in downgraded_draft.claims
+            if claim.claim_id not in omitted_claim_ids
+        ]
+        downgraded_draft.reporting_gaps.extend(
+            f"Omitted unresolved benchmark mention: {name}"
+            for name in omitted_mention_names
+        )
     downgraded_mentions = {
         mention.mention_id: mention for mention in downgraded_draft.benchmark_mentions
     }
@@ -868,11 +946,19 @@ def _downgrade_safe_existing_evaluation_conflicts(
             f"Conflicted {claim.claim_type} claim omitted after independent verification; "
             "the evaluation relationship is published conservatively."
         )
-        mention = downgraded_mentions[claim.mention_id]
+        mention = downgraded_mentions.get(claim.mention_id)
+        if mention is None:
+            continue
         if gap not in mention.reporting_gaps:
             mention.reporting_gaps.append(gap)
     downgraded_verification = verification.model_copy(deep=True)
     conflicted_claim_ids = {claim.claim_id for claim, _message in conflict_claims}
+    if omitted_mention_ids:
+        retained_claim_ids = {claim.claim_id for claim in downgraded_draft.claims}
+        downgraded_verification.claims = [
+            verdict for verdict in downgraded_verification.claims
+            if verdict.claim_id in retained_claim_ids
+        ]
     for verdict in downgraded_verification.claims:
         if verdict.claim_id in conflicted_claim_ids:
             # A claim-level blocking conflict is stronger than an internally
@@ -942,6 +1028,11 @@ def build_records(
     work_version_id = existing_work["current_version_id"] if existing_work else f"{work_id}-{version_suffix}"
 
     output = GeneratedRecords()
+    output.omitted_unresolved_mentions.extend(
+        gap.removeprefix("Omitted unresolved benchmark mention: ")
+        for gap in draft.reporting_gaps
+        if gap.startswith("Omitted unresolved benchmark mention: ")
+    )
     creates_new_benchmark = any(
         mention.is_new_benchmark and mention.relation_type == "benchmark-creation"
         and not mention.background_only
@@ -1047,6 +1138,9 @@ def build_records(
             if mention.is_new_benchmark else mention.registry_benchmark_id
         )
         if benchmark_id not in benchmarks:
+            if not mention.is_new_benchmark:
+                output.omitted_unresolved_mentions.append(mention.benchmark_name)
+                continue
             output.blocked_reasons.append(f"{mention.benchmark_name}: Registry benchmark identity is unresolved")
             continue
         identity_claim = next((item for item in claims if item.claim_type == "benchmark-identity"), None)
@@ -1304,6 +1398,12 @@ def chinese_summary(records: GeneratedRecords) -> str:
         )
     if records.skipped_background_mentions:
         lines.append("- 已排除纯 related-work 引用：" + "、".join(records.skipped_background_mentions) + "。")
+    if records.omitted_unresolved_mentions:
+        lines.append(
+            "- 已保守省略无法解析到 Registry 实体的 evaluation 名称："
+            + "、".join(dict.fromkeys(records.omitted_unresolved_mentions))
+            + "；未创建或猜测 benchmark。"
+        )
     if records.blocked_reasons:
         lines.append("- 需要人工处理：" + "；".join(records.blocked_reasons) + "。")
     lines.append("")

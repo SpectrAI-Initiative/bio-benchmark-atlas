@@ -212,11 +212,14 @@ def test_model_facing_schemas_require_every_declared_property() -> None:
 def test_verifier_prompt_treats_creator_and_evaluation_relations_as_compatible() -> None:
     from extract_paper import EXTRACTOR_PROMPT, PROMPT_VERSION, VERIFIER_PROMPT
 
-    assert PROMPT_VERSION == "paper-evidence-local-v7"
+    assert PROMPT_VERSION == "paper-evidence-local-v8"
     assert "Normalize arXiv identifiers to the base numeric ID" in EXTRACTOR_PROMPT
     assert "the suffix belongs to the paper version" in VERIFIER_PROMPT
     assert "Benchmark-creation and evaluation are compatible" in VERIFIER_PROMPT
     assert "Their coexistence is not a conflict" in VERIFIER_PROMPT
+    assert "provider-qualified printed label" in VERIFIER_PROMPT
+    assert "does not verify a benchmark version" in VERIFIER_PROMPT
+    assert "complete leading label" in EXTRACTOR_PROMPT
     assert "keep benchmark-metadata count-, version-, protocol-, and" in EXTRACTOR_PROMPT
     assert "Do not duplicate those creator-only claims" in EXTRACTOR_PROMPT
     assert "explicitly inspect the abstract, introduction" in EXTRACTOR_PROMPT
@@ -1970,6 +1973,9 @@ def test_work_ids_are_deterministic_and_workflows_have_required_guards() -> None
     assert "issue_comment:" in owner
     assert "/approve-paper-intake" in owner
     assert "checks: write" in owner
+    assert "statuses: write" in owner
+    assert 'statuses/${head_sha}' in owner
+    assert "context='paper-owner-gate'" in owner
     assert "comment_pages_json" in owner
     assert "jq 'add' \"$comment_pages_json\"" in owner
     assert "--slurp \\\n              --jq" not in owner

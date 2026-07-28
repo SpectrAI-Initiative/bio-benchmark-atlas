@@ -1454,7 +1454,14 @@ def test_local_codex_stage_retries_only_transient_transport_failures(
     image_path = tmp_path / "document-page-018.jpg"
     image_path.write_bytes(b"synthetic image")
     attempts = 0
-    valid_draft = draft_payload([], {
+    valid_draft = draft_payload([
+        claim(
+            "duplicate-temporary-id",
+            "paper-identity",
+            {"title": "Synthetic benchmark evaluation paper", "doi": None, "arxiv": None},
+            mention_id=None,
+        ),
+    ], {
         "mention_id": "mention-1",
         "benchmark_name": "Synthetic",
         "registry_benchmark_id": None,
@@ -1499,6 +1506,58 @@ def test_local_codex_stage_retries_only_transient_transport_failures(
     )
     assert attempts == 2
     assert result.thread_id == "thread-retry"
+    persisted = json.loads(output_path.read_text(encoding="utf-8"))
+    assert persisted["claims"][0]["claim_id"] == "claim-1"
+
+
+def test_local_codex_stage_rejects_structurally_incomplete_draft_before_verification(
+    tmp_path: Path,
+) -> None:
+    output_path = tmp_path / "draft.json"
+    invalid_draft = draft_payload([
+        claim(
+            "claim-0",
+            "paper-identity",
+            {"title": "Synthetic benchmark evaluation paper", "doi": None, "arxiv": None},
+            mention_id=None,
+        ),
+        claim(
+            "claim-0",
+            "paper-identity",
+            {"title": "Synthetic benchmark evaluation paper", "doi": None, "arxiv": None},
+            mention_id=None,
+        ),
+    ], {
+        "mention_id": "mention-1",
+        "benchmark_name": "LifeSciBench",
+        "registry_benchmark_id": "lifescibench",
+        "relation_type": "evaluation",
+        "is_new_benchmark": False,
+        "background_only": False,
+        "claim_ids": ["c1", "c2"],
+        "reporting_gaps": [],
+    })
+
+    def runner(command: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        output_path.write_text(json.dumps(invalid_draft), encoding="utf-8")
+        return subprocess.CompletedProcess(
+            command,
+            0,
+            json.dumps({"type": "thread.started", "thread_id": "thread-invalid"}) + "\n",
+            "",
+        )
+
+    with pytest.raises(PaperExtractionError, match="exactly one unscoped paper-identity"):
+        _run_stage(
+            prompt="Synthetic prompt",
+            output_type=PaperEvidenceDraft,
+            schema_path=tmp_path / "schema.json",
+            output_path=output_path,
+            model="gpt-5.6-sol",
+            reasoning_effort="high",
+            binary="codex",
+            runner=runner,
+        )
 
 
 def test_local_codex_stage_has_a_non_retrying_wall_clock_limit(

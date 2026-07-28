@@ -32,7 +32,7 @@ ROOT = Path(__file__).resolve().parents[1]
 LOCAL_TMP_ROOT = ROOT / ".paper-intake-tmp"
 PIPELINE_VERSION = "1.4.0"
 PROMPT_VERSION = "paper-evidence-local-v7"
-SOURCE_INPUT_PROTOCOL_VERSION = "multimodal-focused-long-pdf-v2"
+SOURCE_INPUT_PROTOCOL_VERSION = "multimodal-focused-long-pdf-v3"
 DEFAULT_MODEL = "gpt-5.6-sol"
 REVIEW_METHOD = "local-codex-double-pass"
 EXECUTION_SURFACE = "local-codex-cli"
@@ -797,6 +797,37 @@ def _normalize_temporary_claim_ids(raw_payload: dict[str, Any]) -> dict[str, Any
     return normalized
 
 
+def _validate_draft_structure(draft: PaperEvidenceDraft) -> None:
+    paper_identity_claims = [
+        claim for claim in draft.claims
+        if claim.mention_id is None and claim.claim_type == "paper-identity"
+    ]
+    if len(paper_identity_claims) != 1:
+        raise PaperExtractionError(
+            "extractor draft must contain exactly one unscoped paper-identity claim"
+        )
+    claims_by_mention: dict[str, list[Any]] = {}
+    for claim in draft.claims:
+        if claim.mention_id is not None:
+            claims_by_mention.setdefault(claim.mention_id, []).append(claim)
+    for mention in draft.benchmark_mentions:
+        owned_claims = claims_by_mention.get(mention.mention_id, [])
+        owned_ids = {claim.claim_id for claim in owned_claims}
+        if set(mention.claim_ids) != owned_ids:
+            raise PaperExtractionError(
+                f"extractor draft mention {mention.mention_id} has inconsistent claim ownership"
+            )
+        if mention.background_only or mention.relation_type == "background-citation":
+            continue
+        claim_types = {claim.claim_type for claim in owned_claims}
+        missing = {"relation", "benchmark-identity"} - claim_types
+        if missing:
+            raise PaperExtractionError(
+                f"extractor draft mention {mention.mention_id} lacks required claim types: "
+                + ", ".join(sorted(missing))
+            )
+
+
 def _codex_stage_retryable(diagnostic: str) -> bool:
     lowered = diagnostic.casefold()
     return any(
@@ -910,6 +941,19 @@ def _run_stage(
         if output_type is PaperEvidenceDraft and isinstance(raw_payload, dict):
             raw_payload = _normalize_temporary_claim_ids(raw_payload)
         payload = output_type.model_validate(raw_payload)
+        if isinstance(payload, PaperEvidenceDraft):
+            _validate_draft_structure(payload)
+            temporary_output = output_path.with_suffix(".normalized.tmp")
+            temporary_output.write_text(
+                json.dumps(
+                    payload.model_dump(mode="json"),
+                    ensure_ascii=False,
+                    separators=(",", ":"),
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            temporary_output.replace(output_path)
     except (OSError, json.JSONDecodeError, ValidationError) as error:
         raise PaperExtractionError(
             "local Codex stage did not produce valid structured output: "

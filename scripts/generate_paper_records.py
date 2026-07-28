@@ -1145,12 +1145,30 @@ def build_records(
             continue
         identity_claim = next((item for item in claims if item.claim_type == "benchmark-identity"), None)
         identity_value = _claim_value(identity_claim) if identity_claim else None
-        identity_matches = (
-            identity_value == benchmark_id
-            or (mention.is_new_benchmark and slugify(str(identity_value)) in {
-                slugify(mention.benchmark_name), slugify(benchmarks[benchmark_id]["name"])
-            })
-        )
+        registered_identity_labels = {
+            slugify(str(label))
+            for label in (
+                benchmark_id,
+                benchmarks[benchmark_id]["name"],
+                *benchmarks[benchmark_id].get("aliases", []),
+            )
+            if label
+        }
+        normalized_identity_value = slugify(str(identity_value))
+        identity_matches = normalized_identity_value in registered_identity_labels
+        provider_qualified_identity = False
+        if not identity_matches and not mention.is_new_benchmark:
+            provider_qualified_identity = any(
+                normalized_identity_value.startswith(f"{label}-")
+                for label in registered_identity_labels
+                if label
+            )
+            identity_matches = provider_qualified_identity
+        if mention.is_new_benchmark:
+            identity_matches = normalized_identity_value in {
+                slugify(mention.benchmark_name),
+                slugify(benchmarks[benchmark_id]["name"]),
+            }
         if identity_claim is None or not identity_matches:
             output.blocked_reasons.append(f"{mention.benchmark_name}: benchmark identity was not independently verified")
             continue
@@ -1204,6 +1222,7 @@ def build_records(
             and bool(metrics)
             and bool(results)
             and delta_baselines_are_known
+            and not provider_qualified_identity
         )
         run_id = f"{work_id}-{benchmark_id}-{mention_index}"
         use_id = f"{work_id}-{benchmark_id}-{mention_index}-use"

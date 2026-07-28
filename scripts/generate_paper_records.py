@@ -307,6 +307,7 @@ def _use_scope(
     run_scope: dict[str, Any],
     *,
     partial_use: bool = False,
+    formal_subset_ids: set[str] | None = None,
 ) -> dict[str, Any]:
     if run_scope["type"] == "subset":
         paper_specific = run_scope["selection"] not in {None, "formal-subset"}
@@ -343,7 +344,41 @@ def _use_scope(
             "subset_kind": "not-reported",
             "reporting_status": "not_reported",
         })
+    unknown_formal_subset = (
+        scope["type"] == "subset"
+        and scope["subset_kind"] == "formal-subset"
+        and scope["subset_id"] is not None
+        and formal_subset_ids is not None
+        and scope["subset_id"] not in formal_subset_ids
+    )
+    if partial_use and unknown_formal_subset:
+        # Models sometimes join multiple printed partition labels into one
+        # synthetic subset ID. Keep the source description, but never publish
+        # that synthetic label as a Registry formal subset.
+        scope.update({
+            "type": "unknown",
+            "subset_kind": "not-reported",
+            "subset_id": None,
+            "reporting_status": "not_reported",
+        })
     return scope
+
+
+def _formal_subset_ids(benchmark: dict[str, Any] | None) -> set[str]:
+    if benchmark is None:
+        return set()
+    subset_ids = {
+        str(item["id"])
+        for item in benchmark.get("task_counts", {}).get("subsets", [])
+        if item.get("id")
+    }
+    for version in benchmark.get("versions", []):
+        subset_ids.update(
+            str(item["id"])
+            for item in version.get("task_counts", {}).get("subsets", [])
+            if item.get("id")
+        )
+    return subset_ids
 
 
 def _metrics_and_results(
@@ -1373,7 +1408,11 @@ def build_records(
                 "benchmark-creation", "training", "fine-tuning", "validation", "model-selection"
             } else "partial"
         )
-        use_scope = _use_scope(scope, partial_use=use_status == "partial")
+        use_scope = _use_scope(
+            scope,
+            partial_use=use_status == "partial",
+            formal_subset_ids=_formal_subset_ids(benchmarks.get(benchmark_id)),
+        )
         if use_status == "non-evaluation":
             use_scope = {
                 "type": "unknown", "subset_kind": "not-applicable", "n": None,

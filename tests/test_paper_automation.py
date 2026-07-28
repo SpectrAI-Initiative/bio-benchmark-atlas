@@ -801,6 +801,53 @@ def test_paper_use_scope_normalizes_source_descriptions_and_subset_labels() -> N
     assert complete_partial_scope["subset_kind"] == "paper-specific"
     assert complete_partial_scope["n"] == 17
 
+    joined_formal_claims = [
+        EvidenceClaimDraft.model_validate(
+            claim("claim-1", "scope-type", "subset")
+        ),
+        EvidenceClaimDraft.model_validate(
+            claim(
+                "claim-2",
+                "subset-id",
+                "Human Solvable and Human Difficult",
+            )
+        ),
+        EvidenceClaimDraft.model_validate(
+            claim(
+                "claim-3",
+                "selection-method",
+                "The source reports both official partitions.",
+            )
+        ),
+    ]
+    joined_formal_scope = _use_scope(
+        _scope(joined_formal_claims),
+        partial_use=True,
+        formal_subset_ids={"human-solvable", "human-difficult"},
+    )
+    assert joined_formal_scope["type"] == "unknown"
+    assert joined_formal_scope["subset_kind"] == "not-reported"
+    assert joined_formal_scope["subset_id"] is None
+    assert joined_formal_scope["selection_method"] == (
+        "The source reports both official partitions."
+    )
+
+    valid_formal_claims = [
+        *joined_formal_claims[:1],
+        EvidenceClaimDraft.model_validate(
+            claim("claim-2", "subset-id", "Human Solvable")
+        ),
+        *joined_formal_claims[2:],
+    ]
+    valid_formal_scope = _use_scope(
+        _scope(valid_formal_claims),
+        partial_use=True,
+        formal_subset_ids={"human-solvable", "human-difficult"},
+    )
+    assert valid_formal_scope["type"] == "subset"
+    assert valid_formal_scope["subset_kind"] == "formal-subset"
+    assert valid_formal_scope["subset_id"] == "human-solvable"
+
     unknown_claims = [
         EvidenceClaimDraft.model_validate(
             claim("claim-1", "scope-type", "unknown")

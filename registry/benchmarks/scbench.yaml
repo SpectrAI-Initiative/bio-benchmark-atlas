@@ -1,0 +1,191 @@
+entity_type: benchmark
+id: scbench
+name: scBench
+aliases: []
+summary: Agentic evaluation suite for data-grounded single-cell analysis across diverse sequencing technologies and workflow
+  stages.
+kind: agentic-eval
+parent_id: null
+organizations:
+- LatchBio
+release_date: '2026-02-09'
+latest_version: initial-release
+domains:
+- life-science
+- transcriptomics
+- single-cell
+- bioinformatics
+capabilities:
+- data-analysis
+- coding
+- tool-use
+- scientific-reasoning
+modalities:
+- text
+- raw-omics
+- code
+task_formats:
+- natural-language data-analysis task with structured JSON output
+task_counts: &id001
+  total: 394
+  basis: Explicit overall benchmark total in the abstract and Table 1
+  reporting_status: reported
+  subsets: []
+coverage_notes: []
+access:
+  level: partially-open
+  tasks: Canonical evaluation specifications are public; the full suite is withheld to prevent training contamination.
+  artifacts: Aggregate result breakdowns and trajectories for released evaluations are available.
+  grader: Deterministic graders, linter, and agent harness are available in the official repository.
+  license: null
+  biosafety_notes: null
+resources:
+- id: scbench-creator-paper-resource
+  type: paper
+  url: https://arxiv.org/abs/2602.09063
+  license: null
+  access_notes: Versioned creator source; full text is not mirrored.
+  last_checked: '2026-07-27'
+  pin: null
+- id: scbench-official-repository-resource
+  type: repository
+  url: https://github.com/latchbio/scbench
+  license: null
+  access_notes: Official repository pinned during intake.
+  last_checked: '2026-07-27'
+  pin:
+    kind: commit
+    value: 0bc34032bfa402dad29fc40b4cf10ea8fc03193e
+    url: https://github.com/latchbio/scbench/commit/0bc34032bfa402dad29fc40b4cf10ea8fc03193e
+implementations:
+- framework: official repository
+  status: official
+  url: https://github.com/latchbio/scbench
+  commit: 0bc34032bfa402dad29fc40b4cf10ea8fc03193e
+  notes: Commit resolved deterministically during paper intake.
+versions:
+- id: scbench-initial-release-version
+  label: initial-release
+  status: current
+  release_date: '2026-02-09'
+  as_of: null
+  task_counts: *id001
+  formal_tracks: []
+  notes: Root total retained after owner review; conflicted appendix inventory subcounts are intentionally omitted.
+  evidence_ids:
+  - scbench-automated-count-evidence
+  - scbench-automated-version-evidence
+audit:
+  status: audited-with-caveats
+  audited_date: '2026-07-27'
+  unresolved_fields: 1
+  notes: Automated double-pass extraction plus deterministic repository pin. Owner review preserved the corroborated root
+    total and excluded conflicted appendix inventory subcounts.
+field_status:
+- path: /task_counts/subsets
+  status: conflicted
+  confidence: high
+  reason: The owner approved the independently supported root total while all conflicted inventory subcounts were excluded
+    from publication.
+  evidence_ids:
+  - scbench-automated-count-conflict-evidence
+verification:
+  status: verified
+  last_verified: '2026-07-27'
+  notes: New family admitted with an explicit count-inventory caveat after creator source, official repository, double-pass
+    verification, and owner conflict resolution.
+evidence:
+- id: scbench-automated-metadata-evidence
+  source_type: work
+  source_id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an
+  accessed_date: '2026-07-27'
+  locator:
+    type: section
+    value: Abstract; Sections 4.1–5
+    note: null
+    document_page: 1
+    printed_page: null
+    source_fragment_sha256: bb81e0c838e519898cd8437921990a04162d365b1253bcdb86c43c2bd3fdb9de
+  supports:
+  - /name
+  - /aliases
+  - /summary
+  - /kind
+  - /organizations
+  - /release_date
+  - /domains
+  - /capabilities
+  - /modalities
+  - /task_formats
+  - /access/level
+  - /access/license
+- id: scbench-automated-count-evidence
+  source_type: work
+  source_id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an
+  accessed_date: '2026-07-27'
+  locator:
+    type: table
+    value: Table 1
+    note: null
+    document_page: 2
+    printed_page: '2'
+    source_fragment_sha256: b02c35d4261b5d98b227145422021bb79d7453ee9d29b0b1ac7907de6f76a6ce
+  supports:
+  - /task_counts/total
+  - /task_counts/basis
+  - /task_counts/subsets
+  - /versions/0/task_counts
+- id: scbench-automated-resource-evidence
+  source_type: work
+  source_id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an
+  accessed_date: '2026-07-27'
+  locator:
+    type: section
+    value: Section 5
+    note: null
+    document_page: 10
+    printed_page: '10'
+    source_fragment_sha256: e2048a14b94bcfca6fd058805209f11488b3438e2e994d8646ae2a24429b64b5
+  supports:
+  - /resources
+  - /implementations
+- id: scbench-automated-creator-evidence
+  source_type: work
+  source_id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an
+  accessed_date: '2026-07-27'
+  locator:
+    type: page
+    value: Title page
+    note: null
+    document_page: 1
+    printed_page: null
+    source_fragment_sha256: 2b4a5d08265bf2f93cee8e3e2036194670b8aa5b8b6ea1a6ecdf7ac1a4b10fca
+  supports:
+  - /resources/0
+- id: scbench-automated-version-evidence
+  source_type: work
+  source_id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an
+  accessed_date: '2026-07-27'
+  locator:
+    type: page
+    value: Title page
+    note: null
+    document_page: 1
+    printed_page: null
+    source_fragment_sha256: 2b4a5d08265bf2f93cee8e3e2036194670b8aa5b8b6ea1a6ecdf7ac1a4b10fca
+  supports:
+  - /latest_version
+  - /versions/0
+- id: scbench-automated-count-conflict-evidence
+  source_type: work
+  source_id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an
+  accessed_date: '2026-07-27'
+  locator:
+    type: table
+    value: Table 7 (continued)
+    note: null
+    document_page: 13
+    printed_page: '13'
+    source_fragment_sha256: fac57b1733596d9eb7a0e74770c7b8985f840fe16a690a48f0cec95234899f75
+  supports:
+  - /task_counts/subsets

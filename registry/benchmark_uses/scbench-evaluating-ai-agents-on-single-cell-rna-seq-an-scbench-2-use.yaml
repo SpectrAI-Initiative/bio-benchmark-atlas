@@ -1,0 +1,175 @@
+entity_type: benchmark_use
+id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an-scbench-2-use
+work_id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an
+work_version_id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an-arxiv-v1
+benchmark_id: scbench
+benchmark_version: null
+relation_type: evaluation
+status: partial
+model_ids:
+- claude-opus-4-5
+- claude-opus-4-6
+- claude-sonnet-4-5
+- gpt-5-1
+- gpt-5-2
+- grok-4
+- scbench-gemini-2-5-pro-unversioned
+- spatialbench-grok-4-1-unversioned
+scope:
+  type: unknown
+  subset_kind: not-reported
+  n: null
+  subset_id: null
+  selection: null
+  selection_method: null
+  reporting_status: not_reported
+metric_labels: []
+evaluation_run_ids: []
+reporting_gaps:
+- Exact API snapshots and model release dates are not reported.
+- Shot count and model reasoning settings are not reported.
+- No token budget is reported.
+- Latency confidence intervals are not reported.
+- benchmark version
+- realized n/scope
+- metric
+- numeric result
+- prompt and tools
+- grader and repeats
+notes: 'Owner-reviewed conservative publication: the creator evaluation is retained only as a partial relationship; conflicted
+  settings and outcomes are omitted pending manual reconciliation.'
+verification:
+  status: verified
+  last_verified: '2026-07-27'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an-scbench-2-use-evidence-1
+  source_type: work
+  source_id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an
+  accessed_date: '2026-07-27'
+  locator:
+    type: table
+    value: Table 2
+    note: null
+    document_page: 3
+    printed_page: '3'
+    source_fragment_sha256: 753123b3ed65c062dfd65259f9b239a5c6a4491578166bfa9faa6b7f496d1d98
+  supports:
+  - /relation_type
+- id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an-scbench-2-use-evidence-2
+  source_type: work
+  source_id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an
+  accessed_date: '2026-07-27'
+  locator:
+    type: table
+    value: Table 2
+    note: null
+    document_page: 3
+    printed_page: '3'
+    source_fragment_sha256: 753123b3ed65c062dfd65259f9b239a5c6a4491578166bfa9faa6b7f496d1d98
+  supports:
+  - /benchmark_id
+- id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an-scbench-2-use-evidence-3
+  source_type: work
+  source_id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an
+  accessed_date: '2026-07-27'
+  locator:
+    type: table
+    value: Table 2
+    note: null
+    document_page: 3
+    printed_page: '3'
+    source_fragment_sha256: 2c44a1b144e18d454af3b6d83a33205199d080ab08e39fa74c2bb42e9c464f93
+  supports:
+  - /model_ids
+- id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an-scbench-2-use-evidence-4
+  source_type: work
+  source_id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an
+  accessed_date: '2026-07-27'
+  locator:
+    type: table
+    value: Table 2
+    note: null
+    document_page: 3
+    printed_page: '3'
+    source_fragment_sha256: 5af399dd9f50a252cf4fed63d58d3561db18e9cc05cdcf2622117c00f03c2929
+  supports:
+  - /model_ids
+- id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an-scbench-2-use-evidence-5
+  source_type: work
+  source_id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an
+  accessed_date: '2026-07-27'
+  locator:
+    type: table
+    value: Table 2
+    note: null
+    document_page: 3
+    printed_page: '3'
+    source_fragment_sha256: b7a05555892301ba07f49c001f8755b448fccb0152d08f3f2967d2c3470c484e
+  supports:
+  - /model_ids
+- id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an-scbench-2-use-evidence-6
+  source_type: work
+  source_id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an
+  accessed_date: '2026-07-27'
+  locator:
+    type: table
+    value: Table 2
+    note: null
+    document_page: 3
+    printed_page: '3'
+    source_fragment_sha256: 594d2e87eaa979b255d9ff005709263a85d58c36ddd41b70bf3adfb974f269eb
+  supports:
+  - /model_ids
+- id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an-scbench-2-use-evidence-7
+  source_type: work
+  source_id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an
+  accessed_date: '2026-07-27'
+  locator:
+    type: table
+    value: Table 2
+    note: null
+    document_page: 3
+    printed_page: '3'
+    source_fragment_sha256: 6c258ffc743aea716119c8397fbc79fe1985a80a98455c6be301f5a399983b84
+  supports:
+  - /model_ids
+- id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an-scbench-2-use-evidence-8
+  source_type: work
+  source_id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an
+  accessed_date: '2026-07-27'
+  locator:
+    type: table
+    value: Table 2
+    note: null
+    document_page: 3
+    printed_page: '3'
+    source_fragment_sha256: a119e8806f8d5cfcd3331be81d8f83a18bf5649b98c3e6885f5b131e0da71167
+  supports:
+  - /model_ids
+- id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an-scbench-2-use-evidence-9
+  source_type: work
+  source_id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an
+  accessed_date: '2026-07-27'
+  locator:
+    type: table
+    value: Table 2
+    note: null
+    document_page: 3
+    printed_page: '3'
+    source_fragment_sha256: f2f00e4fbd880d94cc3c09efc848ef923bbb26d48aa638887e97310f443a0978
+  supports:
+  - /model_ids
+- id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an-scbench-2-use-evidence-10
+  source_type: work
+  source_id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an
+  accessed_date: '2026-07-27'
+  locator:
+    type: table
+    value: Table 2
+    note: null
+    document_page: 3
+    printed_page: '3'
+    source_fragment_sha256: f148d29b579f618e2935016910243a85c47d22ff65aa25a6f657511d2361f635
+  supports:
+  - /model_ids

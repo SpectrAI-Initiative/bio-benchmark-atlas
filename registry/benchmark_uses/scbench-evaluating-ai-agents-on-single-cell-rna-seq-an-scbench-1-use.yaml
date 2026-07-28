@@ -1,0 +1,54 @@
+entity_type: benchmark_use
+id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an-scbench-1-use
+work_id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an
+work_version_id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an-arxiv-v1
+benchmark_id: scbench
+benchmark_version: null
+relation_type: benchmark-creation
+status: non-evaluation
+model_ids: []
+scope:
+  type: unknown
+  subset_kind: not-applicable
+  n: null
+  subset_id: null
+  selection: null
+  selection_method: null
+  reporting_status: not_applicable
+metric_labels: []
+evaluation_run_ids: []
+reporting_gaps:
+- No explicit benchmark version is reported.
+- The paper identifies the official repository but does not report its software license.
+notes: AI-assisted double-pass extraction; values are limited to independently supported claims.
+verification:
+  status: verified
+  last_verified: '2026-07-27'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an-scbench-1-use-evidence-1
+  source_type: work
+  source_id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an
+  accessed_date: '2026-07-27'
+  locator:
+    type: section
+    value: Abstract
+    note: null
+    document_page: 1
+    printed_page: null
+    source_fragment_sha256: 55c439997224d4eee49082aa94015e66229cae29a88c9e33f8c1f2ddc427c117
+  supports:
+  - /relation_type
+- id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an-scbench-1-use-evidence-2
+  source_type: work
+  source_id: scbench-evaluating-ai-agents-on-single-cell-rna-seq-an
+  accessed_date: '2026-07-27'
+  locator:
+    type: section
+    value: Abstract
+    note: null
+    document_page: 1
+    printed_page: null
+    source_fragment_sha256: 55c439997224d4eee49082aa94015e66229cae29a88c9e33f8c1f2ddc427c117
+  supports:
+  - /benchmark_id

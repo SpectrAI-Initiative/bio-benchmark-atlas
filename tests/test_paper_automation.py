@@ -691,6 +691,71 @@ def test_owner_can_preserve_supported_root_total_but_not_conflicted_subcounts() 
         )
 
 
+def test_existing_evaluation_setting_conflict_downgrades_to_partial_use() -> None:
+    claims = [
+        claim(
+            "claim-1",
+            "paper-identity",
+            {"title": "Synthetic benchmark evaluation paper"},
+            mention_id=None,
+        ),
+        claim("claim-2", "relation", "evaluation"),
+        claim("claim-3", "benchmark-identity", "lifescibench"),
+        claim("claim-4", "benchmark-version", "Verified variant"),
+        claim("claim-5", "scope-type", "subset"),
+        claim("claim-6", "scope-n", 115),
+    ]
+    mention = {
+        "mention_id": "mention-1",
+        "benchmark_name": "LifeSciBench",
+        "registry_benchmark_id": "lifescibench",
+        "relation_type": "evaluation",
+        "is_new_benchmark": False,
+        "background_only": False,
+        "claim_ids": [item["claim_id"] for item in claims if item["mention_id"]],
+        "reporting_gaps": [],
+    }
+    payload = verified_result(claims, mention)
+    payload["verification"]["blocking_conflicts"] = [
+        "claim-4: The source identifies Verified as a variant, not a benchmark version."
+    ]
+    for item in payload["verification"]["claims"]:
+        if item["claim_id"] == "claim-4":
+            item.update({"verdict": "conflicted", "confidence": "high"})
+
+    records = build_records(
+        payload,
+        source=SOURCE,
+        generated_at=SOURCE["retrieved_at"],
+        verified_on="2026-07-28",
+    )
+    assert records.runs == []
+    assert len(records.uses) == 1
+    use = records.uses[0]
+    assert use["status"] == "partial"
+    assert use["benchmark_version"] is None
+    assert any(
+        "Conflicted benchmark-version claim omitted" in gap
+        for gap in use["reporting_gaps"]
+    )
+
+    unsafe = json.loads(json.dumps(payload))
+    unsafe["verification"]["blocking_conflicts"] = [
+        "claim-3: The benchmark identity is contradicted by the source."
+    ]
+    for item in unsafe["verification"]["claims"]:
+        item.update({"verdict": "supported", "confidence": "high"})
+        if item["claim_id"] == "claim-3":
+            item.update({"verdict": "conflicted", "confidence": "high"})
+    with pytest.raises(GenerationBlocked, match="blocking source conflicts"):
+        build_records(
+            unsafe,
+            source=SOURCE,
+            generated_at=SOURCE["retrieved_at"],
+            verified_on="2026-07-28",
+        )
+
+
 def test_owner_can_downgrade_conflicted_creator_evaluation_to_partial_use() -> None:
     metadata = {
         "name": "ConservativeBench",

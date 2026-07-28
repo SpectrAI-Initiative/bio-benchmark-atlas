@@ -797,6 +797,88 @@ def _apply_owner_count_conflict_resolution(
     }
 
 
+SAFE_EXISTING_EVALUATION_CONFLICT_TYPES = {
+    "benchmark-version",
+    "scope-type",
+    "scope-n",
+    "subset-id",
+    "selection",
+    "selection-method",
+    "model",
+    "prompt",
+    "shots",
+    "reasoning",
+    "tools",
+    "internet",
+    "code-execution",
+    "container",
+    "budget",
+    "seed",
+    "repeats",
+    "grader",
+    "human-review",
+    "metric",
+    "result",
+}
+
+
+def _downgrade_safe_existing_evaluation_conflicts(
+    draft: PaperEvidenceDraft,
+    verification: PaperEvidenceVerification,
+) -> tuple[PaperEvidenceDraft, PaperEvidenceVerification]:
+    """Omit claim-anchored setting conflicts while preserving a partial use.
+
+    This is deliberately narrower than owner conflict resolution. It applies only
+    to existing Registry benchmarks and only to evaluation settings or outcomes
+    whose claim-level verifier verdict is non-supporting. Identity, relation,
+    creator-resource, new-benchmark, and unanchored conflicts remain blocking.
+    """
+
+    if not verification.blocking_conflicts:
+        return draft, verification
+    claims_by_id = {claim.claim_id: claim for claim in draft.claims}
+    verdicts = {item.claim_id: item for item in verification.claims}
+    mentions = {mention.mention_id: mention for mention in draft.benchmark_mentions}
+    conflict_claims: list[tuple[Any, str]] = []
+    for message in verification.blocking_conflicts:
+        claim_ids = re.findall(r"\bclaim-[A-Za-z0-9_-]+\b", message)
+        if len(claim_ids) != 1:
+            return draft, verification
+        claim = claims_by_id.get(claim_ids[0])
+        verdict = verdicts.get(claim_ids[0])
+        mention = mentions.get(claim.mention_id) if claim is not None else None
+        if (
+            claim is None
+            or verdict is None
+            or verdict.verdict not in {"unsupported", "conflicted", "not-verifiable"}
+            or mention is None
+            or mention.is_new_benchmark
+            or mention.registry_benchmark_id is None
+            or mention.relation_type != "evaluation"
+            or claim.claim_type not in SAFE_EXISTING_EVALUATION_CONFLICT_TYPES
+        ):
+            return draft, verification
+        conflict_claims.append((claim, message))
+
+    downgraded_draft = draft.model_copy(deep=True)
+    downgraded_mentions = {
+        mention.mention_id: mention for mention in downgraded_draft.benchmark_mentions
+    }
+    for claim, _message in conflict_claims:
+        gap = (
+            f"Conflicted {claim.claim_type} claim omitted after independent verification; "
+            "the evaluation relationship is published conservatively."
+        )
+        mention = downgraded_mentions[claim.mention_id]
+        if gap not in mention.reporting_gaps:
+            mention.reporting_gaps.append(gap)
+    downgraded_verification = verification.model_copy(
+        deep=True,
+        update={"blocking_conflicts": []},
+    )
+    return downgraded_draft, downgraded_verification
+
+
 def build_records(
     result_payload: dict[str, Any],
     *,
@@ -807,6 +889,10 @@ def build_records(
 ) -> GeneratedRecords:
     draft = PaperEvidenceDraft.model_validate(result_payload["draft"])
     verification = PaperEvidenceVerification.model_validate(result_payload["verification"])
+    draft, verification = _downgrade_safe_existing_evaluation_conflicts(
+        draft,
+        verification,
+    )
     accepted = accepted_claims(draft, verification)
     accepted, resolved_count_conflict = _apply_owner_count_conflict_resolution(
         draft,

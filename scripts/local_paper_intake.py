@@ -33,7 +33,13 @@ from generate_paper_records import GenerationBlocked, chinese_summary, stable_wo
 from paper_extraction_eval import golden_input_hash, run_golden
 from paper_source import SourceAcquisitionError, retrieve_source
 from registry_io import load_entities
-from run_paper_intake import _arxiv_pdf_url, _first_url, _is_checked, process_issue
+from run_paper_intake import (
+    _arxiv_pdf_url,
+    _first_url,
+    _focus_pdf_pages,
+    _is_checked,
+    process_issue,
+)
 from triage_paper import (
     build_intake,
     normalize_arxiv,
@@ -417,7 +423,16 @@ def preflight_issue(
     base_sha = _clean_current_main(runner=runner) if require_clean_main else _git("rev-parse", "HEAD", runner=runner)
     issue = _issue(issue_number, runner=runner)
     source_url, rights_confirmed, discovered = _source_details(issue)
-    source = retrieve_source(source_url, rights_confirmed=rights_confirmed, discovered=discovered)
+    sections = parse_issue_form(issue["body"])
+    preferred_pdf_pages = _focus_pdf_pages(
+        sections.get("Relevant tables, figures, or sections", "")
+    )
+    source = retrieve_source(
+        source_url,
+        rights_confirmed=rights_confirmed,
+        discovered=discovered,
+        preferred_pdf_pages=preferred_pdf_pages,
+    )
     try:
         if source.content_type == "application/pdf" and shutil.which("pdftoppm") is None:
             raise LocalIntakeError(

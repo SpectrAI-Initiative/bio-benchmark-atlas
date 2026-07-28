@@ -3,6 +3,7 @@ from __future__ import annotations
 import io
 import csv
 import json
+import re
 import subprocess
 import sys
 from datetime import datetime
@@ -39,6 +40,7 @@ from extract_paper import (  # noqa: E402
     VERIFIER_PROMPT,
     _child_environment,
     _codex_failure_diagnostic,
+    _focused_pdf_text_source,
     _normalize_temporary_claim_ids,
     _pdf_pages_for_visual_review,
     _prepare_local_text_source,
@@ -1021,6 +1023,89 @@ def test_local_codex_double_pass_is_independent_read_only_and_ephemeral(
     assert "claim-1" not in serialized_heartbeat
 
 
+def test_long_pdf_double_pass_exposes_only_owner_selected_pages(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    mention = {
+        "mention_id": "mention-1",
+        "benchmark_name": "LifeSciBench",
+        "registry_benchmark_id": "lifescibench",
+        "relation_type": "evaluation",
+        "is_new_benchmark": False,
+        "background_only": False,
+        "claim_ids": ["claim-1"],
+        "reporting_gaps": [],
+    }
+    draft = draft_payload([claim("claim-1", "relation", "evaluation")], mention)
+    verification = {
+        "source_parseable": True,
+        "blocking_conflicts": [],
+        "claims": [{
+            "claim_id": "claim-1",
+            "verdict": "supported",
+            "confidence": "high",
+            "locator": locator(),
+            "notes": None,
+        }],
+    }
+    source = tmp_path / "long.pdf"
+    source.write_bytes(pdf_bytes(151))
+    stage = 0
+
+    def fake_render(
+        source_path: Path,
+        output_dir: Path,
+        *,
+        preferred_pages: list[int] | None = None,
+        **_: Any,
+    ) -> list[Path]:
+        assert source_path.exists()
+        assert preferred_pages == [1, 151]
+        images = [output_dir / "document-page-001.jpg", output_dir / "document-page-151.jpg"]
+        for image in images:
+            image.write_bytes(b"jpeg")
+        return images
+
+    def runner(command: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        nonlocal stage
+        if command[-1] == "--version":
+            return subprocess.CompletedProcess(command, 0, "codex-cli 1.2.3\n", "")
+        stage += 1
+        prompt = kwargs["input"]
+        match = re.search(r"Read the source at (\S+)", prompt)
+        assert match is not None
+        focused_path = Path(match.group(1).rstrip("."))
+        focused_text = focused_path.read_text(encoding="utf-8")
+        assert "=== DOCUMENT PAGE 1 ===" in focused_text
+        assert "=== DOCUMENT PAGE 151 ===" in focused_text
+        assert not (focused_path.parent / "source.pdf").exists()
+        output_path = Path(command[command.index("--output-last-message") + 1])
+        output_path.write_text(
+            json.dumps(draft if stage == 1 else verification),
+            encoding="utf-8",
+        )
+        return subprocess.CompletedProcess(
+            command,
+            0,
+            json.dumps({"type": "thread.started", "thread_id": f"focused-{stage}"}) + "\n",
+            "",
+        )
+
+    monkeypatch.setattr("extract_paper.LOCAL_TMP_ROOT", tmp_path / "local-evidence")
+    monkeypatch.setattr("extract_paper.HEARTBEAT_PATH", tmp_path / "heartbeat.json")
+    monkeypatch.setattr("extract_paper._render_pdf_pages", fake_render)
+    result = run_double_pass(
+        source,
+        registry_context={"benchmarks": [], "models": [], "taxonomy_ids": {}},
+        preferred_pdf_pages=[1, 151],
+        binary="codex",
+        runner=runner,
+    )
+    assert result.extractor_thread_id == "focused-1"
+    assert result.verifier_thread_id == "focused-2"
+
+
 def test_heartbeat_status_marks_dead_running_process_stale(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -1324,6 +1409,20 @@ def test_pdf_focus_parses_only_explicit_page_locators() -> None:
         _focus_pdf_pages("pages 1-41")
 
 
+def test_focused_long_pdf_text_preserves_original_physical_page_markers(tmp_path: Path) -> None:
+    source = tmp_path / "long.pdf"
+    source.write_bytes(pdf_bytes(151))
+    focused = _focused_pdf_text_source(
+        source,
+        tmp_path / "focused.txt",
+        pages=[151, 1, 151],
+    )
+    text = focused.read_text(encoding="utf-8")
+    assert text.count("=== DOCUMENT PAGE 1 ===") == 1
+    assert text.count("=== DOCUMENT PAGE 151 ===") == 1
+    assert "original PDF physical page (1-based)" in text
+
+
 def test_html_source_uses_visible_text_without_scripts(tmp_path: Path) -> None:
     source = tmp_path / "source.txt"
     visible_sentence = "BioMysteryBench has 99 questions and five trials per task. "
@@ -1504,6 +1603,23 @@ def test_source_rights_mime_size_pages_and_sha(monkeypatch: pytest.MonkeyPatch) 
     monkeypatch.setattr("paper_source.requests.get", lambda *args, **kwargs: FakeResponse(pdf_bytes(151)))
     with pytest.raises(SourceAcquisitionError, match="150-page"):
         retrieve_source("https://arxiv.org/pdf/2601.00001.pdf", rights_confirmed=False, discovered=True)
+    focused = retrieve_source(
+        "https://arxiv.org/pdf/2601.00001.pdf",
+        rights_confirmed=False,
+        discovered=True,
+        preferred_pdf_pages=[1, 151],
+    )
+    try:
+        assert focused.page_count == 151
+    finally:
+        focused.path.unlink(missing_ok=True)
+    with pytest.raises(SourceAcquisitionError, match="out-of-range"):
+        retrieve_source(
+            "https://arxiv.org/pdf/2601.00001.pdf",
+            rights_confirmed=False,
+            discovered=True,
+            preferred_pdf_pages=[152],
+        )
 
 
 def test_source_download_retries_transient_connection_errors(

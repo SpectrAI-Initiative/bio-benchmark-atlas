@@ -251,6 +251,16 @@ def _scope(claims: list[Any]) -> dict[str, Any]:
     selection = values.get("selection")
     subset_id = values.get("subset-id")
     selection_method = values.get("selection-method")
+    controlled_selections = {
+        "formal-subset", "filtered", "sampled", "hand-selected", "truncated",
+    }
+    if selection not in controlled_selections:
+        source_selection_description = str(selection) if selection is not None else None
+        selection = "filtered" if scope_type == "subset" and source_selection_description else None
+        if selection_method is None:
+            selection_method = source_selection_description
+    if subset_id is not None:
+        subset_id = slugify(str(subset_id))
     return {
         "type": scope_type,
         "n": n,

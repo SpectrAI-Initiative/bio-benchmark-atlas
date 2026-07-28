@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlsplit
 
 import yaml
 
@@ -28,6 +29,12 @@ from triage_paper import duplicate_work_candidates, normalize_arxiv, normalize_d
 
 class GenerationBlocked(RuntimeError):
     pass
+
+
+OFFICIAL_MODEL_PROVIDER_DOMAINS = {
+    "anthropic": ("anthropic.com",),
+    "openai": ("openai.com",),
+}
 
 
 @dataclass
@@ -55,6 +62,31 @@ def stable_work_id(title: str, doi: str | None, existing_ids: set[str]) -> str:
         return base
     suffix = hashlib.sha256((doi or title).encode()).hexdigest()[:8]
     return f"{base}-{suffix}"
+
+
+def _official_system_card(
+    paper: Any,
+    *,
+    canonical_url: str | None,
+    source_url: str | None,
+) -> bool:
+    if "system card" not in paper.title.casefold():
+        return False
+    organizations = {item.strip().casefold() for item in paper.organizations}
+    provider_domains = {
+        domain
+        for provider, domains in OFFICIAL_MODEL_PROVIDER_DOMAINS.items()
+        if provider in organizations
+        for domain in domains
+    }
+    if not provider_domains:
+        return False
+    for url in (canonical_url, source_url):
+        hostname = urlsplit(url or "").hostname or ""
+        hostname = hostname.casefold().rstrip(".")
+        if any(hostname == domain or hostname.endswith(f".{domain}") for domain in provider_domains):
+            return True
+    return False
 
 
 def _fragment_hash(excerpt: str) -> str:
@@ -1072,6 +1104,11 @@ def build_records(
         and not mention.background_only
         for mention in draft.benchmark_mentions
     )
+    official_system_card = _official_system_card(
+        draft.paper,
+        canonical_url=identity["canonical_url"],
+        source_url=source.get("url"),
+    )
     if existing_work is None:
         output.work = {
             "entity_type": "work",
@@ -1079,13 +1116,20 @@ def build_records(
             "title": draft.paper.title,
             "authors": draft.paper.authors,
             "organizations": draft.paper.organizations,
-            "work_type": "paper" if identity["doi"] else "preprint",
-            "source_class": "benchmark_creator" if creates_new_benchmark else "independent_reproduction",
+            "work_type": (
+                "system-card" if official_system_card else
+                "paper" if identity["doi"] else "preprint"
+            ),
+            "source_class": (
+                "benchmark_creator" if creates_new_benchmark else
+                "official_model_provider" if official_system_card else
+                "independent_reproduction"
+            ),
             "publication_date": publication_date,
             "canonical_url": identity["canonical_url"] or source["url"],
             "doi": identity["doi"],
             "arxiv": identity["arxiv"],
-            "status": "published" if identity["doi"] else "preprint",
+            "status": "published" if identity["doi"] or official_system_card else "preprint",
             "source_versions": [{
                 "id": work_version_id,
                 "label": draft.paper.version_label or "Reviewed source",

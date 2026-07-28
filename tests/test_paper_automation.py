@@ -252,6 +252,60 @@ def test_generator_downgrades_incomplete_evaluation_to_partial_use() -> None:
     assert records.work["source_versions"][0]["content_sha256"] == "a" * 64
 
 
+def test_generator_classifies_official_provider_system_card_from_source_domain() -> None:
+    title = "Synthetic Provider System Card"
+    claims = [
+        claim("claim-1", "paper-identity", {"title": title}, mention_id=None),
+        claim("claim-2", "relation", "evaluation"),
+        claim("claim-3", "benchmark-identity", "lifescibench"),
+    ]
+    mention = {
+        "mention_id": "mention-1",
+        "benchmark_name": "LifeSciBench",
+        "registry_benchmark_id": "lifescibench",
+        "relation_type": "evaluation",
+        "is_new_benchmark": False,
+        "background_only": False,
+        "claim_ids": ["claim-2", "claim-3"],
+        "reporting_gaps": ["benchmark version", "realized n", "metric"],
+    }
+    payload = local_verified_result(claims, mention)
+    payload["draft"]["paper"].update({
+        "title": title,
+        "authors": [],
+        "organizations": ["Anthropic"],
+        "doi": None,
+        "canonical_url": "https://www-cdn.anthropic.com/system-card.pdf",
+        "version_label": "2026-07-24",
+    })
+    source = {
+        **SOURCE,
+        "url": "https://www-cdn.anthropic.com/system-card.pdf",
+    }
+
+    records = build_records(
+        payload,
+        source=source,
+        generated_at=SOURCE["retrieved_at"],
+        verified_on="2026-07-28",
+    )
+
+    assert records.work["work_type"] == "system-card"
+    assert records.work["source_class"] == "official_model_provider"
+    assert records.work["status"] == "published"
+
+    untrusted_source = {**source, "url": "https://example.org/system-card.pdf"}
+    payload["draft"]["paper"]["canonical_url"] = untrusted_source["url"]
+    untrusted_records = build_records(
+        payload,
+        source=untrusted_source,
+        generated_at=SOURCE["retrieved_at"],
+        verified_on="2026-07-28",
+    )
+    assert untrusted_records.work["work_type"] == "preprint"
+    assert untrusted_records.work["source_class"] == "independent_reproduction"
+
+
 def test_generator_uses_claim_mention_id_when_redundant_claim_ids_omit_relation() -> None:
     claims = [
         claim("claim-1", "paper-identity", {"title": "Synthetic benchmark evaluation paper"}, mention_id=None),

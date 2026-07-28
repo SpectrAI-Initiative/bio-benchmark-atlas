@@ -939,24 +939,25 @@ def _downgrade_safe_existing_evaluation_conflicts(
 
     for message in verification.blocking_conflicts:
         claim_ids = re.findall(r"\bclaim-[A-Za-z0-9_-]+\b", message)
-        if len(claim_ids) == 1:
-            claim = claims_by_id.get(claim_ids[0])
-            verdict = verdicts.get(claim_ids[0])
-            mention = mentions.get(claim.mention_id) if claim is not None else None
-            if (
-                claim is None
-                or verdict is None
-                or mention is None
-                or mention.is_new_benchmark
-                or mention.registry_benchmark_id is None
-                or mention.relation_type != "evaluation"
-                or claim.claim_type not in SAFE_EXISTING_EVALUATION_CONFLICT_TYPES
-            ):
-                return draft, verification
-            conflict_claims.append((claim, message))
-            continue
         if claim_ids:
-            return draft, verification
+            anchored_conflicts: list[Any] = []
+            for claim_id in dict.fromkeys(claim_ids):
+                claim = claims_by_id.get(claim_id)
+                verdict = verdicts.get(claim_id)
+                mention = mentions.get(claim.mention_id) if claim is not None else None
+                if (
+                    claim is None
+                    or verdict is None
+                    or mention is None
+                    or mention.is_new_benchmark
+                    or mention.registry_benchmark_id is None
+                    or mention.relation_type != "evaluation"
+                    or claim.claim_type not in SAFE_EXISTING_EVALUATION_CONFLICT_TYPES
+                ):
+                    return draft, verification
+                anchored_conflicts.append(claim)
+            conflict_claims.extend((claim, message) for claim in anchored_conflicts)
+            continue
 
         matched_mentions = message_mentions(message)
         if len(matched_mentions) != 1:

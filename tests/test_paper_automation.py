@@ -739,6 +739,20 @@ def test_existing_evaluation_setting_conflict_downgrades_to_partial_use() -> Non
         for gap in use["reporting_gaps"]
     )
 
+    inconsistent = json.loads(json.dumps(payload))
+    for item in inconsistent["verification"]["claims"]:
+        if item["claim_id"] == "claim-4":
+            item.update({"verdict": "supported", "confidence": "high"})
+    inconsistent_records = build_records(
+        inconsistent,
+        source=SOURCE,
+        generated_at=SOURCE["retrieved_at"],
+        verified_on="2026-07-28",
+    )
+    assert inconsistent_records.runs == []
+    assert inconsistent_records.uses[0]["status"] == "partial"
+    assert inconsistent_records.uses[0]["benchmark_version"] is None
+
     unsafe = json.loads(json.dumps(payload))
     unsafe["verification"]["blocking_conflicts"] = [
         "claim-3: The benchmark identity is contradicted by the source."

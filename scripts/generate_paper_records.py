@@ -850,7 +850,6 @@ def _downgrade_safe_existing_evaluation_conflicts(
         if (
             claim is None
             or verdict is None
-            or verdict.verdict not in {"unsupported", "conflicted", "not-verifiable"}
             or mention is None
             or mention.is_new_benchmark
             or mention.registry_benchmark_id is None
@@ -872,10 +871,17 @@ def _downgrade_safe_existing_evaluation_conflicts(
         mention = downgraded_mentions[claim.mention_id]
         if gap not in mention.reporting_gaps:
             mention.reporting_gaps.append(gap)
-    downgraded_verification = verification.model_copy(
-        deep=True,
-        update={"blocking_conflicts": []},
-    )
+    downgraded_verification = verification.model_copy(deep=True)
+    conflicted_claim_ids = {claim.claim_id for claim, _message in conflict_claims}
+    for verdict in downgraded_verification.claims:
+        if verdict.claim_id in conflicted_claim_ids:
+            # A claim-level blocking conflict is stronger than an internally
+            # inconsistent `supported` verdict. Mark the claim conflicted so it
+            # cannot survive accepted_claims() after the blocking message is
+            # conservatively downgraded to a reporting gap.
+            verdict.verdict = "conflicted"
+            verdict.confidence = "high"
+    downgraded_verification.blocking_conflicts = []
     return downgraded_draft, downgraded_verification
 
 

@@ -54,11 +54,17 @@ def test_bixbench_anthropic_claim_remains_partial_without_invented_results() -> 
 def test_scbench_creator_intake_preserves_the_count_conflict_and_partial_evaluation() -> None:
     entities = load_entities()
     benchmark = next(item for item in entities["benchmark"] if item["id"] == "scbench")
-    assert benchmark["task_counts"]["total"] == 394
+    assert benchmark["task_counts"]["total"] == 195
     assert benchmark["task_counts"]["subsets"] == []
+    assert benchmark["latest_version"] == "repository-195-evaluations"
+    versions = {version["label"]: version for version in benchmark["versions"]}
+    assert versions["initial-release"]["status"] == "superseded"
+    assert versions["initial-release"]["task_counts"]["total"] == 394
+    assert versions["repository-195-evaluations"]["status"] == "current"
+    assert versions["repository-195-evaluations"]["task_counts"]["total"] == 195
     assert benchmark["audit"]["status"] == "audited-with-caveats"
     assert any(
-        status["path"] == "/task_counts/subsets" and status["status"] == "conflicted"
+        status["path"] == "/versions/0/task_counts/subsets" and status["status"] == "conflicted"
         for status in benchmark["field_status"]
     )
 

@@ -9,7 +9,7 @@ parent_id: null
 organizations:
 - LatchBio
 release_date: '2026-02-09'
-latest_version: initial-release
+latest_version: repository-195-evaluations
 domains:
 - life-science
 - transcriptomics
@@ -27,8 +27,8 @@ modalities:
 task_formats:
 - natural-language data-analysis task with structured JSON output
 task_counts: &id001
-  total: 394
-  basis: Explicit overall benchmark total in the abstract and Table 1
+  total: 195
+  basis: Official repository README at commit 0bc34032bfa402dad29fc40b4cf10ea8fc03193e
   reporting_status: reported
   subsets: []
 coverage_notes: []
@@ -37,7 +37,7 @@ access:
   tasks: Canonical evaluation specifications are public; the full suite is withheld to prevent training contamination.
   artifacts: Aggregate result breakdowns and trajectories for released evaluations are available.
   grader: Deterministic graders, linter, and agent harness are available in the official repository.
-  license: null
+  license: Apache-2.0
   biosafety_notes: null
 resources:
 - id: scbench-creator-paper-resource
@@ -52,7 +52,7 @@ resources:
   url: https://github.com/latchbio/scbench
   license: null
   access_notes: Official repository pinned during intake.
-  last_checked: '2026-07-27'
+  last_checked: '2026-07-28'
   pin:
     kind: commit
     value: 0bc34032bfa402dad29fc40b4cf10ea8fc03193e
@@ -66,23 +66,37 @@ implementations:
 versions:
 - id: scbench-initial-release-version
   label: initial-release
-  status: current
+  status: superseded
   release_date: '2026-02-09'
   as_of: null
-  task_counts: *id001
+  task_counts:
+    total: 394
+    basis: Explicit overall benchmark total in the abstract and Table 1
+    reporting_status: reported
+    subsets: []
   formal_tracks: []
   notes: Root total retained after owner review; conflicted appendix inventory subcounts are intentionally omitted.
   evidence_ids:
   - scbench-automated-count-evidence
   - scbench-automated-version-evidence
+- id: scbench-repository-195-version
+  label: repository-195-evaluations
+  status: current
+  release_date: '2026-06-10'
+  as_of: '2026-06-10'
+  task_counts: *id001
+  formal_tracks: []
+  notes: Current official repository snapshot; kept separate from the 394-question creator-paper inventory.
+  evidence_ids:
+  - scbench-repository-195-evidence
 audit:
   status: audited-with-caveats
-  audited_date: '2026-07-27'
+  audited_date: '2026-07-28'
   unresolved_fields: 1
-  notes: Automated double-pass extraction plus deterministic repository pin. Owner review preserved the corroborated root
-    total and excluded conflicted appendix inventory subcounts.
+  notes: The current 195-evaluation repository snapshot is pinned separately from the superseded 394-question creator-paper
+    version; the latter retains its owner-reviewed subcount conflict caveat.
 field_status:
-- path: /task_counts/subsets
+- path: /versions/0/task_counts/subsets
   status: conflicted
   confidence: high
   reason: The owner approved the independently supported root total while all conflicted inventory subcounts were excluded
@@ -91,9 +105,9 @@ field_status:
   - scbench-automated-count-conflict-evidence
 verification:
   status: verified
-  last_verified: '2026-07-27'
-  notes: New family admitted with an explicit count-inventory caveat after creator source, official repository, double-pass
-    verification, and owner conflict resolution.
+  last_verified: '2026-07-28'
+  notes: Creator-paper and current official-repository inventories are versioned separately; the original appendix inventory
+    caveat remains attached to the superseded creator-paper version.
 evidence:
 - id: scbench-automated-metadata-evidence
   source_type: work
@@ -131,9 +145,6 @@ evidence:
     printed_page: '2'
     source_fragment_sha256: b02c35d4261b5d98b227145422021bb79d7453ee9d29b0b1ac7907de6f76a6ce
   supports:
-  - /task_counts/total
-  - /task_counts/basis
-  - /task_counts/subsets
   - /versions/0/task_counts
 - id: scbench-automated-resource-evidence
   source_type: work
@@ -188,4 +199,34 @@ evidence:
     printed_page: '13'
     source_fragment_sha256: fac57b1733596d9eb7a0e74770c7b8985f840fe16a690a48f0cec95234899f75
   supports:
+  - /versions/0/task_counts/subsets
+- id: scbench-repository-195-evidence
+  source_type: resource
+  source_id: scbench-official-repository-resource
+  accessed_date: '2026-07-28'
+  locator:
+    type: repository-path
+    value: README.md#benchmark-structure
+    note: Pinned official README reports 195 evaluations and describes the current withheld benchmark snapshot.
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: c9994db5af0ce06ae840b5b55a418c4e75e5bc17a9a6fbfda4772f384557d1d9
+  supports:
+  - /latest_version
+  - /task_counts/total
+  - /task_counts/basis
   - /task_counts/subsets
+  - /versions/1
+- id: scbench-repository-license-evidence
+  source_type: resource
+  source_id: scbench-official-repository-resource
+  accessed_date: '2026-07-28'
+  locator:
+    type: repository-path
+    value: README.md#license
+    note: Pinned official README states the repository license.
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: cf989ea142f203f532233fa944ee1d8d5acfe6f6875e4d611f515ee108ba26df
+  supports:
+  - /access/license

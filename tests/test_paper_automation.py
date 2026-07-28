@@ -1973,6 +1973,9 @@ def test_work_ids_are_deterministic_and_workflows_have_required_guards() -> None
     assert "issue_comment:" in owner
     assert "/approve-paper-intake" in owner
     assert "checks: write" in owner
+    assert "statuses: write" in owner
+    assert 'statuses/${head_sha}' in owner
+    assert "context='paper-owner-gate'" in owner
     assert "comment_pages_json" in owner
     assert "jq 'add' \"$comment_pages_json\"" in owner
     assert "--slurp \\\n              --jq" not in owner

@@ -151,6 +151,8 @@ def process_issue(
         or sections.get("Open PDF or full-text URL (optional)")
     )
     source_url = _first_url(supplied_source) or _arxiv_pdf_url(paper_url)
+    focus_locators = sections.get("Relevant tables, figures, or sections", "")
+    preferred_pdf_pages = _focus_pdf_pages(focus_locators)
     triage = build_intake(
         url=paper_url,
         doi=sections.get("DOI (optional)"),
@@ -165,10 +167,14 @@ def process_issue(
         # Existing Work is allowed: the paper may have no BenchmarkUse yet. The
         # generator resolves the duplicate deterministically and adds only missing uses.
         pass
-    source = retrieve_source(source_url, rights_confirmed=rights_confirmed, discovered=discovered)
+    source = retrieve_source(
+        source_url,
+        rights_confirmed=rights_confirmed,
+        discovered=discovered,
+        preferred_pdf_pages=preferred_pdf_pages,
+    )
     try:
         benchmark_hints = sections.get("Possible benchmarks", "")
-        focus_locators = sections.get("Relevant tables, figures, or sections", "")
         review_focus = {
             key: value[:6000]
             for key, value in {
@@ -184,7 +190,7 @@ def process_issue(
             verifier_model=verifier_model,
             local_run_id=local_run_id,
             review_focus=review_focus or None,
-            preferred_pdf_pages=_focus_pdf_pages(focus_locators),
+            preferred_pdf_pages=preferred_pdf_pages,
         )
         records = build_records(
             result.as_dict(),

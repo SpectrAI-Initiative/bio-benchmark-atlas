@@ -19,6 +19,7 @@ from pypdf import PdfReader
 
 MAX_SOURCE_BYTES = 45 * 1024 * 1024
 MAX_PDF_PAGES = 150
+MAX_FOCUSED_PDF_PAGES = 40
 ALLOWED_CONTENT_TYPES = {
     "application/pdf",
     "application/xml",
@@ -119,6 +120,7 @@ def retrieve_source(
     *,
     rights_confirmed: bool,
     discovered: bool = False,
+    preferred_pdf_pages: list[int] | None = None,
     timeout: float = 45,
 ) -> RetrievedSource:
     if not is_automatic_source_allowed(url, rights_confirmed=rights_confirmed, discovered=discovered):
@@ -156,7 +158,18 @@ def retrieve_source(
             except Exception as error:  # pypdf raises several format-specific exceptions
                 raise SourceAcquisitionError(f"PDF could not be parsed: {error}") from error
             if page_count > MAX_PDF_PAGES:
-                raise SourceAcquisitionError("PDF exceeds the 150-page extraction limit")
+                focused_pages = sorted(set(preferred_pdf_pages or []))
+                if not focused_pages:
+                    raise SourceAcquisitionError("PDF exceeds the 150-page extraction limit")
+                if len(focused_pages) > MAX_FOCUSED_PDF_PAGES:
+                    raise SourceAcquisitionError(
+                        "focused review exceeds the 40-page long-PDF limit"
+                    )
+                invalid = [page for page in focused_pages if page < 1 or page > page_count]
+                if invalid:
+                    raise SourceAcquisitionError(
+                        f"focused review contains out-of-range PDF pages: {invalid}"
+                    )
         return RetrievedSource(
             url=response.url,
             path=path,

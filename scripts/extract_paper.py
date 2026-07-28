@@ -25,13 +25,14 @@ from pydantic import BaseModel, ValidationError
 from pypdf import PdfReader
 
 from paper_models import PaperEvidenceDraft, PaperEvidenceVerification, accepted_claims
+from paper_source import MAX_PDF_PAGES
 
 
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL_TMP_ROOT = ROOT / ".paper-intake-tmp"
 PIPELINE_VERSION = "1.4.0"
 PROMPT_VERSION = "paper-evidence-local-v7"
-SOURCE_INPUT_PROTOCOL_VERSION = "multimodal-visible-html-v1"
+SOURCE_INPUT_PROTOCOL_VERSION = "multimodal-focused-long-pdf-v2"
 DEFAULT_MODEL = "gpt-5.6-sol"
 REVIEW_METHOD = "local-codex-double-pass"
 EXECUTION_SURFACE = "local-codex-cli"
@@ -469,6 +470,43 @@ def review_source_sha256(source_path: Path) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
+def _focused_pdf_text_source(
+    source_path: Path,
+    destination: Path,
+    *,
+    pages: list[int],
+) -> Path:
+    """Write selected PDF text with immutable original physical-page markers."""
+
+    reader = PdfReader(source_path)
+    selected = sorted(set(pages))
+    invalid = [page for page in selected if page < 1 or page > len(reader.pages)]
+    if not selected or invalid:
+        raise PaperExtractionError(
+            f"focused PDF text contains invalid physical pages: {invalid or selected}"
+        )
+    chunks = [
+        "BioBench Atlas focused PDF review input.",
+        "Each DOCUMENT PAGE marker is the original PDF physical page (1-based).",
+    ]
+    for document_page in selected:
+        try:
+            page_text = reader.pages[document_page - 1].extract_text() or ""
+        except Exception as error:
+            raise PaperExtractionError(
+                f"focused PDF page {document_page} text could not be extracted: {error}"
+            ) from error
+        chunks.extend(
+            (
+                "",
+                f"=== DOCUMENT PAGE {document_page} ===",
+                page_text.strip() or "[No embedded text; inspect the matching numbered page image.]",
+            )
+        )
+    destination.write_text("\n".join(chunks) + "\n", encoding="utf-8")
+    return destination
+
+
 def _page_has_embedded_image(page: Any) -> bool:
     """Detect image XObjects without extracting or persisting their contents."""
 
@@ -903,8 +941,25 @@ def run_double_pass(
         suffix = source_path.suffix.lower() or ".txt"
         local_source = session_dir / f"source{suffix}"
         shutil.copy2(source_path, local_source)
-        local_source, original_html = _prepare_local_text_source(local_source, session_dir)
-        source_instruction = f"Read the source at {local_source}"
+        pdf_render_source = local_source if local_source.suffix.casefold() == ".pdf" else None
+        focused_long_pdf = False
+        review_source = local_source
+        if pdf_render_source is not None and preferred_pdf_pages:
+            page_count = len(PdfReader(pdf_render_source).pages)
+            if page_count > MAX_PDF_PAGES:
+                focused_long_pdf = True
+                review_source = _focused_pdf_text_source(
+                    pdf_render_source,
+                    session_dir / "source-focused-pages.txt",
+                    pages=preferred_pdf_pages,
+                )
+        review_source, original_html = _prepare_local_text_source(review_source, session_dir)
+        source_instruction = f"Read the source at {review_source}"
+        if focused_long_pdf:
+            source_instruction += (
+                ". It contains only the owner-selected pages from an over-limit PDF; "
+                "DOCUMENT PAGE markers preserve the original 1-based physical page numbers"
+            )
         if original_html is not None:
             source_instruction += (
                 f". This is deterministic visible text from the downloaded HTML at {original_html}; "
@@ -940,13 +995,15 @@ def run_double_pass(
         )
         source_images = (
             _render_pdf_pages(
-                local_source,
+                pdf_render_source,
                 session_dir,
                 preferred_pages=preferred_pdf_pages,
             )
-            if local_source.suffix.casefold() == ".pdf"
+            if pdf_render_source is not None
             else []
         )
+        if focused_long_pdf and pdf_render_source is not None:
+            pdf_render_source.unlink(missing_ok=True)
 
         draft_output = session_dir / "draft.json"
         with _StageHeartbeat(

@@ -22,6 +22,10 @@ Accepted invocations are `$biobench-paper-intake issue 44` and `$biobench-paper-
 
    For a direct URL, use `--url <paper-url>`. The command must create or reuse a GitHub issue before production.
 4. Stop if source rights, full text, duplicate state, local authentication, or the local golden receipt is unresolved. Do not bypass the gate or silently change models.
+   PDFs over 150 pages may proceed only when the owner-selected Issue field names
+   explicit physical page ranges totaling at most 40 pages. The workflow hashes the
+   complete PDF, then gives both local Codex passes only page-marked text and images
+   from those selected pages. Without that bounded focus, the 150-page stop remains.
 5. Run the intake:
 
    ```bash

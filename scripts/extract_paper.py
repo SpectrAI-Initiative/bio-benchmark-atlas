@@ -31,7 +31,7 @@ from paper_source import MAX_PDF_PAGES
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL_TMP_ROOT = ROOT / ".paper-intake-tmp"
 PIPELINE_VERSION = "1.4.0"
-PROMPT_VERSION = "paper-evidence-local-v8"
+PROMPT_VERSION = "paper-evidence-local-v9"
 SOURCE_INPUT_PROTOCOL_VERSION = "multimodal-focused-long-pdf-v3"
 DEFAULT_MODEL = "gpt-5.6-sol"
 REVIEW_METHOD = "local-codex-double-pass"
@@ -150,6 +150,18 @@ creator-source, official-repository, benchmark-count, and scientific-task claims
 only to the benchmark-creation mention. Do not duplicate those creator-only claims
 under the evaluation mention.
 
+The Registry uses "benchmark" as an entity-layer umbrella and explicitly accepts
+kind=dataset. A creator paper that introduces a named, reusable scientific dataset
+and evaluates a benchmark/baseline model on it can therefore support a new
+benchmark-creation record with kind=dataset even when the paper usually calls the
+artifact a dataset rather than a benchmark. Base the claim on the paper's own name,
+purpose, access, task, and evaluation language; never on an Issue assertion alone.
+For a new record, registry_benchmark_id must be null because no Registry ID exists
+yet. That null is expected and is not unresolved identity. A source-labeled
+sub-dataset remains a subset/count claim of the root unless the source independently
+defines it as a reusable, versioned benchmark with its own creator metadata and
+official repository.
+
 Each BenchmarkMentionDraft represents one scientific relation and, for
 evaluations, one materially uniform evaluation setting. Do not create separate
 mentions merely because the same benchmark has several counts, tables, results,
@@ -207,6 +219,16 @@ label as a benchmark. Re-locate the full qualified label independently. The
 qualifier does not verify a benchmark version, formal track, subset size, or
 normalized run; keep those claims not-verifiable unless separately printed and
 supported. Do not use loose substring matches or Issue hints to establish identity.
+
+For a new benchmark-creation mention, no Registry ID or alias can exist yet.
+Independently verify benchmark identity from the exact source-introduced name and
+the creation statement, and do not reject it merely because registry_benchmark_id
+is null. The Registry umbrella permits kind=dataset: a named reusable scientific
+dataset with an explicitly reported benchmark/baseline evaluation may support
+benchmark-metadata with kind=dataset even when the source ordinarily says
+"dataset". Verify its metadata from the paper itself. Do not promote a source-
+labeled sub-dataset into a second root record unless the source independently
+provides creator metadata and an official repository for that separate record.
 
 For benchmark-count claims, independently verify both the numeric value and the
 full meaning preserved in the label. For a table intersection, the supported

@@ -448,6 +448,40 @@ def _metrics_and_results(
     return metrics, results, result_claim_by_index
 
 
+def _claim_gate_summary(
+    draft: PaperEvidenceDraft,
+    verification: PaperEvidenceVerification,
+    *,
+    mention_id: str,
+    claim_types: set[str],
+) -> str:
+    """Return privacy-safe claim-gate diagnostics without values or source text."""
+
+    verdicts = {item.claim_id: item for item in verification.claims}
+    fragments: list[str] = []
+    for claim_type in sorted(claim_types):
+        candidates = [
+            claim for claim in draft.claims
+            if claim.mention_id == mention_id and claim.claim_type == claim_type
+        ]
+        if not candidates:
+            fragments.append(f"{claim_type}[absent]")
+            continue
+        statuses = []
+        for claim in candidates:
+            verdict = verdicts.get(claim.claim_id)
+            statuses.append(
+                "/".join([
+                    f"extractor={claim.confidence}",
+                    f"verdict={verdict.verdict if verdict else 'missing'}",
+                    f"verifier={verdict.confidence if verdict else 'missing'}",
+                    f"locator={'resolved' if verdict and locator_is_resolved(verdict.locator) else 'unresolved'}",
+                ])
+            )
+        fragments.append(f"{claim_type}[{'|'.join(statuses)}]")
+    return ", ".join(fragments)
+
+
 def _build_new_benchmark(
     *,
     benchmark_id: str,
@@ -1312,7 +1346,18 @@ def build_records(
                 resolved_count_conflict=resolved_count_conflict,
             )
         except GenerationBlocked as error:
-            output.blocked_reasons.append(str(error))
+            diagnostic = _claim_gate_summary(
+                draft,
+                verification,
+                mention_id=mention.mention_id,
+                claim_types={
+                    "benchmark-metadata",
+                    "benchmark-count",
+                    "creator-source",
+                    "official-repository",
+                },
+            )
+            output.blocked_reasons.append(f"{error}; claim gate: {diagnostic}")
             continue
         output.benchmarks.append(benchmark)
         output.classifications[benchmark_id] = classification

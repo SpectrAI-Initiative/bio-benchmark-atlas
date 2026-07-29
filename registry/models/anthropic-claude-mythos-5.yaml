@@ -1,0 +1,12 @@
+entity_type: model
+id: anthropic-claude-mythos-5
+name: Claude Mythos 5
+provider: Anthropic
+release_date: null
+version_string: Claude Mythos 5
+version_status: reported
+aliases: []
+verification:
+  status: verified
+  last_verified: '2026-07-29'
+  notes: Exact model identity accepted by the automated double-pass paper review and pending owner PR approval.

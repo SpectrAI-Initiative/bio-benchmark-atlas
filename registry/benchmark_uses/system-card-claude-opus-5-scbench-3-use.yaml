@@ -1,0 +1,153 @@
+entity_type: benchmark_use
+id: system-card-claude-opus-5-scbench-3-use
+work_id: system-card-claude-opus-5
+work_version_id: system-card-claude-opus-5-2026-07-24
+benchmark_id: scbench
+benchmark_version: null
+relation_type: evaluation
+status: partial
+model_ids:
+- anthropic-claude-mythos-5
+- anthropic-claude-opus-5
+- anthropic-claude-sonnet-5
+- claude-opus-4-8
+scope:
+  type: unknown
+  subset_kind: not-reported
+  n: 195
+  subset_id: null
+  selection: null
+  selection_method: null
+  reporting_status: not_reported
+metric_labels:
+- Score
+evaluation_run_ids: []
+reporting_gaps:
+- Exact benchmark version is not reported.
+- Per-workflow problem counts are not reported.
+- Prompt, shots, reasoning settings, budget, seed, repeats, grader, and human review are not reported.
+- Score definition and aggregation are not reported.
+- benchmark version
+notes: AI-assisted double-pass extraction; values are limited to independently supported claims.
+verification:
+  status: verified
+  last_verified: '2026-07-29'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: system-card-claude-opus-5-scbench-3-use-evidence-1
+  source_type: work
+  source_id: system-card-claude-opus-5
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Section 8.17.2 LatchBio Bioinformatics
+    note: null
+    document_page: 188
+    printed_page: '188'
+    source_fragment_sha256: d7e5b637c8345c5cd158fe0289396b8a4b3fd717bf51a83228660f8a0e41729c
+  supports:
+  - /relation_type
+- id: system-card-claude-opus-5-scbench-3-use-evidence-2
+  source_type: work
+  source_id: system-card-claude-opus-5
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Section 8.17.2 LatchBio Bioinformatics
+    note: null
+    document_page: 188
+    printed_page: '188'
+    source_fragment_sha256: e36a3723aca33ffca31c23f9345fcda7afc441528be390fbb42ab0c78bd4f754
+  supports:
+  - /benchmark_id
+- id: system-card-claude-opus-5-scbench-3-use-evidence-3
+  source_type: work
+  source_id: system-card-claude-opus-5
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Section 8.17.2 LatchBio Bioinformatics
+    note: null
+    document_page: 188
+    printed_page: '188'
+    source_fragment_sha256: 5125be62618415e164e9d7f6a234ec29ece96497d0c5d1635e5558ac682d51e4
+  supports:
+  - /scope
+- id: system-card-claude-opus-5-scbench-3-use-evidence-4
+  source_type: work
+  source_id: system-card-claude-opus-5
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Section 8.17.2 LatchBio Bioinformatics
+    note: null
+    document_page: 188
+    printed_page: '188'
+    source_fragment_sha256: 777affffdc84bc54744f9cfb2acbe11edd5e2af1a140131f4b8ecca830351f2f
+  supports:
+  - /scope
+- id: system-card-claude-opus-5-scbench-3-use-evidence-5
+  source_type: work
+  source_id: system-card-claude-opus-5
+  accessed_date: '2026-07-29'
+  locator:
+    type: figure
+    value: Figure 8.17.6.A, LatchBio Bioinformatics panel
+    note: null
+    document_page: 190
+    printed_page: '190'
+    source_fragment_sha256: 22c5685582438b914c9166e2b72f11a85688cd78bb0a751c965552c2caca8b93
+  supports:
+  - /metric_labels
+- id: system-card-claude-opus-5-scbench-3-use-evidence-6
+  source_type: work
+  source_id: system-card-claude-opus-5
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Section 8.17.2, SingleCellBench
+    note: null
+    document_page: 188
+    printed_page: '188'
+    source_fragment_sha256: 448232ef2adc1aeb1097770f7201e36df5ce86a07ed2333ca261665ec2b48002
+  supports:
+  - /model_ids
+- id: system-card-claude-opus-5-scbench-3-use-evidence-7
+  source_type: work
+  source_id: system-card-claude-opus-5
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Section 8.17.2, SingleCellBench
+    note: null
+    document_page: 188
+    printed_page: '188'
+    source_fragment_sha256: 467684e37d7de337a7582c274a1c8fc5d3e23ac4a2bc8fd8df76e072d714283c
+  supports:
+  - /model_ids
+- id: system-card-claude-opus-5-scbench-3-use-evidence-8
+  source_type: work
+  source_id: system-card-claude-opus-5
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Section 8.17.2, SingleCellBench
+    note: null
+    document_page: 188
+    printed_page: '188'
+    source_fragment_sha256: 50a6fb5ac5f6e5b2321e2856df46286c01a4caf2f1c1536f79dbf33c0755f6f3
+  supports:
+  - /model_ids
+- id: system-card-claude-opus-5-scbench-3-use-evidence-9
+  source_type: work
+  source_id: system-card-claude-opus-5
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Section 8.17.2, SingleCellBench
+    note: null
+    document_page: 188
+    printed_page: '188'
+    source_fragment_sha256: f86833ee25cfd235ae251315f49d7783de851613e17c992b4d72f77419b4fa99
+  supports:
+  - /model_ids

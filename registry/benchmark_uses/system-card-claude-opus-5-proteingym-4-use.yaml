@@ -1,0 +1,167 @@
+entity_type: benchmark_use
+id: system-card-claude-opus-5-proteingym-4-use
+work_id: system-card-claude-opus-5
+work_version_id: system-card-claude-opus-5-2026-07-24
+benchmark_id: proteingym
+benchmark_version: null
+relation_type: evaluation
+status: partial
+model_ids:
+- anthropic-claude-mythos-5
+- anthropic-claude-opus-5
+- anthropic-claude-sonnet-5
+- claude-opus-4-8
+scope:
+  type: unknown
+  subset_kind: not-reported
+  n: null
+  subset_id: hard
+  selection: filtered
+  selection_method: Subset of mutant protein sequences ranked against the wild type sequence
+  reporting_status: not_reported
+metric_labels:
+- rank correlation against real lab measurements
+evaluation_run_ids: []
+reporting_gaps:
+- Exact ProteinGym version is not reported.
+- The Hard subset size and selection criteria are not reported.
+- Prompt, shots, reasoning settings, budget, seed, repeats, grader, and human review are not reported.
+- The rank-correlation variant and aggregation procedure are not reported.
+- benchmark version
+- realized n/scope
+notes: AI-assisted double-pass extraction; values are limited to independently supported claims.
+verification:
+  status: verified
+  last_verified: '2026-07-29'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: system-card-claude-opus-5-proteingym-4-use-evidence-1
+  source_type: work
+  source_id: system-card-claude-opus-5
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Section 8.17.3 ProteinGym Hard
+    note: null
+    document_page: 189
+    printed_page: '189'
+    source_fragment_sha256: 502ee6c6227dcdaa69e4518f8b5d97cb5b3ab3ab72525a083e9cdb6f690c7db5
+  supports:
+  - /relation_type
+- id: system-card-claude-opus-5-proteingym-4-use-evidence-2
+  source_type: work
+  source_id: system-card-claude-opus-5
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Section 8.17.3 ProteinGym Hard
+    note: null
+    document_page: 189
+    printed_page: '189'
+    source_fragment_sha256: 20bfa13469fb999cbb53d1cc2e2969aad494b769a422e5799626844b94ada70f
+  supports:
+  - /benchmark_id
+- id: system-card-claude-opus-5-proteingym-4-use-evidence-3
+  source_type: work
+  source_id: system-card-claude-opus-5
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Section 8.17.3 ProteinGym Hard
+    note: null
+    document_page: 189
+    printed_page: '189'
+    source_fragment_sha256: 404298efcd4a0832ecbe6f08088daa6ee7287ab827944028d979216d02bd30f3
+  supports:
+  - /scope
+- id: system-card-claude-opus-5-proteingym-4-use-evidence-4
+  source_type: work
+  source_id: system-card-claude-opus-5
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Section 8.17.3 ProteinGym Hard
+    note: null
+    document_page: 189
+    printed_page: '189'
+    source_fragment_sha256: 20bfa13469fb999cbb53d1cc2e2969aad494b769a422e5799626844b94ada70f
+  supports:
+  - /scope
+- id: system-card-claude-opus-5-proteingym-4-use-evidence-5
+  source_type: work
+  source_id: system-card-claude-opus-5
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Section 8.17.3 ProteinGym Hard
+    note: null
+    document_page: 189
+    printed_page: '189'
+    source_fragment_sha256: 404298efcd4a0832ecbe6f08088daa6ee7287ab827944028d979216d02bd30f3
+  supports:
+  - /scope
+- id: system-card-claude-opus-5-proteingym-4-use-evidence-6
+  source_type: work
+  source_id: system-card-claude-opus-5
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Section 8.17.3 ProteinGym Hard
+    note: null
+    document_page: 189
+    printed_page: '189'
+    source_fragment_sha256: b04f06cda1c343180660a02687918e53030accb598ef434b2173cdc90cb7f2d4
+  supports:
+  - /metric_labels
+- id: system-card-claude-opus-5-proteingym-4-use-evidence-7
+  source_type: work
+  source_id: system-card-claude-opus-5
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Section 8.17.3 ProteinGym Hard
+    note: null
+    document_page: 189
+    printed_page: '189'
+    source_fragment_sha256: 57b74c83bdc15f21b3ff51d86cf0090371ec1adae398623cf63d81229993d86b
+  supports:
+  - /model_ids
+- id: system-card-claude-opus-5-proteingym-4-use-evidence-8
+  source_type: work
+  source_id: system-card-claude-opus-5
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Section 8.17.3 ProteinGym Hard
+    note: null
+    document_page: 189
+    printed_page: '189'
+    source_fragment_sha256: 01aceff176cfe23d5165f5ebb108a37ba6db38a48294262efb39c294553b4929
+  supports:
+  - /model_ids
+- id: system-card-claude-opus-5-proteingym-4-use-evidence-9
+  source_type: work
+  source_id: system-card-claude-opus-5
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Section 8.17.3 ProteinGym Hard
+    note: null
+    document_page: 189
+    printed_page: '189'
+    source_fragment_sha256: d2e8db20a168c034a1c35a2f208502a117b0a8b552e09411c53788d8a4c714ac
+  supports:
+  - /model_ids
+- id: system-card-claude-opus-5-proteingym-4-use-evidence-10
+  source_type: work
+  source_id: system-card-claude-opus-5
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Section 8.17.3 ProteinGym Hard
+    note: null
+    document_page: 189
+    printed_page: '189'
+    source_fragment_sha256: b1aeedc45f1822c2afe404cf07a45e02cf58ae788a230bc1ff2c3eb049d93b26
+  supports:
+  - /model_ids

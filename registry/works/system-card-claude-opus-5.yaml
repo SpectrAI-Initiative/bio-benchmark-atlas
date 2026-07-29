@@ -1,0 +1,44 @@
+entity_type: work
+id: system-card-claude-opus-5
+title: 'System Card: Claude Opus 5'
+authors: []
+organizations:
+- Anthropic
+work_type: system-card
+source_class: official_model_provider
+publication_date: '2026-07-24'
+canonical_url: https://anthropic.com/
+doi: null
+arxiv: null
+status: published
+source_versions:
+- id: system-card-claude-opus-5-2026-07-24
+  label: Reviewed source
+  status: current
+  publication_date: '2026-07-24'
+  canonical_url: https://anthropic.com/
+  doi: null
+  arxiv: null
+  source_access: submitted-pdf
+  content_sha256: 897768f0f6f1724f3109279ab3f6458c9fbf496b56d5d2be14cab3a4f91ca472
+  content_type: application/pdf
+  retrieved_at: '2026-07-29T01:35:14+00:00'
+current_version_id: system-card-claude-opus-5-2026-07-24
+review_provenance:
+  method: local-codex-double-pass
+  pipeline_version: 1.4.0
+  prompt_version: paper-evidence-local-v8
+  source_version_id: system-card-claude-opus-5-2026-07-24
+  extractor_model_requested: gpt-5.6-sol
+  extractor_model_resolved: null
+  verifier_model_requested: gpt-5.6-sol
+  verifier_model_resolved: null
+  generated_at: '2026-07-29T01:35:14+00:00'
+  execution_surface: local-codex-cli
+  model_resolution_status: not-reported
+  codex_cli_version: codex-cli 0.146.0-alpha.3.1
+  local_run_id: 02010851-fccb-4a95-aa0e-663a39afbfea
+verification:
+  status: verified
+  last_verified: '2026-07-29'
+  notes: AI-assisted double-pass extraction; production inclusion still requires the owner SHA-comment gate.

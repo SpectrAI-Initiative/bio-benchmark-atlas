@@ -1,0 +1,178 @@
+entity_type: benchmark_use
+id: system-card-claude-opus-5-spatialbench-2-use
+work_id: system-card-claude-opus-5
+work_version_id: system-card-claude-opus-5-2026-07-24
+benchmark_id: spatialbench
+benchmark_version: null
+relation_type: evaluation
+status: partial
+model_ids:
+- anthropic-claude-mythos-5
+- anthropic-claude-opus-5
+- anthropic-claude-sonnet-5
+- claude-opus-4-8
+scope:
+  type: unknown
+  subset_kind: not-reported
+  n: 115
+  subset_id: null
+  selection: null
+  selection_method: Externally validated problems
+  reporting_status: not_reported
+metric_labels:
+- Score
+evaluation_run_ids: []
+reporting_gaps:
+- The source does not identify an official benchmark version or artifact revision for the Verified qualifier.
+- Prompt, shots, reasoning settings, budget, seed, repeats, grader, and human review are not reported.
+- Score definition and aggregation are not reported.
+- benchmark version
+notes: AI-assisted double-pass extraction; values are limited to independently supported claims.
+verification:
+  status: verified
+  last_verified: '2026-07-29'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: system-card-claude-opus-5-spatialbench-2-use-evidence-1
+  source_type: work
+  source_id: system-card-claude-opus-5
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Section 8.17.2 LatchBio Bioinformatics
+    note: null
+    document_page: 188
+    printed_page: '188'
+    source_fragment_sha256: 23d744fa62eb1e7a4836d687d2fb1670ea7adcd269bbb2f558fd4f1060e8d2de
+  supports:
+  - /relation_type
+- id: system-card-claude-opus-5-spatialbench-2-use-evidence-2
+  source_type: work
+  source_id: system-card-claude-opus-5
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Section 8.17.2 LatchBio Bioinformatics
+    note: null
+    document_page: 188
+    printed_page: '188'
+    source_fragment_sha256: a74f915e74a18a6d24c9d54fef9faa0c52cfa701df3ac07b6edd06e4f0923ff1
+  supports:
+  - /benchmark_id
+- id: system-card-claude-opus-5-spatialbench-2-use-evidence-3
+  source_type: work
+  source_id: system-card-claude-opus-5
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Section 8.17.2 LatchBio Bioinformatics
+    note: null
+    document_page: 188
+    printed_page: '188'
+    source_fragment_sha256: ba27967f0f97fe775985df69bdd145d0199a75c0b29e2d8db13feae41c5835ed
+  supports:
+  - /scope
+- id: system-card-claude-opus-5-spatialbench-2-use-evidence-4
+  source_type: work
+  source_id: system-card-claude-opus-5
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Section 8.17.2 LatchBio Bioinformatics
+    note: null
+    document_page: 188
+    printed_page: '188'
+    source_fragment_sha256: a74f915e74a18a6d24c9d54fef9faa0c52cfa701df3ac07b6edd06e4f0923ff1
+  supports:
+  - /scope
+- id: system-card-claude-opus-5-spatialbench-2-use-evidence-5
+  source_type: work
+  source_id: system-card-claude-opus-5
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Section 8.17.2 LatchBio Bioinformatics
+    note: null
+    document_page: 188
+    printed_page: '188'
+    source_fragment_sha256: 6bd88a5fd6f61aa463e6639e168dd3edffaa001a29ca47a6319b4f436758d9f9
+  supports:
+  - /scope
+- id: system-card-claude-opus-5-spatialbench-2-use-evidence-6
+  source_type: work
+  source_id: system-card-claude-opus-5
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Section 8.17.2 LatchBio Bioinformatics
+    note: null
+    document_page: 188
+    printed_page: '188'
+    source_fragment_sha256: 6bd88a5fd6f61aa463e6639e168dd3edffaa001a29ca47a6319b4f436758d9f9
+  supports:
+  - /scope
+- id: system-card-claude-opus-5-spatialbench-2-use-evidence-7
+  source_type: work
+  source_id: system-card-claude-opus-5
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Section 8.17.2 LatchBio Bioinformatics
+    note: null
+    document_page: 188
+    printed_page: '188'
+    source_fragment_sha256: 23d744fa62eb1e7a4836d687d2fb1670ea7adcd269bbb2f558fd4f1060e8d2de
+  supports:
+  - /metric_labels
+- id: system-card-claude-opus-5-spatialbench-2-use-evidence-8
+  source_type: work
+  source_id: system-card-claude-opus-5
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Section 8.17.2, SpatialBench Verified
+    note: null
+    document_page: 188
+    printed_page: '188'
+    source_fragment_sha256: ddcfac29537e1d474f177ff2a490642ea789958433eb19b967526f3bbbc82cdf
+  supports:
+  - /model_ids
+- id: system-card-claude-opus-5-spatialbench-2-use-evidence-9
+  source_type: work
+  source_id: system-card-claude-opus-5
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Section 8.17.2, SpatialBench Verified
+    note: null
+    document_page: 188
+    printed_page: '188'
+    source_fragment_sha256: b439385064af327cf5ba04c5d0d679fad803a89a9a4f614e0f8e6562bead6161
+  supports:
+  - /model_ids
+- id: system-card-claude-opus-5-spatialbench-2-use-evidence-10
+  source_type: work
+  source_id: system-card-claude-opus-5
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Section 8.17.2, SpatialBench Verified
+    note: null
+    document_page: 188
+    printed_page: '188'
+    source_fragment_sha256: eb346c26a57c599b8ac9c8d41f922918ab839a19177fea61e7700871da666d27
+  supports:
+  - /model_ids
+- id: system-card-claude-opus-5-spatialbench-2-use-evidence-11
+  source_type: work
+  source_id: system-card-claude-opus-5
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Section 8.17.2, SpatialBench Verified
+    note: null
+    document_page: 188
+    printed_page: '188'
+    source_fragment_sha256: 0da462e0ba43830bc8537490b3a332669c88c2dd9fce5ec0d3eb268e0990d8c6
+  supports:
+  - /model_ids

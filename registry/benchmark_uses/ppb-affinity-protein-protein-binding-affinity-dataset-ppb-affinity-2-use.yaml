@@ -1,0 +1,76 @@
+entity_type: benchmark_use
+id: ppb-affinity-protein-protein-binding-affinity-dataset-ppb-affinity-2-use
+work_id: ppb-affinity-protein-protein-binding-affinity-dataset
+work_version_id: ppb-affinity-protein-protein-binding-affinity-dataset-2024-12-03
+benchmark_id: ppb-affinity
+benchmark_version: null
+relation_type: evaluation
+status: partial
+model_ids:
+- liu-et-al-benchmark-algorithm
+scope:
+  type: unknown
+  subset_kind: not-reported
+  n: null
+  subset_id: null
+  selection: null
+  selection_method: null
+  reporting_status: not_reported
+metric_labels: []
+evaluation_run_ids: []
+reporting_gaps:
+- The testing-subset size and selection procedure are not printed in the available text.
+- Repeats, seed, train-validation-test partition sizes, and model version are not reported in the available text.
+- Linked Figures 4–5 are unavailable locally, so additional labeled subgroup and source-partition results could not be inspected.
+- benchmark version
+- realized n/scope
+- metric
+- numeric result
+- prompt and tools
+- grader and repeats
+notes: 'Owner-reviewed conservative publication: the creator evaluation is retained only as a partial relationship; conflicted
+  settings and outcomes are omitted pending manual reconciliation.'
+verification:
+  status: verified
+  last_verified: '2026-07-29'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: ppb-affinity-protein-protein-binding-affinity-dataset-ppb-affinity-2-use-evidence-1
+  source_type: work
+  source_id: ppb-affinity-protein-protein-binding-affinity-dataset
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Technical Validation > Whole dataset, paragraph 47
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 9a2259aaea58a47486805a4852f6e02fe1ad7c835590055205d5e8e4965732de
+  supports:
+  - /relation_type
+- id: ppb-affinity-protein-protein-binding-affinity-dataset-ppb-affinity-2-use-evidence-2
+  source_type: work
+  source_id: ppb-affinity-protein-protein-binding-affinity-dataset
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Abstract, paragraph 1
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 17f9b13ecd6db8e8230eb695628d10e9017024786c3d2069b6108b57a6e548f8
+  supports:
+  - /benchmark_id
+- id: ppb-affinity-protein-protein-binding-affinity-dataset-ppb-affinity-2-use-evidence-3
+  source_type: work
+  source_id: ppb-affinity-protein-protein-binding-affinity-dataset
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Author contributions; Technical Validation > A benchmark affinity prediction, paragraph 46
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 39a68e7a01eb754e26480b4eb08a68babcf920d9974970ab232a73a2ba222d9e
+  supports:
+  - /model_ids

@@ -1,0 +1,315 @@
+entity_type: benchmark
+id: ppb-affinity
+name: PPB-Affinity
+aliases: []
+summary: A reusable protein-protein binding-affinity dataset with complex structures, measured affinities, receptor and ligand
+  chains, and mutation annotations.
+kind: dataset
+parent_id: null
+organizations:
+- Artificial Intelligence Innovation Center, Research Institute of Tsinghua, Pearl River Delta
+- Cyagen Biosciences (Suzhou) Inc.
+- Cyagen Biosciences (Guangzhou) Inc.
+- Cyagen Biomodels (Guangzhou) Co., Ltd
+- Department of Pain Medicine, Shenzhen Nanshan People’s Hospital, Shenzhen University Medical School
+release_date: '2024-12-03'
+latest_version: initial-release
+domains:
+- protein-protein-binding
+capabilities:
+- prediction
+modalities:
+- table
+- structure-3d
+task_formats:
+- unclassified
+task_counts: &id001
+  total: 12062
+  basis: Whole-dataset unique-sample total explicitly reported by the source; the detailed uniqueness basis remains conflicted.
+  reporting_status: reported
+  subsets: []
+coverage_notes: []
+access:
+  level: fully-open
+  tasks: See the linked official creator resources.
+  artifacts: Excel annotation spreadsheet and PDB complex-structure files are available from the linked Zenodo record.
+  grader: Not established by the independently verified metadata claims.
+  license: CC BY 4.0
+  biosafety_notes: null
+resources:
+- id: ppb-affinity-creator-paper-resource
+  type: paper
+  url: https://zenodo.org/doi/10.5281/zenodo.11070823
+  license: null
+  access_notes: Versioned creator source; full text is not mirrored.
+  last_checked: '2026-07-29'
+  pin: null
+- id: ppb-affinity-official-repository-resource
+  type: repository
+  url: https://github.com/Huatsing-Lau/PPB-Affinity-DataPrepWorkflow
+  license: null
+  access_notes: Official repository pinned during intake.
+  last_checked: '2026-07-29'
+  pin:
+    kind: commit
+    value: f1a1698ba868365af8a55807f8ae5b0d9653fa97
+    url: https://github.com/Huatsing-Lau/PPB-Affinity-DataPrepWorkflow/commit/f1a1698ba868365af8a55807f8ae5b0d9653fa97
+implementations:
+- framework: official repository
+  status: official
+  url: https://github.com/Huatsing-Lau/PPB-Affinity-DataPrepWorkflow
+  commit: f1a1698ba868365af8a55807f8ae5b0d9653fa97
+  notes: Commit resolved deterministically during paper intake.
+versions:
+- id: ppb-affinity-initial-release-version
+  label: initial-release
+  status: current
+  release_date: '2024-12-03'
+  as_of: null
+  task_counts: *id001
+  formal_tracks: []
+  notes: Root total retained after owner review; conflicted appendix inventory subcounts are intentionally omitted.
+  evidence_ids:
+  - ppb-affinity-automated-count-evidence
+  - ppb-affinity-automated-version-evidence
+audit:
+  status: audited-with-caveats
+  audited_date: '2026-07-29'
+  unresolved_fields: 2
+  notes: Automated double-pass extraction plus deterministic repository pin. Owner review preserved the corroborated root
+    total and excluded conflicted appendix inventory subcounts.
+field_status:
+- path: /task_counts/basis
+  status: conflicted
+  confidence: high
+  reason: The owner approved the explicit root-total value after the extractor reported it and the verifier independently
+    located it at high confidence; the detailed uniqueness basis remains conflicted and all subcounts are excluded from publication.
+  evidence_ids:
+  - ppb-affinity-automated-count-conflict-evidence
+- path: /task_counts/subsets
+  status: conflicted
+  confidence: high
+  reason: The owner approved the explicit root-total value after the extractor reported it and the verifier independently
+    located it at high confidence; the detailed uniqueness basis remains conflicted and all subcounts are excluded from publication.
+  evidence_ids:
+  - ppb-affinity-automated-count-conflict-evidence
+verification:
+  status: verified
+  last_verified: '2026-07-29'
+  notes: New family admitted with an explicit count-inventory caveat after creator source, official repository, double-pass
+    verification, and owner conflict resolution.
+evidence:
+- id: ppb-affinity-automated-metadata-1-evidence
+  source_type: work
+  source_id: ppb-affinity-protein-protein-binding-affinity-dataset
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Data Record, paragraph 24
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: b8bf85cbf0204d3d141587041a562e18f899405823449dfd01c2fb0b97d3d913
+  supports:
+  - /access/artifacts
+- id: ppb-affinity-automated-metadata-2-evidence
+  source_type: work
+  source_id: ppb-affinity-protein-protein-binding-affinity-dataset
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Data Record, paragraph 24; Usage Notes, paragraph 53
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 1450e68765093017485978d55be5219857370e490aaadc31533870e83f6da55e
+  supports:
+  - /access/level
+- id: ppb-affinity-automated-metadata-3-evidence
+  source_type: work
+  source_id: ppb-affinity-protein-protein-binding-affinity-dataset
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Data Record, paragraph 24
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 8d75fb5e76c2de189a8740a03c26b1120716dee92b2f959428e0b808c1880500
+  supports:
+  - /access/license
+- id: ppb-affinity-automated-metadata-4-evidence
+  source_type: work
+  source_id: ppb-affinity-protein-protein-binding-affinity-dataset
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Usage Notes > Potential uses of the dataset, paragraph 54
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 8723c300a175ea59a647ad3378ea8af168e44a14a3dfbdce2f192805a0c6256e
+  supports:
+  - /capabilities
+- id: ppb-affinity-automated-metadata-5-evidence
+  source_type: work
+  source_id: ppb-affinity-protein-protein-binding-affinity-dataset
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Abstract, paragraph 1
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 7ee57c07ac310ba4643b7bf61b9f5b08c147d707b5ffccbf2371084aaee5e4e1
+  supports:
+  - /domains
+- id: ppb-affinity-automated-metadata-6-evidence
+  source_type: work
+  source_id: ppb-affinity-protein-protein-binding-affinity-dataset
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Abstract, paragraph 1
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 48c0f429f515849a116d1501c9dad36b693a3330fde8132c803cff68af53a919
+  supports:
+  - /kind
+- id: ppb-affinity-automated-metadata-7-evidence
+  source_type: work
+  source_id: ppb-affinity-protein-protein-binding-affinity-dataset
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Data Record, paragraph 24
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 26722d095e1636353ef0a3294d8b797a99a76b2db39e1d9f7dba831fcba21a5b
+  supports:
+  - /modalities
+- id: ppb-affinity-automated-metadata-8-evidence
+  source_type: work
+  source_id: ppb-affinity-protein-protein-binding-affinity-dataset
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Background & Summary, paragraph 4
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 45b00c34fea2a43873b0a36fcb8dd2f3963a44228c7b06d9f2b95ec8ed23a93b
+  supports:
+  - /name
+- id: ppb-affinity-automated-metadata-9-evidence
+  source_type: work
+  source_id: ppb-affinity-protein-protein-binding-affinity-dataset
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Front matter > Author affiliations
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: c4cc5b489463659307019f93038ba4ca743acb43294d201882bc264f99f4364d
+  supports:
+  - /organizations
+- id: ppb-affinity-automated-metadata-10-evidence
+  source_type: work
+  source_id: ppb-affinity-protein-protein-binding-affinity-dataset
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Methods > Data processing and quality assessment, paragraph 6; Data Record, paragraph 24
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 85eb31244fc784ed22a17b58148e6f6349d8f6c2659130b6faaca9af3edd13f6
+  supports:
+  - /summary
+- id: ppb-affinity-automated-bibliographic-evidence
+  source_type: work
+  source_id: ppb-affinity-protein-protein-binding-affinity-dataset
+  accessed_date: '2026-07-29'
+  locator:
+    type: other
+    value: Crossref bibliographic metadata
+    note: Resolved from the canonical paper identifier during intake.
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 671a1aa1f690e1304ea98c4138eb16fe0b599317c244c30c2a6c49fede0b57c5
+  supports:
+  - /release_date
+- id: ppb-affinity-automated-count-evidence
+  source_type: work
+  source_id: ppb-affinity-protein-protein-binding-affinity-dataset
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Methods > Data processing and quality assessment > Protein chains, paragraphs 16–18; Data Record > Metadata, paragraph
+      43
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 942ae775b976de7b1842df66c8a6fa69a5d57e5a88f313ac60a40237c4d36d40
+  supports:
+  - /task_counts/total
+  - /versions/0/task_counts
+- id: ppb-affinity-automated-resource-evidence
+  source_type: work
+  source_id: ppb-affinity-protein-protein-binding-affinity-dataset
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Code availability
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 6ec0069c26ea51711ae09252a86c7b36446fb05edcada02090deb505983eb6a6
+  supports:
+  - /resources
+  - /implementations
+- id: ppb-affinity-automated-creator-evidence
+  source_type: work
+  source_id: ppb-affinity-protein-protein-binding-affinity-dataset
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Data Record, paragraph 24
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: ce6add923fbd5cf360b0269cfee4408ebadcb46335186012664e7bcdecc0b23c
+  supports:
+  - /resources/0
+- id: ppb-affinity-automated-version-evidence
+  source_type: work
+  source_id: ppb-affinity-protein-protein-binding-affinity-dataset
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Data Record, paragraph 24
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: ce6add923fbd5cf360b0269cfee4408ebadcb46335186012664e7bcdecc0b23c
+  supports:
+  - /latest_version
+  - /versions/0
+- id: ppb-affinity-automated-count-conflict-evidence
+  source_type: work
+  source_id: ppb-affinity-protein-protein-binding-affinity-dataset
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Methods > Data processing and quality assessment > Protein chains, paragraphs 16–18; Data Record > Metadata, paragraph
+      43
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 942ae775b976de7b1842df66c8a6fa69a5d57e5a88f313ac60a40237c4d36d40
+  supports:
+  - /task_counts/basis
+  - /task_counts/subsets

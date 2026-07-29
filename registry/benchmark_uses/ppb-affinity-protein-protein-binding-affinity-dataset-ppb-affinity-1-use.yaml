@@ -1,0 +1,56 @@
+entity_type: benchmark_use
+id: ppb-affinity-protein-protein-binding-affinity-dataset-ppb-affinity-1-use
+work_id: ppb-affinity-protein-protein-binding-affinity-dataset
+work_version_id: ppb-affinity-protein-protein-binding-affinity-dataset-2024-12-03
+benchmark_id: ppb-affinity
+benchmark_version: null
+relation_type: benchmark-creation
+status: non-evaluation
+model_ids: []
+scope:
+  type: unknown
+  subset_kind: not-applicable
+  n: null
+  subset_id: null
+  selection: null
+  selection_method: null
+  reporting_status: not_applicable
+metric_labels: []
+evaluation_run_ids: []
+reporting_gaps:
+- No formal PPB-Affinity version label is printed.
+- The exact dataset release date is not printed; the data citation reports only 2024.
+- The licenses of the two GitHub repositories are not printed.
+- Figure 3 raster content is unavailable locally, preventing inspection of any additional labeled partition values.
+notes: AI-assisted double-pass extraction; values are limited to independently supported claims.
+verification:
+  status: verified
+  last_verified: '2026-07-29'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: ppb-affinity-protein-protein-binding-affinity-dataset-ppb-affinity-1-use-evidence-1
+  source_type: work
+  source_id: ppb-affinity-protein-protein-binding-affinity-dataset
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Background & Summary, paragraph 4
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 8ed5cd9f2ec8f3e99003f86002c09d60429d00e009698b72ffb89807edf27d48
+  supports:
+  - /relation_type
+- id: ppb-affinity-protein-protein-binding-affinity-dataset-ppb-affinity-1-use-evidence-2
+  source_type: work
+  source_id: ppb-affinity-protein-protein-binding-affinity-dataset
+  accessed_date: '2026-07-29'
+  locator:
+    type: section
+    value: Background & Summary, paragraph 4
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 45b00c34fea2a43873b0a36fcb8dd2f3963a44228c7b06d9f2b95ec8ed23a93b
+  supports:
+  - /benchmark_id

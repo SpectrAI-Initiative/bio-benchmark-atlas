@@ -695,6 +695,101 @@ def test_owner_can_preserve_supported_root_total_but_not_conflicted_subcounts() 
     assert benchmark["field_status"][0]["status"] == "conflicted"
     assert records.classifications["conflictcountbench"]["entries"][0]["count"] is None
 
+    root_basis_conflicted = json.loads(json.dumps(payload))
+    for item in root_basis_conflicted["verification"]["claims"]:
+        if item["claim_id"] == "claim-6":
+            item.update({
+                "verdict": "conflicted",
+                "confidence": "high",
+                "locator": locator() | {"value": "Metadata paragraph 43"},
+            })
+    root_basis_records = build_records(
+        root_basis_conflicted,
+        source=source,
+        generated_at=SOURCE["retrieved_at"],
+        verified_on="2026-07-25",
+        owner_conflict_resolution={
+            "benchmark_total": 394,
+            "exclude": "benchmark-subcounts",
+            "approved_by": "wang422003",
+            "approved_at": "2026-07-25T01:00:00Z",
+        },
+    )
+    root_basis_benchmark = root_basis_records.benchmarks[0]
+    assert root_basis_benchmark["task_counts"]["total"] == 394
+    assert root_basis_benchmark["task_counts"]["subsets"] == []
+    assert root_basis_benchmark["task_counts"]["basis"] == (
+        "Whole-dataset unique-sample total explicitly reported by the source; "
+        "the detailed uniqueness basis remains conflicted."
+    )
+    assert root_basis_benchmark["field_status"][0]["path"] == "/task_counts/basis"
+    assert "verifier independently located it at high confidence" in (
+        root_basis_benchmark["field_status"][0]["reason"]
+    )
+
+    insufficient_root_confidence = json.loads(json.dumps(root_basis_conflicted))
+    for item in insufficient_root_confidence["verification"]["claims"]:
+        if item["claim_id"] == "claim-6":
+            item["confidence"] = "medium"
+    with pytest.raises(
+        GenerationBlocked,
+        match="root total is not independently supported at high confidence",
+    ):
+        build_records(
+            insufficient_root_confidence,
+            source=source,
+            generated_at=SOURCE["retrieved_at"],
+            verified_on="2026-07-25",
+            owner_conflict_resolution={
+                "benchmark_total": 394,
+                "exclude": "benchmark-subcounts",
+                "approved_by": "wang422003",
+                "approved_at": "2026-07-25T01:00:00Z",
+            },
+        )
+
+    unsafe_root_basis_conflict = json.loads(json.dumps(root_basis_conflicted))
+    unsafe_root_basis_conflict["verification"]["blocking_conflicts"].append(
+        "Benchmark identity and repository identity disagree."
+    )
+    with pytest.raises(
+        GenerationBlocked,
+        match="cannot override an unanchored identity or license conflict",
+    ):
+        build_records(
+            unsafe_root_basis_conflict,
+            source=source,
+            generated_at=SOURCE["retrieved_at"],
+            verified_on="2026-07-25",
+            owner_conflict_resolution={
+                "benchmark_total": 394,
+                "exclude": "benchmark-subcounts",
+                "approved_by": "wang422003",
+                "approved_at": "2026-07-25T01:00:00Z",
+            },
+        )
+
+    unresolved_root_locator = json.loads(json.dumps(root_basis_conflicted))
+    for item in unresolved_root_locator["verification"]["claims"]:
+        if item["claim_id"] == "claim-6":
+            item["locator"] = None
+    with pytest.raises(
+        GenerationBlocked,
+        match="root total is not independently supported at high confidence",
+    ):
+        build_records(
+            unresolved_root_locator,
+            source=source,
+            generated_at=SOURCE["retrieved_at"],
+            verified_on="2026-07-25",
+            owner_conflict_resolution={
+                "benchmark_total": 394,
+                "exclude": "benchmark-subcounts",
+                "approved_by": "wang422003",
+                "approved_at": "2026-07-25T01:00:00Z",
+            },
+        )
+
     unanchored = json.loads(json.dumps(payload))
     for item in unanchored["verification"]["claims"]:
         if item["claim_id"] == "claim-10":

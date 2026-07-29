@@ -200,6 +200,7 @@ def process_issue(
                 "content_sha256": source.content_sha256,
                 "content_type": source.content_type,
                 "retrieved_at": source.retrieved_at,
+                "bibliographic_metadata": triage["bibliographic_metadata"],
                 "repository_pins": resolve_repository_pins(result),
             },
             generated_at=source.retrieved_at,

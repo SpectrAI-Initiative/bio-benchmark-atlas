@@ -31,6 +31,7 @@ from discover_papers import (  # noqa: E402
 )
 from generate_paper_records import (  # noqa: E402
     GenerationBlocked,
+    _materialize_benchmark_metadata,
     _scope,
     _use_scope,
     build_records,
@@ -563,6 +564,41 @@ def test_new_benchmark_atomic_metadata_keeps_independently_supported_fields() ->
     }
     assert "/access/biosafety_notes" not in {
         item["supports"][0] for item in metadata_evidence
+    }
+
+
+def test_atomic_metadata_uses_canonical_bibliographic_date_and_unclassified_format() -> None:
+    values = {
+        "/name": "BibliographicDateBench",
+        "/summary": "A synthetic benchmark whose release date comes from canonical metadata.",
+        "/kind": "dataset",
+        "/organizations": ["Example Institute"],
+        "/domains": ["protein-sequence"],
+        "/capabilities": ["prediction"],
+        "/modalities": ["protein-sequence"],
+        "/access/level": "fully-open",
+    }
+    claims = [
+        EvidenceClaimDraft.model_validate(claim(
+            f"claim-{index}", "benchmark-metadata", value,
+            field_path=f"/benchmark-metadata{path}",
+        ))
+        for index, (path, value) in enumerate(values.items(), 1)
+    ]
+    metadata, evidence_claims, bibliographic_supports = _materialize_benchmark_metadata(
+        claims,
+        bibliographic_metadata={
+            "metadata_source": "Crossref",
+            "publication_date": "2024-12-03",
+        },
+    )
+    assert metadata["release_date"] == "2024-12-03"
+    assert metadata["task_formats"] == ["unclassified"]
+    assert bibliographic_supports == ["/release_date"]
+    assert "/release_date" not in {
+        support
+        for _claim, supports in evidence_claims
+        for support in supports
     }
 
 

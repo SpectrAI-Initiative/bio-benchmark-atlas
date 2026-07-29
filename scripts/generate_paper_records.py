@@ -482,6 +482,105 @@ def _claim_gate_summary(
     return ", ".join(fragments)
 
 
+_ATOMIC_METADATA_PREFIX = "/benchmark-metadata"
+_ATOMIC_METADATA_PATHS = {
+    "/name",
+    "/aliases",
+    "/summary",
+    "/kind",
+    "/organizations",
+    "/release_date",
+    "/domains",
+    "/capabilities",
+    "/modalities",
+    "/task_formats",
+    "/access/level",
+    "/access/tasks",
+    "/access/artifacts",
+    "/access/grader",
+    "/access/license",
+    "/access/biosafety_notes",
+}
+_REQUIRED_ATOMIC_METADATA_PATHS = {
+    "/name",
+    "/summary",
+    "/kind",
+    "/organizations",
+    "/release_date",
+    "/domains",
+    "/capabilities",
+    "/modalities",
+    "/task_formats",
+    "/access/level",
+}
+
+
+def _assign_metadata_path(metadata: dict[str, Any], path: str, value: Any) -> None:
+    if path.startswith("/access/"):
+        metadata["access"][path.removeprefix("/access/")] = value
+    else:
+        metadata[path.removeprefix("/")] = value
+
+
+def _materialize_benchmark_metadata(
+    claims: list[Any],
+) -> tuple[dict[str, Any], list[tuple[Any, list[str]]]]:
+    """Build metadata from atomic field claims, with legacy bundle compatibility."""
+
+    atomic_claims = [
+        claim
+        for claim in claims
+        if claim.field_path.startswith(f"{_ATOMIC_METADATA_PREFIX}/")
+    ]
+    if not atomic_claims:
+        legacy_claim = claims[0]
+        metadata = _claim_value(legacy_claim)
+        if not isinstance(metadata, dict):
+            raise GenerationBlocked("new benchmark metadata bundle is not an object")
+        return metadata, [(
+            legacy_claim,
+            [
+                "/name", "/aliases", "/summary", "/kind", "/organizations",
+                "/release_date", "/domains", "/capabilities", "/modalities",
+                "/task_formats", "/access/level", "/access/license",
+            ],
+        )]
+
+    metadata: dict[str, Any] = {
+        "aliases": [],
+        "access": {
+            "tasks": "See the linked official creator resources.",
+            "artifacts": "See the linked official creator resources.",
+            "grader": "Not established by the independently verified metadata claims.",
+            "license": None,
+            "biosafety_notes": None,
+        },
+    }
+    claims_by_path: dict[str, Any] = {}
+    values_by_path: dict[str, Any] = {}
+    for claim in atomic_claims:
+        path = claim.field_path.removeprefix(_ATOMIC_METADATA_PREFIX)
+        if path not in _ATOMIC_METADATA_PATHS:
+            raise GenerationBlocked(f"new benchmark metadata uses unsupported field path {path}")
+        value = _claim_value(claim)
+        if path in values_by_path and values_by_path[path] != value:
+            raise GenerationBlocked(f"new benchmark metadata has conflicting verified values for {path}")
+        values_by_path[path] = value
+        claims_by_path.setdefault(path, claim)
+        _assign_metadata_path(metadata, path, value)
+
+    missing = sorted(_REQUIRED_ATOMIC_METADATA_PATHS - set(values_by_path))
+    if missing:
+        raise GenerationBlocked(
+            "new benchmark lacks verified metadata fields: " + ", ".join(missing)
+        )
+    evidence_claims = [
+        (claim, [path])
+        for path, claim in sorted(claims_by_path.items())
+    ]
+    return metadata, evidence_claims
+
+
 def _build_new_benchmark(
     *,
     benchmark_id: str,
@@ -503,13 +602,21 @@ def _build_new_benchmark(
         raise GenerationBlocked(
             f"{benchmark_id}: new benchmark lacks verified claims: {', '.join(missing)}"
         )
-    metadata = _claim_value(by_type["benchmark-metadata"][0])
+    metadata, metadata_evidence_claims = _materialize_benchmark_metadata(
+        by_type["benchmark-metadata"]
+    )
     version_claim = next(iter(by_type.get("benchmark-version", [])), None)
     version_label = (
         str(_claim_value(version_claim)) if version_claim is not None else "initial-release"
     )
     creator = _claim_value(by_type["creator-source"][0])
     repository = _claim_value(by_type["official-repository"][0])
+    access = metadata.get("access") or {}
+    license_from_repository = (
+        access.get("license") is None and repository.get("license") is not None
+    )
+    if license_from_repository:
+        access["license"] = repository.get("license")
     repository_url = normalize_url(repository.get("url"))
     repository_pins = source.get("repository_pins", {})
     pin = repository_pins.get(repository_url or "")
@@ -525,7 +632,6 @@ def _build_new_benchmark(
         values = metadata.get(axis) or []
         if not values or not set(values) <= controlled[axis]:
             raise GenerationBlocked(f"{benchmark_id}: new benchmark has invalid {axis} taxonomy IDs")
-    access = metadata.get("access") or {}
     if access.get("level") not in controlled["access_levels"]:
         raise GenerationBlocked(f"{benchmark_id}: new benchmark has an invalid access level")
     if len(str(metadata.get("summary") or "")) < 20:
@@ -573,21 +679,19 @@ def _build_new_benchmark(
         "subsets": subsets,
     }
 
-    metadata_claim = by_type["benchmark-metadata"][0]
     repository_claim = by_type["official-repository"][0]
     creator_claim = by_type["creator-source"][0]
     version_evidence_claim = version_claim or creator_claim
     evidence = [
-        {
-            "id": f"{benchmark_id}-automated-metadata-evidence",
-            "source_type": "work", "source_id": work_id, "accessed_date": verified_on,
-            "locator": _source_locator(verdicts[metadata_claim.claim_id]),
-            "supports": [
-                "/name", "/aliases", "/summary", "/kind", "/organizations", "/release_date",
-                "/domains", "/capabilities", "/modalities", "/task_formats",
-                "/access/level", "/access/license",
-            ],
-        },
+        *[
+            {
+                "id": f"{benchmark_id}-automated-metadata-{index}-evidence",
+                "source_type": "work", "source_id": work_id, "accessed_date": verified_on,
+                "locator": _source_locator(verdicts[metadata_claim.claim_id]),
+                "supports": supports,
+            }
+            for index, (metadata_claim, supports) in enumerate(metadata_evidence_claims, 1)
+        ],
         {
             "id": f"{benchmark_id}-automated-count-evidence",
             "source_type": "work", "source_id": work_id, "accessed_date": verified_on,
@@ -602,7 +706,10 @@ def _build_new_benchmark(
             "id": f"{benchmark_id}-automated-resource-evidence",
             "source_type": "work", "source_id": work_id, "accessed_date": verified_on,
             "locator": _source_locator(verdicts[repository_claim.claim_id]),
-            "supports": ["/resources", "/implementations"],
+            "supports": [
+                "/resources", "/implementations",
+                *(["/access/license"] if license_from_repository else []),
+            ],
         },
         {
             "id": f"{benchmark_id}-automated-creator-evidence",

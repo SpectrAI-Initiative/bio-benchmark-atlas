@@ -942,6 +942,29 @@ def _build_new_benchmark(
     return benchmark, classification
 
 
+_EMBEDDED_CREATOR_EVALUATION_CLAIM_TYPES = {
+    "scope-type",
+    "scope-n",
+    "subset-id",
+    "selection",
+    "selection-method",
+    "prompt",
+    "shots",
+    "reasoning",
+    "tools",
+    "internet",
+    "code-execution",
+    "container",
+    "budget",
+    "seed",
+    "repeats",
+    "grader",
+    "human-review",
+    "metric",
+    "result",
+}
+
+
 def _apply_owner_count_conflict_resolution(
     draft: PaperEvidenceDraft,
     verification: PaperEvidenceVerification,
@@ -1035,6 +1058,12 @@ def _apply_owner_count_conflict_resolution(
             exclude_creator_evaluation
             and claim.mention_id in creator_evaluation_mentions
             and claim.claim_type not in {"relation", "benchmark-identity"}
+        ):
+            continue
+        if (
+            exclude_creator_evaluation
+            and claim.mention_id == mention_id
+            and claim.claim_type in _EMBEDDED_CREATOR_EVALUATION_CLAIM_TYPES
         ):
             continue
         disallowed_claims.append(claim)
@@ -1156,6 +1185,12 @@ def _apply_owner_count_conflict_resolution(
         if exclude_creator_evaluation and claim.mention_id in creator_evaluation_mentions:
             if claim.claim_type not in {"relation", "benchmark-identity", "model"}:
                 continue
+        if (
+            exclude_creator_evaluation
+            and claim.mention_id == mention_id
+            and claim.claim_type in _EMBEDDED_CREATOR_EVALUATION_CLAIM_TYPES
+        ):
+            continue
         if claim.mention_id != mention_id:
             filtered.append(claim)
             continue

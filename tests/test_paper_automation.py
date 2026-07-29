@@ -1569,6 +1569,14 @@ def test_owner_can_downgrade_conflicted_creator_evaluation_to_partial_use() -> N
             "subset_id": "appendix-inventory", "exclusive": False, "exhaustive": False,
             "partition_group": None,
         }),
+        claim("claim-20", "tools", {
+            "browser": False,
+            "internet": False,
+            "databases": [],
+            "code_execution": True,
+            "container": True,
+            "external_tools": [],
+        }),
     ]
     evaluation_claims = [
         claim("claim-11", "relation", "evaluation", mention_id="mention-2"),
@@ -1614,7 +1622,9 @@ def test_owner_can_downgrade_conflicted_creator_evaluation_to_partial_use() -> N
         "Appendix counts and creator-evaluation settings disagree."
     ]
     for item in payload["verification"]["claims"]:
-        if item["claim_id"] in {"claim-10", "claim-14", "claim-15", "claim-17", "claim-18", "claim-19"}:
+        if item["claim_id"] in {
+            "claim-10", "claim-14", "claim-15", "claim-17", "claim-18", "claim-19", "claim-20",
+        }:
             item.update({"verdict": "conflicted", "confidence": "high"})
     source = {**SOURCE, "repository_pins": {
         "https://github.com/example/conservativebench": {

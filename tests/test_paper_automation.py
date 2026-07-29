@@ -1860,7 +1860,43 @@ def test_local_codex_stage_retries_only_transient_transport_failures(
     assert persisted["claims"][0]["claim_id"] == "claim-1"
 
 
-def test_local_codex_stage_rejects_structurally_incomplete_draft_before_verification(
+def test_temporary_claim_normalization_merges_identical_paper_identities() -> None:
+    payload = draft_payload([
+        claim(
+            "claim-7",
+            "paper-identity",
+            {"title": "Synthetic benchmark evaluation paper", "doi": None, "arxiv": None},
+            mention_id="mention-1",
+        ),
+        claim(
+            "claim-9",
+            "paper-identity",
+            {"title": "Synthetic benchmark evaluation paper", "doi": None, "arxiv": None},
+            mention_id=None,
+        ),
+    ], {
+        "mention_id": "mention-1",
+        "benchmark_name": "Synthetic",
+        "registry_benchmark_id": None,
+        "relation_type": "background-citation",
+        "is_new_benchmark": False,
+        "background_only": True,
+        "claim_ids": ["claim-7"],
+        "reporting_gaps": [],
+    })
+
+    normalized = _normalize_temporary_claim_ids(payload)
+
+    identities = [
+        item for item in normalized["claims"] if item["claim_type"] == "paper-identity"
+    ]
+    assert len(identities) == 1
+    assert identities[0]["mention_id"] is None
+    assert identities[0]["claim_id"] == "claim-1"
+    assert normalized["benchmark_mentions"][0]["claim_ids"] == []
+
+
+def test_local_codex_stage_rejects_conflicting_paper_identities_before_verification(
     tmp_path: Path,
 ) -> None:
     output_path = tmp_path / "draft.json"
@@ -1868,7 +1904,7 @@ def test_local_codex_stage_rejects_structurally_incomplete_draft_before_verifica
         claim(
             "claim-0",
             "paper-identity",
-            {"title": "Synthetic benchmark evaluation paper", "doi": None, "arxiv": None},
+            {"title": "A conflicting paper identity", "doi": None, "arxiv": None},
             mention_id=None,
         ),
         claim(

@@ -809,8 +809,9 @@ def _normalize_temporary_claim_ids(raw_payload: dict[str, Any]) -> dict[str, Any
     Claim IDs only connect the extractor draft to the independent verifier; they
     are not Registry IDs.  Rebuilding them from claim order and authoritative
     claim ``mention_id`` values prevents a model numbering collision from making
-    otherwise structured evidence unreadable.  Claim values, locators,
-    confidence, and mention ownership are left unchanged.
+    otherwise structured evidence unreadable. Semantically identical paper
+    identities are also merged into the single unscoped claim required by the
+    verifier contract; disagreeing identities remain untouched and fail closed.
     """
 
     claims = raw_payload.get("claims")
@@ -821,6 +822,44 @@ def _normalize_temporary_claim_ids(raw_payload: dict[str, Any]) -> dict[str, Any
     normalized = copy.deepcopy(raw_payload)
     normalized_claims = normalized["claims"]
     normalized_mentions = normalized["benchmark_mentions"]
+
+    identity_claims = [
+        claim for claim in normalized_claims
+        if isinstance(claim, dict) and claim.get("claim_type") == "paper-identity"
+    ]
+    if identity_claims:
+        signatures: set[tuple[str, str]] = set()
+        for claim in identity_claims:
+            try:
+                canonical_value = json.dumps(
+                    json.loads(str(claim.get("value_json"))),
+                    ensure_ascii=False,
+                    separators=(",", ":"),
+                    sort_keys=True,
+                )
+            except (TypeError, ValueError, json.JSONDecodeError):
+                canonical_value = str(claim.get("value_json"))
+            signatures.add((str(claim.get("confidence")), canonical_value))
+        if len(signatures) == 1:
+            merged_identity = copy.deepcopy(identity_claims[0])
+            merged_identity["mention_id"] = None
+            merged_locators: list[Any] = []
+            locator_keys: set[str] = set()
+            for claim in identity_claims:
+                for locator in claim.get("locators", []):
+                    key = json.dumps(locator, ensure_ascii=False, sort_keys=True)
+                    if key not in locator_keys:
+                        locator_keys.add(key)
+                        merged_locators.append(copy.deepcopy(locator))
+            merged_identity["locators"] = merged_locators
+            first_identity_index = normalized_claims.index(identity_claims[0])
+            normalized_claims = [
+                claim for claim in normalized_claims
+                if not (isinstance(claim, dict) and claim.get("claim_type") == "paper-identity")
+            ]
+            normalized_claims.insert(first_identity_index, merged_identity)
+            normalized["claims"] = normalized_claims
+
     for index, claim in enumerate(normalized_claims, start=1):
         if isinstance(claim, dict):
             claim["claim_id"] = f"claim-{index}"
@@ -839,10 +878,9 @@ def _normalize_temporary_claim_ids(raw_payload: dict[str, Any]) -> dict[str, Any
 
 def _validate_draft_structure(draft: PaperEvidenceDraft) -> None:
     paper_identity_claims = [
-        claim for claim in draft.claims
-        if claim.mention_id is None and claim.claim_type == "paper-identity"
+        claim for claim in draft.claims if claim.claim_type == "paper-identity"
     ]
-    if len(paper_identity_claims) != 1:
+    if len(paper_identity_claims) != 1 or paper_identity_claims[0].mention_id is not None:
         raise PaperExtractionError(
             "extractor draft must contain exactly one unscoped paper-identity claim"
         )

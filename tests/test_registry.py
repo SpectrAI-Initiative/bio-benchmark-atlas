@@ -22,7 +22,9 @@ from build_registry import _build_payload  # noqa: E402
 def test_registry_validates_and_has_v1_depth() -> None:
     entities = validate_registry()
     families = [item for item in entities["benchmark"] if item["parent_id"] is None]
-    assert len(families) == 25
+    # Paper intake may add audited root families without requiring this
+    # foundation-depth regression to be updated for every accepted paper.
+    assert len(families) >= 25
     assert len(entities["evaluation_run"]) >= 15
     assert {work["source_class"] for work in entities["work"]} <= {
         "benchmark_creator",
@@ -1233,7 +1235,11 @@ def test_v11_exports_surface_audit_and_result_status_columns() -> None:
     }
     assert legacy_ids == exemption_ids == {"virbench"}
     root_benchmarks = [benchmark for benchmark in payload["benchmarks"] if benchmark["parent_id"] is None]
-    assert sum(benchmark["audit"]["status"] != "legacy" for benchmark in root_benchmarks) == 24
+    assert all(
+        benchmark["audit"]["status"] != "legacy"
+        for benchmark in root_benchmarks
+        if benchmark["id"] != "virbench"
+    )
 
 
 def test_unapproved_legacy_record_is_rejected(monkeypatch) -> None:

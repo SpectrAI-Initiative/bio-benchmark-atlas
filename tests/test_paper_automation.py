@@ -567,6 +567,41 @@ def test_new_benchmark_atomic_metadata_keeps_independently_supported_fields() ->
         item["supports"][0] for item in metadata_evidence
     }
 
+    missing_license_payload = json.loads(json.dumps(payload))
+    license_claim_id = next(
+        item["claim_id"] for item in missing_license_payload["draft"]["claims"]
+        if item["field_path"] == "/benchmark-metadata/access/license"
+    )
+    for item in missing_license_payload["verification"]["claims"]:
+        if item["claim_id"] == license_claim_id:
+            item.update({"verdict": "not-verifiable", "confidence": "high"})
+    repository_claim = next(
+        item for item in missing_license_payload["draft"]["claims"]
+        if item["claim_type"] == "official-repository"
+    )
+    repository_value = json.loads(repository_claim["value_json"])
+    repository_value["license"] = None
+    repository_claim["value_json"] = json.dumps(repository_value)
+    missing_license_records = build_records(
+        missing_license_payload,
+        source=source,
+        generated_at=SOURCE["retrieved_at"],
+        verified_on="2026-07-29",
+    )
+    missing_license_benchmark = missing_license_records.benchmarks[0]
+    assert missing_license_benchmark["access"]["license"] is None
+    assert missing_license_benchmark["audit"]["status"] == "audited-with-caveats"
+    license_status = next(
+        item for item in missing_license_benchmark["field_status"]
+        if item["path"] == "/access/license"
+    )
+    assert license_status["status"] == "provisional"
+    license_evidence = next(
+        item for item in missing_license_benchmark["evidence"]
+        if item["id"] == "atomicbiobench-automated-resource-evidence"
+    )
+    assert "/access/license" in license_evidence["supports"]
+
 
 def test_atomic_metadata_uses_canonical_bibliographic_date_and_unclassified_format() -> None:
     values = {

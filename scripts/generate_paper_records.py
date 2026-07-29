@@ -634,6 +634,7 @@ def _build_new_benchmark(
     )
     if license_from_repository:
         access["license"] = repository.get("license")
+    license_unverified = access.get("license") is None
     repository_url = normalize_url(repository.get("url"))
     repository_pins = source.get("repository_pins", {})
     pin = repository_pins.get(repository_url or "")
@@ -743,7 +744,7 @@ def _build_new_benchmark(
             "locator": _source_locator(verdicts[repository_claim.claim_id]),
             "supports": [
                 "/resources", "/implementations",
-                *(["/access/license"] if license_from_repository else []),
+                *(["/access/license"] if license_from_repository or license_unverified else []),
             ],
         },
         {
@@ -760,6 +761,18 @@ def _build_new_benchmark(
         },
     ]
     field_status: list[dict[str, Any]] = []
+    if license_unverified:
+        field_status.append({
+            "path": "/access/license",
+            "status": "provisional",
+            "confidence": "high",
+            "reason": (
+                "The double-pass review verified the official repository identity but did not "
+                "establish a redistributable benchmark license; the value remains null pending "
+                "source-level license verification."
+            ),
+            "evidence_ids": [f"{benchmark_id}-automated-resource-evidence"],
+        })
     if resolved_count_conflict:
         conflict_claim = resolved_count_conflict["conflict_claim"]
         conflict_evidence_id = f"{benchmark_id}-automated-count-conflict-evidence"
@@ -884,7 +897,7 @@ def _build_new_benchmark(
             "evidence_ids": [f"{benchmark_id}-automated-count-evidence", f"{benchmark_id}-automated-version-evidence"],
         }],
         "audit": {
-            "status": "audited-with-caveats" if resolved_count_conflict else "audited",
+            "status": "audited-with-caveats" if field_status else "audited",
             "audited_date": verified_on,
             "unresolved_fields": len(field_status),
             "notes": (
@@ -892,6 +905,9 @@ def _build_new_benchmark(
                 "Owner review preserved the corroborated root total and excluded conflicted "
                 "appendix inventory subcounts."
                 if resolved_count_conflict else
+                "Automated double-pass extraction plus deterministic repository pin; the "
+                "benchmark license remains unverified and is published as null."
+                if license_unverified else
                 "Automated double-pass extraction plus deterministic repository pin; "
                 "owner approval required."
             ),
@@ -903,6 +919,9 @@ def _build_new_benchmark(
                              "creator source, official repository, double-pass verification, and "
                              "owner conflict resolution."
                              if resolved_count_conflict else
+                             "New family admitted after creator source and official repository "
+                             "verification; the unresolved benchmark license is visibly flagged."
+                             if license_unverified else
                              "New family admitted only after creator source, official repository, "
                              "and owner PR review."
                          )},

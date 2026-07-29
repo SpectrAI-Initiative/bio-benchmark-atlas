@@ -848,6 +848,37 @@ def test_paper_use_scope_normalizes_source_descriptions_and_subset_labels() -> N
     assert valid_formal_scope["subset_kind"] == "formal-subset"
     assert valid_formal_scope["subset_id"] == "human-solvable"
 
+    unversioned_full_claims = [
+        EvidenceClaimDraft.model_validate(
+            claim("claim-1", "scope-type", "full")
+        ),
+        EvidenceClaimDraft.model_validate(
+            claim("claim-2", "scope-n", 195)
+        ),
+    ]
+    unversioned_full_scope = _use_scope(
+        _scope(unversioned_full_claims),
+        partial_use=True,
+        benchmark_version_reported=False,
+    )
+    assert unversioned_full_scope == {
+        "type": "unknown",
+        "subset_kind": "not-reported",
+        "n": 195,
+        "subset_id": None,
+        "selection": None,
+        "selection_method": None,
+        "reporting_status": "not_reported",
+    }
+
+    versioned_full_scope = _use_scope(
+        _scope(unversioned_full_claims),
+        partial_use=True,
+        benchmark_version_reported=True,
+    )
+    assert versioned_full_scope["type"] == "full"
+    assert versioned_full_scope["n"] == 195
+
     unknown_claims = [
         EvidenceClaimDraft.model_validate(
             claim("claim-1", "scope-type", "unknown")

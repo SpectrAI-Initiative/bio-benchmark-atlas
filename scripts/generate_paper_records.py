@@ -308,6 +308,7 @@ def _use_scope(
     *,
     partial_use: bool = False,
     formal_subset_ids: set[str] | None = None,
+    benchmark_version_reported: bool = True,
 ) -> dict[str, Any]:
     if run_scope["type"] == "subset":
         paper_specific = run_scope["selection"] not in {None, "formal-subset"}
@@ -359,6 +360,15 @@ def _use_scope(
             "type": "unknown",
             "subset_kind": "not-reported",
             "subset_id": None,
+            "reporting_status": "not_reported",
+        })
+    if partial_use and scope["type"] == "full" and not benchmark_version_reported:
+        # The source may report an evaluation size without identifying which
+        # benchmark snapshot it exhausts. Preserve n, but do not call that
+        # scope full until the benchmark version is independently established.
+        scope.update({
+            "type": "unknown",
+            "subset_kind": "not-reported",
             "reporting_status": "not_reported",
         })
     return scope
@@ -1412,6 +1422,7 @@ def build_records(
             scope,
             partial_use=use_status == "partial",
             formal_subset_ids=_formal_subset_ids(benchmarks.get(benchmark_id)),
+            benchmark_version_reported=benchmark_version is not None,
         )
         if use_status == "non-evaluation":
             use_scope = {

@@ -763,10 +763,10 @@ def _build_new_benchmark(
     if resolved_count_conflict:
         conflict_claim = resolved_count_conflict["conflict_claim"]
         conflict_evidence_id = f"{benchmark_id}-automated-count-conflict-evidence"
-        conflict_path = (
-            "/task_counts/basis"
+        conflict_paths = (
+            ["/task_counts/basis", "/task_counts/subsets"]
             if resolved_count_conflict.get("root_total_conflicted") else
-            "/task_counts/subsets"
+            ["/task_counts/subsets"]
         )
         evidence.append({
             "id": conflict_evidence_id,
@@ -774,26 +774,27 @@ def _build_new_benchmark(
             "source_id": work_id,
             "accessed_date": verified_on,
             "locator": _source_locator(verdicts[conflict_claim.claim_id]),
-            "supports": [conflict_path],
+            "supports": conflict_paths,
         })
-        field_status.append({
-            "path": conflict_path,
-            "status": "conflicted",
-            "confidence": "high",
-            "reason": (
-                "The owner approved the explicit root-total value after the extractor reported "
-                "it and the verifier independently located it at high confidence; the detailed "
-                "uniqueness basis remains conflicted and all subcounts are excluded from publication."
-                if resolved_count_conflict.get("root_total_conflicted") else
-                "The verifier reported a count/inventory-only blocking conflict without "
-                "binding it to a claim-level conflicted verdict; the owner approved the "
-                "independently supported root total and excluded every other count."
-                if resolved_count_conflict.get("unanchored_count_conflict") else
-                "The owner approved the independently supported root total while all "
-                "conflicted inventory subcounts were excluded from publication."
-            ),
-            "evidence_ids": [conflict_evidence_id],
-        })
+        for conflict_path in conflict_paths:
+            field_status.append({
+                "path": conflict_path,
+                "status": "conflicted",
+                "confidence": "high",
+                "reason": (
+                    "The owner approved the explicit root-total value after the extractor reported "
+                    "it and the verifier independently located it at high confidence; the detailed "
+                    "uniqueness basis remains conflicted and all subcounts are excluded from publication."
+                    if resolved_count_conflict.get("root_total_conflicted") else
+                    "The verifier reported a count/inventory-only blocking conflict without "
+                    "binding it to a claim-level conflicted verdict; the owner approved the "
+                    "independently supported root total and excluded every other count."
+                    if resolved_count_conflict.get("unanchored_count_conflict") else
+                    "The owner approved the independently supported root total while all "
+                    "conflicted inventory subcounts were excluded from publication."
+                ),
+                "evidence_ids": [conflict_evidence_id],
+            })
     classification_entries = []
     for index, task_claim in enumerate(by_type.get("scientific-task", [])):
         payload = _claim_value(task_claim)

@@ -980,6 +980,15 @@ def test_owner_can_preserve_supported_root_total_but_not_conflicted_subcounts() 
         "the detailed uniqueness basis remains conflicted."
     )
     assert root_basis_benchmark["field_status"][0]["path"] == "/task_counts/basis"
+    assert root_basis_benchmark["field_status"][1]["path"] == "/task_counts/subsets"
+    root_basis_conflict_evidence = next(
+        item for item in root_basis_benchmark["evidence"]
+        if item["id"] == "conflictcountbench-automated-count-conflict-evidence"
+    )
+    assert root_basis_conflict_evidence["supports"] == [
+        "/task_counts/basis",
+        "/task_counts/subsets",
+    ]
     assert "verifier independently located it at high confidence" in (
         root_basis_benchmark["field_status"][0]["reason"]
     )

@@ -404,22 +404,45 @@ def existing_candidate_fingerprints(
     repository: str,
     token: str,
 ) -> set[str]:
-    response = _request(session, "GET", f"https://api.github.com/repos/{repository}/issues", params={
-        "state": "all", "labels": "paper-candidate", "per_page": 100,
-    }, headers={"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json"})
+    issues: list[dict[str, Any]] = []
+    page = 1
+    while True:
+        response = _request(session, "GET", f"https://api.github.com/repos/{repository}/issues", params={
+            "state": "all", "per_page": 100, "page": page,
+        }, headers={"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json"})
+        page_items = response.json()
+        issues.extend(page_items)
+        if len(page_items) < 100:
+            break
+        page += 1
+
     cutoff = datetime.now(timezone.utc) - timedelta(days=60)
     fingerprints = set()
-    for issue in response.json():
+    for issue in issues:
         if "pull_request" in issue:
             continue
         closed = issue.get("closed_at")
         if closed and datetime.fromisoformat(closed.replace("Z", "+00:00")) < cutoff:
             continue
         body = issue.get("body") or ""
+        labels = {
+            item["name"] if isinstance(item, dict) else str(item)
+            for item in issue.get("labels", [])
+        }
+        title = issue.get("title") or ""
+        sections = parse_issue_form(body)
+        is_paper_issue = (
+            "paper-candidate" in labels
+            or (
+                title.startswith(("[Paper intake]:", "[Paper candidate]"))
+                and bool(sections.get("Paper or preprint URL"))
+            )
+        )
+        if not is_paper_issue:
+            continue
         match = re.search(r"Candidate ID:\s*`([a-f0-9]{16})`", body)
         if match:
             fingerprints.add(f"candidate:{match.group(1)}")
-        sections = parse_issue_form(body)
         doi = normalize_doi(sections.get("DOI (optional)"))
         arxiv = normalize_arxiv(sections.get("arXiv or preprint ID (optional)"))[0]
         url = normalize_url(sections.get("Paper or preprint URL"))

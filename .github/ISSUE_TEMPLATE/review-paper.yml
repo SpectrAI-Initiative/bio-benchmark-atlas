@@ -1,7 +1,7 @@
 name: Review a paper
 description: Submit a bio/chem paper for benchmark-use auditing and registry intake.
 title: "[Paper intake]: "
-labels: [paper-intake, paper-candidate]
+labels: [paper-candidate]
 body:
   - type: input
     id: url

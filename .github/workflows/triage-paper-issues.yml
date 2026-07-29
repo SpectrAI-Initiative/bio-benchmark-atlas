@@ -1,0 +1,32 @@
+name: Normalize paper candidate issues
+
+on:
+  issues:
+    types: [opened, edited, reopened]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  normalize:
+    if: >-
+      ${{ !github.event.issue.pull_request &&
+          (startsWith(github.event.issue.title, '[Paper intake]:') ||
+           startsWith(github.event.issue.title, '[Paper candidate]')) }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ensure candidate lifecycle label
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          gh label create paper-candidate \
+            --repo "$GH_REPO" \
+            --color 1d76db \
+            --description "Discovered or submitted paper awaiting owner selection" \
+            --force
+          gh issue edit "$ISSUE_NUMBER" \
+            --repo "$GH_REPO" \
+            --add-label paper-candidate

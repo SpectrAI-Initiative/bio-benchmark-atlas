@@ -510,7 +510,6 @@ _REQUIRED_ATOMIC_METADATA_PATHS = {
     "/domains",
     "/capabilities",
     "/modalities",
-    "/task_formats",
     "/access/level",
 }
 
@@ -524,7 +523,9 @@ def _assign_metadata_path(metadata: dict[str, Any], path: str, value: Any) -> No
 
 def _materialize_benchmark_metadata(
     claims: list[Any],
-) -> tuple[dict[str, Any], list[tuple[Any, list[str]]]]:
+    *,
+    bibliographic_metadata: dict[str, Any] | None = None,
+) -> tuple[dict[str, Any], list[tuple[Any, list[str]]], list[str]]:
     """Build metadata from atomic field claims, with legacy bundle compatibility."""
 
     atomic_claims = [
@@ -544,10 +545,11 @@ def _materialize_benchmark_metadata(
                 "/release_date", "/domains", "/capabilities", "/modalities",
                 "/task_formats", "/access/level", "/access/license",
             ],
-        )]
+        )], []
 
     metadata: dict[str, Any] = {
         "aliases": [],
+        "task_formats": ["unclassified"],
         "access": {
             "tasks": "See the linked official creator resources.",
             "artifacts": "See the linked official creator resources.",
@@ -569,6 +571,20 @@ def _materialize_benchmark_metadata(
         claims_by_path.setdefault(path, claim)
         _assign_metadata_path(metadata, path, value)
 
+    bibliographic_supports: list[str] = []
+    bibliography = bibliographic_metadata or {}
+    if "/release_date" not in values_by_path:
+        metadata_source = str(bibliography.get("metadata_source") or "").casefold()
+        publication_date = bibliography.get("publication_date")
+        try:
+            if metadata_source in {"crossref", "arxiv"} and publication_date:
+                date.fromisoformat(str(publication_date))
+                metadata["release_date"] = str(publication_date)
+                values_by_path["/release_date"] = str(publication_date)
+                bibliographic_supports.append("/release_date")
+        except ValueError:
+            pass
+
     missing = sorted(_REQUIRED_ATOMIC_METADATA_PATHS - set(values_by_path))
     if missing:
         raise GenerationBlocked(
@@ -578,7 +594,7 @@ def _materialize_benchmark_metadata(
         (claim, [path])
         for path, claim in sorted(claims_by_path.items())
     ]
-    return metadata, evidence_claims
+    return metadata, evidence_claims, bibliographic_supports
 
 
 def _build_new_benchmark(
@@ -602,8 +618,9 @@ def _build_new_benchmark(
         raise GenerationBlocked(
             f"{benchmark_id}: new benchmark lacks verified claims: {', '.join(missing)}"
         )
-    metadata, metadata_evidence_claims = _materialize_benchmark_metadata(
-        by_type["benchmark-metadata"]
+    metadata, metadata_evidence_claims, bibliographic_supports = _materialize_benchmark_metadata(
+        by_type["benchmark-metadata"],
+        bibliographic_metadata=source.get("bibliographic_metadata"),
     )
     version_claim = next(iter(by_type.get("benchmark-version", [])), None)
     version_label = (
@@ -682,6 +699,9 @@ def _build_new_benchmark(
     repository_claim = by_type["official-repository"][0]
     creator_claim = by_type["creator-source"][0]
     version_evidence_claim = version_claim or creator_claim
+    bibliography = source.get("bibliographic_metadata") or {}
+    bibliographic_source = str(bibliography.get("metadata_source") or "bibliographic")
+    bibliographic_date = str(bibliography.get("publication_date") or "")
     evidence = [
         *[
             {
@@ -692,6 +712,21 @@ def _build_new_benchmark(
             }
             for index, (metadata_claim, supports) in enumerate(metadata_evidence_claims, 1)
         ],
+        *([{
+            "id": f"{benchmark_id}-automated-bibliographic-evidence",
+            "source_type": "work", "source_id": work_id, "accessed_date": verified_on,
+            "locator": {
+                "type": "other",
+                "value": f"{bibliographic_source} bibliographic metadata",
+                "note": "Resolved from the canonical paper identifier during intake.",
+                "document_page": None,
+                "printed_page": None,
+                "source_fragment_sha256": _fragment_hash(
+                    f"{bibliographic_source}:{bibliographic_date}"
+                ),
+            },
+            "supports": bibliographic_supports,
+        }] if bibliographic_supports else []),
         {
             "id": f"{benchmark_id}-automated-count-evidence",
             "source_type": "work", "source_id": work_id, "accessed_date": verified_on,

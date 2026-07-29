@@ -31,7 +31,7 @@ from paper_source import MAX_PDF_PAGES
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL_TMP_ROOT = ROOT / ".paper-intake-tmp"
 PIPELINE_VERSION = "1.4.0"
-PROMPT_VERSION = "paper-evidence-local-v9"
+PROMPT_VERSION = "paper-evidence-local-v10"
 SOURCE_INPUT_PROTOCOL_VERSION = "multimodal-focused-long-pdf-v3"
 DEFAULT_MODEL = "gpt-5.6-sol"
 REVIEW_METHOD = "local-codex-double-pass"
@@ -73,13 +73,22 @@ Use these exact JSON payload contracts in value_json:
   "basis": string, "reporting_status": "reported"|"not_reported",
   "subset_id": string|null, "exclusive": bool, "exhaustive": bool,
   "partition_group": string|null}
-- benchmark-metadata: {"name": string, "aliases": [string], "summary": string,
-  "kind": "suite"|"track"|"dataset"|"competition"|"agentic-eval",
-  "organizations": [string], "release_date": YYYY-MM-DD,
-  "domains": [Registry domain ID], "capabilities": [Registry capability ID],
-  "modalities": [Registry modality ID], "task_formats": [string],
-  "access": {"level": Registry access ID, "tasks": string, "artifacts": string,
-  "grader": string, "license": string|null, "biosafety_notes": string|null}}
+- benchmark-metadata: emit one atomic claim per field. Its field_path must be one
+  of /benchmark-metadata/name, /benchmark-metadata/aliases,
+  /benchmark-metadata/summary, /benchmark-metadata/kind,
+  /benchmark-metadata/organizations, /benchmark-metadata/release_date,
+  /benchmark-metadata/domains, /benchmark-metadata/capabilities,
+  /benchmark-metadata/modalities, /benchmark-metadata/task_formats,
+  /benchmark-metadata/access/level, /benchmark-metadata/access/tasks,
+  /benchmark-metadata/access/artifacts, /benchmark-metadata/access/grader,
+  /benchmark-metadata/access/license, or
+  /benchmark-metadata/access/biosafety_notes. value_json contains only that
+  field's JSON value. Omit an optional field that the source does not support;
+  do not invent a locator merely to report null. kind is one
+  of "suite"|"track"|"dataset"|"competition"|"agentic-eval". Taxonomy and
+  access values must use supplied Registry IDs. Never bundle multiple metadata
+  fields into one claim, and never lower the confidence of one field because a
+  different metadata field is uncertain.
 - scope-type: "full"|"subset"|"track"|"unknown"; scope-n: integer
 - subset-id, selection, selection-method: string
 - model: {"name": string, "provider": string, "version_string": string|null,
@@ -141,11 +150,13 @@ rows, platform counts, task-category counts, or other subcounts cause an explici
 overall total to be omitted. This is a source-review rule, not permission to sum
 subcounts or infer an unprinted total.
 
-For a new benchmark, keep benchmark-metadata count-, version-, protocol-, and
-result-neutral. Its summary and access descriptions must not repeat task totals,
-subset counts, benchmark versions, model scores, confidence intervals, repeats,
-or harness settings; emit those only as their dedicated claim types. In a creator
-paper that also evaluates the same benchmark, attach benchmark-metadata,
+For a new benchmark, keep every atomic benchmark-metadata claim count-, version-,
+protocol-, and result-neutral. Summary and access-description fields must not
+repeat task totals, subset counts, benchmark versions, model scores, confidence
+intervals, repeats, or harness settings; emit those only as their dedicated claim
+types. Give every atomic metadata field its own independently locatable claim;
+do not make the whole benchmark metadata medium or low because one field is
+uncertain. In a creator paper that also evaluates the same benchmark, attach benchmark-metadata,
 creator-source, official-repository, benchmark-count, and scientific-task claims
 only to the benchmark-creation mention. Do not duplicate those creator-only claims
 under the evaluation mention.
@@ -235,11 +246,14 @@ full meaning preserved in the label. For a table intersection, the supported
 label must retain the relevant row and column semantics; do not support a generic
 label that loses a discriminating domain, capability, subset, or partition term.
 
-For new benchmark metadata, verify the count-, version-, protocol-, and
-result-neutral metadata fields independently from dedicated count, version,
-setting, metric, and result claims. A conflict in one of those dedicated claims
-must not be copied into benchmark-metadata. Creator-only metadata and resource
-claims belong to the benchmark-creation mention, not its evaluation mention.
+For new benchmark metadata, verify each atomic benchmark-metadata field claim
+independently from every other metadata field and from dedicated count, version,
+setting, metric, and result claims. Do not reject a supported name, kind,
+organization, date, taxonomy, or access field because a separate summary, alias,
+license, or access-description field is uncertain. The field_path must identify
+the one value being checked. A conflict in a dedicated non-metadata claim must not
+be copied into benchmark-metadata. Creator-only metadata and resource claims
+belong to the benchmark-creation mention, not its evaluation mention.
 
 For a PDF, independently inspect every relevant attached
 document-page-NNN.jpg image. It is a rasterized copy of physical PDF page NNN and

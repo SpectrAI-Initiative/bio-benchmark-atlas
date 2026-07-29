@@ -118,12 +118,19 @@ def draft_payload(claims: list[dict[str, Any]], mention: dict[str, Any]) -> dict
     }
 
 
-def claim(claim_id: str, claim_type: str, value: Any, *, mention_id: str | None = "mention-1") -> dict[str, Any]:
+def claim(
+    claim_id: str,
+    claim_type: str,
+    value: Any,
+    *,
+    mention_id: str | None = "mention-1",
+    field_path: str | None = None,
+) -> dict[str, Any]:
     return {
         "claim_id": claim_id,
         "mention_id": mention_id,
         "claim_type": claim_type,
-        "field_path": f"/claims/{claim_id}",
+        "field_path": field_path or f"/claims/{claim_id}",
         "value_json": json.dumps(value),
         "confidence": "high",
         "locators": [locator()],
@@ -214,7 +221,7 @@ def test_model_facing_schemas_require_every_declared_property() -> None:
 def test_verifier_prompt_treats_creator_and_evaluation_relations_as_compatible() -> None:
     from extract_paper import EXTRACTOR_PROMPT, PROMPT_VERSION, VERIFIER_PROMPT
 
-    assert PROMPT_VERSION == "paper-evidence-local-v9"
+    assert PROMPT_VERSION == "paper-evidence-local-v10"
     assert "Normalize arXiv identifiers to the base numeric ID" in EXTRACTOR_PROMPT
     assert "the suffix belongs to the paper version" in VERIFIER_PROMPT
     assert "Benchmark-creation and evaluation are compatible" in VERIFIER_PROMPT
@@ -222,7 +229,9 @@ def test_verifier_prompt_treats_creator_and_evaluation_relations_as_compatible()
     assert "provider-qualified printed label" in VERIFIER_PROMPT
     assert "does not verify a benchmark version" in VERIFIER_PROMPT
     assert "complete leading label" in EXTRACTOR_PROMPT
-    assert "keep benchmark-metadata count-, version-, protocol-, and" in EXTRACTOR_PROMPT
+    assert "keep every atomic benchmark-metadata claim count-, version-" in EXTRACTOR_PROMPT
+    assert "Never bundle multiple metadata" in EXTRACTOR_PROMPT
+    assert "verify each atomic benchmark-metadata field claim" in VERIFIER_PROMPT
     assert "Do not duplicate those creator-only claims" in EXTRACTOR_PROMPT
     assert "explicitly accepts\nkind=dataset" in EXTRACTOR_PROMPT
     assert "registry_benchmark_id must be null" in EXTRACTOR_PROMPT
@@ -231,7 +240,7 @@ def test_verifier_prompt_treats_creator_and_evaluation_relations_as_compatible()
     assert "Do not promote a source-" in VERIFIER_PROMPT
     assert "explicitly inspect the abstract, introduction" in EXTRACTOR_PROMPT
     assert "not permission to sum" in EXTRACTOR_PROMPT
-    assert "must not be copied into benchmark-metadata" in VERIFIER_PROMPT
+    assert "be copied into benchmark-metadata" in VERIFIER_PROMPT
 
 
 def test_generator_downgrades_incomplete_evaluation_to_partial_use() -> None:
@@ -466,6 +475,158 @@ def test_new_benchmark_requires_creator_repo_pin_and_builds_same_pr_entities() -
             if path != changelog:
                 path.unlink(missing_ok=True)
         changelog.write_text(original_changelog, encoding="utf-8")
+
+
+def test_new_benchmark_atomic_metadata_keeps_independently_supported_fields() -> None:
+    atomic_values = {
+        "/name": "AtomicBioBench",
+        "/aliases": [],
+        "/summary": "A synthetic benchmark for independently verified protein fitness prediction.",
+        "/kind": "dataset",
+        "/organizations": ["Example Institute"],
+        "/release_date": "2026-07-01",
+        "/domains": ["protein-sequence"],
+        "/capabilities": ["prediction"],
+        "/modalities": ["protein-sequence"],
+        "/task_formats": ["regression"],
+        "/access/level": "fully-open",
+        "/access/tasks": "All examples are public.",
+        "/access/artifacts": "Sequences and labels are released.",
+        "/access/grader": "Deterministic scorer",
+        "/access/license": "CC BY 4.0",
+        "/access/biosafety_notes": None,
+    }
+    metadata_claims = [
+        claim(
+            f"claim-{index}",
+            "benchmark-metadata",
+            value,
+            field_path=f"/benchmark-metadata{path}",
+        )
+        for index, (path, value) in enumerate(atomic_values.items(), 4)
+    ]
+    next_id = 4 + len(metadata_claims)
+    claims = [
+        claim("claim-1", "paper-identity", {"title": "Synthetic benchmark evaluation paper"}, mention_id=None),
+        claim("claim-2", "relation", "benchmark-creation"),
+        claim("claim-3", "benchmark-identity", "AtomicBioBench"),
+        *metadata_claims,
+        claim(f"claim-{next_id}", "benchmark-count", {
+            "label": "total examples", "count": 10, "unit": "examples",
+            "basis": "Released examples", "reporting_status": "reported",
+            "subset_id": None, "exclusive": False, "exhaustive": False,
+            "partition_group": None,
+        }),
+        claim(f"claim-{next_id + 1}", "creator-source", {"url": "https://doi.org/10.9999/atomic.1"}),
+        claim(f"claim-{next_id + 2}", "official-repository", {
+            "url": "https://github.com/example/atomicbiobench", "license": "CC BY 4.0",
+        }),
+    ]
+    mention = {
+        "mention_id": "mention-1", "benchmark_name": "AtomicBioBench",
+        "registry_benchmark_id": None, "relation_type": "benchmark-creation",
+        "is_new_benchmark": True, "background_only": False,
+        "claim_ids": [item["claim_id"] for item in claims if item["mention_id"]],
+        "reporting_gaps": [],
+    }
+    payload = verified_result(claims, mention)
+    optional_claim = next(
+        item for item in payload["draft"]["claims"]
+        if item["field_path"] == "/benchmark-metadata/access/biosafety_notes"
+    )
+    optional_claim["confidence"] = "medium"
+    for item in payload["verification"]["claims"]:
+        if item["claim_id"] == optional_claim["claim_id"]:
+            item.update({"verdict": "not-verifiable", "confidence": "high"})
+    source = {**SOURCE, "repository_pins": {
+        "https://github.com/example/atomicbiobench": {
+            "kind": "commit", "value": "d" * 40,
+            "url": "https://github.com/example/atomicbiobench/commit/" + "d" * 40,
+        }
+    }}
+    records = build_records(
+        payload, source=source,
+        generated_at=SOURCE["retrieved_at"], verified_on="2026-07-29",
+    )
+    assert records.blocked_reasons == []
+    benchmark = records.benchmarks[0]
+    assert benchmark["name"] == "AtomicBioBench"
+    assert benchmark["access"]["biosafety_notes"] is None
+    metadata_evidence = [
+        item for item in benchmark["evidence"]
+        if "-automated-metadata-" in item["id"]
+    ]
+    assert metadata_evidence
+    assert all(len(item["supports"]) == 1 for item in metadata_evidence)
+    assert {item["supports"][0] for item in metadata_evidence} >= {
+        "/name", "/summary", "/kind", "/organizations", "/release_date",
+    }
+    assert "/access/biosafety_notes" not in {
+        item["supports"][0] for item in metadata_evidence
+    }
+
+
+def test_new_benchmark_atomic_metadata_rejects_missing_required_field_only() -> None:
+    claims = [
+        claim("claim-1", "paper-identity", {"title": "Synthetic benchmark evaluation paper"}, mention_id=None),
+        claim("claim-2", "relation", "benchmark-creation"),
+        claim("claim-3", "benchmark-identity", "AtomicMissingBench"),
+    ]
+    values = {
+        "/name": "AtomicMissingBench",
+        "/summary": "A synthetic benchmark summary whose rejection must not hide other fields.",
+        "/kind": "dataset",
+        "/organizations": ["Example Institute"],
+        "/release_date": "2026-07-01",
+        "/domains": ["protein-sequence"],
+        "/capabilities": ["prediction"],
+        "/modalities": ["protein-sequence"],
+        "/task_formats": ["regression"],
+        "/access/level": "fully-open",
+    }
+    for index, (path, value) in enumerate(values.items(), 4):
+        claims.append(claim(
+            f"claim-{index}", "benchmark-metadata", value,
+            field_path=f"/benchmark-metadata{path}",
+        ))
+    offset = 4 + len(values)
+    claims.extend([
+        claim(f"claim-{offset}", "benchmark-count", {
+            "label": "total examples", "count": 10, "unit": "examples",
+            "basis": "Released examples", "reporting_status": "reported",
+            "subset_id": None, "exclusive": False, "exhaustive": False,
+            "partition_group": None,
+        }),
+        claim(f"claim-{offset + 1}", "creator-source", {"url": "https://doi.org/10.9999/atomic.2"}),
+        claim(f"claim-{offset + 2}", "official-repository", {
+            "url": "https://github.com/example/atomicmissingbench", "license": None,
+        }),
+    ])
+    mention = {
+        "mention_id": "mention-1", "benchmark_name": "AtomicMissingBench",
+        "registry_benchmark_id": None, "relation_type": "benchmark-creation",
+        "is_new_benchmark": True, "background_only": False,
+        "claim_ids": [item["claim_id"] for item in claims if item["mention_id"]],
+        "reporting_gaps": [],
+    }
+    payload = verified_result(claims, mention)
+    summary_claim = next(
+        item for item in payload["draft"]["claims"]
+        if item["field_path"] == "/benchmark-metadata/summary"
+    )
+    summary_claim["confidence"] = "medium"
+    for item in payload["verification"]["claims"]:
+        if item["claim_id"] == summary_claim["claim_id"]:
+            item.update({"verdict": "not-verifiable", "confidence": "high"})
+    records = build_records(
+        payload, source=SOURCE,
+        generated_at=SOURCE["retrieved_at"], verified_on="2026-07-29",
+    )
+    assert records.benchmarks == []
+    reason = next(item for item in records.blocked_reasons if "metadata fields" in item)
+    assert "/summary" in reason
+    assert "/name" not in reason
+    assert "AtomicMissingBench" not in reason.split("claim gate:")[-1]
 
 
 def test_new_benchmark_without_creator_repository_pin_stops_production() -> None:

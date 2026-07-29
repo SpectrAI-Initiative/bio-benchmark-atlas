@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import time
 import unicodedata
 import urllib.parse
 import xml.etree.ElementTree as ET
@@ -25,6 +26,7 @@ from registry_io import load_entities
 
 ARXIV_RE = re.compile(r"(?i)(?:arxiv\s*:\s*|arxiv\.org/(?:abs|pdf)/)?(\d{4}\.\d{4,5})(v\d+)?")
 DOI_RE = re.compile(r"(?i)10\.\d{4,9}/[-._;()/:A-Z0-9]+")
+BIBLIOGRAPHIC_API_ATTEMPTS = 3
 
 
 def normalize_doi(value: str | None) -> str | None:
@@ -92,13 +94,42 @@ def _date_parts(message: dict[str, Any]) -> str | None:
     return None
 
 
+def _request_bibliographic_api(
+    url: str,
+    *,
+    params: dict[str, str] | None = None,
+    headers: dict[str, str],
+    timeout: float,
+) -> requests.Response:
+    last_error: requests.RequestException | None = None
+    for attempt in range(BIBLIOGRAPHIC_API_ATTEMPTS):
+        try:
+            response = requests.get(url, params=params, headers=headers, timeout=timeout)
+            response.raise_for_status()
+            return response
+        except requests.RequestException as error:
+            response = getattr(error, "response", None)
+            status = getattr(response, "status_code", None)
+            retryable = (
+                response is None
+                or status == 429
+                or (isinstance(status, int) and status >= 500)
+            )
+            if not retryable:
+                raise
+            last_error = error
+            if attempt + 1 < BIBLIOGRAPHIC_API_ATTEMPTS:
+                time.sleep(2**attempt)
+    assert last_error is not None
+    raise last_error
+
+
 def resolve_crossref(doi: str, timeout: float = 20) -> dict[str, Any]:
-    response = requests.get(
+    response = _request_bibliographic_api(
         f"https://api.crossref.org/works/{urllib.parse.quote(doi, safe='')}",
-        headers={"User-Agent": "BioBench-Atlas/1.3 (https://github.com/SpectrAI-Initiative/bio-benchmark-atlas)"},
+        headers={"User-Agent": "BioBench-Atlas/1.4 (https://github.com/SpectrAI-Initiative/bio-benchmark-atlas)"},
         timeout=timeout,
     )
-    response.raise_for_status()
     message = response.json()["message"]
     authors = []
     for author in message.get("author", []):
@@ -117,13 +148,12 @@ def resolve_crossref(doi: str, timeout: float = 20) -> dict[str, Any]:
 
 
 def resolve_arxiv(arxiv_id: str, timeout: float = 20) -> dict[str, Any]:
-    response = requests.get(
+    response = _request_bibliographic_api(
         "https://export.arxiv.org/api/query",
         params={"id_list": arxiv_id},
         headers={"User-Agent": "BioBench-Atlas/1.3"},
         timeout=timeout,
     )
-    response.raise_for_status()
     root = ET.fromstring(response.text)
     ns = {"atom": "http://www.w3.org/2005/Atom"}
     entry = root.find("atom:entry", ns)

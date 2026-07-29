@@ -86,6 +86,7 @@ from paper_source import (  # noqa: E402
 )
 from registry_io import load_entities  # noqa: E402
 from run_paper_intake import _focus_pdf_pages, _github_json_request  # noqa: E402
+from triage_paper import resolve_crossref  # noqa: E402
 from validate_registry import validate_registry  # noqa: E402
 from build_registry import main as build_registry  # noqa: E402
 
@@ -2659,6 +2660,42 @@ def test_github_repository_pin_request_retries_transient_tls_errors(
         headers={"Accept": "application/vnd.github+json"},
     ) == {"default_branch": "main"}
     assert calls == 3
+
+
+def test_crossref_resolution_retries_transient_tls_errors(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls = 0
+
+    class CrossrefResponse:
+        def raise_for_status(self) -> None:
+            return None
+
+        def json(self) -> dict[str, object]:
+            return {
+                "message": {
+                    "title": ["PPB-Affinity"],
+                    "author": [{"given": "A.", "family": "Researcher"}],
+                    "published-online": {"date-parts": [[2024, 12, 3]]},
+                    "DOI": "10.1038/s41597-024-03997-4",
+                    "URL": "https://doi.org/10.1038/s41597-024-03997-4",
+                    "publisher": "Springer Science and Business Media LLC",
+                }
+            }
+
+    def transient_get(*args: Any, **kwargs: Any) -> CrossrefResponse:
+        nonlocal calls
+        calls += 1
+        if calls < 3:
+            raise requests.exceptions.SSLError("transient Crossref TLS EOF")
+        return CrossrefResponse()
+
+    monkeypatch.setattr("triage_paper.requests.get", transient_get)
+    monkeypatch.setattr("triage_paper.time.sleep", lambda _: None)
+    metadata = resolve_crossref("10.1038/s41597-024-03997-4")
+    assert calls == 3
+    assert metadata["publication_date"] == "2024-12-03"
+    assert metadata["source"] == "Crossref"
 
 
 def test_work_ids_are_deterministic_and_workflows_have_required_guards() -> None:

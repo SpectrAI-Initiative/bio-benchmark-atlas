@@ -22,7 +22,9 @@ from discover_papers import (  # noqa: E402
     Candidate,
     AREA_QUOTAS,
     _request,
+    close_stale_candidates,
     deduplicate_candidates,
+    existing_candidate_fingerprints,
     fetch_europe_pmc,
     score_candidate,
     select_by_quota,
@@ -1305,6 +1307,80 @@ def test_discovery_high_precision_dedup_and_area_quotas() -> None:
     assert {area: sum(item.area == area for item in selected) for area in AREA_QUOTAS} == AREA_QUOTAS
 
 
+def test_discovery_deduplicates_unlabeled_external_paper_issues() -> None:
+    body = """### Paper or preprint URL
+
+https://doi.org/10.9999/example
+
+### DOI (optional)
+
+10.9999/example
+
+### arXiv or preprint ID (optional)
+
+2601.01234
+
+### Title (optional)
+
+An External Protein Benchmark
+"""
+    session = SequenceSession([JsonResponse([
+        {
+            "title": "[Paper intake]: An External Protein Benchmark",
+            "body": body,
+            "labels": [],
+            "closed_at": None,
+        },
+        {
+            "title": "[Question]: An External Protein Benchmark",
+            "body": body,
+            "labels": [],
+            "closed_at": None,
+        },
+        {
+            "title": "[Paper intake]: Pull request lookalike",
+            "body": body,
+            "labels": [],
+            "closed_at": None,
+            "pull_request": {},
+        },
+    ])])
+
+    fingerprints = existing_candidate_fingerprints(session, "example/repo", "token")
+
+    assert "doi:10.9999/example" in fingerprints
+    assert "arxiv:2601.01234" in fingerprints
+    assert "url:https://doi.org/10.9999/example" in fingerprints
+    assert "title:anexternalproteinbenchmark" in fingerprints
+    assert session.calls[0][2]["params"] == {
+        "state": "all", "per_page": 100, "page": 1,
+    }
+
+
+def test_discovery_closes_only_inactive_sixty_day_candidates() -> None:
+    old = "2000-01-01T00:00:00Z"
+    recent = datetime.now().astimezone().isoformat()
+    session = SequenceSession([
+        JsonResponse([
+            {"number": 1, "created_at": old, "labels": [{"name": "paper-candidate"}]},
+            {"number": 2, "created_at": old, "labels": [{"name": "ready-for-local-intake"}]},
+            {"number": 3, "created_at": old, "labels": [{"name": "local-intake-in-progress"}]},
+            {"number": 4, "created_at": old, "labels": [{"name": "paper-intake-pr"}]},
+            {"number": 5, "created_at": recent, "labels": [{"name": "paper-candidate"}]},
+        ]),
+        JsonResponse({"number": 1, "state": "closed"}),
+    ])
+
+    closed = close_stale_candidates(session, "example/repo", "token")
+
+    assert closed == [1]
+    patch_calls = [call for call in session.calls if call[0] == "PATCH"]
+    assert len(patch_calls) == 1
+    assert patch_calls[0][2]["json"] == {
+        "state": "closed", "state_reason": "not_planned",
+    }
+
+
 class JsonResponse:
     def __init__(self, payload: dict[str, Any], status_code: int = 200):
         self.payload = payload; self.status_code = status_code; self.headers = {}
@@ -2162,6 +2238,8 @@ def test_work_ids_are_deterministic_and_workflows_have_required_guards() -> None
     assert not (ROOT / ".github/workflows/paper-extraction-eval.yml").exists()
     owner = (ROOT / ".github/workflows/paper-owner-gate.yml").read_text(encoding="utf-8")
     discovery = (ROOT / ".github/workflows/discover-papers.yml").read_text(encoding="utf-8")
+    issue_triage = (ROOT / ".github/workflows/triage-paper-issues.yml").read_text(encoding="utf-8")
+    paper_form = (ROOT / ".github/ISSUE_TEMPLATE/review-paper.yml").read_text(encoding="utf-8")
     workflows = "\n".join(
         path.read_text(encoding="utf-8")
         for path in (ROOT / ".github/workflows").glob("*.yml")
@@ -2186,6 +2264,12 @@ def test_work_ids_are_deterministic_and_workflows_have_required_guards() -> None
     assert "--slurp \\\n              --jq" not in owner
     assert "ready-for-local-intake" in discovery
     assert "local-intake-in-progress" in discovery
+    assert "types: [opened, edited, reopened]" in issue_triage
+    assert "--add-label paper-candidate" in issue_triage
+    assert "ready-for-local-intake" not in issue_triage
+    assert "local-intake-in-progress" not in issue_triage
+    assert "labels: [paper-candidate]" in paper_form
+    assert "labels: [paper-intake, paper-candidate]" not in paper_form
     assert "OPENAI" + "_API_KEY" not in workflows
     assert "create-github-app-token" not in workflows
     assert "OPENAI" + "_API_KEY" not in production_scripts

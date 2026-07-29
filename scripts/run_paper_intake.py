@@ -7,6 +7,7 @@ import argparse
 import json
 import os
 import re
+import time
 from pathlib import Path
 from urllib.parse import urlsplit, urlunsplit
 
@@ -18,6 +19,9 @@ from paper_source import RetrievedSource, retrieve_source
 from paper_models import accepted_claims
 from registry_io import load_entities, load_taxonomies
 from triage_paper import build_intake, normalize_url, parse_issue_form
+
+
+GITHUB_API_ATTEMPTS = 3
 
 
 def _is_checked(value: str) -> bool:
@@ -96,6 +100,35 @@ def registry_context() -> dict[str, object]:
     }
 
 
+def _github_json_request(
+    url: str,
+    *,
+    headers: dict[str, str],
+    timeout: float = 30,
+) -> dict[str, object]:
+    last_error: requests.RequestException | None = None
+    for attempt in range(GITHUB_API_ATTEMPTS):
+        try:
+            response = requests.get(url, headers=headers, timeout=timeout)
+            response.raise_for_status()
+            return response.json()
+        except requests.RequestException as error:
+            response = getattr(error, "response", None)
+            status = getattr(response, "status_code", None)
+            retryable = (
+                response is None
+                or status == 429
+                or (isinstance(status, int) and status >= 500)
+            )
+            if not retryable:
+                raise
+            last_error = error
+            if attempt + 1 < GITHUB_API_ATTEMPTS:
+                time.sleep(2**attempt)
+    assert last_error is not None
+    raise last_error
+
+
 def resolve_repository_pins(result: object) -> dict[str, dict[str, str]]:
     pins: dict[str, dict[str, str]] = {}
     headers = {"Accept": "application/vnd.github+json", "User-Agent": "BioBench-Atlas/1.4"}
@@ -112,17 +145,15 @@ def resolve_repository_pins(result: object) -> dict[str, dict[str, str]]:
             continue
         owner, repository = match.groups()
         repository = repository.removesuffix(".git")
-        repo_response = requests.get(
+        repository_payload = _github_json_request(
             f"https://api.github.com/repos/{owner}/{repository}", headers=headers, timeout=30,
         )
-        repo_response.raise_for_status()
-        default_branch = repo_response.json()["default_branch"]
-        commit_response = requests.get(
+        default_branch = str(repository_payload["default_branch"])
+        commit_payload = _github_json_request(
             f"https://api.github.com/repos/{owner}/{repository}/commits/{default_branch}",
             headers=headers, timeout=30,
         )
-        commit_response.raise_for_status()
-        commit = commit_response.json()["sha"]
+        commit = str(commit_payload["sha"])
         pins[url] = {
             "kind": "commit", "value": commit,
             "url": f"https://github.com/{owner}/{repository}/commit/{commit}",

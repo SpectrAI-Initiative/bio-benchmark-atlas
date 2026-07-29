@@ -214,7 +214,7 @@ def test_model_facing_schemas_require_every_declared_property() -> None:
 def test_verifier_prompt_treats_creator_and_evaluation_relations_as_compatible() -> None:
     from extract_paper import EXTRACTOR_PROMPT, PROMPT_VERSION, VERIFIER_PROMPT
 
-    assert PROMPT_VERSION == "paper-evidence-local-v8"
+    assert PROMPT_VERSION == "paper-evidence-local-v9"
     assert "Normalize arXiv identifiers to the base numeric ID" in EXTRACTOR_PROMPT
     assert "the suffix belongs to the paper version" in VERIFIER_PROMPT
     assert "Benchmark-creation and evaluation are compatible" in VERIFIER_PROMPT
@@ -224,6 +224,11 @@ def test_verifier_prompt_treats_creator_and_evaluation_relations_as_compatible()
     assert "complete leading label" in EXTRACTOR_PROMPT
     assert "keep benchmark-metadata count-, version-, protocol-, and" in EXTRACTOR_PROMPT
     assert "Do not duplicate those creator-only claims" in EXTRACTOR_PROMPT
+    assert "explicitly accepts\nkind=dataset" in EXTRACTOR_PROMPT
+    assert "registry_benchmark_id must be null" in EXTRACTOR_PROMPT
+    assert "no Registry ID or alias can exist yet" in VERIFIER_PROMPT
+    assert "permits kind=dataset" in VERIFIER_PROMPT
+    assert "Do not promote a source-" in VERIFIER_PROMPT
     assert "explicitly inspect the abstract, introduction" in EXTRACTOR_PROMPT
     assert "not permission to sum" in EXTRACTOR_PROMPT
     assert "must not be copied into benchmark-metadata" in VERIFIER_PROMPT

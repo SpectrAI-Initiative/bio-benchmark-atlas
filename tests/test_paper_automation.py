@@ -85,7 +85,7 @@ from paper_source import (  # noqa: E402
     retrieve_source,
 )
 from registry_io import load_entities  # noqa: E402
-from run_paper_intake import _focus_pdf_pages  # noqa: E402
+from run_paper_intake import _focus_pdf_pages, _github_json_request  # noqa: E402
 from validate_registry import validate_registry  # noqa: E402
 from build_registry import main as build_registry  # noqa: E402
 
@@ -2622,6 +2622,34 @@ def test_source_download_retries_transient_connection_errors(
         assert source.page_count == 1
     finally:
         source.path.unlink(missing_ok=True)
+
+
+def test_github_repository_pin_request_retries_transient_tls_errors(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls = 0
+
+    class ApiResponse:
+        def raise_for_status(self) -> None:
+            return None
+
+        def json(self) -> dict[str, str]:
+            return {"default_branch": "main"}
+
+    def transient_get(*args: Any, **kwargs: Any) -> ApiResponse:
+        nonlocal calls
+        calls += 1
+        if calls < 3:
+            raise requests.exceptions.SSLError("transient GitHub API TLS EOF")
+        return ApiResponse()
+
+    monkeypatch.setattr("run_paper_intake.requests.get", transient_get)
+    monkeypatch.setattr("run_paper_intake.time.sleep", lambda _: None)
+    assert _github_json_request(
+        "https://api.github.com/repos/example/benchmark",
+        headers={"Accept": "application/vnd.github+json"},
+    ) == {"default_branch": "main"}
+    assert calls == 3
 
 
 def test_work_ids_are_deterministic_and_workflows_have_required_guards() -> None:

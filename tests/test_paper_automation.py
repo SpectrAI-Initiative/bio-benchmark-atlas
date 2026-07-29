@@ -485,6 +485,66 @@ def test_new_benchmark_without_creator_repository_pin_stops_production() -> None
     )
     assert records.benchmarks == []
     assert any("lacks verified claims" in reason for reason in records.blocked_reasons)
+    diagnostic = next(reason for reason in records.blocked_reasons if "claim gate:" in reason)
+    assert "benchmark-count[absent]" in diagnostic
+    assert "benchmark-metadata[absent]" in diagnostic
+    assert "creator-source[absent]" in diagnostic
+    assert "official-repository[absent]" in diagnostic
+    assert "Synthetic benchmark" not in diagnostic
+
+
+def test_new_benchmark_claim_gate_diagnostic_contains_status_not_values() -> None:
+    claims = [
+        claim(
+            "claim-1",
+            "paper-identity",
+            {"title": "Synthetic benchmark evaluation paper"},
+            mention_id=None,
+        ),
+        claim("claim-2", "relation", "benchmark-creation"),
+        claim("claim-3", "benchmark-identity", "PrivateValueBench"),
+        claim("claim-4", "benchmark-metadata", {
+            "name": "PrivateValueBench",
+            "aliases": [],
+            "summary": "Sensitive synthesized summary that must not appear in diagnostics.",
+            "kind": "dataset",
+            "organizations": ["Example"],
+            "release_date": "2026-07-01",
+            "domains": ["single-cell"],
+            "capabilities": ["data-analysis"],
+            "modalities": ["raw-omics"],
+            "task_formats": ["analysis"],
+            "access": {
+                "level": "partially-open", "tasks": "Sensitive task description",
+                "artifacts": "Sensitive artifact description", "grader": "Not reported",
+                "license": None, "biosafety_notes": None,
+            },
+        }),
+    ]
+    mention = {
+        "mention_id": "mention-1", "benchmark_name": "PrivateValueBench",
+        "registry_benchmark_id": None, "relation_type": "benchmark-creation",
+        "is_new_benchmark": True, "background_only": False,
+        "claim_ids": [item["claim_id"] for item in claims if item["mention_id"]],
+        "reporting_gaps": [],
+    }
+    payload = verified_result(claims, mention)
+    for item in payload["verification"]["claims"]:
+        if item["claim_id"] == "claim-4":
+            item.update({"verdict": "not-verifiable", "confidence": "medium", "locator": None})
+    records = build_records(
+        payload,
+        source=SOURCE,
+        generated_at=SOURCE["retrieved_at"],
+        verified_on="2026-07-25",
+    )
+    diagnostic = next(reason for reason in records.blocked_reasons if "claim gate:" in reason)
+    assert (
+        "benchmark-metadata[extractor=high/verdict=not-verifiable/"
+        "verifier=medium/locator=unresolved]"
+    ) in diagnostic
+    assert "Sensitive" not in diagnostic
+    assert "PrivateValueBench" not in diagnostic
 
 
 def test_owner_conflict_resolution_requires_exact_owner_command() -> None:

@@ -22,7 +22,12 @@ from extract_paper import (
     PROMPT_VERSION,
     REVIEW_METHOD,
 )
-from paper_models import PaperEvidenceDraft, PaperEvidenceVerification, accepted_claims
+from paper_models import (
+    PaperEvidenceDraft,
+    PaperEvidenceVerification,
+    accepted_claims,
+    locator_is_resolved,
+)
 from registry_io import ROOT, load_entities, load_taxonomies
 from triage_paper import duplicate_work_candidates, normalize_arxiv, normalize_doi, normalize_url, title_fingerprint
 
@@ -519,9 +524,17 @@ def _build_new_benchmark(
             "reporting_status": payload.get("reporting_status", "reported"),
             "notes": None,
         })
+    root_total_conflicted = bool(
+        resolved_count_conflict and resolved_count_conflict.get("root_total_conflicted")
+    )
     task_counts = {
         "total": total,
-        "basis": str(total_payload.get("basis") or "Not reported by the source"),
+        "basis": (
+            "Whole-dataset unique-sample total explicitly reported by the source; "
+            "the detailed uniqueness basis remains conflicted."
+            if root_total_conflicted else
+            str(total_payload.get("basis") or "Not reported by the source")
+        ),
         "reporting_status": reporting_status,
         "subsets": subsets,
     }
@@ -545,7 +558,11 @@ def _build_new_benchmark(
             "id": f"{benchmark_id}-automated-count-evidence",
             "source_type": "work", "source_id": work_id, "accessed_date": verified_on,
             "locator": _source_locator(verdicts[total_claim.claim_id]),
-            "supports": ["/task_counts/total", "/task_counts/basis", "/task_counts/subsets", "/versions/0/task_counts"],
+            "supports": (
+                ["/task_counts/total", "/versions/0/task_counts"]
+                if root_total_conflicted else
+                ["/task_counts/total", "/task_counts/basis", "/task_counts/subsets", "/versions/0/task_counts"]
+            ),
         },
         {
             "id": f"{benchmark_id}-automated-resource-evidence",
@@ -570,19 +587,28 @@ def _build_new_benchmark(
     if resolved_count_conflict:
         conflict_claim = resolved_count_conflict["conflict_claim"]
         conflict_evidence_id = f"{benchmark_id}-automated-count-conflict-evidence"
+        conflict_path = (
+            "/task_counts/basis"
+            if resolved_count_conflict.get("root_total_conflicted") else
+            "/task_counts/subsets"
+        )
         evidence.append({
             "id": conflict_evidence_id,
             "source_type": "work",
             "source_id": work_id,
             "accessed_date": verified_on,
             "locator": _source_locator(verdicts[conflict_claim.claim_id]),
-            "supports": ["/task_counts/subsets"],
+            "supports": [conflict_path],
         })
         field_status.append({
-            "path": "/task_counts/subsets",
+            "path": conflict_path,
             "status": "conflicted",
             "confidence": "high",
             "reason": (
+                "The owner approved the explicit root-total value after the extractor reported "
+                "it and the verifier independently located it at high confidence; the detailed "
+                "uniqueness basis remains conflicted and all subcounts are excluded from publication."
+                if resolved_count_conflict.get("root_total_conflicted") else
                 "The verifier reported a count/inventory-only blocking conflict without "
                 "binding it to a claim-level conflicted verdict; the owner approved the "
                 "independently supported root total and excluded every other count."
@@ -726,11 +752,14 @@ def _apply_owner_count_conflict_resolution(
     accepted: list[Any],
     resolution: dict[str, Any] | None,
 ) -> tuple[list[Any], dict[str, Any] | None]:
-    """Preserve one supported root total and optionally downgrade its creator evaluation.
+    """Preserve one explicit root total and optionally downgrade its creator evaluation.
 
     The owner command is an omission policy, never evidence. Creation identity and
     version conflicts remain blocking. The optional creator-evaluation policy drops
-    all settings and outcomes, leaving only a verified partial relationship.
+    all settings and outcomes, leaving only a verified partial relationship. A root
+    count whose numeric value is explicit in both passes may be retained when only
+    its detailed count basis is conflicted, but only with a resolved verifier locator,
+    high confidence in both passes, and a machine-readable caveat on the basis field.
     """
 
     if not verification.blocking_conflicts:
@@ -829,22 +858,68 @@ def _apply_owner_count_conflict_resolution(
             "owner count resolution cannot override conflicted claim types: "
             + ", ".join(disallowed)
         )
+    verdicts = {item.claim_id: item for item in verification.claims}
+
+    unsafe_unanchored_terms = (
+        "benchmark identity",
+        "creation identity",
+        "paper identity",
+        "repository identity",
+        "model identity",
+        "paper title",
+        " doi ",
+        " arxiv ",
+        "license conflict",
+    )
+    padded_conflicts = [f" {message.casefold()} " for message in verification.blocking_conflicts]
+    if any(
+        term in message
+        for message in padded_conflicts
+        for term in unsafe_unanchored_terms
+    ):
+        raise GenerationBlocked(
+            "owner count resolution cannot override an unanchored identity or license conflict: "
+            + "; ".join(verification.blocking_conflicts)
+        )
+
+    def is_expected_root_total(claim: Any) -> bool:
+        payload = _claim_value(claim)
+        return (
+            claim.mention_id == mention_id
+            and claim.claim_type == "benchmark-count"
+            and isinstance(payload, dict)
+            and payload.get("subset_id") is None
+            and payload.get("count") == expected_total
+            and payload.get("reporting_status") == "reported"
+        )
+
     root_totals = [
         claim
         for claim in accepted
-        if claim.mention_id == mention_id
-        and claim.claim_type == "benchmark-count"
-        and isinstance(_claim_value(claim), dict)
-        and _claim_value(claim).get("subset_id") is None
-        and _claim_value(claim).get("count") == expected_total
-        and _claim_value(claim).get("reporting_status") == "reported"
+        if is_expected_root_total(claim)
     ]
+    root_total_conflicted = False
     if not root_totals:
-        raise GenerationBlocked(
-            "owner-approved root total is not independently supported at high confidence"
-        )
-    verdicts = {item.claim_id: item for item in verification.claims}
-    conflict_claim = next(
+        conflicted_root_totals = []
+        for claim in conflicted:
+            verdict = verdicts.get(claim.claim_id)
+            if (
+                is_expected_root_total(claim)
+                and claim.confidence == "high"
+                and verdict is not None
+                and verdict.confidence == "high"
+                and locator_is_resolved(verdict.locator)
+            ):
+                conflicted_root_totals.append(claim)
+        if len(conflicted_root_totals) != 1:
+            raise GenerationBlocked(
+                "owner-approved root total is not independently supported at high confidence"
+            )
+        root_totals = conflicted_root_totals
+        accepted = [*accepted, conflicted_root_totals[0]]
+        root_total_conflicted = True
+
+    conflict_claim = root_totals[0] if root_total_conflicted else next(
         (
             claim for claim in conflicted
             if claim.mention_id == mention_id and claim.claim_type == "benchmark-count"
@@ -904,6 +979,7 @@ def _apply_owner_count_conflict_resolution(
         "approved_by": resolution.get("approved_by"),
         "approved_at": resolution.get("approved_at"),
         "unanchored_count_conflict": unanchored_count_conflict,
+        "root_total_conflicted": root_total_conflicted,
         "creator_evaluation_mentions": sorted(creator_evaluation_mentions)
         if exclude_creator_evaluation else [],
     }

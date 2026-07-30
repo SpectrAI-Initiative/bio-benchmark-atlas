@@ -228,7 +228,7 @@ def test_model_facing_schemas_require_every_declared_property() -> None:
 def test_verifier_prompt_treats_creator_and_evaluation_relations_as_compatible() -> None:
     from extract_paper import EXTRACTOR_PROMPT, PROMPT_VERSION, VERIFIER_PROMPT
 
-    assert PROMPT_VERSION == "paper-evidence-local-v13"
+    assert PROMPT_VERSION == "paper-evidence-local-v14"
     assert "Normalize arXiv identifiers to the base numeric ID" in EXTRACTOR_PROMPT
     assert "the suffix belongs to the paper version" in VERIFIER_PROMPT
     assert "Benchmark-creation and evaluation are compatible" in VERIFIER_PROMPT
@@ -243,6 +243,9 @@ def test_verifier_prompt_treats_creator_and_evaluation_relations_as_compatible()
     assert "explicitly accepts\nkind=dataset" in EXTRACTOR_PROMPT
     assert "registry_benchmark_id must be null" in EXTRACTOR_PROMPT
     assert "no Registry ID or alias can exist yet" in VERIFIER_PROMPT
+    assert '"count_role": "root-total"|"formal-subset"|"auxiliary"' in EXTRACTOR_PROMPT
+    assert "Independently verify count_role" in VERIFIER_PROMPT
+    assert "Different measurements of the same subset" in VERIFIER_PROMPT
     assert "official-repository or official-resource" in EXTRACTOR_PROMPT
     assert "versioned dataset artifact" in VERIFIER_PROMPT
     assert "permits kind=dataset" in VERIFIER_PROMPT
@@ -462,6 +465,11 @@ def test_new_benchmark_requires_creator_repo_pin_and_builds_same_pr_entities() -
     assert records.benchmarks[0]["resources"][1]["pin"]["value"] == "b" * 40
     assert records.classifications["syntheticbiobench"]["entries"][0]["task_type_id"] == "protein-fitness-prediction"
     assert records.uses[0]["relation_type"] == "benchmark-creation"
+    subset_status = next(
+        item for item in records.benchmarks[0]["field_status"]
+        if item["path"] == "/task_counts/subsets"
+    )
+    assert subset_status["status"] == "provisional"
 
     conservative_claims = [
         item for item in claims
@@ -490,6 +498,190 @@ def test_new_benchmark_requires_creator_repo_pin_and_builds_same_pr_entities() -
             if path != changelog:
                 path.unlink(missing_ok=True)
         changelog.write_text(original_changelog, encoding="utf-8")
+
+
+def test_new_benchmark_count_roles_filter_auxiliary_and_enforce_subset_semantics() -> None:
+    metadata = {
+        "name": "CountRoleBench", "aliases": [],
+        "summary": "A synthetic benchmark used to validate root, subset, and auxiliary counts.",
+        "kind": "dataset", "organizations": ["Example Institute"],
+        "release_date": "2026-07-01", "domains": ["genomics"],
+        "capabilities": ["prediction"], "modalities": ["dna-rna-sequence"],
+        "task_formats": ["regression"],
+        "access": {
+            "level": "fully-open", "tasks": "All examples are public.",
+            "artifacts": "Examples and labels are released.",
+            "grader": "Deterministic scorer", "license": "CC BY 4.0",
+            "biosafety_notes": None,
+        },
+    }
+    claims = [
+        claim("claim-1", "paper-identity", {"title": "Synthetic benchmark evaluation paper"}, mention_id=None),
+        claim("claim-2", "relation", "benchmark-creation"),
+        claim("claim-3", "benchmark-identity", "CountRoleBench"),
+        claim("claim-4", "benchmark-metadata", metadata),
+        claim("claim-5", "benchmark-count", {
+            "label": "complete released examples", "count": 10, "unit": "examples",
+            "basis": "Complete released inventory", "reporting_status": "reported",
+            "count_role": "root-total", "subset_id": None, "exclusive": False,
+            "exhaustive": False, "partition_group": None,
+        }),
+        claim("claim-6", "benchmark-count", {
+            "label": "public examples", "count": 4, "unit": "examples",
+            "basis": "Source-defined public subset", "reporting_status": "reported",
+            "count_role": "formal-subset", "subset_id": "public", "exclusive": True,
+            "exhaustive": False, "partition_group": "access",
+        }),
+        claim("claim-7", "benchmark-count", {
+            "label": "target genes", "count": 4, "unit": "genes",
+            "basis": "Auxiliary target annotation", "reporting_status": "reported",
+            "count_role": "auxiliary", "subset_id": None, "exclusive": False,
+            "exhaustive": False, "partition_group": None,
+        }),
+        claim("claim-8", "creator-source", {"url": "https://doi.org/10.9999/count-role.1"}),
+        claim("claim-9", "official-repository", {
+            "url": "https://github.com/example/countrolebench", "license": "CC BY 4.0",
+        }),
+    ]
+    mention = {
+        "mention_id": "mention-1", "benchmark_name": "CountRoleBench",
+        "registry_benchmark_id": None, "relation_type": "benchmark-creation",
+        "is_new_benchmark": True, "background_only": False,
+        "claim_ids": [item["claim_id"] for item in claims if item["mention_id"]],
+        "reporting_gaps": [],
+    }
+    source = {**SOURCE, "repository_pins": {
+        "https://github.com/example/countrolebench": {
+            "kind": "commit", "value": "e" * 40,
+            "url": "https://github.com/example/countrolebench/commit/" + "e" * 40,
+        }
+    }}
+
+    records = build_records(
+        verified_result(claims, mention), source=source,
+        generated_at=SOURCE["retrieved_at"], verified_on="2026-07-30",
+    )
+    benchmark = records.benchmarks[0]
+    assert benchmark["task_counts"]["total"] == 10
+    assert [item["id"] for item in benchmark["task_counts"]["subsets"]] == ["public"]
+    assert all(item["count"] != 4 or item["id"] == "public" for item in benchmark["task_counts"]["subsets"])
+    subset_evidence = next(
+        item for item in benchmark["evidence"]
+        if item["id"].endswith("automated-subset-1-evidence")
+    )
+    assert subset_evidence["supports"] == [
+        "/task_counts/subsets/0", "/versions/0/task_counts/subsets/0",
+    ]
+    assert subset_evidence["id"] in benchmark["versions"][0]["evidence_ids"]
+
+    duplicate = json.loads(json.dumps(claims))
+    duplicate.append(claim("claim-10", "benchmark-count", {
+        "label": "public examples repeated", "count": 4, "unit": "examples",
+        "basis": "Duplicate measurement", "reporting_status": "reported",
+        "count_role": "formal-subset", "subset_id": "public", "exclusive": True,
+        "exhaustive": False, "partition_group": "access",
+    }))
+    duplicate_records = build_records(
+        verified_result(duplicate, mention), source=source,
+        generated_at=SOURCE["retrieved_at"], verified_on="2026-07-30",
+    )
+    assert "duplicate formal subset ID" in "; ".join(duplicate_records.blocked_reasons)
+
+    second_root = json.loads(json.dumps(claims))
+    second_root.append(claim("claim-10", "benchmark-count", {
+        "label": "another claimed total", "count": 4, "unit": "genes",
+        "basis": "Wrong entity total", "reporting_status": "reported",
+        "count_role": "root-total", "subset_id": None, "exclusive": False,
+        "exhaustive": False, "partition_group": None,
+    }))
+    second_root_records = build_records(
+        verified_result(second_root, mention), source=source,
+        generated_at=SOURCE["retrieved_at"], verified_on="2026-07-30",
+    )
+    assert "exactly one verified root-total" in "; ".join(second_root_records.blocked_reasons)
+
+    mixed_unit = json.loads(json.dumps(claims))
+    mixed_payload = json.loads(mixed_unit[5]["value_json"])
+    mixed_payload["unit"] = "genes"
+    mixed_unit[5]["value_json"] = json.dumps(mixed_payload)
+    mixed_unit_records = build_records(
+        verified_result(mixed_unit, mention), source=source,
+        generated_at=SOURCE["retrieved_at"], verified_on="2026-07-30",
+    )
+    assert "formal subset count unit differs" in "; ".join(mixed_unit_records.blocked_reasons)
+
+
+def test_new_benchmark_rejects_uncontrolled_scientific_task_count_unit() -> None:
+    from extract_paper import _validate_draft_structure
+
+    claims = [
+        claim("claim-1", "paper-identity", {"title": "Synthetic benchmark evaluation paper"}, mention_id=None),
+        claim("claim-2", "relation", "benchmark-creation"),
+        claim("claim-3", "benchmark-identity", "CountUnitBench"),
+        claim("claim-4", "benchmark-count", {
+            "label": "complete examples", "count": 10, "unit": "examples",
+            "basis": "Complete inventory", "reporting_status": "reported",
+            "count_role": "root-total", "subset_id": None, "exclusive": False,
+            "exhaustive": False, "partition_group": None,
+        }),
+        claim("claim-5", "scientific-task", {
+            "task_type_id": "crispr-guide-activity-prediction",
+            "coverage": "explicitly-in-scope", "mapping_method": "artifact-derived",
+            "count": None, "count_unit": "genes", "count_basis": "Target genes",
+            "reporting_status": "not_reported", "notes": None,
+        }),
+    ]
+    mention = {
+        "mention_id": "mention-1", "benchmark_name": "CountUnitBench",
+        "registry_benchmark_id": None, "relation_type": "benchmark-creation",
+        "is_new_benchmark": True, "background_only": False,
+        "claim_ids": [item["claim_id"] for item in claims if item["mention_id"]],
+        "reporting_gaps": [],
+    }
+    with pytest.raises(PaperExtractionError, match="count_unit must use the controlled"):
+        _validate_draft_structure(PaperEvidenceDraft.model_validate(draft_payload(claims, mention)))
+
+
+def test_extractor_requires_explicit_consistent_benchmark_count_roles() -> None:
+    from extract_paper import _validate_draft_structure
+
+    claims = [
+        claim("claim-1", "paper-identity", {"title": "Synthetic benchmark evaluation paper"}, mention_id=None),
+        claim("claim-2", "relation", "benchmark-creation"),
+        claim("claim-3", "benchmark-identity", "CountRoleBench"),
+        claim("claim-4", "benchmark-count", {
+            "label": "complete examples", "count": 10, "unit": "examples",
+            "basis": "Complete inventory", "reporting_status": "reported",
+            "count_role": "root-total", "subset_id": None, "exclusive": False,
+            "exhaustive": False, "partition_group": None,
+        }),
+    ]
+    mention = {
+        "mention_id": "mention-1", "benchmark_name": "CountRoleBench",
+        "registry_benchmark_id": None, "relation_type": "benchmark-creation",
+        "is_new_benchmark": True, "background_only": False,
+        "claim_ids": [item["claim_id"] for item in claims if item["mention_id"]],
+        "reporting_gaps": [],
+    }
+    _validate_draft_structure(PaperEvidenceDraft.model_validate(draft_payload(claims, mention)))
+
+    missing_role = json.loads(json.dumps(claims))
+    payload = json.loads(missing_role[3]["value_json"])
+    payload.pop("count_role")
+    missing_role[3]["value_json"] = json.dumps(payload)
+    with pytest.raises(PaperExtractionError, match="must declare root-total"):
+        _validate_draft_structure(
+            PaperEvidenceDraft.model_validate(draft_payload(missing_role, mention))
+        )
+
+    inconsistent_subset = json.loads(json.dumps(claims))
+    payload = json.loads(inconsistent_subset[3]["value_json"])
+    payload.update({"count_role": "formal-subset", "subset_id": None})
+    inconsistent_subset[3]["value_json"] = json.dumps(payload)
+    with pytest.raises(PaperExtractionError, match="requires subset_id"):
+        _validate_draft_structure(
+            PaperEvidenceDraft.model_validate(draft_payload(inconsistent_subset, mention))
+        )
 
 
 def test_new_benchmark_accepts_versioned_official_dataset_and_maps_alias_use() -> None:
@@ -575,7 +767,11 @@ def test_new_benchmark_accepts_versioned_official_dataset_and_maps_alias_use() -
     assert benchmark["implementations"] == []
     assert benchmark["access"]["level"] == "partially-open"
     assert benchmark["access"]["license"] is None
-    assert benchmark["field_status"][0]["path"] == "/access/license"
+    license_status = next(
+        item for item in benchmark["field_status"]
+        if item["path"] == "/access/license"
+    )
+    assert license_status["status"] == "provisional"
     assert [item["relation_type"] for item in records.uses] == [
         "benchmark-creation", "evaluation",
     ]

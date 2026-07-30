@@ -31,7 +31,7 @@ from paper_source import MAX_PDF_PAGES
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL_TMP_ROOT = ROOT / ".paper-intake-tmp"
 PIPELINE_VERSION = "1.4.0"
-PROMPT_VERSION = "paper-evidence-local-v13"
+PROMPT_VERSION = "paper-evidence-local-v14"
 SOURCE_INPUT_PROTOCOL_VERSION = "multimodal-focused-long-pdf-v3"
 DEFAULT_MODEL = "gpt-5.6-sol"
 REVIEW_METHOD = "local-codex-double-pass"
@@ -44,6 +44,11 @@ HEARTBEAT_INTERVAL_SECONDS = 60
 HEARTBEAT_PATH = Path.home() / ".codex" / "biobench-atlas" / "heartbeat.json"
 MAX_PDF_IMAGE_PAGES = 40
 PDF_IMAGE_DPI = 144
+BENCHMARK_COUNT_ROLES = {"root-total", "formal-subset", "auxiliary"}
+SCIENTIFIC_TASK_COUNT_UNITS = {
+    "tasks", "questions", "examples", "assays", "targets", "systems",
+    "problems", "records", "episodes", "tracks", "other",
+}
 VISUAL_PAGE_PATTERN = re.compile(
     r"\b(?:figure|fig\.?|table|chart|heatmap)\s*(?:[A-Z]\.?)?\d+\b",
     re.IGNORECASE,
@@ -71,6 +76,7 @@ Use these exact JSON payload contracts in value_json:
 - relation: one RelationType string; benchmark-identity and benchmark-version: string
 - benchmark-count: {"label": string, "count": integer|null, "unit": string,
   "basis": string, "reporting_status": "reported"|"not_reported",
+  "count_role": "root-total"|"formal-subset"|"auxiliary",
   "subset_id": string|null, "exclusive": bool, "exhaustive": bool,
   "partition_group": string|null}
 - benchmark-metadata: emit one atomic claim per field. Its field_path must be one
@@ -108,7 +114,9 @@ Use these exact JSON payload contracts in value_json:
 - scientific-task: {"task_type_id": Registry Scientific Task ID,
   "coverage": "explicitly-in-scope"|"observed", "mapping_method":
   "official-taxonomy"|"official-track"|"artifact-derived", "count": integer|null,
-  "count_unit": controlled count unit, "count_basis": string,
+  "count_unit": one of "tasks"|"questions"|"examples"|"assays"|"targets"|
+  "systems"|"problems"|"records"|"episodes"|"tracks"|"other",
+  "count_basis": string,
   "reporting_status": "reported"|"not_reported", "notes": string|null}
 - metric: {"source_label": string, "unit": string|null, "range": [number,number]|null,
   "higher_is_better": bool, "aggregation": string|null, "pass_threshold": number|null,
@@ -159,7 +167,17 @@ Before extracting subcounts, explicitly inspect the abstract, introduction, and
 benchmark or dataset overview for an overall benchmark or evaluation size. When
 the source states that the benchmark comprises or contains N problems, tasks,
 questions, examples, evaluations, or equivalent items, emit a dedicated
-benchmark-count claim labeled as the overall total. Do not let detailed table
+benchmark-count claim labeled as the overall total with count_role=root-total.
+Use root-total only for the complete inventory of the exact named benchmark or
+dataset in its primary item unit. A count of genes, categories, algorithms,
+platforms, cell lines, replicates, runs, or another attribute is auxiliary unless
+that exact entity is itself the complete named benchmark inventory. Use
+formal-subset only for a source-defined subset measured in the same item unit as
+the root total, and give each formal subset one unique, stable subset_id. If the
+same named subset has several measurements or count units, keep only its primary
+same-unit item count as formal-subset and mark the other measurements auxiliary.
+Auxiliary claims may preserve useful evidence but are never task-count subsets.
+Do not let detailed table
 rows, platform counts, task-category counts, or other subcounts cause an explicit
 overall total to be omitted. This is a source-review rule, not permission to sum
 subcounts or infer an unprinted total.
@@ -276,6 +294,14 @@ For benchmark-count claims, independently verify both the numeric value and the
 full meaning preserved in the label. For a table intersection, the supported
 label must retain the relevant row and column semantics; do not support a generic
 label that loses a discriminating domain, capability, subset, or partition term.
+Independently verify count_role as well as the number. Support root-total only
+when the source explicitly identifies the count as the complete inventory of the
+exact named benchmark or dataset in its primary item unit. Counts of genes,
+categories, algorithms, platforms, cell lines, replicates, runs, or secondary
+attributes are auxiliary unless that entity is itself the complete named
+benchmark inventory. Support formal-subset only for a source-defined subset in
+the same item unit as the root total and with a unique stable subset identity.
+Different measurements of the same subset are not separate formal subsets.
 
 For new benchmark metadata, verify each atomic benchmark-metadata field claim
 independently from every other metadata field and from dedicated count, version,
@@ -946,6 +972,28 @@ def _validate_draft_structure(draft: PaperEvidenceDraft) -> None:
     for claim in draft.claims:
         if claim.mention_id is not None:
             claims_by_mention.setdefault(claim.mention_id, []).append(claim)
+        if claim.claim_type == "benchmark-count":
+            payload = json.loads(claim.value_json)
+            if not isinstance(payload, dict):
+                raise PaperExtractionError("benchmark-count value must be an object")
+            count_role = payload.get("count_role")
+            if count_role not in BENCHMARK_COUNT_ROLES:
+                raise PaperExtractionError(
+                    "benchmark-count must declare root-total, formal-subset, or auxiliary"
+                )
+            subset_id = payload.get("subset_id")
+            if count_role == "root-total" and subset_id is not None:
+                raise PaperExtractionError("root-total benchmark-count cannot have subset_id")
+            if count_role == "formal-subset" and not isinstance(subset_id, str):
+                raise PaperExtractionError("formal-subset benchmark-count requires subset_id")
+        elif claim.claim_type == "scientific-task":
+            payload = json.loads(claim.value_json)
+            if not isinstance(payload, dict):
+                raise PaperExtractionError("scientific-task value must be an object")
+            if payload.get("count_unit") not in SCIENTIFIC_TASK_COUNT_UNITS:
+                raise PaperExtractionError(
+                    "scientific-task count_unit must use the controlled Registry enum"
+                )
     for mention in draft.benchmark_mentions:
         owned_claims = claims_by_mention.get(mention.mention_id, [])
         owned_ids = {claim.claim_id for claim in owned_claims}

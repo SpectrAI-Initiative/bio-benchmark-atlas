@@ -2789,6 +2789,23 @@ def test_biomystery_golden_focus_excludes_related_work_without_answer_values() -
     assert not any(value in focus.split() for value in ("99", "76", "23"))
 
 
+def test_spatialbench_golden_focus_prioritizes_overall_counts_without_answer_values() -> None:
+    from paper_extraction_eval import SOURCES
+
+    sources = {
+        item.name: item
+        for item in SOURCES
+        if item.name in {"spatialbench-paper-v2", "spatialbench-repository"}
+    }
+    assert set(sources) == {"spatialbench-paper-v2", "spatialbench-repository"}
+    for source in sources.values():
+        assert source.review_focus is not None
+        focus = " ".join(source.review_focus.values())
+        assert "overall" in focus
+        assert "separately" in focus
+        assert not any(value in focus.split() for value in ("146", "159"))
+
+
 def test_golden_total_count_does_not_depend_on_model_generated_label_wording() -> None:
     payloads = [(
         "benchmark-count",

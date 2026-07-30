@@ -122,6 +122,12 @@ def _benchmark_count_role(payload: dict[str, Any]) -> str:
     return "root-total" if payload.get("subset_id") is None else "formal-subset"
 
 
+def _normalize_count_basis(value: str) -> str:
+    """Match the Registry validator's conservative basis comparison."""
+
+    return " ".join(value.strip().lower().rstrip(".").split())
+
+
 def _source_locator(verification_item: Any) -> dict[str, Any]:
     locator = verification_item.locator
     assert locator is not None
@@ -938,6 +944,15 @@ def _build_new_benchmark(
             raise GenerationBlocked(
                 f"{benchmark_id}: Scientific Task count unit is not controlled"
             )
+        task_count_basis = str(payload.get("count_basis") or "Benchmark items")
+        count_ref = (
+            "/task_counts/total"
+            if count is not None
+            and count == total
+            and _normalize_count_basis(task_count_basis)
+            == _normalize_count_basis(task_counts["basis"])
+            else None
+        )
         classification_entries.append({
             "task_type_id": task_id,
             "coverage": payload.get("coverage", "explicitly-in-scope"),
@@ -945,8 +960,8 @@ def _build_new_benchmark(
             "confidence": "high",
             "count": count,
             "count_unit": count_unit,
-            "count_basis": str(payload.get("count_basis") or "Benchmark items"),
-            "count_ref": "/task_counts/total" if count is not None and count == total else None,
+            "count_basis": task_count_basis,
+            "count_ref": count_ref,
             "reporting_status": task_reporting,
             "evidence_ids": [entry_evidence_id],
             "notes": payload.get("notes"),

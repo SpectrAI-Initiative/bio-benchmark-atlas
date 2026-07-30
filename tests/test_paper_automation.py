@@ -228,7 +228,7 @@ def test_model_facing_schemas_require_every_declared_property() -> None:
 def test_verifier_prompt_treats_creator_and_evaluation_relations_as_compatible() -> None:
     from extract_paper import EXTRACTOR_PROMPT, PROMPT_VERSION, VERIFIER_PROMPT
 
-    assert PROMPT_VERSION == "paper-evidence-local-v12"
+    assert PROMPT_VERSION == "paper-evidence-local-v13"
     assert "Normalize arXiv identifiers to the base numeric ID" in EXTRACTOR_PROMPT
     assert "the suffix belongs to the paper version" in VERIFIER_PROMPT
     assert "Benchmark-creation and evaluation are compatible" in VERIFIER_PROMPT
@@ -253,6 +253,9 @@ def test_verifier_prompt_treats_creator_and_evaluation_relations_as_compatible()
     assert "printed author-affiliation mapping" in EXTRACTOR_PROMPT
     assert "paper's printed author-affiliation" in VERIFIER_PROMPT
     assert "funders, acknowledgements" in EXTRACTOR_PROMPT
+    assert "can only become a partial BenchmarkUse" in EXTRACTOR_PROMPT
+    assert "requires a partial BenchmarkUse" in VERIFIER_PROMPT
+    assert "does not support a metric or result claim" in EXTRACTOR_PROMPT
 
 
 def test_generator_downgrades_incomplete_evaluation_to_partial_use() -> None:

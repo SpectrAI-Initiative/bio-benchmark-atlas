@@ -31,7 +31,7 @@ from paper_source import MAX_PDF_PAGES
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL_TMP_ROOT = ROOT / ".paper-intake-tmp"
 PIPELINE_VERSION = "1.4.0"
-PROMPT_VERSION = "paper-evidence-local-v12"
+PROMPT_VERSION = "paper-evidence-local-v13"
 SOURCE_INPUT_PROTOCOL_VERSION = "multimodal-focused-long-pdf-v3"
 DEFAULT_MODEL = "gpt-5.6-sol"
 REVIEW_METHOD = "local-codex-double-pass"
@@ -138,6 +138,14 @@ axis needed to identify that number, such as both the domain row and capability
 column. Never replace a printed label such as design/optimization with a generic
 phrase such as matching tasks.
 
+An official source statement that one named model improves on, outperforms, or is
+compared with another named model "on" a supplied Registry benchmark is explicit
+evidence of an evaluation relation, even when the source omits the benchmark
+version, scope, realized n, metric, protocol, and numeric score. Preserve that use
+as an evaluation mention with reporting gaps; do not demote it to background merely
+because it can only become a partial BenchmarkUse. The comparison wording alone
+does not support a metric or result claim, and never permits a numeric estimate.
+
 A source may append a provider qualifier to a supplied Registry benchmark name or
 alias, for example `SpatialBench Verified` or `ProteinGym Hard`. Keep the complete
 printed label in benchmark_name and benchmark-identity so its meaning is auditable.
@@ -227,6 +235,13 @@ showing systems assessed on that benchmark supports evaluation. Re-locate that
 source evidence independently. Do not reject a relation merely because the source
 uses ordinary scientific prose instead of the Registry enum spelling, and do not
 infer a relation from Issue hints alone.
+
+When an official source explicitly states that one named model improves on,
+outperforms, or is compared with another named model "on" a supplied Registry
+benchmark, support the evaluation relation if that exact comparative statement is
+independently located. Missing version, scope, n, metric, protocol, or numeric score
+does not turn the relation into background; it requires a partial BenchmarkUse.
+Do not treat the comparative wording itself as a metric or numeric result claim.
 
 Benchmark-creation and evaluation are compatible, distinct relations when a
 creator paper both introduces its benchmark and reports systems assessed on it.

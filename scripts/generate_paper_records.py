@@ -17,10 +17,12 @@ from urllib.parse import urlsplit
 import yaml
 
 from extract_paper import (
+    BENCHMARK_COUNT_ROLES,
     EXECUTION_SURFACE,
     PIPELINE_VERSION,
     PROMPT_VERSION,
     REVIEW_METHOD,
+    SCIENTIFIC_TASK_COUNT_UNITS,
 )
 from paper_models import (
     PaperEvidenceDraft,
@@ -109,6 +111,15 @@ def _not_reported(notes: str | None = None) -> dict[str, Any]:
 
 def _claim_value(claim: Any) -> Any:
     return json.loads(claim.value_json)
+
+
+def _benchmark_count_role(payload: dict[str, Any]) -> str:
+    """Return the v14 count role, with fixture compatibility for older drafts."""
+
+    role = payload.get("count_role")
+    if role in BENCHMARK_COUNT_ROLES:
+        return str(role)
+    return "root-total" if payload.get("subset_id") is None else "formal-subset"
 
 
 def _source_locator(verification_item: Any) -> dict[str, Any]:
@@ -696,24 +707,44 @@ def _build_new_benchmark(
     if len(str(metadata.get("summary") or "")) < 20:
         raise GenerationBlocked(f"{benchmark_id}: new benchmark summary is too short")
 
-    total_claim = next(
-        (claim for claim in by_type["benchmark-count"] if _claim_value(claim).get("subset_id") is None),
-        None,
-    )
-    if total_claim is None:
-        raise GenerationBlocked(f"{benchmark_id}: new benchmark has no verified total-count claim")
+    total_claims = [
+        claim for claim in by_type["benchmark-count"]
+        if _benchmark_count_role(_claim_value(claim)) == "root-total"
+    ]
+    if not total_claims:
+        raise GenerationBlocked(f"{benchmark_id}: new benchmark has no verified root-total claim")
+    if len(total_claims) != 1:
+        raise GenerationBlocked(
+            f"{benchmark_id}: new benchmark must have exactly one verified root-total claim"
+        )
+    total_claim = total_claims[0]
     total_payload = _claim_value(total_claim)
     total = total_payload.get("count")
     reporting_status = total_payload.get("reporting_status")
     if (total is None) != (reporting_status == "not_reported"):
         raise GenerationBlocked(f"{benchmark_id}: total count/reporting status is inconsistent")
+    root_unit = str(total_payload.get("unit") or "").strip().casefold()
+    if not root_unit:
+        raise GenerationBlocked(f"{benchmark_id}: root-total claim has no item unit")
     subsets = []
+    subset_evidence_claims = []
+    subset_ids: set[str] = set()
     for claim in by_type["benchmark-count"]:
         payload = _claim_value(claim)
-        if payload.get("subset_id") is None:
+        if _benchmark_count_role(payload) != "formal-subset":
             continue
+        subset_unit = str(payload.get("unit") or "").strip().casefold()
+        if subset_unit != root_unit:
+            raise GenerationBlocked(
+                f"{benchmark_id}: formal subset count unit differs from root-total unit"
+            )
+        subset_id = slugify(str(payload["subset_id"]))
+        if subset_id in subset_ids:
+            raise GenerationBlocked(f"{benchmark_id}: duplicate formal subset ID {subset_id}")
+        subset_ids.add(subset_id)
+        subset_evidence_claims.append(claim)
         subsets.append({
-            "id": slugify(str(payload["subset_id"])),
+            "id": subset_id,
             "label": str(payload.get("label") or payload["subset_id"]),
             "count": payload.get("count"),
             "basis": str(payload.get("basis") or "Not reported"),
@@ -773,11 +804,34 @@ def _build_new_benchmark(
             "source_type": "work", "source_id": work_id, "accessed_date": verified_on,
             "locator": _source_locator(verdicts[total_claim.claim_id]),
             "supports": (
-                ["/task_counts/total", "/versions/0/task_counts"]
+                ["/task_counts/total", "/versions/0/task_counts/total"]
                 if root_total_conflicted else
-                ["/task_counts/total", "/task_counts/basis", "/task_counts/subsets", "/versions/0/task_counts"]
+                [
+                    "/task_counts/total", "/task_counts/basis",
+                    "/versions/0/task_counts/total", "/versions/0/task_counts/basis",
+                ]
             ),
         },
+        *([{
+            "id": f"{benchmark_id}-automated-subset-coverage-evidence",
+            "source_type": "work", "source_id": work_id, "accessed_date": verified_on,
+            "locator": _source_locator(verdicts[total_claim.claim_id]),
+            "supports": [
+                "/task_counts/subsets", "/versions/0/task_counts/subsets",
+            ],
+        }] if not subset_evidence_claims and not resolved_count_conflict else []),
+        *[
+            {
+                "id": f"{benchmark_id}-automated-subset-{index + 1}-evidence",
+                "source_type": "work", "source_id": work_id, "accessed_date": verified_on,
+                "locator": _source_locator(verdicts[subset_claim.claim_id]),
+                "supports": [
+                    f"/task_counts/subsets/{index}",
+                    f"/versions/0/task_counts/subsets/{index}",
+                ],
+            }
+            for index, subset_claim in enumerate(subset_evidence_claims)
+        ],
         {
             "id": f"{benchmark_id}-automated-resource-evidence",
             "source_type": "work", "source_id": work_id, "accessed_date": verified_on,
@@ -803,6 +857,18 @@ def _build_new_benchmark(
         },
     ]
     field_status: list[dict[str, Any]] = []
+    if not subset_evidence_claims and not resolved_count_conflict:
+        field_status.append({
+            "path": "/task_counts/subsets",
+            "status": "provisional",
+            "confidence": "high",
+            "reason": (
+                "The double-pass review established the root item total but did not establish "
+                "an exhaustive formal-subset inventory; the empty list must not be interpreted "
+                "as evidence that the benchmark has no subsets."
+            ),
+            "evidence_ids": [f"{benchmark_id}-automated-subset-coverage-evidence"],
+        })
     if license_unverified:
         field_status.append({
             "path": "/access/license",
@@ -867,13 +933,18 @@ def _build_new_benchmark(
         task_reporting = payload.get("reporting_status")
         if (count is None) != (task_reporting == "not_reported"):
             raise GenerationBlocked(f"{benchmark_id}: Scientific Task count/reporting status is inconsistent")
+        count_unit = payload.get("count_unit")
+        if count_unit not in SCIENTIFIC_TASK_COUNT_UNITS:
+            raise GenerationBlocked(
+                f"{benchmark_id}: Scientific Task count unit is not controlled"
+            )
         classification_entries.append({
             "task_type_id": task_id,
             "coverage": payload.get("coverage", "explicitly-in-scope"),
             "mapping_method": payload.get("mapping_method", "official-taxonomy"),
             "confidence": "high",
             "count": count,
-            "count_unit": payload.get("count_unit", "tasks"),
+            "count_unit": count_unit,
             "count_basis": str(payload.get("count_basis") or "Benchmark items"),
             "count_ref": "/task_counts/total" if count is not None and count == total else None,
             "reporting_status": task_reporting,
@@ -938,7 +1009,14 @@ def _build_new_benchmark(
                 "report a formal benchmark version."
                 if version_claim is None else None
             ),
-            "evidence_ids": [f"{benchmark_id}-automated-count-evidence", f"{benchmark_id}-automated-version-evidence"],
+            "evidence_ids": [
+                f"{benchmark_id}-automated-count-evidence",
+                *[
+                    f"{benchmark_id}-automated-subset-{index + 1}-evidence"
+                    for index in range(len(subset_evidence_claims))
+                ],
+                f"{benchmark_id}-automated-version-evidence",
+            ],
         }],
         "audit": {
             "status": "audited-with-caveats" if field_status else "audited",

@@ -61,11 +61,35 @@ SOURCES = [
         "spatialbench-paper-v2",
         "https://arxiv.org/pdf/2512.21907v2.pdf",
         "spatialbench",
+        review_focus={
+            "benchmark_hints": (
+                "SpatialBench is the target benchmark. Review the creator definition and "
+                "the paper-v2 evaluation snapshot; treat unrelated benchmark mentions as "
+                "background."
+            ),
+            "focus_locators": (
+                "Abstract; benchmark overview in Section 2; Appendix A.1 Full Benchmark "
+                "Inventory, including Summary Statistics and Table 9; Experimental Design. "
+                "Verify the explicitly printed overall benchmark size separately from the "
+                "platform and task-category subcounts, without summing those subcounts."
+            ),
+        },
     ),
     GoldenSource(
         "spatialbench-repository",
         "https://raw.githubusercontent.com/latchbio/spatialbench/5042c4f3ee597da1590650c7b894d068ae968e26/README.md",
         "spatialbench",
+        review_focus={
+            "benchmark_hints": (
+                "SpatialBench is the target benchmark. Review the commit-pinned repository "
+                "snapshot and its current evaluation inventory."
+            ),
+            "focus_locators": (
+                "README benchmark overview and evaluation-count statement. Verify the "
+                "explicitly printed overall repository-snapshot size separately from any "
+                "category, platform, model, or result counts."
+            ),
+        },
     ),
     GoldenSource(
         "anthropic-bixbench",

@@ -819,7 +819,7 @@ def _structured_output_diagnostic(
         for item in error.errors(include_url=False, include_context=False, include_input=False)[:8]:
             location = ".".join(str(part) for part in item.get("loc", ())) or "<root>"
             error_type = str(item.get("type") or "validation_error")
-            claim_type = ""
+            claim_context = ""
             parts = item.get("loc", ())
             if (
                 raw_payload
@@ -831,8 +831,15 @@ def _structured_output_diagnostic(
                 if isinstance(claims, list) and parts[1] < len(claims):
                     raw_claim = claims[parts[1]]
                     if isinstance(raw_claim, dict) and isinstance(raw_claim.get("claim_type"), str):
-                        claim_type = f" (claim_type={raw_claim['claim_type']})"
-            summaries.append(f"{location}: {error_type}{claim_type}")
+                        field_path = raw_claim.get("field_path")
+                        path_note = (
+                            f", field_path={field_path}"
+                            if isinstance(field_path, str) else ""
+                        )
+                        claim_context = (
+                            f" (claim_type={raw_claim['claim_type']}{path_note})"
+                        )
+            summaries.append(f"{location}: {error_type}{claim_context}")
         return "schema validation failed at " + ", ".join(summaries)
     if isinstance(error, json.JSONDecodeError):
         return f"response was not JSON (line {error.lineno}, column {error.colno})"

@@ -1248,9 +1248,11 @@ def _downgrade_safe_existing_evaluation_conflicts(
     """Omit claim-anchored setting conflicts while preserving a partial use.
 
     This is deliberately narrower than owner conflict resolution. It applies only
-    to existing Registry benchmarks and only to evaluation settings or outcomes
-    whose claim-level verifier verdict is non-supporting. Identity, relation,
-    creator-resource, new-benchmark, and unanchored conflicts remain blocking.
+    to evaluation settings or outcomes whose claim-level verifier verdict is
+    non-supporting. The benchmark may already exist or may be created by another
+    verified mention in the same paper; later generation still enforces creator
+    evidence and Registry identity. Identity, relation, creator-resource, and
+    unanchored conflicts remain blocking.
     """
 
     if not verification.blocking_conflicts:
@@ -1301,8 +1303,6 @@ def _downgrade_safe_existing_evaluation_conflicts(
                     claim is None
                     or verdict is None
                     or mention is None
-                    or mention.is_new_benchmark
-                    or mention.registry_benchmark_id is None
                     or mention.relation_type != "evaluation"
                     or claim.claim_type not in SAFE_EXISTING_EVALUATION_CONFLICT_TYPES
                 ):

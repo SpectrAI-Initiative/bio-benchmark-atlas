@@ -923,17 +923,31 @@ def _build_new_benchmark(
                 "evidence_ids": [conflict_evidence_id],
             })
     classification_entries = []
+    omitted_artifact_task_mappings = 0
     for index, task_claim in enumerate(by_type.get("scientific-task", [])):
         payload = _claim_value(task_claim)
         task_id = payload.get("task_type_id")
         if task_id not in controlled["scientific_tasks"]:
             raise GenerationBlocked(f"{benchmark_id}: invalid Scientific Task ID {task_id}")
+        task_locator = _source_locator(verdicts[task_claim.claim_id])
+        mapping_method = payload.get("mapping_method", "official-taxonomy")
+        if (
+            mapping_method == "artifact-derived"
+            and task_locator.get("type") not in {"repository-path", "dataset-card", "table", "other"}
+        ):
+            # A paper section or figure can establish benchmark scope, but it cannot
+            # establish an artifact-derived Atlas task mapping. Omit the mapping
+            # instead of silently relabeling it as creator taxonomy or failing the
+            # otherwise independently supported benchmark record.
+            omitted_artifact_task_mappings += 1
+            continue
+        entry_index = len(classification_entries)
         entry_evidence_id = f"{benchmark_id}-automated-task-{index + 1}-evidence"
         evidence.append({
             "id": entry_evidence_id,
             "source_type": "work", "source_id": work_id, "accessed_date": verified_on,
-            "locator": _source_locator(verdicts[task_claim.claim_id]),
-            "supports": [f"/scientific_task_classification/entries/{index}"],
+            "locator": task_locator,
+            "supports": [f"/scientific_task_classification/entries/{entry_index}"],
         })
         count = payload.get("count")
         task_reporting = payload.get("reporting_status")
@@ -956,7 +970,7 @@ def _build_new_benchmark(
         classification_entries.append({
             "task_type_id": task_id,
             "coverage": payload.get("coverage", "explicitly-in-scope"),
-            "mapping_method": payload.get("mapping_method", "official-taxonomy"),
+            "mapping_method": mapping_method,
             "confidence": "high",
             "count": count,
             "count_unit": count_unit,
@@ -1071,6 +1085,9 @@ def _build_new_benchmark(
         "notes": (
             "Only high-confidence Scientific Tasks explicitly supported by the creator source are mapped."
             if classification_entries else
+            "Candidate artifact-derived Scientific Task mappings lacked an official artifact-level locator and were omitted; "
+            "task mapping remains pending a targeted official-artifact audit."
+            if omitted_artifact_task_mappings else
             "No Scientific Task claim passed independent high-confidence verification; "
             "task mapping remains pending a targeted official-source audit."
         ),

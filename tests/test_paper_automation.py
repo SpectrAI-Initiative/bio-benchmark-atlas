@@ -516,6 +516,77 @@ def test_new_benchmark_requires_creator_repo_pin_and_builds_same_pr_entities() -
         changelog.write_text(original_changelog, encoding="utf-8")
 
 
+def test_new_benchmark_omits_artifact_task_mapping_without_artifact_locator() -> None:
+    metadata = {
+        "name": "SyntheticWorkflowBench", "aliases": [],
+        "summary": "A synthetic test-only benchmark for end-to-end scientific workflow evaluation.",
+        "kind": "agentic-eval", "organizations": ["Example Institute"],
+        "release_date": "2026-07-01", "domains": ["bioinformatics"],
+        "capabilities": ["data-analysis", "tool-use"], "modalities": ["raw-omics"],
+        "task_formats": ["agent episode"],
+        "access": {
+            "level": "partially-open", "tasks": "Representative examples are public.",
+            "artifacts": "The full benchmark is restricted.", "grader": "Deterministic scorer",
+            "license": None, "biosafety_notes": None,
+        },
+    }
+    claims = [
+        claim("claim-1", "paper-identity", {"title": "Synthetic benchmark evaluation paper"}, mention_id=None),
+        claim("claim-2", "relation", "benchmark-creation"),
+        claim("claim-3", "benchmark-identity", "SyntheticWorkflowBench"),
+        claim("claim-4", "benchmark-metadata", metadata),
+        claim("claim-5", "benchmark-version", "v1"),
+        claim("claim-6", "benchmark-count", {
+            "label": "total tasks", "count": 100, "unit": "tasks", "basis": "Complete inventory",
+            "reporting_status": "reported", "subset_id": None, "exclusive": False,
+            "exhaustive": False, "partition_group": None,
+        }),
+        claim("claim-7", "creator-source", {"url": "https://doi.org/10.9999/synthetic.1"}),
+        claim("claim-8", "official-repository", {
+            "url": "https://github.com/example/syntheticworkflowbench", "license": None,
+        }),
+        claim("claim-9", "scientific-task", {
+            "task_type_id": "end-to-end-computational-analysis",
+            "coverage": "explicitly-in-scope", "mapping_method": "artifact-derived",
+            "count": 100, "count_unit": "tasks", "count_basis": "Complete inventory",
+            "reporting_status": "reported", "notes": None,
+        }),
+    ]
+    claims[-1]["locators"] = [{
+        "locator_type": "section", "value": "Benchmark construction",
+        "document_page": 2, "printed_page": "2",
+        "excerpt": "The paper describes workflow evaluations.",
+    }]
+    mention = {
+        "mention_id": "mention-1", "benchmark_name": "SyntheticWorkflowBench",
+        "registry_benchmark_id": None, "relation_type": "benchmark-creation",
+        "is_new_benchmark": True, "background_only": False,
+        "claim_ids": [item["claim_id"] for item in claims if item["mention_id"]],
+        "reporting_gaps": [],
+    }
+    source = {**SOURCE, "repository_pins": {
+        "https://github.com/example/syntheticworkflowbench": {
+            "kind": "commit", "value": "c" * 40,
+            "url": "https://github.com/example/syntheticworkflowbench/commit/" + "c" * 40,
+        }
+    }}
+
+    records = build_records(
+        verified_result(claims, mention), source=source,
+        generated_at=SOURCE["retrieved_at"], verified_on="2026-07-30",
+    )
+
+    assert records.blocked_reasons == []
+    classification = records.classifications["syntheticworkflowbench"]
+    assert classification["status"] == "partial"
+    assert classification["entries"] == []
+    assert "artifact-level locator" in classification["notes"]
+    assert not any(
+        evidence["id"].startswith("syntheticworkflowbench-automated-task-")
+        for evidence in records.benchmarks[0]["evidence"]
+    )
+
+
 def test_new_benchmark_count_roles_filter_auxiliary_and_enforce_subset_semantics() -> None:
     metadata = {
         "name": "CountRoleBench", "aliases": [],

@@ -463,13 +463,29 @@ def test_new_benchmark_requires_creator_repo_pin_and_builds_same_pr_entities() -
     assert records.work["source_class"] == "benchmark_creator"
     assert [item["id"] for item in records.benchmarks] == ["syntheticbiobench"]
     assert records.benchmarks[0]["resources"][1]["pin"]["value"] == "b" * 40
-    assert records.classifications["syntheticbiobench"]["entries"][0]["task_type_id"] == "protein-fitness-prediction"
+    task_entry = records.classifications["syntheticbiobench"]["entries"][0]
+    assert task_entry["task_type_id"] == "protein-fitness-prediction"
+    assert task_entry["count_ref"] == "/task_counts/total"
     assert records.uses[0]["relation_type"] == "benchmark-creation"
     subset_status = next(
         item for item in records.benchmarks[0]["field_status"]
         if item["path"] == "/task_counts/subsets"
     )
     assert subset_status["status"] == "provisional"
+
+    different_basis_claims = json.loads(json.dumps(claims))
+    task_payload = json.loads(different_basis_claims[8]["value_json"])
+    task_payload["count_basis"] = "Protein landscape examples"
+    different_basis_claims[8]["value_json"] = json.dumps(task_payload)
+    different_basis_records = build_records(
+        verified_result(different_basis_claims, mention), source=source,
+        generated_at=SOURCE["retrieved_at"], verified_on="2026-07-22",
+    )
+    assert different_basis_records.blocked_reasons == []
+    assert (
+        different_basis_records.classifications["syntheticbiobench"]["entries"][0]["count_ref"]
+        is None
+    )
 
     conservative_claims = [
         item for item in claims

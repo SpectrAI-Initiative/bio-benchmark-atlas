@@ -495,7 +495,7 @@ def test_new_benchmark_accepts_versioned_official_dataset_and_maps_alias_use() -
         "capabilities": ["prediction"], "modalities": ["dna-rna-sequence"],
         "task_formats": ["regression"],
         "access": {
-            "level": "fully-open", "tasks": "All guide records are public.",
+            "tasks": "All guide records are public.",
             "artifacts": "Guide sequences and labels are released.",
             "grader": "Not reported", "license": None, "biosafety_notes": None,
         },
@@ -520,6 +520,8 @@ def test_new_benchmark_accepts_versioned_official_dataset_and_maps_alias_use() -
         claim("claim-9", "relation", "evaluation", mention_id="mention-2"),
         claim("claim-10", "benchmark-identity", "Synthetic guide benchmark", mention_id="mention-2"),
         claim("claim-11", "scope-type", "unknown", mention_id="mention-2"),
+        claim("claim-12", "relation", "evaluation", mention_id="mention-3"),
+        claim("claim-13", "benchmark-identity", "Unresolved guide collection", mention_id="mention-3"),
     ]
     creation = {
         "mention_id": "mention-1", "benchmark_name": "SyntheticGuideBench",
@@ -535,8 +537,15 @@ def test_new_benchmark_accepts_versioned_official_dataset_and_maps_alias_use() -
         "claim_ids": [item["claim_id"] for item in claims if item["mention_id"] == "mention-2"],
         "reporting_gaps": ["benchmark version", "realized n", "model", "metric"],
     }
+    unresolved_evaluation = {
+        "mention_id": "mention-3", "benchmark_name": "Unresolved guide collection",
+        "registry_benchmark_id": None, "relation_type": "evaluation",
+        "is_new_benchmark": True, "background_only": False,
+        "claim_ids": [item["claim_id"] for item in claims if item["mention_id"] == "mention-3"],
+        "reporting_gaps": ["benchmark identity"],
+    }
     payload = verified_result(claims, creation)
-    payload["draft"]["benchmark_mentions"] = [creation, evaluation]
+    payload["draft"]["benchmark_mentions"] = [creation, evaluation, unresolved_evaluation]
     source = {**SOURCE, "resource_pins": {
         "https://doi.org/10.5281/zenodo.1234567": {
             "resource_type": "dataset", "kind": "version", "value": "1.0.0",
@@ -550,7 +559,7 @@ def test_new_benchmark_accepts_versioned_official_dataset_and_maps_alias_use() -
         verified_on="2026-07-30",
     )
     assert records.blocked_reasons == []
-    assert records.omitted_unresolved_mentions == []
+    assert records.omitted_unresolved_mentions == ["Unresolved guide collection"]
     benchmark = records.benchmarks[0]
     assert benchmark["resources"][1]["type"] == "dataset"
     assert benchmark["resources"][1]["pin"] == {
@@ -558,6 +567,7 @@ def test_new_benchmark_accepts_versioned_official_dataset_and_maps_alias_use() -
         "url": "https://zenodo.org/records/1234567",
     }
     assert benchmark["implementations"] == []
+    assert benchmark["access"]["level"] == "partially-open"
     assert benchmark["access"]["license"] is None
     assert benchmark["field_status"][0]["path"] == "/access/license"
     assert [item["relation_type"] for item in records.uses] == [
@@ -804,6 +814,36 @@ def test_atomic_metadata_uses_canonical_bibliographic_date_and_unclassified_form
     assert metadata["task_formats"] == ["unclassified"]
     assert bibliographic_supports == ["/release_date"]
     assert "/release_date" not in {
+        support
+        for _claim, supports in evidence_claims
+        for support in supports
+    }
+
+
+def test_atomic_dataset_metadata_can_use_conservative_resolved_access_floor() -> None:
+    values = {
+        "/name": "DatasetAccessBench",
+        "/summary": "A synthetic benchmark with a publicly resolved official dataset artifact.",
+        "/kind": "dataset",
+        "/organizations": ["Example Institute"],
+        "/release_date": "2026-07-30",
+        "/domains": ["genomics"],
+        "/capabilities": ["prediction"],
+        "/modalities": ["dna-rna-sequence"],
+    }
+    claims = [
+        EvidenceClaimDraft.model_validate(claim(
+            f"claim-{index}", "benchmark-metadata", value,
+            field_path=f"/benchmark-metadata{path}",
+        ))
+        for index, (path, value) in enumerate(values.items(), 1)
+    ]
+    metadata, evidence_claims, _ = _materialize_benchmark_metadata(
+        claims,
+        default_access_level="partially-open",
+    )
+    assert metadata["access"]["level"] == "partially-open"
+    assert "/access/level" not in {
         support
         for _claim, supports in evidence_claims
         for support in supports

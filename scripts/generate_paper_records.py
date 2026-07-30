@@ -525,6 +525,7 @@ def _materialize_benchmark_metadata(
     claims: list[Any],
     *,
     bibliographic_metadata: dict[str, Any] | None = None,
+    default_access_level: str | None = None,
 ) -> tuple[dict[str, Any], list[tuple[Any, list[str]]], list[str]]:
     """Build metadata from atomic field claims, with legacy bundle compatibility."""
 
@@ -538,6 +539,8 @@ def _materialize_benchmark_metadata(
         metadata = _claim_value(legacy_claim)
         if not isinstance(metadata, dict):
             raise GenerationBlocked("new benchmark metadata bundle is not an object")
+        if default_access_level and not (metadata.get("access") or {}).get("level"):
+            metadata.setdefault("access", {})["level"] = default_access_level
         return metadata, [(
             legacy_claim,
             [
@@ -584,6 +587,9 @@ def _materialize_benchmark_metadata(
                 bibliographic_supports.append("/release_date")
         except ValueError:
             pass
+    if "/access/level" not in values_by_path and default_access_level:
+        metadata["access"]["level"] = default_access_level
+        values_by_path["/access/level"] = default_access_level
 
     missing = sorted(_REQUIRED_ATOMIC_METADATA_PATHS - set(values_by_path))
     if missing:
@@ -626,15 +632,6 @@ def _build_new_benchmark(
         raise GenerationBlocked(
             f"{benchmark_id}: new benchmark lacks verified claims: {', '.join(missing)}"
         )
-    metadata, metadata_evidence_claims, bibliographic_supports = _materialize_benchmark_metadata(
-        by_type["benchmark-metadata"],
-        bibliographic_metadata=source.get("bibliographic_metadata"),
-    )
-    version_claim = next(iter(by_type.get("benchmark-version", [])), None)
-    version_label = (
-        str(_claim_value(version_claim)) if version_claim is not None else "initial-release"
-    )
-    creator = _claim_value(by_type["creator-source"][0])
     resource_claim = resource_claims[0]
     resource = _claim_value(resource_claim)
     resource_type = (
@@ -643,6 +640,32 @@ def _build_new_benchmark(
     )
     if resource_type not in {"repository", "dataset"}:
         raise GenerationBlocked(f"{benchmark_id}: official resource type is unsupported")
+    metadata_claims = by_type["benchmark-metadata"]
+    atomic_access_claimed = any(
+        claim.field_path == f"{_ATOMIC_METADATA_PREFIX}/access/level"
+        for claim in metadata_claims
+    )
+    legacy_access_claimed = False
+    if not any(
+        claim.field_path.startswith(f"{_ATOMIC_METADATA_PREFIX}/")
+        for claim in metadata_claims
+    ):
+        legacy_payload = _claim_value(metadata_claims[0])
+        legacy_access_claimed = bool(
+            isinstance(legacy_payload, dict)
+            and (legacy_payload.get("access") or {}).get("level")
+        )
+    access_level_defaulted = not (atomic_access_claimed or legacy_access_claimed)
+    metadata, metadata_evidence_claims, bibliographic_supports = _materialize_benchmark_metadata(
+        metadata_claims,
+        bibliographic_metadata=source.get("bibliographic_metadata"),
+        default_access_level="partially-open" if resource_type == "dataset" else None,
+    )
+    version_claim = next(iter(by_type.get("benchmark-version", [])), None)
+    version_label = (
+        str(_claim_value(version_claim)) if version_claim is not None else "initial-release"
+    )
+    creator = _claim_value(by_type["creator-source"][0])
     access = metadata.get("access") or {}
     license_from_resource = (
         access.get("license") is None and resource.get("license") is not None
@@ -762,6 +785,7 @@ def _build_new_benchmark(
             "supports": [
                 "/resources",
                 *(["/implementations"] if resource_type == "repository" else []),
+                *(["/access/level"] if access_level_defaulted else []),
                 *(["/access/license"] if license_from_resource or license_unverified else []),
             ],
         },
@@ -1606,7 +1630,12 @@ def build_records(
             if not mention.is_new_benchmark:
                 output.omitted_unresolved_mentions.append(mention.benchmark_name)
                 continue
-            output.blocked_reasons.append(f"{mention.benchmark_name}: Registry benchmark identity is unresolved")
+            if mention.relation_type != "benchmark-creation":
+                output.omitted_unresolved_mentions.append(mention.benchmark_name)
+                continue
+            output.blocked_reasons.append(
+                f"{mention.benchmark_name}: Registry benchmark identity is unresolved"
+            )
             continue
         identity_claim = next((item for item in claims if item.claim_type == "benchmark-identity"), None)
         identity_value = _claim_value(identity_claim) if identity_claim else None

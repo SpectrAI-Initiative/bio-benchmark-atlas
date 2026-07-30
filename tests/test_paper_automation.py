@@ -2370,9 +2370,42 @@ def test_claim_value_json_normalizes_safe_json_like_output() -> None:
     })
     assert json.loads(structured.value_json) == {"label": "total", "count": 146}
 
+    metadata_scalar = EvidenceClaimDraft.model_validate({
+        "claim_id": "claim-3",
+        "mention_id": "mention-1",
+        "claim_type": "benchmark-metadata",
+        "field_path": "/benchmark-metadata/organizations",
+        "value_json": "['Example Institute']",
+        "confidence": "high",
+        "locators": [locator()],
+    })
+    assert json.loads(metadata_scalar.value_json) == ["Example Institute"]
+
+    metadata_string = EvidenceClaimDraft.model_validate({
+        "claim_id": "claim-4",
+        "mention_id": "mention-1",
+        "claim_type": "benchmark-metadata",
+        "field_path": "/benchmark-metadata/name",
+        "value_json": "Example benchmark",
+        "confidence": "high",
+        "locators": [locator()],
+    })
+    assert json.loads(metadata_string.value_json) == "Example benchmark"
+
     with pytest.raises(ValidationError):
         EvidenceClaimDraft.model_validate({
-            "claim_id": "claim-3",
+            "claim_id": "claim-5",
+            "mention_id": "mention-1",
+            "claim_type": "benchmark-metadata",
+            "field_path": "/benchmark-metadata/organizations",
+            "value_json": "Example Institute, Example University",
+            "confidence": "high",
+            "locators": [locator()],
+        })
+
+    with pytest.raises(ValidationError):
+        EvidenceClaimDraft.model_validate({
+            "claim_id": "claim-6",
             "mention_id": "mention-1",
             "claim_type": "result",
             "field_path": "/results/0",

@@ -16,6 +16,19 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validat
 
 
 Confidence = Literal["high", "medium", "low"]
+
+_ATOMIC_BENCHMARK_METADATA_STRING_PATHS = {
+    "/benchmark-metadata/name",
+    "/benchmark-metadata/summary",
+    "/benchmark-metadata/kind",
+    "/benchmark-metadata/release_date",
+    "/benchmark-metadata/access/level",
+    "/benchmark-metadata/access/tasks",
+    "/benchmark-metadata/access/artifacts",
+    "/benchmark-metadata/access/grader",
+    "/benchmark-metadata/access/license",
+    "/benchmark-metadata/access/biosafety_notes",
+}
 RelationType = Literal[
     "benchmark-creation",
     "evaluation",
@@ -133,7 +146,13 @@ class EvidenceClaimDraft(StrictModel):
                     "prompt",
                     "reasoning",
                 }
-                if info.data.get("claim_type") in string_claims and value.strip():
+                atomic_metadata_string = (
+                    info.data.get("claim_type") == "benchmark-metadata"
+                    and info.data.get("field_path") in _ATOMIC_BENCHMARK_METADATA_STRING_PATHS
+                )
+                if (
+                    info.data.get("claim_type") in string_claims or atomic_metadata_string
+                ) and value.strip():
                     parsed = value.strip()
                 else:
                     raise ValueError("value_json must contain valid JSON") from None

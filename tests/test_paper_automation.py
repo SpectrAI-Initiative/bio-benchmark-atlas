@@ -657,6 +657,7 @@ def test_new_benchmark_count_roles_filter_auxiliary_and_enforce_subset_semantics
         if item["id"].endswith("automated-subset-1-evidence")
     )
     assert subset_evidence["supports"] == [
+        "/task_counts/subsets", "/versions/0/task_counts/subsets",
         "/task_counts/subsets/0", "/versions/0/task_counts/subsets/0",
     ]
     assert subset_evidence["id"] in benchmark["versions"][0]["evidence_ids"]

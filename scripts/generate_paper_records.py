@@ -832,6 +832,7 @@ def _build_new_benchmark(
                 "source_type": "work", "source_id": work_id, "accessed_date": verified_on,
                 "locator": _source_locator(verdicts[subset_claim.claim_id]),
                 "supports": [
+                    *(["/task_counts/subsets", "/versions/0/task_counts/subsets"] if index == 0 else []),
                     f"/task_counts/subsets/{index}",
                     f"/versions/0/task_counts/subsets/{index}",
                 ],

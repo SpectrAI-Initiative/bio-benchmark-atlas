@@ -479,6 +479,91 @@ def test_new_benchmark_requires_creator_repo_pin_and_builds_same_pr_entities() -
         changelog.write_text(original_changelog, encoding="utf-8")
 
 
+def test_new_benchmark_evaluation_scope_count_conflict_downgrades_to_partial_use() -> None:
+    metadata = {
+        "name": "SyntheticGuideBench", "aliases": [],
+        "summary": "A synthetic test-only guide-library benchmark.",
+        "kind": "dataset", "organizations": ["Example Institute"],
+        "release_date": "2026-07-01", "domains": ["genomics"],
+        "capabilities": ["prediction"], "modalities": ["dna-rna-sequence"],
+        "task_formats": ["regression"],
+        "access": {
+            "level": "fully-open", "tasks": "The library is public.",
+            "artifacts": "Guide sequences and labels are released.",
+            "grader": "Not reported", "license": "CC BY 4.0",
+            "biosafety_notes": None,
+        },
+    }
+    creation_claims = [
+        claim("claim-1", "paper-identity", {"title": "Synthetic benchmark evaluation paper"}, mention_id=None),
+        claim("claim-2", "relation", "benchmark-creation"),
+        claim("claim-3", "benchmark-identity", "SyntheticGuideBench"),
+        claim("claim-4", "benchmark-metadata", metadata),
+        claim("claim-5", "benchmark-version", "v1"),
+        claim("claim-6", "benchmark-count", {
+            "label": "released guides", "count": 100, "unit": "records",
+            "basis": "Released guide records", "reporting_status": "reported",
+            "subset_id": None, "exclusive": False, "exhaustive": False,
+            "partition_group": None,
+        }),
+        claim("claim-7", "creator-source", {"url": "https://doi.org/10.9999/synthetic.1"}),
+        claim("claim-8", "official-repository", {
+            "url": "https://github.com/example/syntheticguidebench",
+            "license": "CC BY 4.0",
+        }),
+    ]
+    evaluation_claims = [
+        claim("claim-9", "relation", "evaluation", mention_id="mention-2"),
+        claim("claim-10", "benchmark-identity", "SyntheticGuideBench", mention_id="mention-2"),
+        # The extractor mistakes the number of cell lines for the realized
+        # benchmark size; the verifier must remove it without weakening the
+        # independently verified creator record.
+        claim("claim-11", "scope-n", 4, mention_id="mention-2"),
+    ]
+    creation_mention = {
+        "mention_id": "mention-1", "benchmark_name": "SyntheticGuideBench",
+        "registry_benchmark_id": None, "relation_type": "benchmark-creation",
+        "is_new_benchmark": True, "background_only": False,
+        "claim_ids": [item["claim_id"] for item in creation_claims if item["mention_id"]],
+        "reporting_gaps": [],
+    }
+    evaluation_mention = {
+        "mention_id": "mention-2", "benchmark_name": "SyntheticGuideBench",
+        "registry_benchmark_id": None, "relation_type": "evaluation",
+        "is_new_benchmark": True, "background_only": False,
+        "claim_ids": [item["claim_id"] for item in evaluation_claims],
+        "reporting_gaps": [],
+    }
+    claims = [*creation_claims, *evaluation_claims]
+    payload = verified_result(claims, creation_mention)
+    payload["draft"]["benchmark_mentions"] = [creation_mention, evaluation_mention]
+    payload["verification"]["blocking_conflicts"] = [
+        "claim-11: The printed value 4 counts cell lines, not the realized benchmark scope n."
+    ]
+    for item in payload["verification"]["claims"]:
+        if item["claim_id"] == "claim-11":
+            item.update({"verdict": "conflicted", "confidence": "high"})
+    source = {**SOURCE, "repository_pins": {
+        "https://github.com/example/syntheticguidebench": {
+            "kind": "commit", "value": "d" * 40,
+            "url": "https://github.com/example/syntheticguidebench/commit/" + "d" * 40,
+        }
+    }}
+
+    records = build_records(
+        payload, source=source,
+        generated_at=SOURCE["retrieved_at"], verified_on="2026-07-30",
+    )
+
+    assert records.blocked_reasons == []
+    assert [benchmark["id"] for benchmark in records.benchmarks] == ["syntheticguidebench"]
+    evaluation_use = next(use for use in records.uses if use["relation_type"] == "evaluation")
+    assert evaluation_use["status"] == "partial"
+    assert evaluation_use["scope"]["n"] is None
+    assert evaluation_use["evaluation_run_ids"] == []
+    assert any("Conflicted scope-n claim omitted" in gap for gap in evaluation_use["reporting_gaps"])
+
+
 def test_new_benchmark_atomic_metadata_keeps_independently_supported_fields() -> None:
     atomic_values = {
         "/name": "AtomicBioBench",

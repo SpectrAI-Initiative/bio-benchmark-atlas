@@ -31,7 +31,7 @@ from paper_source import MAX_PDF_PAGES
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL_TMP_ROOT = ROOT / ".paper-intake-tmp"
 PIPELINE_VERSION = "1.4.0"
-PROMPT_VERSION = "paper-evidence-local-v10"
+PROMPT_VERSION = "paper-evidence-local-v11"
 SOURCE_INPUT_PROTOCOL_VERSION = "multimodal-focused-long-pdf-v3"
 DEFAULT_MODEL = "gpt-5.6-sol"
 REVIEW_METHOD = "local-codex-double-pass"
@@ -97,8 +97,14 @@ Use these exact JSON payload contracts in value_json:
   external_tools; individual values may be booleans, strings, arrays, or null
 - budget: {"token": value|null, "time": value|null}
 - grader: {"type": string|null, "model": string|null, "human_review": bool|null}
-- creator-source: {"url": string}; official-repository: {"url": Git repository URL,
-  "license": string|null}. Do not invent a commit; deterministic code pins the URL.
+- creator-source: {"url": string}. For a new benchmark, emit exactly one official
+  resource claim: official-repository for a Git repository, with {"url": Git
+  repository URL, "license": string|null}; or official-resource for a versioned
+  official dataset/artifact, with {"url": stable dataset or release URL,
+  "resource_type": "dataset", "license": string|null, "version": string|null}.
+  The paper itself must identify the resource as its released data/artifact; an
+  Issue hint alone is not evidence. Do not invent a commit, release, version, DOI,
+  or checksum; deterministic code resolves and pins the accepted URL.
 - scientific-task: {"task_type_id": Registry Scientific Task ID,
   "coverage": "explicitly-in-scope"|"observed", "mapping_method":
   "official-taxonomy"|"official-track"|"artifact-derived", "count": integer|null,
@@ -157,7 +163,8 @@ intervals, repeats, or harness settings; emit those only as their dedicated clai
 types. Give every atomic metadata field its own independently locatable claim;
 do not make the whole benchmark metadata medium or low because one field is
 uncertain. In a creator paper that also evaluates the same benchmark, attach benchmark-metadata,
-creator-source, official-repository, benchmark-count, and scientific-task claims
+creator-source, exactly one of official-repository or official-resource,
+benchmark-count, and scientific-task claims
 only to the benchmark-creation mention. Do not duplicate those creator-only claims
 under the evaluation mention.
 
@@ -171,7 +178,7 @@ For a new record, registry_benchmark_id must be null because no Registry ID exis
 yet. That null is expected and is not unresolved identity. A source-labeled
 sub-dataset remains a subset/count claim of the root unless the source independently
 defines it as a reusable, versioned benchmark with its own creator metadata and
-official repository.
+an official repository or versioned dataset artifact.
 
 Each BenchmarkMentionDraft represents one scientific relation and, for
 evaluations, one materially uniform evaluation setting. Do not create separate
@@ -239,7 +246,10 @@ dataset with an explicitly reported benchmark/baseline evaluation may support
 benchmark-metadata with kind=dataset even when the source ordinarily says
 "dataset". Verify its metadata from the paper itself. Do not promote a source-
 labeled sub-dataset into a second root record unless the source independently
-provides creator metadata and an official repository for that separate record.
+provides creator metadata and an official repository or versioned dataset artifact
+for that separate record. For official-resource, independently verify that the
+paper identifies the URL/DOI as released benchmark data; do not support it from
+the extractor's statement or an Issue hint alone.
 
 For benchmark-count claims, independently verify both the numeric value and the
 full meaning preserved in the label. For a table intersection, the supported

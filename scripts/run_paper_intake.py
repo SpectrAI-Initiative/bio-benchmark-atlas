@@ -100,7 +100,7 @@ def registry_context() -> dict[str, object]:
     }
 
 
-def _github_json_request(
+def _json_request(
     url: str,
     *,
     headers: dict[str, str],
@@ -129,36 +129,93 @@ def _github_json_request(
     raise last_error
 
 
-def resolve_repository_pins(result: object) -> dict[str, dict[str, str]]:
+def _github_json_request(
+    url: str,
+    *,
+    headers: dict[str, str],
+    timeout: float = 30,
+) -> dict[str, object]:
+    """Backward-compatible wrapper retained for the existing retry contract."""
+
+    return _json_request(url, headers=headers, timeout=timeout)
+
+
+def _zenodo_record_id(url: str) -> str | None:
+    for pattern in (
+        r"^https://zenodo\.org/records/(\d+)$",
+        r"^https://doi\.org/10\.5281/zenodo\.(\d+)$",
+    ):
+        match = re.fullmatch(pattern, url, flags=re.IGNORECASE)
+        if match:
+            return match.group(1)
+    return None
+
+
+def resolve_resource_pins(result: object) -> dict[str, dict[str, str]]:
     pins: dict[str, dict[str, str]] = {}
     headers = {"Accept": "application/vnd.github+json", "User-Agent": "BioBench-Atlas/1.4"}
     token = os.environ.get("GITHUB_TOKEN")
     if token:
         headers["Authorization"] = f"Bearer {token}"
     for claim in accepted_claims(result.draft, result.verification):
-        if claim.claim_type != "official-repository":
+        if claim.claim_type not in {"official-repository", "official-resource"}:
             continue
         payload = json.loads(claim.value_json)
         url = normalize_url(payload.get("url"))
-        match = re.fullmatch(r"https://github\.com/([^/]+)/([^/]+)", url or "")
-        if not match:
+        if not url:
             continue
-        owner, repository = match.groups()
-        repository = repository.removesuffix(".git")
-        repository_payload = _github_json_request(
-            f"https://api.github.com/repos/{owner}/{repository}", headers=headers, timeout=30,
+        match = re.fullmatch(r"https://github\.com/([^/]+)/([^/]+)", url or "")
+        if match:
+            owner, repository = match.groups()
+            repository = repository.removesuffix(".git")
+            repository_payload = _json_request(
+                f"https://api.github.com/repos/{owner}/{repository}", headers=headers, timeout=30,
+            )
+            default_branch = str(repository_payload["default_branch"])
+            commit_payload = _json_request(
+                f"https://api.github.com/repos/{owner}/{repository}/commits/{default_branch}",
+                headers=headers, timeout=30,
+            )
+            commit = str(commit_payload["sha"])
+            pins[url] = {
+                "resource_type": "repository",
+                "kind": "commit", "value": commit,
+                "url": f"https://github.com/{owner}/{repository}/commit/{commit}",
+                "resolved_url": f"https://github.com/{owner}/{repository}",
+                "license": payload.get("license"),
+            }
+            continue
+        zenodo_id = _zenodo_record_id(url)
+        if zenodo_id is None or payload.get("resource_type") != "dataset":
+            continue
+        record = _json_request(
+            f"https://zenodo.org/api/records/{zenodo_id}",
+            headers={"Accept": "application/json", "User-Agent": "BioBench-Atlas/1.4"},
+            timeout=30,
         )
-        default_branch = str(repository_payload["default_branch"])
-        commit_payload = _github_json_request(
-            f"https://api.github.com/repos/{owner}/{repository}/commits/{default_branch}",
-            headers=headers, timeout=30,
-        )
-        commit = str(commit_payload["sha"])
+        metadata = record.get("metadata") or {}
+        links = record.get("links") or {}
+        resolved_id = str(record.get("id") or "")
+        version = str(metadata.get("version") or record.get("doi") or "").strip()
+        resolved_url = str(links.get("self_html") or f"https://zenodo.org/records/{resolved_id}")
+        license_payload = metadata.get("license") or {}
+        license_id = license_payload.get("id") if isinstance(license_payload, dict) else None
+        if not resolved_id or not version:
+            continue
         pins[url] = {
-            "kind": "commit", "value": commit,
-            "url": f"https://github.com/{owner}/{repository}/commit/{commit}",
+            "resource_type": "dataset",
+            "kind": "version", "value": version,
+            "url": resolved_url,
+            "resolved_url": resolved_url,
+            "license": payload.get("license") or license_id,
         }
     return pins
+
+
+def resolve_repository_pins(result: object) -> dict[str, dict[str, str]]:
+    """Backward-compatible alias for callers predating dataset-backed intake."""
+
+    return resolve_resource_pins(result)
 
 
 def process_issue(
@@ -232,7 +289,7 @@ def process_issue(
                 "content_type": source.content_type,
                 "retrieved_at": source.retrieved_at,
                 "bibliographic_metadata": triage["bibliographic_metadata"],
-                "repository_pins": resolve_repository_pins(result),
+                "resource_pins": resolve_resource_pins(result),
             },
             generated_at=source.retrieved_at,
             verified_on=source.retrieved_at[:10],

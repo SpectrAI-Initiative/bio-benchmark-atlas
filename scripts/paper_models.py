@@ -55,6 +55,7 @@ ClaimType = Literal[
     "result",
     "creator-source",
     "official-repository",
+    "official-resource",
     "scientific-task",
 ]
 

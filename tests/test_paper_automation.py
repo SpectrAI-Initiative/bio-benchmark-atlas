@@ -8,6 +8,7 @@ import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
@@ -85,7 +86,11 @@ from paper_source import (  # noqa: E402
     retrieve_source,
 )
 from registry_io import load_entities  # noqa: E402
-from run_paper_intake import _focus_pdf_pages, _github_json_request  # noqa: E402
+from run_paper_intake import (  # noqa: E402
+    _focus_pdf_pages,
+    _github_json_request,
+    resolve_resource_pins,
+)
 from triage_paper import resolve_crossref  # noqa: E402
 from validate_registry import validate_registry  # noqa: E402
 from build_registry import main as build_registry  # noqa: E402
@@ -223,7 +228,7 @@ def test_model_facing_schemas_require_every_declared_property() -> None:
 def test_verifier_prompt_treats_creator_and_evaluation_relations_as_compatible() -> None:
     from extract_paper import EXTRACTOR_PROMPT, PROMPT_VERSION, VERIFIER_PROMPT
 
-    assert PROMPT_VERSION == "paper-evidence-local-v10"
+    assert PROMPT_VERSION == "paper-evidence-local-v11"
     assert "Normalize arXiv identifiers to the base numeric ID" in EXTRACTOR_PROMPT
     assert "the suffix belongs to the paper version" in VERIFIER_PROMPT
     assert "Benchmark-creation and evaluation are compatible" in VERIFIER_PROMPT
@@ -238,6 +243,8 @@ def test_verifier_prompt_treats_creator_and_evaluation_relations_as_compatible()
     assert "explicitly accepts\nkind=dataset" in EXTRACTOR_PROMPT
     assert "registry_benchmark_id must be null" in EXTRACTOR_PROMPT
     assert "no Registry ID or alias can exist yet" in VERIFIER_PROMPT
+    assert "official-repository or official-resource" in EXTRACTOR_PROMPT
+    assert "versioned dataset artifact" in VERIFIER_PROMPT
     assert "permits kind=dataset" in VERIFIER_PROMPT
     assert "Do not promote a source-" in VERIFIER_PROMPT
     assert "explicitly inspect the abstract, introduction" in EXTRACTOR_PROMPT
@@ -477,6 +484,86 @@ def test_new_benchmark_requires_creator_repo_pin_and_builds_same_pr_entities() -
             if path != changelog:
                 path.unlink(missing_ok=True)
         changelog.write_text(original_changelog, encoding="utf-8")
+
+
+def test_new_benchmark_accepts_versioned_official_dataset_and_maps_alias_use() -> None:
+    metadata = {
+        "name": "SyntheticGuideBench", "aliases": ["Synthetic guide benchmark"],
+        "summary": "A synthetic test-only guide-library benchmark with a versioned data release.",
+        "kind": "dataset", "organizations": ["Example Institute"],
+        "release_date": "2026-07-01", "domains": ["genomics"],
+        "capabilities": ["prediction"], "modalities": ["dna-rna-sequence"],
+        "task_formats": ["regression"],
+        "access": {
+            "level": "fully-open", "tasks": "All guide records are public.",
+            "artifacts": "Guide sequences and labels are released.",
+            "grader": "Not reported", "license": None, "biosafety_notes": None,
+        },
+    }
+    claims = [
+        claim("claim-1", "paper-identity", {"title": "Synthetic benchmark evaluation paper"}, mention_id=None),
+        claim("claim-2", "relation", "benchmark-creation"),
+        claim("claim-3", "benchmark-identity", "SyntheticGuideBench"),
+        claim("claim-4", "benchmark-metadata", metadata),
+        claim("claim-5", "benchmark-version", "v1.0.0"),
+        claim("claim-6", "benchmark-count", {
+            "label": "released guides", "count": 100, "unit": "records",
+            "basis": "Released guide records", "reporting_status": "reported",
+            "subset_id": None, "exclusive": False, "exhaustive": False,
+            "partition_group": None,
+        }),
+        claim("claim-7", "creator-source", {"url": "https://doi.org/10.9999/synthetic.1"}),
+        claim("claim-8", "official-resource", {
+            "url": "https://doi.org/10.5281/zenodo.1234567",
+            "resource_type": "dataset", "license": None, "version": None,
+        }),
+        claim("claim-9", "relation", "evaluation", mention_id="mention-2"),
+        claim("claim-10", "benchmark-identity", "Synthetic guide benchmark", mention_id="mention-2"),
+        claim("claim-11", "scope-type", "unknown", mention_id="mention-2"),
+    ]
+    creation = {
+        "mention_id": "mention-1", "benchmark_name": "SyntheticGuideBench",
+        "registry_benchmark_id": None, "relation_type": "benchmark-creation",
+        "is_new_benchmark": True, "background_only": False,
+        "claim_ids": [item["claim_id"] for item in claims if item["mention_id"] == "mention-1"],
+        "reporting_gaps": [],
+    }
+    evaluation = {
+        "mention_id": "mention-2", "benchmark_name": "Synthetic guide benchmark",
+        "registry_benchmark_id": None, "relation_type": "evaluation",
+        "is_new_benchmark": True, "background_only": False,
+        "claim_ids": [item["claim_id"] for item in claims if item["mention_id"] == "mention-2"],
+        "reporting_gaps": ["benchmark version", "realized n", "model", "metric"],
+    }
+    payload = verified_result(claims, creation)
+    payload["draft"]["benchmark_mentions"] = [creation, evaluation]
+    source = {**SOURCE, "resource_pins": {
+        "https://doi.org/10.5281/zenodo.1234567": {
+            "resource_type": "dataset", "kind": "version", "value": "1.0.0",
+            "url": "https://zenodo.org/records/1234567",
+            "resolved_url": "https://zenodo.org/records/1234567",
+            "license": "cc-by-4.0",
+        }
+    }}
+    records = build_records(
+        payload, source=source, generated_at=SOURCE["retrieved_at"],
+        verified_on="2026-07-30",
+    )
+    assert records.blocked_reasons == []
+    assert records.omitted_unresolved_mentions == []
+    benchmark = records.benchmarks[0]
+    assert benchmark["resources"][1]["type"] == "dataset"
+    assert benchmark["resources"][1]["pin"] == {
+        "kind": "version", "value": "1.0.0",
+        "url": "https://zenodo.org/records/1234567",
+    }
+    assert benchmark["implementations"] == []
+    assert benchmark["access"]["license"] is None
+    assert benchmark["field_status"][0]["path"] == "/access/license"
+    assert [item["relation_type"] for item in records.uses] == [
+        "benchmark-creation", "evaluation",
+    ]
+    assert records.uses[1]["status"] == "partial"
 
 
 def test_new_benchmark_evaluation_scope_count_conflict_downgrades_to_partial_use() -> None:
@@ -2790,6 +2877,53 @@ def test_github_repository_pin_request_retries_transient_tls_errors(
         headers={"Accept": "application/vnd.github+json"},
     ) == {"default_branch": "main"}
     assert calls == 3
+
+
+def test_zenodo_official_dataset_resolves_to_immutable_version_pin(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    claims = [
+        claim("claim-1", "paper-identity", {"title": "Synthetic benchmark evaluation paper"}, mention_id=None),
+        claim("claim-2", "relation", "benchmark-creation"),
+        claim("claim-3", "benchmark-identity", "SyntheticDataBench"),
+        claim("claim-4", "official-resource", {
+            "url": "https://doi.org/10.5281/zenodo.11164565",
+            "resource_type": "dataset", "license": None, "version": None,
+        }),
+    ]
+    mention = {
+        "mention_id": "mention-1", "benchmark_name": "SyntheticDataBench",
+        "registry_benchmark_id": None, "relation_type": "benchmark-creation",
+        "is_new_benchmark": True, "background_only": False,
+        "claim_ids": ["claim-2", "claim-3", "claim-4"], "reporting_gaps": [],
+    }
+    payload = verified_result(claims, mention)
+    result = SimpleNamespace(
+        draft=PaperEvidenceDraft.model_validate(payload["draft"]),
+        verification=PaperEvidenceVerification.model_validate(payload["verification"]),
+    )
+
+    class ZenodoResponse:
+        def raise_for_status(self) -> None:
+            return None
+
+        def json(self) -> dict[str, Any]:
+            return {
+                "id": 11164566,
+                "doi": "10.5281/zenodo.11164566",
+                "metadata": {"version": "1.0.0", "license": {"id": "cc-by-4.0"}},
+                "links": {"self_html": "https://zenodo.org/records/11164566"},
+            }
+
+    monkeypatch.setattr("run_paper_intake.requests.get", lambda *args, **kwargs: ZenodoResponse())
+    assert resolve_resource_pins(result) == {
+        "https://doi.org/10.5281/zenodo.11164565": {
+            "resource_type": "dataset", "kind": "version", "value": "1.0.0",
+            "url": "https://zenodo.org/records/11164566",
+            "resolved_url": "https://zenodo.org/records/11164566",
+            "license": "cc-by-4.0",
+        }
+    }
 
 
 def test_crossref_resolution_retries_transient_tls_errors(

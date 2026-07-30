@@ -1,0 +1,57 @@
+entity_type: work
+id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+title: 'BioSecBench-Surveillance: A Verifiable Benchmark for AI Agents in Pathogen Genomic Surveillance'
+authors:
+- Harmon Bhasin
+- Kevin Flyangolts
+- Dianzhuo Wang
+- Evan Seeyave
+- Arjun Banerjee
+- Amanda Darling
+- Joshua Stallings
+- David Stern
+- Shawn Higdon
+- Claire Duvallet
+- Bryan Tegomoh
+- Kenny Workman
+organizations:
+- LatchBio
+- Aclid
+work_type: preprint
+source_class: benchmark_creator
+publication_date: '2026-07-21'
+canonical_url: https://arxiv.org/abs/2607.19262
+doi: null
+arxiv: '2607.19262'
+status: preprint
+source_versions:
+- id: biosecbench-surveillance-a-verifiable-benchmark-for-ai-arxiv-v1
+  label: arXiv v1
+  status: current
+  publication_date: '2026-07-21'
+  canonical_url: https://arxiv.org/abs/2607.19262
+  doi: null
+  arxiv: '2607.19262'
+  source_access: submitted-pdf
+  content_sha256: 0b4c701a9a04234b918d5e6b3392de3b3769ccd0941226f04ae0e39675447d7d
+  content_type: application/pdf
+  retrieved_at: '2026-07-30T22:18:35+00:00'
+current_version_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai-arxiv-v1
+review_provenance:
+  method: local-codex-double-pass
+  pipeline_version: 1.4.0
+  prompt_version: paper-evidence-local-v14
+  source_version_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai-arxiv-v1
+  extractor_model_requested: gpt-5.6-sol
+  extractor_model_resolved: null
+  verifier_model_requested: gpt-5.6-sol
+  verifier_model_resolved: null
+  generated_at: '2026-07-30T22:18:35+00:00'
+  execution_surface: local-codex-cli
+  model_resolution_status: not-reported
+  codex_cli_version: codex-cli 0.146.0-alpha.3.1
+  local_run_id: b1b64922-a00e-4a61-a55c-3b7b21b4d465
+verification:
+  status: verified
+  last_verified: '2026-07-30'
+  notes: AI-assisted double-pass extraction; production inclusion still requires the owner SHA-comment gate.

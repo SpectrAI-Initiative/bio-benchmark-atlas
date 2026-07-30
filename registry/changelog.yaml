@@ -1,3 +1,20 @@
+- date: '2026-07-30'
+  version: 1.4.0-dev
+  type: paper-intake
+  summary: AI-assisted double-pass paper intake (paper-intake:biosecbench-surveillance-a-verifiable-benchmark-for-ai); production
+    inclusion required owner approval of the final head SHA.
+  entity_ids:
+  - biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  - biosecbench-surveillance
+  - anthropic-opus-4-6
+  - anthropic-opus-4-7
+  - anthropic-opus-4-8
+  - anthropic-sonnet-4-6
+  - xai-grok-4-20-reasoning
+  - biosecbench-surveillance-a-verifiable-benchmark-for-ai-biosecbench-surveillance-1-use
+  - biosecbench-surveillance-a-verifiable-benchmark-for-ai-biosecbench-surveillance-2-use
+  - biosecbench-surveillance-a-verifiable-benchmark-for-ai-biosecbench-surveillance-3-use
+  - biosecbench-surveillance-a-verifiable-benchmark-for-ai-biosecbench-surveillance-4-use
 - date: '2026-07-29'
   version: 1.4.0-dev
   type: paper-intake

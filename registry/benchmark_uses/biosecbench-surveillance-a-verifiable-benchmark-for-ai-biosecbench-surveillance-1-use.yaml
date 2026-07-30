@@ -1,0 +1,55 @@
+entity_type: benchmark_use
+id: biosecbench-surveillance-a-verifiable-benchmark-for-ai-biosecbench-surveillance-1-use
+work_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+work_version_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai-arxiv-v1
+benchmark_id: biosecbench-surveillance
+benchmark_version: null
+relation_type: benchmark-creation
+status: non-evaluation
+model_ids: []
+scope:
+  type: unknown
+  subset_kind: not-applicable
+  n: null
+  subset_id: null
+  selection: null
+  selection_method: null
+  reporting_status: not_applicable
+metric_labels: []
+evaluation_run_ids: []
+reporting_gaps:
+- Benchmark version is not reported.
+- The exact public-subset size is not reported.
+- The repository license is not reported.
+notes: AI-assisted double-pass extraction; values are limited to independently supported claims.
+verification:
+  status: verified
+  last_verified: '2026-07-30'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: biosecbench-surveillance-a-verifiable-benchmark-for-ai-biosecbench-surveillance-1-use-evidence-1
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: section
+    value: Abstract
+    note: null
+    document_page: 1
+    printed_page: '1'
+    source_fragment_sha256: d26f881c6f249284b8975be96ea8c8af9c7193804e78d3d7dfdffdbf4e2f6c7a
+  supports:
+  - /relation_type
+- id: biosecbench-surveillance-a-verifiable-benchmark-for-ai-biosecbench-surveillance-1-use-evidence-2
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: section
+    value: Abstract
+    note: null
+    document_page: 1
+    printed_page: '1'
+    source_fragment_sha256: d8062a766e37ec1f470ba23e7973e72f44eff09d69f99acc298bd07bc84a5312
+  supports:
+  - /benchmark_id

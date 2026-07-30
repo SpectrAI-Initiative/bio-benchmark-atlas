@@ -1,6 +1,18 @@
 - date: '2026-07-29'
   version: 1.4.0-dev
   type: paper-intake
+  summary: AI-assisted double-pass paper intake (paper-intake:ppb-affinity-protein-protein-binding-affinity-dataset); production
+    inclusion required owner approval of the final head SHA.
+  entity_ids:
+  - ppb-affinity-protein-protein-binding-affinity-dataset
+  - ppb-affinity
+  - liu-et-al-benchmark-algorithm
+  - ppb-affinity-protein-protein-binding-affinity-dataset-ppb-affinity-1-use
+  - ppb-affinity-protein-protein-binding-affinity-dataset-ppb-affinity-2-use
+  - ppb-affinity-protein-protein-binding-affinity-dataset-ppb-affinity-3-use
+- date: '2026-07-29'
+  version: 1.4.0-dev
+  type: paper-intake
   summary: AI-assisted double-pass paper intake (paper-intake:system-card-claude-opus-5); production inclusion required owner
     approval of the final head SHA.
   entity_ids:

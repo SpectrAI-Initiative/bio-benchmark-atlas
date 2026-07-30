@@ -31,7 +31,7 @@ from paper_source import MAX_PDF_PAGES
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL_TMP_ROOT = ROOT / ".paper-intake-tmp"
 PIPELINE_VERSION = "1.4.0"
-PROMPT_VERSION = "paper-evidence-local-v11"
+PROMPT_VERSION = "paper-evidence-local-v12"
 SOURCE_INPUT_PROTOCOL_VERSION = "multimodal-focused-long-pdf-v3"
 DEFAULT_MODEL = "gpt-5.6-sol"
 REVIEW_METHOD = "local-codex-double-pass"
@@ -162,7 +162,13 @@ repeat task totals, subset counts, benchmark versions, model scores, confidence
 intervals, repeats, or harness settings; emit those only as their dedicated claim
 types. Give every atomic metadata field its own independently locatable claim;
 do not make the whole benchmark metadata medium or low because one field is
-uncertain. In a creator paper that also evaluates the same benchmark, attach benchmark-metadata,
+uncertain. For /benchmark-metadata/organizations, use only institutions that the
+creator paper explicitly links to the authors responsible for introducing the
+benchmark or dataset. Locate the printed author-affiliation mapping in the source;
+do not substitute publisher metadata, an Issue hint, funders, acknowledgements,
+or organizations mentioned only as data providers. Emit the atomic organization
+claim even when the source does not use the phrase "created by" for those author
+institutions. In a creator paper that also evaluates the same benchmark, attach benchmark-metadata,
 creator-source, exactly one of official-repository or official-resource,
 benchmark-count, and scientific-task claims
 only to the benchmark-creation mention. Do not duplicate those creator-only claims
@@ -263,7 +269,13 @@ organization, date, taxonomy, or access field because a separate summary, alias,
 license, or access-description field is uncertain. The field_path must identify
 the one value being checked. A conflict in a dedicated non-metadata claim must not
 be copied into benchmark-metadata. Creator-only metadata and resource claims
-belong to the benchmark-creation mention, not its evaluation mention.
+belong to the benchmark-creation mention, not its evaluation mention. For an
+/benchmark-metadata/organizations claim, independently verify that every listed
+institution is explicitly connected by the paper's printed author-affiliation
+mapping to authors who introduce the benchmark or dataset. Do not accept publisher
+metadata, Issue hints, funders, acknowledgements, or organizations mentioned only
+as data providers as substitutes for that source mapping; the paper need not use
+the literal phrase "created by" for its author institutions.
 
 For a PDF, independently inspect every relevant attached
 document-page-NNN.jpg image. It is a rasterized copy of physical PDF page NNN and

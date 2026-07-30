@@ -610,10 +610,18 @@ def _build_new_benchmark(
     by_type: dict[str, list[Any]] = {}
     for claim in claims:
         by_type.setdefault(claim.claim_type, []).append(claim)
-    required = {
-        "benchmark-metadata", "benchmark-count", "creator-source", "official-repository",
-    }
+    required = {"benchmark-metadata", "benchmark-count", "creator-source"}
     missing = sorted(required - set(by_type))
+    resource_claims = [
+        *by_type.get("official-repository", []),
+        *by_type.get("official-resource", []),
+    ]
+    if not resource_claims:
+        missing.append("official-repository-or-resource")
+    if len(resource_claims) > 1:
+        raise GenerationBlocked(
+            f"{benchmark_id}: new benchmark has multiple verified official resources"
+        )
     if missing:
         raise GenerationBlocked(
             f"{benchmark_id}: new benchmark lacks verified claims: {', '.join(missing)}"
@@ -627,19 +635,29 @@ def _build_new_benchmark(
         str(_claim_value(version_claim)) if version_claim is not None else "initial-release"
     )
     creator = _claim_value(by_type["creator-source"][0])
-    repository = _claim_value(by_type["official-repository"][0])
-    access = metadata.get("access") or {}
-    license_from_repository = (
-        access.get("license") is None and repository.get("license") is not None
+    resource_claim = resource_claims[0]
+    resource = _claim_value(resource_claim)
+    resource_type = (
+        "repository" if resource_claim.claim_type == "official-repository"
+        else resource.get("resource_type")
     )
-    if license_from_repository:
-        access["license"] = repository.get("license")
+    if resource_type not in {"repository", "dataset"}:
+        raise GenerationBlocked(f"{benchmark_id}: official resource type is unsupported")
+    access = metadata.get("access") or {}
+    license_from_resource = (
+        access.get("license") is None and resource.get("license") is not None
+    )
+    if license_from_resource:
+        access["license"] = resource.get("license")
     license_unverified = access.get("license") is None
-    repository_url = normalize_url(repository.get("url"))
-    repository_pins = source.get("repository_pins", {})
-    pin = repository_pins.get(repository_url or "")
-    if repository_url is None or pin is None:
-        raise GenerationBlocked(f"{benchmark_id}: official repository could not be commit-pinned")
+    resource_url = normalize_url(resource.get("url"))
+    resource_pins = source.get("resource_pins", source.get("repository_pins", {}))
+    pin = resource_pins.get(resource_url or "")
+    if resource_url is None or pin is None:
+        raise GenerationBlocked(f"{benchmark_id}: official resource could not be immutably pinned")
+    if pin.get("resource_type") not in {None, resource_type}:
+        raise GenerationBlocked(f"{benchmark_id}: official resource type conflicts with resolved pin")
+    resolved_resource_url = normalize_url(pin.get("resolved_url")) or resource_url
 
     taxonomies = load_taxonomies()
     controlled = {
@@ -697,7 +715,6 @@ def _build_new_benchmark(
         "subsets": subsets,
     }
 
-    repository_claim = by_type["official-repository"][0]
     creator_claim = by_type["creator-source"][0]
     version_evidence_claim = version_claim or creator_claim
     bibliography = source.get("bibliographic_metadata") or {}
@@ -741,10 +758,11 @@ def _build_new_benchmark(
         {
             "id": f"{benchmark_id}-automated-resource-evidence",
             "source_type": "work", "source_id": work_id, "accessed_date": verified_on,
-            "locator": _source_locator(verdicts[repository_claim.claim_id]),
+            "locator": _source_locator(verdicts[resource_claim.claim_id]),
             "supports": [
-                "/resources", "/implementations",
-                *(["/access/license"] if license_from_repository or license_unverified else []),
+                "/resources",
+                *(["/implementations"] if resource_type == "repository" else []),
+                *(["/access/license"] if license_from_resource or license_unverified else []),
             ],
         },
         {
@@ -767,7 +785,7 @@ def _build_new_benchmark(
             "status": "provisional",
             "confidence": "high",
             "reason": (
-                "The double-pass review verified the official repository identity but did not "
+                "The double-pass review verified the official resource identity but did not "
                 "establish a redistributable benchmark license; the value remains null pending "
                 "source-level license verification."
             ),
@@ -869,16 +887,18 @@ def _build_new_benchmark(
                 "last_checked": verified_on, "pin": None,
             },
             {
-                "id": f"{benchmark_id}-official-repository-resource", "type": "repository", "url": repository_url,
-                "license": repository.get("license"), "access_notes": "Official repository pinned during intake.",
+                "id": f"{benchmark_id}-official-{resource_type}-resource", "type": resource_type,
+                "url": resolved_resource_url,
+                "license": access.get("license"),
+                "access_notes": "Official resource pinned immutably during intake.",
                 "last_checked": verified_on,
                 "pin": {"kind": pin["kind"], "value": pin["value"], "url": pin["url"]},
             },
         ],
-        "implementations": [{
-            "framework": "official repository", "status": "official", "url": repository_url,
+        "implementations": ([{
+            "framework": "official repository", "status": "official", "url": resolved_resource_url,
             "commit": pin["value"], "notes": "Commit resolved deterministically during paper intake.",
-        }],
+        }] if resource_type == "repository" else []),
         "versions": [{
             "id": f"{benchmark_id}-{slugify(version_label, maximum=30)}-version",
             "label": version_label, "status": "current", "release_date": metadata["release_date"],
@@ -901,14 +921,14 @@ def _build_new_benchmark(
             "audited_date": verified_on,
             "unresolved_fields": len(field_status),
             "notes": (
-                "Automated double-pass extraction plus deterministic repository pin. "
+                "Automated double-pass extraction plus deterministic official-resource pin. "
                 "Owner review preserved the corroborated root total and excluded conflicted "
                 "appendix inventory subcounts."
                 if resolved_count_conflict else
-                "Automated double-pass extraction plus deterministic repository pin; the "
+                "Automated double-pass extraction plus deterministic official-resource pin; the "
                 "benchmark license remains unverified and is published as null."
                 if license_unverified else
-                "Automated double-pass extraction plus deterministic repository pin; "
+                "Automated double-pass extraction plus deterministic official-resource pin; "
                 "owner approval required."
             ),
         },
@@ -916,13 +936,13 @@ def _build_new_benchmark(
         "verification": {"status": "verified", "last_verified": verified_on,
                          "notes": (
                              "New family admitted with an explicit count-inventory caveat after "
-                             "creator source, official repository, double-pass verification, and "
+                             "creator source, official resource, double-pass verification, and "
                              "owner conflict resolution."
                              if resolved_count_conflict else
-                             "New family admitted after creator source and official repository "
+                             "New family admitted after creator source and official resource "
                              "verification; the unresolved benchmark license is visibly flagged."
                              if license_unverified else
-                             "New family admitted only after creator source, official repository, "
+                             "New family admitted only after creator source, official resource, "
                              "and owner PR review."
                          )},
         "evidence": evidence,
@@ -1552,6 +1572,7 @@ def build_records(
                     "benchmark-count",
                     "creator-source",
                     "official-repository",
+                    "official-resource",
                 },
             )
             output.blocked_reasons.append(f"{error}; claim gate: {diagnostic}")
@@ -1561,6 +1582,8 @@ def build_records(
         benchmarks[benchmark_id] = benchmark
         new_benchmark_ids_by_name[slugify(mention.benchmark_name)] = benchmark_id
         new_benchmark_ids_by_name[slugify(benchmark["name"])] = benchmark_id
+        for alias in benchmark.get("aliases", []):
+            new_benchmark_ids_by_name[slugify(str(alias))] = benchmark_id
     model_lookup = _model_lookup(entities)
     new_models: dict[str, dict[str, Any]] = {}
     for mention_index, mention in enumerate(draft.benchmark_mentions, 1):
@@ -1670,7 +1693,8 @@ def build_records(
         use_id = f"{work_id}-{benchmark_id}-{mention_index}-use"
         if can_normalize:
             run_evidence_claims = [claim for claim in claims if claim.claim_type not in {
-                "relation", "benchmark-identity", "creator-source", "official-repository", "scientific-task"
+                "relation", "benchmark-identity", "creator-source", "official-repository",
+                "official-resource", "scientific-task"
             }]
             run_evidence = _evidence_for_claims(
                 run_evidence_claims, verdicts, owner_id=run_id, work_id=work_id,
@@ -1853,7 +1877,7 @@ def chinese_summary(records: GeneratedRecords) -> str:
     if records.work:
         lines.append(f"- 新增 Work：`{records.work['id']}`（本地双阶段 Codex 辅助抽取，仍需 owner 审阅）")
     if records.benchmarks:
-        lines.append("- 新增 root benchmark：" + "、".join(f"`{item['id']}`" for item in records.benchmarks) + "；creator source、official repository 与 commit pin 已同时生成。")
+        lines.append("- 新增 root benchmark：" + "、".join(f"`{item['id']}`" for item in records.benchmarks) + "；creator source 与不可变 official-resource pin 已同时生成。")
     lines.append(f"- BenchmarkUse：{len(records.uses)} 条；normalized run：{len(records.runs)} 条；新增模型：{len(records.models)} 个。")
     for use in records.uses:
         gaps = "、".join(use["reporting_gaps"]) if use["reporting_gaps"] else "无"

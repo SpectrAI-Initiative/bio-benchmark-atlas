@@ -8,9 +8,42 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: validate-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  validate:
+  registry-tests:
+    name: registry tests
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with: {python-version: '3.10', cache: pip}
+      - run: python -m pip install -e '.[test]'
+      - run: python -m pytest tests/test_registry.py --durations=10
+
+  paper-tests:
+    name: paper intake tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with: {python-version: '3.10', cache: pip}
+      - run: python -m pip install -e '.[test]'
+      - run: >-
+          python -m pytest
+          tests/test_paper_automation.py
+          tests/test_paper_intake.py
+          tests/test_paper_owner_gate.py
+          --durations=10
+
+  build:
+    name: registry and site build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
@@ -19,10 +52,9 @@ jobs:
         with: {version: 10.12.1}
       - uses: actions/setup-node@v7
         with: {node-version: '24', cache: pnpm}
-      - run: python -m pip install -e '.[test]'
+      - run: python -m pip install -e .
       - run: pnpm install --frozen-lockfile
       - run: pnpm registry:validate
-      - run: pnpm test:data
       - run: pnpm registry:build
       - run: pnpm site:build
       - name: Verify generated exports are deterministic
@@ -31,3 +63,20 @@ jobs:
           pnpm registry:build
           find exports -type f -exec sha256sum {} + | sort > /tmp/second.sha
           diff -u /tmp/first.sha /tmp/second.sha
+
+  # Preserve the existing required-check context while the expensive work runs
+  # concurrently. Deploy Pages also waits for this workflow's aggregate result.
+  validate:
+    if: always()
+    needs: [registry-tests, paper-tests, build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every validation shard
+        env:
+          REGISTRY_TESTS: ${{ needs.registry-tests.result }}
+          PAPER_TESTS: ${{ needs.paper-tests.result }}
+          BUILD: ${{ needs.build.result }}
+        run: |
+          test "$REGISTRY_TESTS" = success
+          test "$PAPER_TESTS" = success
+          test "$BUILD" = success

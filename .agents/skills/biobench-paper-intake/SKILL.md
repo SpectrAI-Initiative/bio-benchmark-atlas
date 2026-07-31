@@ -33,8 +33,15 @@ Accepted invocations are `$biobench-paper-intake issue 44` and `$biobench-paper-
    ```
 
    The command claims the issue, runs two fresh `codex exec` sessions, generates records, validates them, creates `paper-intake/<work-id>-<issue-number>`, and opens a Ready PR.
+   PDF review uses a deterministic page-anchored text companion. The extractor
+   receives the complete permitted document plus selected figure/table images;
+   the verifier receives complete text for cited pages and bounded adjacent-page
+   context plus only the cited images. These packets are temporary source views,
+   not summaries, and are deleted with the other local evidence artifacts.
 6. Inspect the diff and PR audit summary. Confirm that no paper, excerpt, transcript, draft JSON, verification JSON, or temporary file is tracked.
-7. Wait for `validate` and `playwright`. The owner then comments:
+7. Wait for `validate` and `playwright`. Registry tests, paper-intake tests, and
+   deterministic registry/site builds run as parallel `validate` shards while a
+   final aggregate preserves the required check name. The owner then comments:
 
    ```text
    /approve-paper-intake <full-current-head-sha>

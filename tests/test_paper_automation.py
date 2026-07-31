@@ -48,11 +48,13 @@ from extract_paper import (  # noqa: E402
     _codex_failure_diagnostic,
     _focused_pdf_text_source,
     _normalize_temporary_claim_ids,
+    _page_anchored_pdf_text_source,
     _pdf_pages_for_visual_review,
     _prepare_local_text_source,
     _render_pdf_pages,
     _run_stage,
     _structured_output_diagnostic,
+    _verifier_pdf_context_pages,
     _verifier_source_images,
     review_source_sha256,
     run_double_pass,
@@ -226,9 +228,15 @@ def test_model_facing_schemas_require_every_declared_property() -> None:
 
 
 def test_verifier_prompt_treats_creator_and_evaluation_relations_as_compatible() -> None:
-    from extract_paper import EXTRACTOR_PROMPT, PROMPT_VERSION, VERIFIER_PROMPT
+    from extract_paper import (
+        EXTRACTOR_PROMPT,
+        PROMPT_VERSION,
+        SOURCE_INPUT_PROTOCOL_VERSION,
+        VERIFIER_PROMPT,
+    )
 
-    assert PROMPT_VERSION == "paper-evidence-local-v14"
+    assert PROMPT_VERSION == "paper-evidence-local-v15"
+    assert SOURCE_INPUT_PROTOCOL_VERSION == "page-anchored-pdf-v4"
     assert "Normalize arXiv identifiers to the base numeric ID" in EXTRACTOR_PROMPT
     assert "the suffix belongs to the paper version" in VERIFIER_PROMPT
     assert "Benchmark-creation and evaluation are compatible" in VERIFIER_PROMPT
@@ -2471,6 +2479,8 @@ def test_long_pdf_double_pass_exposes_only_owner_selected_pages(
             mention_id=None,
         ),
     ], mention)
+    for item in draft["claims"]:
+        item["locators"][0]["document_page"] = 1
     verification = {
         "source_parseable": True,
         "blocking_conflicts": [],
@@ -2478,7 +2488,7 @@ def test_long_pdf_double_pass_exposes_only_owner_selected_pages(
             "claim_id": claim_id,
             "verdict": "supported",
             "confidence": "high",
-            "locator": locator(),
+            "locator": locator() | {"document_page": 1},
             "notes": None,
         } for claim_id in ("claim-1", "claim-2", "claim-3")],
     }
@@ -2506,12 +2516,20 @@ def test_long_pdf_double_pass_exposes_only_owner_selected_pages(
             return subprocess.CompletedProcess(command, 0, "codex-cli 1.2.3\n", "")
         stage += 1
         prompt = kwargs["input"]
-        match = re.search(r"Read the source at (\S+)", prompt)
+        match = re.search(
+            r"Read the (?:source at|source claim packet at) (\S+)",
+            prompt,
+        )
         assert match is not None
         focused_path = Path(match.group(1).rstrip("."))
         focused_text = focused_path.read_text(encoding="utf-8")
         assert "=== DOCUMENT PAGE 1 ===" in focused_text
-        assert "=== DOCUMENT PAGE 151 ===" in focused_text
+        if stage == 1:
+            assert "=== DOCUMENT PAGE 151 ===" in focused_text
+            assert "complete paper evidence extraction" not in focused_text
+        else:
+            assert "independent claim verification" in focused_text
+            assert "=== DOCUMENT PAGE 151 ===" not in focused_text
         assert not (focused_path.parent / "source.pdf").exists()
         output_path = Path(command[command.index("--output-last-message") + 1])
         output_path.write_text(
@@ -2984,6 +3002,56 @@ def test_focused_long_pdf_text_preserves_original_physical_page_markers(tmp_path
     assert "original PDF physical page (1-based)" in text
 
 
+def test_pdf_preprocessor_anchors_every_page_and_bounds_verifier_context(
+    tmp_path: Path,
+) -> None:
+    source = tmp_path / "paper.pdf"
+    source.write_bytes(pdf_bytes(8))
+    prepared = _page_anchored_pdf_text_source(
+        source,
+        tmp_path / "prepared.txt",
+    )
+    text = prepared.read_text(encoding="utf-8")
+    assert "complete paper review" in text
+    assert "contains 8 of 8 physical pages" in text
+    assert text.count("=== DOCUMENT PAGE ") == 8
+
+    mention = {
+        "mention_id": "mention-1",
+        "benchmark_name": "LifeSciBench",
+        "registry_benchmark_id": "lifescibench",
+        "relation_type": "evaluation",
+        "is_new_benchmark": False,
+        "background_only": False,
+        "claim_ids": ["claim-1", "claim-2"],
+        "reporting_gaps": [],
+    }
+    claims = [
+        claim("claim-1", "relation", "evaluation"),
+        claim("claim-2", "benchmark-identity", "lifescibench"),
+        claim(
+            "claim-3",
+            "paper-identity",
+            {"title": "Synthetic benchmark evaluation paper", "doi": None, "arxiv": None},
+            mention_id=None,
+        ),
+    ]
+    for item in claims:
+        item["locators"][0]["document_page"] = 5
+    draft = PaperEvidenceDraft.model_validate(draft_payload(claims, mention))
+    assert _verifier_pdf_context_pages(draft, page_count=8) == [1, 4, 5, 6]
+
+    verifier_packet = _page_anchored_pdf_text_source(
+        source,
+        tmp_path / "verifier.txt",
+        pages=_verifier_pdf_context_pages(draft, page_count=8),
+        purpose="independent claim verification",
+    ).read_text(encoding="utf-8")
+    assert "=== DOCUMENT PAGE 5 ===" in verifier_packet
+    assert "=== DOCUMENT PAGE 8 ===" not in verifier_packet
+    assert "contains 4 of 8 physical pages" in verifier_packet
+
+
 def test_html_source_uses_visible_text_without_scripts(tmp_path: Path) -> None:
     source = tmp_path / "source.txt"
     visible_sentence = "BioMysteryBench has 99 questions and five trials per task. "
@@ -3350,6 +3418,7 @@ def test_work_ids_are_deterministic_and_workflows_have_required_guards() -> None
     owner = (ROOT / ".github/workflows/paper-owner-gate.yml").read_text(encoding="utf-8")
     discovery = (ROOT / ".github/workflows/discover-papers.yml").read_text(encoding="utf-8")
     issue_triage = (ROOT / ".github/workflows/triage-paper-issues.yml").read_text(encoding="utf-8")
+    validate_workflow = (ROOT / ".github/workflows/validate.yml").read_text(encoding="utf-8")
     paper_form = (ROOT / ".github/ISSUE_TEMPLATE/review-paper.yml").read_text(encoding="utf-8")
     workflows = "\n".join(
         path.read_text(encoding="utf-8")
@@ -3381,6 +3450,11 @@ def test_work_ids_are_deterministic_and_workflows_have_required_guards() -> None
     assert "local-intake-in-progress" not in issue_triage
     assert "labels: [paper-candidate]" in paper_form
     assert "labels: [paper-intake, paper-candidate]" not in paper_form
+    assert "registry-tests:" in validate_workflow
+    assert "paper-tests:" in validate_workflow
+    assert "build:" in validate_workflow
+    assert "needs: [registry-tests, paper-tests, build]" in validate_workflow
+    assert "\n  validate:\n" in validate_workflow
     assert "OPENAI" + "_API_KEY" not in workflows
     assert "create-github-app-token" not in workflows
     assert "OPENAI" + "_API_KEY" not in production_scripts

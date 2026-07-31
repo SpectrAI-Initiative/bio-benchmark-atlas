@@ -6,6 +6,8 @@ import json
 import re
 import subprocess
 import sys
+import threading
+import time
 from datetime import datetime
 from pathlib import Path
 from types import SimpleNamespace
@@ -56,6 +58,7 @@ from extract_paper import (  # noqa: E402
     _structured_output_diagnostic,
     _verifier_pdf_context_pages,
     _verifier_source_images,
+    heartbeat_path,
     review_source_sha256,
     run_double_pass,
 )
@@ -75,11 +78,16 @@ from paper_extraction_eval import (  # noqa: E402
     _has_evaluation_size,
 )
 from local_paper_intake import (  # noqa: E402
+    BatchWorktree,
     LocalIntakeError,
+    MAX_PARALLEL_RUNS,
+    _active_run_states,
     _ensure_labels,
     _owner_conflict_resolution,
+    _reserve_run,
     _run,
     heartbeat_status,
+    run_batch,
 )
 from paper_source import (  # noqa: E402
     MAX_SOURCE_BYTES,
@@ -2571,10 +2579,113 @@ def test_heartbeat_status_marks_dead_running_process_stale(
         "updated_at": "2026-07-23T10:00:00+00:00",
     }), encoding="utf-8")
     monkeypatch.setattr("local_paper_intake.HEARTBEAT_PATH", heartbeat_path)
-    state = heartbeat_status(now=datetime.fromisoformat("2026-07-23T10:01:00+00:00"))
+    monkeypatch.setattr("extract_paper.HEARTBEAT_PATH", heartbeat_path)
+    state = heartbeat_status(
+        run_id="safe-run-id",
+        now=datetime.fromisoformat("2026-07-23T10:01:00+00:00"),
+    )
     assert state["process_alive"] is False
     assert state["stale"] is True
     assert state["heartbeat_age_seconds"] == 60
+
+
+def test_parallel_run_slots_are_capped_and_unique_per_issue(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr("local_paper_intake.STATE_ROOT", tmp_path)
+    monkeypatch.setattr("local_paper_intake.RUN_ROOT", tmp_path / "runs")
+    monkeypatch.setattr("local_paper_intake.RUN_LOCK_PATH", tmp_path / "intake.lock")
+
+    for index in range(MAX_PARALLEL_RUNS):
+        _reserve_run(
+            run_id=f"run-{index}",
+            issue_number=100 + index,
+            base_sha="a" * 40,
+        )
+    assert len(_active_run_states()) == MAX_PARALLEL_RUNS
+    with pytest.raises(LocalIntakeError, match="concurrency limit"):
+        _reserve_run(
+            run_id="run-overflow",
+            issue_number=999,
+            base_sha="a" * 40,
+        )
+    with pytest.raises(LocalIntakeError, match="already has active local run"):
+        _reserve_run(
+            run_id="run-duplicate",
+            issue_number=100,
+            base_sha="a" * 40,
+        )
+
+
+def test_heartbeats_are_scoped_by_run_id(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr("extract_paper.HEARTBEAT_ROOT", tmp_path)
+    assert heartbeat_path("run-one") == tmp_path / "run-one.json"
+    assert heartbeat_path("run-two") == tmp_path / "run-two.json"
+
+
+def test_batch_uses_three_independent_worktrees_concurrently(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    plans = [
+        BatchWorktree(
+            issue_number=number,
+            run_id=f"run-{number}",
+            work_id_hint=f"work-{number}",
+            branch=f"paper-intake/work-{number}-{number}",
+            path=tmp_path / f"worktree-{number}",
+            base_sha="a" * 40,
+        )
+        for number in (46, 42, 55)
+    ]
+    created: list[int] = []
+    removed: list[int] = []
+    active = 0
+    peak = 0
+    lock = threading.Lock()
+
+    monkeypatch.setattr(
+        "local_paper_intake._batch_worktree_plan",
+        lambda issue_numbers, runner=subprocess.run: plans,
+    )
+    monkeypatch.setattr(
+        "local_paper_intake._create_batch_worktree",
+        lambda plan, runner=subprocess.run: created.append(plan.issue_number),
+    )
+    monkeypatch.setattr(
+        "local_paper_intake._remove_batch_worktree",
+        lambda plan, runner=subprocess.run: removed.append(plan.issue_number),
+    )
+
+    def worker(plan: BatchWorktree) -> dict[str, Any]:
+        nonlocal active, peak
+        with lock:
+            active += 1
+            peak = max(peak, active)
+        time.sleep(0.05)
+        with lock:
+            active -= 1
+        return {
+            "issue_number": plan.issue_number,
+            "run_id": plan.run_id,
+            "branch": plan.branch,
+            "status": "pr-open",
+            "pr_url": f"https://github.example/pull/{plan.issue_number}",
+            "error": None,
+        }
+
+    monkeypatch.setattr("local_paper_intake._run_batch_worker", worker)
+    result = run_batch([46, 42, 55])
+    assert result["failed"] == 0
+    assert result["max_parallel"] == 3
+    assert result["merge_policy"] == "sequential"
+    assert peak == 3
+    assert created == [46, 42, 55]
+    assert sorted(removed) == [42, 46, 55]
 
 
 def test_golden_checkpoint_cli_compatibility_uses_major_version() -> None:

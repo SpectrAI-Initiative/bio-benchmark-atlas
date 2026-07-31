@@ -87,6 +87,8 @@ def test_local_paper_intake_skill_and_entrypoint_exist() -> None:
     agent = (skill / "agents" / "openai.yaml").read_text(encoding="utf-8")
     assert text.startswith("---\nname: biobench-paper-intake\n")
     assert "$biobench-paper-intake issue 44" in text
+    assert "local_paper_intake.py batch" in text
+    assert "at most three active runs" in text
     assert "biobench-paper-intake" in agent
     assert (ROOT / "scripts" / "local_paper_intake.py").exists()
 

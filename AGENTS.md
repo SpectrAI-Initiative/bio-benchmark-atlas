@@ -7,6 +7,9 @@
 - Never commit papers, XML/HTML full text, evidence excerpts, Codex transcripts, extraction drafts, verification drafts, or files under `.paper-intake-tmp/`.
 - Never estimate a numeric result from an unlabeled chart. Treat parse failures separately from source fields that are genuinely not reported.
 - Process one target paper per PR, together with only the creator sources needed to establish a new benchmark.
+- Up to three owner-selected papers may run concurrently through
+  `local_paper_intake.py batch`; each run must use its own worktree, branch,
+  temporary source packet, heartbeat, and PR. Merge those PRs sequentially.
 - Do not assign permanent Registry IDs manually when the deterministic paper generator can assign them.
 - Keep VirBench `legacy/unclassified`; paper intake must not refine it incidentally.
 

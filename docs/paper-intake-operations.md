@@ -39,6 +39,7 @@ The Skill runs one of:
 python scripts/local_paper_intake.py preflight --issue 44
 python scripts/local_paper_intake.py run --issue 44
 python scripts/local_paper_intake.py run --url https://doi.org/...
+python scripts/local_paper_intake.py batch --issue 46 --issue 42 --issue 55
 python scripts/local_paper_intake.py resume --run-id <id>
 ```
 
@@ -63,6 +64,28 @@ extraction. The downloaded PDF, prepared text, and page images remain private
 temporary artifacts and are deleted in `finally`.
 
 At run start the orchestrator labels the Issue `local-intake-in-progress` and posts a claim comment containing a random local run ID, base SHA, and timestamp. A second active run for the same Issue stops. An existing branch or PR is resumed rather than duplicated.
+
+### Safe batch mode
+
+`batch` accepts up to three owner-selected Issues. It creates a separate Git
+worktree under `~/.codex/biobench-atlas/worktrees/` for each paper and runs the
+independent double-pass pipelines concurrently. A file-locked local state store
+enforces both invariants:
+
+- one active run per Issue;
+- no more than three active runs across the repository.
+
+Heartbeats are stored separately under
+`~/.codex/biobench-atlas/heartbeats/<run-id>.json`, so one verifier cannot
+overwrite another run's liveness state. `status` lists all runs; use
+`status --run-id <id>` for a single run.
+
+Batching changes latency, not evidence policy. Each paper still has its own
+source packet, extractor session, verifier session, deterministic generation,
+branch, PR, CI, and exact-SHA owner approval. Do not place two papers that may
+modify the same Registry entities in one batch. PRs are merged sequentially;
+after the first merge, rebase the next PR on the latest `main` and obtain a new
+owner approval for its new head SHA.
 
 ## 3. Local double pass
 
@@ -174,6 +197,10 @@ The PR contains normalized Registry records and an audit summary, never the sour
 ```
 
 `paper-owner-gate` accepts only an exact comment by `wang422003` whose timestamp is later than the current head commit. Other users, abbreviated or stale SHAs, edited mismatches, and old comments fail. A new push changes the SHA and requires another comment. Auto-merge remains disabled.
+
+Several Ready PRs may exist after a safe batch, but they are never bulk-merged.
+Merge the first clean PR, rebase and revalidate the second, approve its current
+full SHA, then continue to the third.
 
 The `Validate` workflow keeps the existing required `validate` check but runs
 three expensive paths concurrently: Registry tests, paper-intake tests, and the

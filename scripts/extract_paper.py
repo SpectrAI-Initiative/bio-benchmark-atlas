@@ -41,7 +41,12 @@ LOCAL_PROVIDER_BASE_URL = "https://chatgpt.com/backend-api/codex"
 CODEX_STAGE_ATTEMPTS = 3
 CODEX_STAGE_TIMEOUT_SECONDS = 45 * 60
 HEARTBEAT_INTERVAL_SECONDS = 60
-HEARTBEAT_PATH = Path.home() / ".codex" / "biobench-atlas" / "heartbeat.json"
+HEARTBEAT_ROOT = Path.home() / ".codex" / "biobench-atlas" / "heartbeats"
+DEFAULT_HEARTBEAT_PATH = Path.home() / ".codex" / "biobench-atlas" / "heartbeat.json"
+# Retain the legacy constant as a test/compatibility override. Production
+# heartbeats are per-run files under HEARTBEAT_ROOT so concurrent paper reviews
+# cannot overwrite one another.
+HEARTBEAT_PATH = DEFAULT_HEARTBEAT_PATH
 MAX_PDF_IMAGE_PAGES = 40
 MAX_VERIFIER_CONTEXT_PAGES = 60
 PDF_IMAGE_DPI = 144
@@ -344,6 +349,15 @@ class CodexExecutionError(PaperExtractionError):
     """The local Codex executable or session failed before evidence could be reviewed."""
 
 
+def heartbeat_path(run_id: str) -> Path:
+    """Return the privacy-safe heartbeat path for one local intake run."""
+
+    if HEARTBEAT_PATH != DEFAULT_HEARTBEAT_PATH:
+        return HEARTBEAT_PATH
+    safe_run_id = re.sub(r"[^0-9A-Za-z._-]", "-", run_id)
+    return HEARTBEAT_ROOT / f"{safe_run_id}.json"
+
+
 class _StageHeartbeat:
     """Persist privacy-safe liveness metadata while a blocking Codex stage runs."""
 
@@ -351,6 +365,7 @@ class _StageHeartbeat:
         self.run_id = run_id
         self.run_label = run_label
         self.stage = stage
+        self.path = heartbeat_path(run_id)
         self.started_at = datetime.now(timezone.utc).replace(microsecond=0)
         self.started_monotonic = time.monotonic()
         self._stop = threading.Event()
@@ -377,15 +392,14 @@ class _StageHeartbeat:
             payload["error_type"] = error_type
         return payload
 
-    @staticmethod
-    def _write(payload: dict[str, Any]) -> None:
-        HEARTBEAT_PATH.parent.mkdir(parents=True, exist_ok=True)
-        temporary = HEARTBEAT_PATH.with_suffix(".tmp")
+    def _write(self, payload: dict[str, Any]) -> None:
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        temporary = self.path.with_suffix(".tmp")
         temporary.write_text(
             json.dumps(payload, indent=2, sort_keys=True) + "\n",
             encoding="utf-8",
         )
-        temporary.replace(HEARTBEAT_PATH)
+        temporary.replace(self.path)
 
     def _pulse(self) -> None:
         while not self._stop.wait(HEARTBEAT_INTERVAL_SECONDS):

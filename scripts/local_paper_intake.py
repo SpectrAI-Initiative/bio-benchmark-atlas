@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import fcntl
 import json
 import os
 import re
@@ -13,6 +14,8 @@ import sys
 import tempfile
 import time
 import uuid
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from contextlib import contextmanager
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -23,11 +26,13 @@ from extract_paper import (
     EXTRACTOR_PROMPT,
     HEARTBEAT_INTERVAL_SECONDS,
     HEARTBEAT_PATH,
+    HEARTBEAT_ROOT,
     PROMPT_VERSION,
     VERIFIER_PROMPT,
     CodexExecutionError,
     PaperExtractionError,
     codex_version,
+    heartbeat_path,
 )
 from generate_paper_records import GenerationBlocked, chinese_summary, stable_work_id
 from paper_extraction_eval import golden_input_hash, run_golden
@@ -55,9 +60,20 @@ REPOSITORY = "SpectrAI-Initiative/bio-benchmark-atlas"
 OWNER_LOGIN = "wang422003"
 STATE_ROOT = Path.home() / ".codex" / "biobench-atlas"
 RUN_ROOT = STATE_ROOT / "runs"
+WORKTREE_ROOT = STATE_ROOT / "worktrees"
+RUN_LOCK_PATH = STATE_ROOT / "intake.lock"
 GOLDEN_RECEIPT = STATE_ROOT / "golden.json"
 OWNER = "wang422003"
 MAX_GOLDEN_AGE = timedelta(days=35)
+MAX_PARALLEL_RUNS = 3
+ACTIVE_RUN_STATUSES = {
+    "reserved",
+    "claimed",
+    "reviewing",
+    "reviewed",
+    "validating",
+    "publishing",
+}
 
 CommandRunner = Callable[..., subprocess.CompletedProcess[str]]
 GH_TRANSIENT_ERRORS = (
@@ -77,24 +93,17 @@ class LocalIntakeError(RuntimeError):
     """A local workflow precondition or lifecycle operation failed."""
 
 
-def heartbeat_status(*, now: datetime | None = None) -> dict[str, Any]:
-    """Return safe liveness state without exposing source or model content."""
+def _heartbeat_payload(path: Path, *, now: datetime) -> dict[str, Any]:
+    """Read one privacy-safe heartbeat and calculate its liveness."""
 
-    if not HEARTBEAT_PATH.exists():
-        return {
-            "status": "not-started",
-            "heartbeat_path": str(HEARTBEAT_PATH),
-            "stale": False,
-        }
     try:
-        payload = json.loads(HEARTBEAT_PATH.read_text(encoding="utf-8"))
+        payload = json.loads(path.read_text(encoding="utf-8"))
         updated_at = datetime.fromisoformat(str(payload["updated_at"]))
     except (OSError, KeyError, ValueError, json.JSONDecodeError) as error:
-        raise LocalIntakeError("local heartbeat is unreadable") from error
-    current = now or datetime.now(timezone.utc)
+        raise LocalIntakeError(f"local heartbeat is unreadable: {path.name}") from error
     if updated_at.tzinfo is None:
         updated_at = updated_at.replace(tzinfo=timezone.utc)
-    age_seconds = max(0, round((current - updated_at).total_seconds()))
+    age_seconds = max(0, round((now - updated_at).total_seconds()))
     process_pid = payload.get("process_pid")
     process_alive = False
     if isinstance(process_pid, int) and process_pid > 0:
@@ -110,8 +119,51 @@ def heartbeat_status(*, now: datetime | None = None) -> dict[str, Any]:
         payload.get("status") == "running"
         and (age_seconds > stale_after or not process_alive)
     )
-    payload["heartbeat_path"] = str(HEARTBEAT_PATH)
+    payload["heartbeat_path"] = str(path)
     return payload
+
+
+def heartbeat_status(
+    *,
+    run_id: str | None = None,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    """Return one or all safe liveness states without exposing paper content."""
+
+    current = now or datetime.now(timezone.utc)
+    if run_id is not None:
+        path = heartbeat_path(run_id)
+        if not path.exists():
+            return {
+                "status": "not-started",
+                "run_id": run_id,
+                "heartbeat_path": str(path),
+                "stale": False,
+            }
+        return _heartbeat_payload(path, now=current)
+
+    paths = sorted(HEARTBEAT_ROOT.glob("*.json")) if HEARTBEAT_ROOT.exists() else []
+    # Read the legacy singleton only when no per-run heartbeat exists.
+    if not paths and HEARTBEAT_PATH.exists():
+        paths = [HEARTBEAT_PATH]
+    if not paths:
+        return {
+            "status": "idle",
+            "active_count": 0,
+            "max_parallel": MAX_PARALLEL_RUNS,
+            "runs": [],
+        }
+    runs = [_heartbeat_payload(path, now=current) for path in paths]
+    active = [
+        payload for payload in runs
+        if payload.get("status") == "running" and not payload.get("stale")
+    ]
+    return {
+        "status": "running" if active else "idle",
+        "active_count": len(active),
+        "max_parallel": MAX_PARALLEL_RUNS,
+        "runs": runs,
+    }
 
 
 @dataclass(frozen=True)
@@ -129,6 +181,16 @@ class Preflight:
     base_sha: str
     codex_cli_version: str
     golden_status: str
+
+
+@dataclass(frozen=True)
+class BatchWorktree:
+    issue_number: int
+    run_id: str
+    work_id_hint: str
+    branch: str
+    path: Path
+    base_sha: str
 
 
 def _run(
@@ -356,6 +418,158 @@ def _existing_pr(issue_number: int, *, runner: CommandRunner = subprocess.run) -
     return None
 
 
+def _batch_worktree_plan(
+    issue_numbers: list[int],
+    *,
+    runner: CommandRunner = subprocess.run,
+) -> list[BatchWorktree]:
+    """Plan independent worktrees without downloading or reviewing paper content."""
+
+    if not issue_numbers:
+        raise LocalIntakeError("batch requires at least one --issue")
+    if len(set(issue_numbers)) != len(issue_numbers):
+        raise LocalIntakeError("batch issue numbers must be unique")
+    base_sha = _clean_current_main(runner=runner)
+    version = check_local_tools(runner=runner)
+    require_fresh_golden(version=version)
+    with _run_state_lock():
+        active = _active_run_states()
+        active_issues = {int(item["issue_number"]) for item in active}
+        duplicated = sorted(active_issues & set(issue_numbers))
+        if duplicated:
+            raise LocalIntakeError(
+                "batch includes issues that already have active runs: "
+                + ", ".join(f"#{number}" for number in duplicated)
+            )
+        available = MAX_PARALLEL_RUNS - len(active)
+        if len(issue_numbers) > available:
+            raise LocalIntakeError(
+                f"batch requests {len(issue_numbers)} runs but only {available} of "
+                f"{MAX_PARALLEL_RUNS} local slots are available"
+            )
+
+    plans: list[BatchWorktree] = []
+    for issue_number in issue_numbers:
+        issue = _issue(issue_number, runner=runner)
+        if "local-intake-in-progress" in _issue_labels(issue):
+            raise LocalIntakeError(f"issue #{issue_number} already has an active local intake")
+        existing_pr = _existing_pr(issue_number, runner=runner)
+        if existing_pr:
+            raise LocalIntakeError(f"issue #{issue_number} already has intake PR {existing_pr}")
+        work_id, _ = _work_hint(issue)
+        run_id = str(uuid.uuid4())
+        branch = f"paper-intake/{work_id}-{issue_number}"
+        plans.append(BatchWorktree(
+            issue_number=issue_number,
+            run_id=run_id,
+            work_id_hint=work_id,
+            branch=branch,
+            path=WORKTREE_ROOT / run_id,
+            base_sha=base_sha,
+        ))
+    return plans
+
+
+def _create_batch_worktree(
+    plan: BatchWorktree,
+    *,
+    runner: CommandRunner = subprocess.run,
+) -> None:
+    WORKTREE_ROOT.mkdir(parents=True, exist_ok=True)
+    local_branches = _git("branch", "--list", plan.branch, runner=runner).splitlines()
+    if local_branches:
+        raise LocalIntakeError(f"local branch already exists: {plan.branch}")
+    remote = _git("ls-remote", "--heads", "origin", plan.branch, runner=runner)
+    if remote:
+        raise LocalIntakeError(f"remote branch already exists: {plan.branch}")
+    _run(
+        [
+            "git", "worktree", "add", "-b", plan.branch,
+            str(plan.path), plan.base_sha,
+        ],
+        runner=runner,
+    )
+
+
+def _remove_batch_worktree(
+    plan: BatchWorktree,
+    *,
+    runner: CommandRunner = subprocess.run,
+) -> None:
+    _run(
+        ["git", "worktree", "remove", "--force", str(plan.path)],
+        runner=runner,
+        check=False,
+    )
+
+
+def _run_batch_worker(plan: BatchWorktree) -> dict[str, Any]:
+    command = [
+        sys.executable,
+        "scripts/local_paper_intake.py",
+        "run",
+        "--issue",
+        str(plan.issue_number),
+        "--run-id",
+        plan.run_id,
+        "--prepared-worktree",
+    ]
+    completed = subprocess.run(
+        command,
+        cwd=plan.path,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    output = completed.stdout.strip()
+    pr_url = next(
+        (line.strip() for line in reversed(output.splitlines()) if "/pull/" in line),
+        None,
+    )
+    return {
+        "issue_number": plan.issue_number,
+        "run_id": plan.run_id,
+        "branch": plan.branch,
+        "status": "pr-open" if completed.returncode == 0 and pr_url else "failed",
+        "pr_url": pr_url,
+        "error": (
+            None
+            if completed.returncode == 0 and pr_url
+            else completed.stderr[-2000:].strip() or "worker did not report a PR URL"
+        ),
+    }
+
+
+def run_batch(
+    issue_numbers: list[int],
+    *,
+    runner: CommandRunner = subprocess.run,
+) -> dict[str, Any]:
+    """Run up to three independent paper intakes and leave merging serialized."""
+
+    plans = _batch_worktree_plan(issue_numbers, runner=runner)
+    prepared: list[BatchWorktree] = []
+    try:
+        for plan in plans:
+            _create_batch_worktree(plan, runner=runner)
+            prepared.append(plan)
+        results: list[dict[str, Any]] = []
+        with ThreadPoolExecutor(max_workers=min(MAX_PARALLEL_RUNS, len(plans))) as executor:
+            futures = {executor.submit(_run_batch_worker, plan): plan for plan in plans}
+            for future in as_completed(futures):
+                results.append(future.result())
+        results.sort(key=lambda item: issue_numbers.index(int(item["issue_number"])))
+        return {
+            "max_parallel": MAX_PARALLEL_RUNS,
+            "merge_policy": "sequential",
+            "results": results,
+            "failed": sum(item["status"] != "pr-open" for item in results),
+        }
+    finally:
+        for plan in prepared:
+            _remove_batch_worktree(plan, runner=runner)
+
+
 def _clean_current_main(*, runner: CommandRunner = subprocess.run) -> str:
     if _git("status", "--porcelain", runner=runner):
         raise LocalIntakeError("working tree is not clean")
@@ -366,6 +580,15 @@ def _clean_current_main(*, runner: CommandRunner = subprocess.run) -> str:
     if local_sha != remote_sha:
         raise LocalIntakeError("local main is not fast-forward synchronized with origin/main")
     return local_sha
+
+
+def _clean_prepared_worktree(*, runner: CommandRunner = subprocess.run) -> str:
+    if _git("status", "--porcelain", runner=runner):
+        raise LocalIntakeError("prepared paper-intake worktree is not clean")
+    branch = _git("branch", "--show-current", runner=runner)
+    if not branch.startswith("paper-intake/"):
+        raise LocalIntakeError("prepared worktree must use a paper-intake branch")
+    return _git("rev-parse", "HEAD", runner=runner)
 
 
 def _source_details(issue: dict[str, Any]) -> tuple[str, bool, bool]:
@@ -420,7 +643,11 @@ def preflight_issue(
     require_clean_main: bool = True,
 ) -> Preflight:
     version = check_local_tools(runner=runner)
-    base_sha = _clean_current_main(runner=runner) if require_clean_main else _git("rev-parse", "HEAD", runner=runner)
+    base_sha = (
+        _clean_current_main(runner=runner)
+        if require_clean_main
+        else _clean_prepared_worktree(runner=runner)
+    )
     issue = _issue(issue_number, runner=runner)
     source_url, rights_confirmed, discovered = _source_details(issue)
     sections = parse_issue_form(issue["body"])
@@ -544,6 +771,19 @@ def _state_path(run_id: str) -> Path:
     return RUN_ROOT / f"{run_id}.json"
 
 
+@contextmanager
+def _run_state_lock() -> Any:
+    """Serialize local slot reservations across independent intake processes."""
+
+    STATE_ROOT.mkdir(parents=True, exist_ok=True)
+    with RUN_LOCK_PATH.open("a+", encoding="utf-8") as handle:
+        fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+
+
 def _save_state(run_id: str, payload: dict[str, Any]) -> None:
     RUN_ROOT.mkdir(parents=True, exist_ok=True)
     _state_path(run_id).write_text(
@@ -559,7 +799,86 @@ def _load_state(run_id: str) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _process_alive(pid: Any) -> bool:
+    if not isinstance(pid, int) or pid <= 0:
+        return False
+    try:
+        os.kill(pid, 0)
+    except (OSError, ValueError):
+        return False
+    return True
+
+
+def _active_run_states() -> list[dict[str, Any]]:
+    """Return live reserved/reviewing runs and mark exited owners stale."""
+
+    if not RUN_ROOT.exists():
+        return []
+    active: list[dict[str, Any]] = []
+    for path in sorted(RUN_ROOT.glob("*.json")):
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        if payload.get("status") not in ACTIVE_RUN_STATUSES:
+            continue
+        if _process_alive(payload.get("process_pid")):
+            active.append(payload)
+            continue
+        payload["status"] = "stale"
+        payload["stale_at"] = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+        path.write_text(
+            json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+    return active
+
+
+def _reserve_run(
+    *,
+    run_id: str,
+    issue_number: int,
+    base_sha: str,
+    process_pid: int | None = None,
+) -> None:
+    """Reserve one of three local slots and enforce one active run per Issue."""
+
+    with _run_state_lock():
+        active = _active_run_states()
+        duplicate = next(
+            (item for item in active if int(item.get("issue_number", -1)) == issue_number),
+            None,
+        )
+        if duplicate is not None:
+            raise LocalIntakeError(
+                f"issue #{issue_number} already has active local run {duplicate.get('run_id')}"
+            )
+        if len(active) >= MAX_PARALLEL_RUNS:
+            identifiers = ", ".join(str(item.get("run_id")) for item in active)
+            raise LocalIntakeError(
+                f"local intake concurrency limit is {MAX_PARALLEL_RUNS}; active runs: {identifiers}"
+            )
+        _save_state(run_id, {
+            "run_id": run_id,
+            "issue_number": issue_number,
+            "base_sha": base_sha,
+            "status": "reserved",
+            "process_pid": process_pid or os.getpid(),
+            "started_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+        })
+
+
+def _update_state(run_id: str, **changes: Any) -> None:
+    with _run_state_lock():
+        payload = _load_state(run_id)
+        payload.update(changes)
+        payload["updated_at"] = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+        _save_state(run_id, payload)
+
+
 def _validate_generated_output(*, runner: CommandRunner) -> None:
+    if not (ROOT / "node_modules").exists():
+        _run(["pnpm", "install", "--frozen-lockfile", "--prefer-offline"], runner=runner)
     commands = [
         [sys.executable, "scripts/validate_registry.py"],
         [sys.executable, "-m", "pytest"],
@@ -582,7 +901,13 @@ def _publish_records(
     branch = f"paper-intake/{work_id}-{issue['number']}"
     if _existing_pr(int(issue["number"]), runner=runner):
         raise LocalIntakeError("an intake PR already exists for this issue")
-    _git("switch", "-c", branch, runner=runner)
+    current_branch = _git("branch", "--show-current", runner=runner)
+    if current_branch == "main":
+        _git("switch", "-c", branch, runner=runner)
+    elif current_branch != branch:
+        raise LocalIntakeError(
+            f"prepared worktree branch is {current_branch}, expected {branch}"
+        )
     _git("add", "registry", runner=runner)
     staged = _git("diff", "--cached", "--name-only", runner=runner).splitlines()
     if not staged or any(not name.startswith("registry/") for name in staged):
@@ -647,95 +972,104 @@ def run_issue(
     issue_number: int,
     *,
     run_id: str | None = None,
+    prepared_worktree: bool = False,
     runner: CommandRunner = subprocess.run,
 ) -> str:
     selected_run_id = run_id or str(uuid.uuid4())
-    preflight = preflight_issue(issue_number, runner=runner)
+    preflight = preflight_issue(
+        issue_number,
+        runner=runner,
+        require_clean_main=not prepared_worktree,
+    )
     if preflight.existing_pr_url:
         raise LocalIntakeError(f"an intake PR already exists: {preflight.existing_pr_url}")
     if preflight.golden_status != "current":
         raise LocalIntakeError(preflight.golden_status)
     issue = _issue(issue_number, runner=runner)
     conflict_resolution = _owner_conflict_resolution(issue)
-    _save_state(selected_run_id, {
-        "run_id": selected_run_id,
-        "issue_number": issue_number,
-        "base_sha": preflight.base_sha,
-        "status": "claimed",
-        "started_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
-    })
-    _claim_issue(
-        issue,
-        selected_run_id,
-        preflight.base_sha,
-        conflict_resolution=conflict_resolution,
-        runner=runner,
-    )
-    records, source, result = process_issue(
-        issue["body"],
-        discovered="paper-candidate" in _issue_labels(issue),
-        extractor_model=DEFAULT_MODEL,
-        verifier_model=DEFAULT_MODEL,
-        write=True,
-        local_run_id=selected_run_id,
-        owner_conflict_resolution=conflict_resolution,
-    )
-    _save_state(selected_run_id, {
-        "run_id": selected_run_id,
-        "issue_number": issue_number,
-        "base_sha": preflight.base_sha,
-        "status": "reviewed",
-        "source_sha256": source.content_sha256,
-        "extractor_thread_id": result.extractor_thread_id,
-        "verifier_thread_id": result.verifier_thread_id,
-        "codex_cli_version": result.codex_cli_version,
-    })
-    _validate_generated_output(runner=runner)
-    work_id = records.work["id"] if records.work else records.uses[0]["work_id"]
-    receipt = require_fresh_golden(version=result.codex_cli_version)
-    summary = chinese_summary(records)
-    summary += (
-        f"\nSource SHA256: `{source.content_sha256}`  \n"
-        f"Extractor thread: `{result.extractor_thread_id}`  \n"
-        f"Verifier thread: `{result.verifier_thread_id}`  \n"
-        f"Codex CLI: `{result.codex_cli_version}`  \n"
-        f"Local run: `{selected_run_id}`  \n"
-        f"Golden: `{receipt['completed_at']}` · `{receipt['input_hash']}`\n\n"
-        "Confirmed: no paper full text, long excerpt, Codex transcript, extraction draft, "
-        "or verification draft is included in this PR.\n"
-    )
-    if conflict_resolution:
-        summary += (
-            "\nOwner-approved conflict handling: preserve the independently supported "
-            f"root total `{conflict_resolution['benchmark_total']}`; exclude all conflicted "
-            "benchmark subcounts and publish the inventory caveat.\n"
-        )
-        if conflict_resolution.get("exclude_creator_evaluation"):
-            summary += (
-                "The creator-paper evaluation is published only as a partial relationship: "
-                "conflicted version, scope, protocol, metric, and result claims are excluded "
-                "pending manual reconciliation.\n"
-            )
-    pr_url = _publish_records(
-        issue=issue,
-        work_id=work_id,
+    _reserve_run(
         run_id=selected_run_id,
-        summary=summary,
-        runner=runner,
+        issue_number=issue_number,
+        base_sha=preflight.base_sha,
     )
-    _mark_issue_success(issue_number, pr_url, runner=runner)
-    _save_state(selected_run_id, {
-        "run_id": selected_run_id,
-        "issue_number": issue_number,
-        "base_sha": preflight.base_sha,
-        "status": "pr-open",
-        "pr_url": pr_url,
-        "source_sha256": source.content_sha256,
-        "extractor_thread_id": result.extractor_thread_id,
-        "verifier_thread_id": result.verifier_thread_id,
-        "codex_cli_version": result.codex_cli_version,
-    })
-    return pr_url
+    try:
+        _claim_issue(
+            issue,
+            selected_run_id,
+            preflight.base_sha,
+            conflict_resolution=conflict_resolution,
+            runner=runner,
+        )
+        _update_state(selected_run_id, status="reviewing")
+        records, source, result = process_issue(
+            issue["body"],
+            discovered="paper-candidate" in _issue_labels(issue),
+            extractor_model=DEFAULT_MODEL,
+            verifier_model=DEFAULT_MODEL,
+            write=True,
+            local_run_id=selected_run_id,
+            owner_conflict_resolution=conflict_resolution,
+        )
+        _update_state(
+            selected_run_id,
+            status="reviewed",
+            source_sha256=source.content_sha256,
+            extractor_thread_id=result.extractor_thread_id,
+            verifier_thread_id=result.verifier_thread_id,
+            codex_cli_version=result.codex_cli_version,
+        )
+        _update_state(selected_run_id, status="validating")
+        _validate_generated_output(runner=runner)
+        work_id = records.work["id"] if records.work else records.uses[0]["work_id"]
+        receipt = require_fresh_golden(version=result.codex_cli_version)
+        summary = chinese_summary(records)
+        summary += (
+            f"\nSource SHA256: `{source.content_sha256}`  \n"
+            f"Extractor thread: `{result.extractor_thread_id}`  \n"
+            f"Verifier thread: `{result.verifier_thread_id}`  \n"
+            f"Codex CLI: `{result.codex_cli_version}`  \n"
+            f"Local run: `{selected_run_id}`  \n"
+            f"Golden: `{receipt['completed_at']}` · `{receipt['input_hash']}`\n\n"
+            "Confirmed: no paper full text, long excerpt, Codex transcript, extraction draft, "
+            "or verification draft is included in this PR.\n"
+        )
+        if conflict_resolution:
+            summary += (
+                "\nOwner-approved conflict handling: preserve the independently supported "
+                f"root total `{conflict_resolution['benchmark_total']}`; exclude all conflicted "
+                "benchmark subcounts and publish the inventory caveat.\n"
+            )
+            if conflict_resolution.get("exclude_creator_evaluation"):
+                summary += (
+                    "The creator-paper evaluation is published only as a partial relationship: "
+                    "conflicted version, scope, protocol, metric, and result claims are excluded "
+                    "pending manual reconciliation.\n"
+                )
+        _update_state(selected_run_id, status="publishing")
+        pr_url = _publish_records(
+            issue=issue,
+            work_id=work_id,
+            run_id=selected_run_id,
+            summary=summary,
+            runner=runner,
+        )
+        _mark_issue_success(issue_number, pr_url, runner=runner)
+        _update_state(
+            selected_run_id,
+            status="pr-open",
+            pr_url=pr_url,
+            source_sha256=source.content_sha256,
+            extractor_thread_id=result.extractor_thread_id,
+            verifier_thread_id=result.verifier_thread_id,
+            codex_cli_version=result.codex_cli_version,
+        )
+        return pr_url
+    except Exception:
+        try:
+            _update_state(selected_run_id, status="failed")
+        except Exception:
+            pass
+        raise
 
 
 def _resolve_issue_argument(args: argparse.Namespace, *, runner: CommandRunner) -> int:
@@ -754,24 +1088,45 @@ def main() -> int:
         source = command.add_mutually_exclusive_group(required=True)
         source.add_argument("--issue", type=int)
         source.add_argument("--url")
+        if name == "run":
+            command.add_argument("--run-id", help=argparse.SUPPRESS)
+            command.add_argument(
+                "--prepared-worktree",
+                action="store_true",
+                help=argparse.SUPPRESS,
+            )
+    batch = subparsers.add_parser("batch")
+    batch.add_argument("--issue", type=int, action="append", required=True)
     resume = subparsers.add_parser("resume")
     resume.add_argument("--run-id", required=True)
     subparsers.add_parser("golden")
-    subparsers.add_parser("status")
+    status = subparsers.add_parser("status")
+    status.add_argument("--run-id")
     args = parser.parse_args()
 
     issue_number: int | None = None
+    selected_run_id: str | None = None
     try:
         if args.command == "status":
-            print(json.dumps(heartbeat_status(), ensure_ascii=False, indent=2, sort_keys=True))
+            print(json.dumps(
+                heartbeat_status(run_id=args.run_id),
+                ensure_ascii=False,
+                indent=2,
+                sort_keys=True,
+            ))
             return 0
         if args.command == "golden":
             receipt = run_golden(output=GOLDEN_RECEIPT)
             print(json.dumps(receipt, ensure_ascii=False, indent=2, sort_keys=True))
             return 0
+        if args.command == "batch":
+            result = run_batch(args.issue)
+            print(json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True))
+            return 1 if result["failed"] else 0
         if args.command == "resume":
             state = _load_state(args.run_id)
             issue_number = int(state["issue_number"])
+            selected_run_id = args.run_id
             if state.get("status") == "pr-open" and state.get("pr_url"):
                 print(state["pr_url"])
                 return 0
@@ -781,20 +1136,27 @@ def main() -> int:
         if args.command == "preflight":
             print(json.dumps(asdict(preflight_issue(issue_number)), ensure_ascii=False, indent=2, sort_keys=True))
             return 0
-        print(run_issue(issue_number))
+        selected_run_id = args.run_id or str(uuid.uuid4())
+        print(run_issue(
+            issue_number,
+            run_id=selected_run_id,
+            prepared_worktree=args.prepared_worktree,
+        ))
         return 0
     except Exception as error:
         if issue_number is not None and args.command in {"run", "resume"}:
-            label = (
-                "needs-human-review"
-                if isinstance(error, (GenerationBlocked, PaperExtractionError, SourceAcquisitionError))
-                and not isinstance(error, CodexExecutionError)
-                else "intake-failed"
-            )
-            try:
-                _mark_issue_failure(issue_number, label, runner=subprocess.run)
-            except Exception:
-                pass
+            state_exists = selected_run_id is not None and _state_path(selected_run_id).exists()
+            if state_exists:
+                label = (
+                    "needs-human-review"
+                    if isinstance(error, (GenerationBlocked, PaperExtractionError, SourceAcquisitionError))
+                    and not isinstance(error, CodexExecutionError)
+                    else "intake-failed"
+                )
+                try:
+                    _mark_issue_failure(issue_number, label, runner=subprocess.run)
+                except Exception:
+                    pass
         print(f"paper intake stopped: {error}", file=sys.stderr)
         return 1
 

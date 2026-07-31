@@ -38,6 +38,17 @@ Accepted invocations are `$biobench-paper-intake issue 44` and `$biobench-paper-
    the verifier receives complete text for cited pages and bounded adjacent-page
    context plus only the cited images. These packets are temporary source views,
    not summaries, and are deleted with the other local evidence artifacts.
+   For two or three independent papers, use the safe batch entry:
+
+   ```bash
+   python3 scripts/local_paper_intake.py batch \
+     --issue <number-1> --issue <number-2> --issue <number-3>
+   ```
+
+   The batch coordinator creates one worktree and branch per Issue, enforces one
+   active run per Issue and at most three active runs across the repository, and
+   executes the double passes concurrently. Each paper still creates a separate
+   PR. Review, rebase when necessary, approve, and merge those PRs sequentially.
 6. Inspect the diff and PR audit summary. Confirm that no paper, excerpt, transcript, draft JSON, verification JSON, or temporary file is tracked.
 7. Wait for `validate` and `playwright`. Registry tests, paper-intake tests, and
    deterministic registry/site builds run as parallel `validate` shards while a
@@ -54,12 +65,13 @@ Accepted invocations are `$biobench-paper-intake issue 44` and `$biobench-paper-
 - `preflight --issue N`: inspect identity, source, duplicates, tools, and the golden gate without changing Registry.
 - `preflight --url URL`: reuse or create the canonical intake issue, then inspect it.
 - `run --issue N`: execute the local double pass, generate records, validate, commit, push, and open a PR.
+- `batch --issue N --issue M [--issue K]`: run up to three independent intakes concurrently in separate worktrees; never merge them automatically.
 - `resume --run-id ID`: restart from the stored issue reference; full text and model drafts are reacquired, never persisted.
 - `golden`: run the local precision regression groups and save a sanitized receipt under `~/.codex/biobench-atlas/`.
-- `status`: inspect the current stage heartbeat and detect a stale or exited local run.
+- `status`: inspect every current stage heartbeat; add `--run-id ID` for one run.
 
 Long extractor and verifier stages write privacy-safe liveness metadata every
-60 seconds to `~/.codex/biobench-atlas/heartbeat.json`. The heartbeat contains
+60 seconds to `~/.codex/biobench-atlas/heartbeats/<run-id>.json`. Each heartbeat contains
 only the run label, stage, process ID, timestamps, elapsed time, and terminal
 status. It must never contain paper text, source paths, claims, excerpts, or model
 output.
@@ -86,3 +98,6 @@ output.
 - Never treat a failed extraction as `not_reported`.
 - Never retry by switching to a different model or remote API.
 - Never merge automatically.
+- Do not run papers that may create or modify the same Benchmark, Work, or Model
+  in the same batch. In particular, papers that both update MoleculeNet belong
+  in consecutive batches.

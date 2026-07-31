@@ -1,0 +1,308 @@
+entity_type: benchmark
+id: crafted-experiments
+name: crafted experiments
+aliases: []
+summary: Real single-cell RNA-seq data augmented with known gene perturbations for comparing feature-selection methods.
+kind: suite
+parent_id: null
+organizations:
+- Lineberger Comprehensive Cancer Center, University of North Carolina
+- University of North Carolina at Chapel Hill
+release_date: '2025-01-07'
+latest_version: initial-release
+domains:
+- life-science
+- transcriptomics
+- single-cell
+- bioinformatics
+capabilities:
+- data-analysis
+modalities:
+- raw-omics
+task_formats:
+- unclassified
+task_counts: &id001
+  total: 24
+  basis: Explicitly reported generated inventory
+  reporting_status: reported
+  subsets: []
+coverage_notes: []
+access:
+  level: fully-open
+  tasks: Benchmarking feature-selection methods for recovery of known crafted cell groups
+  artifacts: Crafted datasets and source code for constructing experiments and benchmarking feature-selection methods
+  grader: Not established by the independently verified metadata claims.
+  license: null
+  biosafety_notes: null
+resources:
+- id: crafted-experiments-creator-paper-resource
+  type: paper
+  url: https://doi.org/10.1093/nargab/lqaf023
+  license: null
+  access_notes: Versioned creator source; full text is not mirrored.
+  last_checked: '2026-07-31'
+  pin: null
+- id: crafted-experiments-official-dataset-resource
+  type: dataset
+  url: https://zenodo.org/records/13830885
+  license: null
+  access_notes: Official resource pinned immutably during intake.
+  last_checked: '2026-07-31'
+  pin:
+    kind: version
+    value: v1.0.0
+    url: https://zenodo.org/records/13830885
+implementations: []
+versions:
+- id: crafted-experiments-initial-release-version
+  label: initial-release
+  status: current
+  release_date: '2025-01-07'
+  as_of: null
+  task_counts: *id001
+  formal_tracks: []
+  notes: Atlas snapshot label for the creator-paper release; the source does not report a formal benchmark version.
+  evidence_ids:
+  - crafted-experiments-automated-count-evidence
+  - crafted-experiments-automated-version-evidence
+audit:
+  status: audited-with-caveats
+  audited_date: '2026-07-31'
+  unresolved_fields: 2
+  notes: Automated double-pass extraction plus deterministic official-resource pin; the benchmark license remains unverified
+    and is published as null.
+field_status:
+- path: /task_counts/subsets
+  status: provisional
+  confidence: high
+  reason: The double-pass review established the root item total but did not establish an exhaustive formal-subset inventory;
+    the empty list must not be interpreted as evidence that the benchmark has no subsets.
+  evidence_ids:
+  - crafted-experiments-automated-subset-coverage-evidence
+- path: /access/license
+  status: provisional
+  confidence: high
+  reason: The double-pass review verified the official resource identity but did not establish a redistributable benchmark
+    license; the value remains null pending source-level license verification.
+  evidence_ids:
+  - crafted-experiments-automated-resource-evidence
+verification:
+  status: verified
+  last_verified: '2026-07-31'
+  notes: New family admitted after creator source and official resource verification; the unresolved benchmark license is
+    visibly flagged.
+evidence:
+- id: crafted-experiments-automated-metadata-1-evidence
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Data availability; Code availability
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: a33f0e7cd4598770b19e8ebd49922aef263968fe4179679d886c7668e9ab52e2
+  supports:
+  - /access/artifacts
+- id: crafted-experiments-automated-metadata-2-evidence
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Data availability
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: af14d8d61793a9f557d885a54cf2cdb2217108cecf08588810958e6ba2569d5f
+  supports:
+  - /access/level
+- id: crafted-experiments-automated-metadata-3-evidence
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Results — Crafted experiment applications
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: 07d222480191ea894fd47bcd16229209a80acab8a39b72bfd4caaf4655f1401c
+  supports:
+  - /access/tasks
+- id: crafted-experiments-automated-metadata-4-evidence
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Introduction
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: 0c5c0bffcf40f0951c69ed114fba8f00255e9ffdb47c3ac8b0cf7a82736ac151
+  supports:
+  - /capabilities
+- id: crafted-experiments-automated-metadata-5-evidence
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Introduction
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: 3e1b3413c90f9990f1724b500d82e06b73f746d43070107b833ac0470200b1a8
+  supports:
+  - /domains
+- id: crafted-experiments-automated-metadata-6-evidence
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Results — Construction of crafted experiments
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: 06f529272f7b8982461611c8ed44a3f2c517e8a83b90a853d44e8cb41445446f
+  supports:
+  - /kind
+- id: crafted-experiments-automated-metadata-7-evidence
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Results — Construction of crafted experiments
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: a495e559b9cad223eb8217d0bb5dece84fde9bbfb62397a61aa41993ab8afffb
+  supports:
+  - /modalities
+- id: crafted-experiments-automated-metadata-8-evidence
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Abstract
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: 9c7d94ed56234955e3af590d0f71ddc95512d00d6172b590b4fef7441b3ed56d
+  supports:
+  - /name
+- id: crafted-experiments-automated-metadata-9-evidence
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Contributor Information
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: 96a5e3c994e2c35a4d366970253271a7efa30b9765f7baf91b42ab2c85949723
+  supports:
+  - /organizations
+- id: crafted-experiments-automated-metadata-10-evidence
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Introduction
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: a700da6ffadac53812339f89289ff6a59f78616865a15f896489123e4caf11a6
+  supports:
+  - /summary
+- id: crafted-experiments-automated-bibliographic-evidence
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: other
+    value: Crossref bibliographic metadata
+    note: Resolved from the canonical paper identifier during intake.
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 937543b1533bf7b109e45d079b6772c1bc6b358b18d6eaabe89fd92ca1c28c77
+  supports:
+  - /release_date
+- id: crafted-experiments-automated-count-evidence
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Results — Construction of crafted experiments
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: 06f529272f7b8982461611c8ed44a3f2c517e8a83b90a853d44e8cb41445446f
+  supports:
+  - /task_counts/total
+  - /task_counts/basis
+  - /versions/0/task_counts/total
+  - /versions/0/task_counts/basis
+- id: crafted-experiments-automated-subset-coverage-evidence
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Results — Construction of crafted experiments
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: 06f529272f7b8982461611c8ed44a3f2c517e8a83b90a853d44e8cb41445446f
+  supports:
+  - /task_counts/subsets
+  - /versions/0/task_counts/subsets
+- id: crafted-experiments-automated-resource-evidence
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Data availability
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: 26c2b38fbd6d56cfb43907c46c68255b69de81a0bf5467213d28236efaad84ef
+  supports:
+  - /resources
+  - /access/license
+- id: crafted-experiments-automated-creator-evidence
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: other
+    value: Article DOI
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: eb2749dd0815c1edd91c79d8b811c1abfa8f4258a27f3cbfe973d38a35e76ba1
+  supports:
+  - /resources/0
+- id: crafted-experiments-automated-version-evidence
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: other
+    value: Article DOI
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: eb2749dd0815c1edd91c79d8b811c1abfa8f4258a27f3cbfe973d38a35e76ba1
+  supports:
+  - /latest_version
+  - /versions/0

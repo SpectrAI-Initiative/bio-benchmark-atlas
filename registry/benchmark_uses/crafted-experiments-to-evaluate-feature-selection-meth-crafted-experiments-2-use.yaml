@@ -1,0 +1,294 @@
+entity_type: benchmark_use
+id: crafted-experiments-to-evaluate-feature-selection-meth-crafted-experiments-2-use
+work_id: crafted-experiments-to-evaluate-feature-selection-meth
+work_version_id: crafted-experiments-to-evaluate-feature-selection-meth-2025-03-19
+benchmark_id: crafted-experiments
+benchmark_version: null
+relation_type: evaluation
+status: partial
+model_ids:
+- kim-zhou-and-chen-hippo
+- liu-et-al-pp-anb
+- liu-et-al-qq-anb
+- liu-et-al-wdist-med
+- satija-et-al-seurat-disp
+- stuart-et-al-seurat-vst
+- townes-et-al-deviancefs
+scope:
+  type: unknown
+  subset_kind: not-reported
+  n: 24
+  subset_id: null
+  selection: null
+  selection_method: Guided tutorials and default parameters; top 2000 ranked features per method, except HIPPO used its zero-proportion-test
+    cutoff
+  reporting_status: not_reported
+metric_labels:
+- MultiK low-resolution rank
+- DiProPerm Z scores
+- average rank
+- proportion of crafted genes selected
+- number of crafted genes selected
+- number of crafted genes not selected
+evaluation_run_ids: []
+reporting_gaps:
+- Benchmark version is not reported.
+- Exact software versions and random seeds are not reported.
+- Figure 4 bar values are unlabeled, so no numeric model results were extracted.
+- Conflicted model claim omitted after independent verification; the evaluation relationship is published conservatively.
+- Conflicted repeats claim omitted after independent verification; the evaluation relationship is published conservatively.
+- benchmark version
+- numeric result
+notes: AI-assisted double-pass extraction; values are limited to independently supported claims.
+verification:
+  status: verified
+  last_verified: '2026-07-31'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: crafted-experiments-to-evaluate-feature-selection-meth-crafted-experiments-2-use-evidence-1
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Results — Crafted experiment applications
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: 5cf2700309cfac598c253a9540a564c1ca92dfc68a4b3cc4c53a12d3d7f84efd
+  supports:
+  - /relation_type
+- id: crafted-experiments-to-evaluate-feature-selection-meth-crafted-experiments-2-use-evidence-2
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Results — Crafted experiment applications
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: 5a1cb25d9939c19ab1450d7d67f9513ea92202b970e78ddab257449ecd67600a
+  supports:
+  - /benchmark_id
+- id: crafted-experiments-to-evaluate-feature-selection-meth-crafted-experiments-2-use-evidence-3
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Results — Crafted experiment applications
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: 85d844abdf398d64fccb4c6d79b56945059d5e7db7afb93eb1e2967e47c85b7a
+  supports:
+  - /scope
+- id: crafted-experiments-to-evaluate-feature-selection-meth-crafted-experiments-2-use-evidence-4
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Results — Crafted experiment applications
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: 85d844abdf398d64fccb4c6d79b56945059d5e7db7afb93eb1e2967e47c85b7a
+  supports:
+  - /scope
+- id: crafted-experiments-to-evaluate-feature-selection-meth-crafted-experiments-2-use-evidence-5
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Results — Crafted experiment applications
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: 85d844abdf398d64fccb4c6d79b56945059d5e7db7afb93eb1e2967e47c85b7a
+  supports:
+  - /scope
+- id: crafted-experiments-to-evaluate-feature-selection-meth-crafted-experiments-2-use-evidence-6
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Materials and methods — Benchmarking of feature selection methods
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: 482341b340f4918d3fd6da929dcb2d2c7c31434aba9b270e82becd71814dbb71
+  supports:
+  - /scope
+- id: crafted-experiments-to-evaluate-feature-selection-meth-crafted-experiments-2-use-evidence-7
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Results — Crafted experiment applications; Reference 16
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: ec12e31d16fcd8bc8fad30956330893b093fac7bf421c2f3830bf55d16f56564
+  supports:
+  - /model_ids
+- id: crafted-experiments-to-evaluate-feature-selection-meth-crafted-experiments-2-use-evidence-8
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Results — Crafted experiment applications; Reference 15
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: c8c19edb9405a506d936563cd3381b5d590016e38bf00674715569ec288535ee
+  supports:
+  - /model_ids
+- id: crafted-experiments-to-evaluate-feature-selection-meth-crafted-experiments-2-use-evidence-9
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Results — Crafted experiment applications; Reference 18
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: eaf3a2b1882b0f1df4972d1fdb3a31660e860fe25532a36367d23a09118a84f0
+  supports:
+  - /model_ids
+- id: crafted-experiments-to-evaluate-feature-selection-meth-crafted-experiments-2-use-evidence-10
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Results — Crafted experiment applications
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: 6235a0fb4e237af39042cd6a938cdd9a380fd21ddca57af4d9894ac9f215230e
+  supports:
+  - /model_ids
+- id: crafted-experiments-to-evaluate-feature-selection-meth-crafted-experiments-2-use-evidence-11
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: other
+    value: Article author list; Results — Crafted experiment applications
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: d0e17d2a7ea5d18ba4a140dd1d2020079731d726fabf9294db94ed0ae1a72ebb
+  supports:
+  - /model_ids
+- id: crafted-experiments-to-evaluate-feature-selection-meth-crafted-experiments-2-use-evidence-12
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: other
+    value: Article author list; Results — Crafted experiment applications
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: d8d00cec3e01531fdf0e5a821c982f5557b8701a1f60af9bc565e641a1cac41e
+  supports:
+  - /model_ids
+- id: crafted-experiments-to-evaluate-feature-selection-meth-crafted-experiments-2-use-evidence-13
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: other
+    value: Article author list; Results — Crafted experiment applications
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: f20ecfefa486d69e86934df200115dfe67abe29ba1cf34b67b2b25142f1e7128
+  supports:
+  - /model_ids
+- id: crafted-experiments-to-evaluate-feature-selection-meth-crafted-experiments-2-use-evidence-14
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Materials and methods — Benchmarking of feature selection methods
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: 01114f672b5e804197ecb261efb5e7f68fa48380a9ada0c52788e9c78dac9314
+  supports:
+  - /metric_labels
+- id: crafted-experiments-to-evaluate-feature-selection-meth-crafted-experiments-2-use-evidence-15
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Materials and methods — Benchmarking of feature selection methods
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: 45846970b35ce447aa579c5536527741193f5c044d1bf139326d9de3798ac353
+  supports:
+  - /metric_labels
+- id: crafted-experiments-to-evaluate-feature-selection-meth-crafted-experiments-2-use-evidence-16
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Results — Crafted experiment applications
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: 2254320545defb334e1681505a6bb482e8de329ef0078d6191a4baae8f610c97
+  supports:
+  - /metric_labels
+- id: crafted-experiments-to-evaluate-feature-selection-meth-crafted-experiments-2-use-evidence-17
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Results — Crafted experiment applications
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: d65a4c2f88ca04e2de1729a006885cfaf6346a8567bd1ada1c1dbcd37b7f8c0b
+  supports:
+  - /metric_labels
+- id: crafted-experiments-to-evaluate-feature-selection-meth-crafted-experiments-2-use-evidence-18
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Results — Crafted experiment applications
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: 6ce0c15331b659e4ee917e57a8bd2515365dfe11fb3c961d0456ad591a48a68e
+  supports:
+  - /metric_labels
+- id: crafted-experiments-to-evaluate-feature-selection-meth-crafted-experiments-2-use-evidence-19
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Results — Crafted experiment applications
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: 6ce0c15331b659e4ee917e57a8bd2515365dfe11fb3c961d0456ad591a48a68e
+  supports:
+  - /metric_labels

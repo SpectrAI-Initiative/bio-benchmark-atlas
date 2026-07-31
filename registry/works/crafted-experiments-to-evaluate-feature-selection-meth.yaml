@@ -1,0 +1,50 @@
+entity_type: work
+id: crafted-experiments-to-evaluate-feature-selection-meth
+title: Crafted experiments to evaluate feature selection methods for single-cell RNA-seq data
+authors:
+- Siyao Liu
+- David L Corcoran
+- Susana Garcia-Recio
+- James S Marron
+- Charles M Perou
+organizations:
+- Lineberger Comprehensive Cancer Center, University of North Carolina
+- University of North Carolina at Chapel Hill
+work_type: paper
+source_class: benchmark_creator
+publication_date: '2025-03-19'
+canonical_url: https://doi.org/10.1093/nargab/lqaf023
+doi: 10.1093/nargab/lqaf023
+arxiv: null
+status: published
+source_versions:
+- id: crafted-experiments-to-evaluate-feature-selection-meth-2025-03-19
+  label: Reviewed source
+  status: version-of-record
+  publication_date: '2025-03-19'
+  canonical_url: https://doi.org/10.1093/nargab/lqaf023
+  doi: 10.1093/nargab/lqaf023
+  arxiv: null
+  source_access: open-url
+  content_sha256: fec9ee9488a48bf24c0ec3062002fb1ec293ab627783e57889d5533d5d83420c
+  content_type: application/xml
+  retrieved_at: '2026-07-31T04:25:09+00:00'
+current_version_id: crafted-experiments-to-evaluate-feature-selection-meth-2025-03-19
+review_provenance:
+  method: local-codex-double-pass
+  pipeline_version: 1.4.0
+  prompt_version: paper-evidence-local-v15
+  source_version_id: crafted-experiments-to-evaluate-feature-selection-meth-2025-03-19
+  extractor_model_requested: gpt-5.6-sol
+  extractor_model_resolved: null
+  verifier_model_requested: gpt-5.6-sol
+  verifier_model_resolved: null
+  generated_at: '2026-07-31T04:25:09+00:00'
+  execution_surface: local-codex-cli
+  model_resolution_status: not-reported
+  codex_cli_version: codex-cli 0.146.0-alpha.9.2
+  local_run_id: 544b0fcb-9e98-44d1-9622-81b5ef6be124
+verification:
+  status: verified
+  last_verified: '2026-07-31'
+  notes: AI-assisted double-pass extraction; production inclusion still requires the owner SHA-comment gate.

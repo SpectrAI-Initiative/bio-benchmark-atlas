@@ -54,6 +54,14 @@ that exceeds it stops as a technical `intake-failed` condition; it is not treate
 as evidence that the paper omitted a field, and the orchestrator does not launch
 another expensive inference attempt automatically.
 
+PDF sources are preprocessed locally into deterministic text packets with
+`=== DOCUMENT PAGE N ===` markers tied to the original 1-based physical pages.
+For ordinary PDFs the extractor receives all page text; an over-limit PDF still
+receives only the explicitly owner-selected pages. Figure, table, and image-only
+pages are rendered temporarily when visual evidence may not survive text
+extraction. The downloaded PDF, prepared text, and page images remain private
+temporary artifacts and are deleted in `finally`.
+
 At run start the orchestrator labels the Issue `local-intake-in-progress` and posts a claim comment containing a random local run ID, base SHA, and timestamp. A second active run for the same Issue stops. An existing branch or PR is resumed rather than duplicated.
 
 ## 3. Local double pass
@@ -64,6 +72,15 @@ The orchestrator launches two separate, ephemeral `codex exec` sessions:
 2. an independent verifier with max reasoning and the `PaperEvidenceVerification` output schema.
 
 Both use a read-only sandbox, ignore repository-specific user configuration, receive no network tools, and treat paper content as untrusted data. The sessions have different thread IDs. The verifier receives the original source, Registry context, and extractor claims, but not the extractor conversation.
+
+To reduce repeated document parsing without weakening claim independence, the
+extractor reads the complete permitted page-anchored source, while the verifier
+reads a deterministic packet containing every extractor-cited physical page,
+page 1, and adjacent-page context (up to 60 pages). The verifier packet contains
+PDF text extracted directly from the source, not an extractor summary. Only
+cited page images are attached to the verifier. A citation outside an
+owner-selected long-PDF range or a packet exceeding the safety bound stops
+intake instead of silently dropping evidence.
 
 Only claims supported with high confidence in both passes can reach deterministic generation. Unsupported, conflicted, or not-verifiable claims are withheld. Unknown benchmark version, model identity, or subset size produces a partial `BenchmarkUse`; it cannot be upgraded by inference.
 
@@ -157,6 +174,13 @@ The PR contains normalized Registry records and an audit summary, never the sour
 ```
 
 `paper-owner-gate` accepts only an exact comment by `wang422003` whose timestamp is later than the current head commit. Other users, abbreviated or stale SHAs, edited mismatches, and old comments fail. A new push changes the SHA and requires another comment. Auto-merge remains disabled.
+
+The `Validate` workflow keeps the existing required `validate` check but runs
+three expensive paths concurrently: Registry tests, paper-intake tests, and the
+Registry/Astro deterministic build. A final lightweight aggregate job fails
+unless every shard succeeds. A newer push cancels obsolete validation for the
+same PR. Full browser tests and post-merge Pages deployment remain independent
+gates.
 
 ## 6. Recovery
 

@@ -31,8 +31,8 @@ from paper_source import MAX_PDF_PAGES
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL_TMP_ROOT = ROOT / ".paper-intake-tmp"
 PIPELINE_VERSION = "1.4.0"
-PROMPT_VERSION = "paper-evidence-local-v14"
-SOURCE_INPUT_PROTOCOL_VERSION = "multimodal-focused-long-pdf-v3"
+PROMPT_VERSION = "paper-evidence-local-v15"
+SOURCE_INPUT_PROTOCOL_VERSION = "page-anchored-pdf-v4"
 DEFAULT_MODEL = "gpt-5.6-sol"
 REVIEW_METHOD = "local-codex-double-pass"
 EXECUTION_SURFACE = "local-codex-cli"
@@ -43,6 +43,7 @@ CODEX_STAGE_TIMEOUT_SECONDS = 45 * 60
 HEARTBEAT_INTERVAL_SECONDS = 60
 HEARTBEAT_PATH = Path.home() / ".codex" / "biobench-atlas" / "heartbeat.json"
 MAX_PDF_IMAGE_PAGES = 40
+MAX_VERIFIER_CONTEXT_PAGES = 60
 PDF_IMAGE_DPI = 144
 BENCHMARK_COUNT_ROLES = {"root-total", "formal-subset", "auxiliary"}
 SCIENTIFIC_TASK_COUNT_UNITS = {
@@ -223,11 +224,14 @@ explicitly establishes that use (for example, an introduction statement for
 creation or a results/table statement for evaluation). Issue hints may help find
 the locator but are never evidence.
 
-For a PDF, attached images named document-page-NNN.jpg are rasterized copies of
-physical PDF page NNN and are part of the original source. Inspect them for
-explicitly printed table, figure, heatmap, axis, legend, and cell labels that are
-absent from the PDF text layer. Use NNN as document_page. An attached page does
-not relax the rule against estimating values from graphical position.
+For a PDF, the primary source is deterministic extracted text separated by
+`=== DOCUMENT PAGE N ===` markers, where N is the original 1-based physical PDF
+page. Use those markers for document_page locators. Attached images named
+document-page-NNN.jpg are rasterized copies of physical PDF page NNN and are part
+of the same original source. Inspect them for explicitly printed table, figure,
+heatmap, axis, legend, and cell labels that are absent from the text layer. An
+attached page does not relax the rule against estimating values from graphical
+position.
 """.strip()
 
 VERIFIER_PROMPT = """
@@ -318,7 +322,11 @@ metadata, Issue hints, funders, acknowledgements, or organizations mentioned onl
 as data providers as substitutes for that source mapping; the paper need not use
 the literal phrase "created by" for its author institutions.
 
-For a PDF, independently inspect every relevant attached
+For a PDF, the verifier source packet contains complete text from every cited
+physical page plus bounded adjacent-page context, separated by
+`=== DOCUMENT PAGE N ===` markers. Re-locate each claim within those source
+pages; the packet is generated deterministically from the original PDF and is not
+an extractor summary. Independently inspect every relevant attached
 document-page-NNN.jpg image. It is a rasterized copy of physical PDF page NNN and
 is part of the original source. Use NNN as document_page, and support a numeric
 figure claim only when the number and its meaning are explicitly printed.
@@ -587,24 +595,38 @@ def review_source_sha256(source_path: Path) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
-def _focused_pdf_text_source(
+def _page_anchored_pdf_text_source(
     source_path: Path,
     destination: Path,
     *,
-    pages: list[int],
+    pages: list[int] | None = None,
+    purpose: str = "complete paper review",
 ) -> Path:
-    """Write selected PDF text with immutable original physical-page markers."""
+    """Write deterministic PDF text with immutable physical-page anchors."""
 
-    reader = PdfReader(source_path)
-    selected = sorted(set(pages))
+    try:
+        reader = PdfReader(source_path)
+    except Exception as error:
+        raise PaperExtractionError(
+            f"PDF page-anchored preprocessing could not parse the source: {error}"
+        ) from error
+    selected = (
+        sorted(set(pages))
+        if pages is not None
+        else list(range(1, len(reader.pages) + 1))
+    )
     invalid = [page for page in selected if page < 1 or page > len(reader.pages)]
     if not selected or invalid:
         raise PaperExtractionError(
-            f"focused PDF text contains invalid physical pages: {invalid or selected}"
+            f"page-anchored PDF text contains invalid physical pages: {invalid or selected}"
         )
     chunks = [
-        "BioBench Atlas focused PDF review input.",
+        f"BioBench Atlas page-anchored PDF input for {purpose}.",
         "Each DOCUMENT PAGE marker is the original PDF physical page (1-based).",
+        (
+            f"This packet contains {len(selected)} of {len(reader.pages)} physical pages. "
+            "Text is extracted deterministically from the original PDF, not summarized."
+        ),
     ]
     for document_page in selected:
         try:
@@ -624,23 +646,52 @@ def _focused_pdf_text_source(
     return destination
 
 
-def _page_has_embedded_image(page: Any) -> bool:
-    """Detect image XObjects without extracting or persisting their contents."""
+def _focused_pdf_text_source(
+    source_path: Path,
+    destination: Path,
+    *,
+    pages: list[int],
+) -> Path:
+    """Backward-compatible focused-page wrapper for long PDF review."""
 
-    try:
-        resources = page.get("/Resources")
-        if resources is None:
-            return False
-        resources = resources.get_object()
-        xobjects = resources.get("/XObject")
-        if xobjects is None:
-            return False
-        for candidate in xobjects.get_object().values():
-            if candidate.get_object().get("/Subtype") == "/Image":
-                return True
-    except Exception:
-        return False
-    return False
+    return _page_anchored_pdf_text_source(
+        source_path,
+        destination,
+        pages=pages,
+        purpose="owner-selected long-PDF review",
+    )
+
+
+def _verifier_pdf_context_pages(
+    draft: PaperEvidenceDraft,
+    *,
+    page_count: int,
+) -> list[int]:
+    """Select cited PDF pages plus bounded adjacent context for verification."""
+
+    cited = {
+        locator.document_page
+        for claim in draft.claims
+        for locator in claim.locators
+        if locator.document_page is not None
+    }
+    cited = {page for page in cited if 1 <= page <= page_count}
+    if not cited:
+        return []
+    if len(cited) > MAX_VERIFIER_CONTEXT_PAGES:
+        raise PaperExtractionError(
+            "extractor cited more PDF pages than the bounded verifier packet allows"
+        )
+
+    expanded = {1, *cited}
+    for page in cited:
+        if page > 1:
+            expanded.add(page - 1)
+        if page < page_count:
+            expanded.add(page + 1)
+    if len(expanded) <= MAX_VERIFIER_CONTEXT_PAGES:
+        return sorted(expanded)
+    return sorted({1, *cited})
 
 
 def _pdf_pages_for_visual_review(
@@ -675,11 +726,7 @@ def _pdf_pages_for_visual_review(
             text = page.extract_text() or ""
         except Exception:
             text = ""
-        if (
-            not text.strip()
-            or VISUAL_PAGE_PATTERN.search(text)
-            or _page_has_embedded_image(page)
-        ):
+        if not text.strip() or VISUAL_PAGE_PATTERN.search(text):
             selected.append(document_page)
     if len(selected) > MAX_PDF_IMAGE_PAGES:
         raise PaperExtractionError(
@@ -1172,24 +1219,41 @@ def run_double_pass(
         pdf_render_source = local_source if local_source.suffix.casefold() == ".pdf" else None
         focused_long_pdf = False
         review_source = local_source
-        if pdf_render_source is not None and preferred_pdf_pages:
-            page_count = len(PdfReader(pdf_render_source).pages)
-            if page_count > MAX_PDF_PAGES:
+        pdf_page_count: int | None = None
+        if pdf_render_source is not None:
+            pdf_page_count = len(PdfReader(pdf_render_source).pages)
+            selected_text_pages: list[int] | None = None
+            if pdf_page_count > MAX_PDF_PAGES:
+                if not preferred_pdf_pages:
+                    raise PaperExtractionError(
+                        "PDF exceeds the 150-page extraction limit without owner-selected pages"
+                    )
                 focused_long_pdf = True
-                review_source = _focused_pdf_text_source(
-                    pdf_render_source,
-                    session_dir / "source-focused-pages.txt",
-                    pages=preferred_pdf_pages,
-                )
+                selected_text_pages = preferred_pdf_pages
+            review_source = _page_anchored_pdf_text_source(
+                pdf_render_source,
+                session_dir / "source-page-anchored.txt",
+                pages=selected_text_pages,
+                purpose=(
+                    "owner-selected long-PDF review"
+                    if focused_long_pdf
+                    else "complete paper evidence extraction"
+                ),
+            )
         review_source, original_html = _prepare_local_text_source(review_source, session_dir)
-        source_instruction = f"Read the source at {review_source}"
+        extractor_source_instruction = f"Read the source at {review_source}"
+        if pdf_render_source is not None:
+            extractor_source_instruction += (
+                ". This is deterministic page-anchored text extracted from the original PDF; "
+                "use DOCUMENT PAGE markers and the attached page images as the primary evidence"
+            )
         if focused_long_pdf:
-            source_instruction += (
+            extractor_source_instruction += (
                 ". It contains only the owner-selected pages from an over-limit PDF; "
                 "DOCUMENT PAGE markers preserve the original 1-based physical page numbers"
             )
         if original_html is not None:
-            source_instruction += (
+            extractor_source_instruction += (
                 f". This is deterministic visible text from the downloaded HTML at {original_html}; "
                 "prefer the visible-text file and consult the original only to confirm visible content"
             )
@@ -1230,7 +1294,10 @@ def run_double_pass(
             if pdf_render_source is not None
             else []
         )
-        if focused_long_pdf and pdf_render_source is not None:
+        if pdf_render_source is not None:
+            # Both stages consume deterministic text/images, not the heavier PDF
+            # parser path. The original downloaded source remains outside this
+            # temporary session until the orchestrator's final cleanup.
             pdf_render_source.unlink(missing_ok=True)
 
         draft_output = session_dir / "draft.json"
@@ -1242,7 +1309,7 @@ def run_double_pass(
             extractor = _run_stage(
                 prompt=(
                     f"{EXTRACTOR_PROMPT}\n\n"
-                    f"{source_instruction}. Read the Registry context at {context_path}. "
+                    f"{extractor_source_instruction}. Read the Registry context at {context_path}. "
                     f"{focus_instruction} Return only the schema-conforming evidence draft."
                 ),
                 output_type=PaperEvidenceDraft,
@@ -1257,6 +1324,41 @@ def run_double_pass(
 
         verification_output = session_dir / "verification.json"
         verifier_images = _verifier_source_images(source_images, extractor.payload)
+        verifier_source = review_source
+        verifier_source_instruction = extractor_source_instruction
+        if pdf_render_source is not None and pdf_page_count is not None:
+            verifier_pages = _verifier_pdf_context_pages(
+                extractor.payload,
+                page_count=pdf_page_count,
+            )
+            if focused_long_pdf:
+                allowed_pages = set(preferred_pdf_pages or [])
+                cited_pages = {
+                    locator.document_page
+                    for claim in extractor.payload.claims
+                    for locator in claim.locators
+                    if locator.document_page is not None
+                }
+                outside_focus = sorted(cited_pages - allowed_pages)
+                if outside_focus:
+                    raise PaperExtractionError(
+                        "extractor cited PDF pages outside the owner-selected long-PDF focus: "
+                        f"{outside_focus}"
+                    )
+                verifier_pages = [page for page in verifier_pages if page in allowed_pages]
+            if verifier_pages:
+                verifier_source = _page_anchored_pdf_text_source(
+                    source_path,
+                    session_dir / "source-verifier-claims.txt",
+                    pages=verifier_pages,
+                    purpose="independent claim verification",
+                )
+                verifier_source_instruction = (
+                    f"Read the source claim packet at {verifier_source}. It contains complete "
+                    "page text from every extractor-cited physical PDF page plus bounded adjacent "
+                    "context, generated directly from the original PDF rather than summarized by "
+                    "the extractor"
+                )
         with _StageHeartbeat(
             run_id=run_id,
             run_label=heartbeat_label or "paper-intake",
@@ -1265,7 +1367,7 @@ def run_double_pass(
             verifier = _run_stage(
                 prompt=(
                     f"{VERIFIER_PROMPT}\n\n"
-                    f"{source_instruction}. Read the Registry context at {context_path} and the claims "
+                    f"{verifier_source_instruction}. Read the Registry context at {context_path} and the claims "
                     f"at {draft_output}.{focus_instruction} Return only the schema-conforming verification."
                 ),
                 output_type=PaperEvidenceVerification,

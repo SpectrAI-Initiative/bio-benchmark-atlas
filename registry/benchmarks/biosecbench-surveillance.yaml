@@ -1,0 +1,829 @@
+entity_type: benchmark
+id: biosecbench-surveillance
+name: BioSecBench-Surveillance
+aliases: []
+summary: Agentic evaluation of pathogen genomic-surveillance workflow selection and analysis from raw or near-raw sequencing
+  data.
+kind: agentic-eval
+parent_id: null
+organizations:
+- LatchBio
+- Aclid
+release_date: '2026-07-21'
+latest_version: initial-release
+domains:
+- genomics
+- bioinformatics
+capabilities:
+- data-analysis
+- tool-use
+- scientific-reasoning
+modalities:
+- text
+- dna-rna-sequence
+- raw-omics
+- database
+task_formats:
+- agentic sequencing-data analysis with structured JSON answers
+task_counts: &id001
+  total: 100
+  basis: The source explicitly defines the benchmark as 100 evaluations.
+  reporting_status: reported
+  subsets:
+  - id: task-category-variant-detection
+    label: Task category — Variant detection evaluations
+    count: 23
+    basis: Printed Figure 1A bar label.
+    exclusive: true
+    exhaustive: true
+    partition_group: task-category
+    reporting_status: reported
+    notes: null
+  - id: task-category-taxonomic-classification
+    label: Task category — Taxonomic classification evaluations
+    count: 16
+    basis: Printed Figure 1A bar label.
+    exclusive: true
+    exhaustive: true
+    partition_group: task-category
+    reporting_status: reported
+    notes: null
+  - id: task-category-amr-characterization
+    label: Task category — AMR characterization evaluations
+    count: 15
+    basis: Printed Figure 1A bar label.
+    exclusive: true
+    exhaustive: true
+    partition_group: task-category
+    reporting_status: reported
+    notes: null
+  - id: task-category-toxin-and-virulence-characterization
+    label: Task category — Toxin and virulence characterization evaluations
+    count: 12
+    basis: Printed Figure 1A bar label.
+    exclusive: true
+    exhaustive: true
+    partition_group: task-category
+    reporting_status: reported
+    notes: null
+  - id: task-category-genetic-engineering-characterization
+    label: Task category — Genetic-engineering characterization evaluations
+    count: 12
+    basis: Printed Figure 1A bar label.
+    exclusive: true
+    exhaustive: true
+    partition_group: task-category
+    reporting_status: reported
+    notes: null
+  - id: task-category-source-tracking
+    label: Task category — Source tracking evaluations
+    count: 12
+    basis: Printed Figure 1A bar label.
+    exclusive: true
+    exhaustive: true
+    partition_group: task-category
+    reporting_status: reported
+    notes: null
+  - id: task-category-anomaly-detection
+    label: Task category — Anomaly detection evaluations
+    count: 10
+    basis: Printed Figure 1A bar label.
+    exclusive: true
+    exhaustive: true
+    partition_group: task-category
+    reporting_status: reported
+    notes: null
+  - id: sample-type-isolate
+    label: Sample type — Isolate evaluations
+    count: 34
+    basis: Printed Figure 1B bar label.
+    exclusive: true
+    exhaustive: true
+    partition_group: sample-type
+    reporting_status: reported
+    notes: null
+  - id: sample-type-wastewater
+    label: Sample type — Wastewater evaluations
+    count: 31
+    basis: Printed Figure 1B bar label.
+    exclusive: true
+    exhaustive: true
+    partition_group: sample-type
+    reporting_status: reported
+    notes: null
+  - id: sample-type-clinical
+    label: Sample type — Clinical evaluations
+    count: 23
+    basis: Printed Figure 1B bar label.
+    exclusive: true
+    exhaustive: true
+    partition_group: sample-type
+    reporting_status: reported
+    notes: null
+  - id: sample-type-agricultural
+    label: Sample type — Agricultural evaluations
+    count: 5
+    basis: Printed Figure 1B bar label.
+    exclusive: true
+    exhaustive: true
+    partition_group: sample-type
+    reporting_status: reported
+    notes: null
+  - id: sample-type-air
+    label: Sample type — Air evaluations
+    count: 5
+    basis: Printed Figure 1B bar label.
+    exclusive: true
+    exhaustive: true
+    partition_group: sample-type
+    reporting_status: reported
+    notes: null
+  - id: sample-type-water
+    label: Sample type — Water evaluations
+    count: 2
+    basis: Printed Figure 1B bar label.
+    exclusive: true
+    exhaustive: true
+    partition_group: sample-type
+    reporting_status: reported
+    notes: null
+  - id: sequencing-technology-short-read
+    label: Sequencing technology — Short-read evaluations
+    count: 80
+    basis: Printed Figure 1C bar label.
+    exclusive: true
+    exhaustive: true
+    partition_group: sequencing-technology
+    reporting_status: reported
+    notes: null
+  - id: sequencing-technology-long-read
+    label: Sequencing technology — Long-read evaluations
+    count: 15
+    basis: Printed Figure 1C bar label.
+    exclusive: true
+    exhaustive: true
+    partition_group: sequencing-technology
+    reporting_status: reported
+    notes: null
+  - id: sequencing-technology-hybrid
+    label: Sequencing technology — Hybrid evaluations
+    count: 5
+    basis: Printed Figure 1C bar label.
+    exclusive: true
+    exhaustive: true
+    partition_group: sequencing-technology
+    reporting_status: reported
+    notes: null
+  - id: nucleic-acid-target-dna
+    label: Nucleic-acid target — DNA evaluations
+    count: 64
+    basis: Printed Figure 1D bar label.
+    exclusive: true
+    exhaustive: true
+    partition_group: nucleic-acid-target
+    reporting_status: reported
+    notes: null
+  - id: nucleic-acid-target-rna
+    label: Nucleic-acid target — RNA evaluations
+    count: 33
+    basis: Printed Figure 1D bar label.
+    exclusive: true
+    exhaustive: true
+    partition_group: nucleic-acid-target
+    reporting_status: reported
+    notes: null
+  - id: nucleic-acid-target-total-na
+    label: Nucleic-acid target — Total NA evaluations
+    count: 3
+    basis: Printed Figure 1D bar label.
+    exclusive: true
+    exhaustive: true
+    partition_group: nucleic-acid-target
+    reporting_status: reported
+    notes: null
+  - id: assay-type-shotgun
+    label: Assay type — Shotgun evaluations
+    count: 85
+    basis: Printed Figure 1E bar label.
+    exclusive: true
+    exhaustive: true
+    partition_group: assay-type
+    reporting_status: reported
+    notes: null
+  - id: assay-type-targeted-amplicon-capture
+    label: Assay type — Targeted/amplicon/capture evaluations
+    count: 15
+    basis: Figure 1 defines Targeted as targeted/amplicon/capture.
+    exclusive: true
+    exhaustive: true
+    partition_group: assay-type
+    reporting_status: reported
+    notes: null
+coverage_notes: []
+access:
+  level: partially-open
+  tasks: Example evaluation task prompts are public; the entire evaluation set is restricted.
+  artifacts: The public subset provides example task prompts and descriptive metadata.
+  grader: Not established by the independently verified metadata claims.
+  license: null
+  biosafety_notes: The entire evaluation set is restricted in accordance with biosecurity research practice.
+resources:
+- id: biosecbench-surveillance-creator-paper-resource
+  type: paper
+  url: https://arxiv.org/abs/2607.19262
+  license: null
+  access_notes: Versioned creator source; full text is not mirrored.
+  last_checked: '2026-07-30'
+  pin: null
+- id: biosecbench-surveillance-official-repository-resource
+  type: repository
+  url: https://github.com/latchbio/biosecbench-surveillance
+  license: null
+  access_notes: Official resource pinned immutably during intake.
+  last_checked: '2026-07-30'
+  pin:
+    kind: commit
+    value: 8d53fd8517cc74202eb18b618e8b39b4ffaf0c87
+    url: https://github.com/latchbio/biosecbench-surveillance/commit/8d53fd8517cc74202eb18b618e8b39b4ffaf0c87
+implementations:
+- framework: official repository
+  status: official
+  url: https://github.com/latchbio/biosecbench-surveillance
+  commit: 8d53fd8517cc74202eb18b618e8b39b4ffaf0c87
+  notes: Commit resolved deterministically during paper intake.
+versions:
+- id: biosecbench-surveillance-initial-release-version
+  label: initial-release
+  status: current
+  release_date: '2026-07-21'
+  as_of: null
+  task_counts: *id001
+  formal_tracks: []
+  notes: Atlas snapshot label for the creator-paper release; the source does not report a formal benchmark version.
+  evidence_ids:
+  - biosecbench-surveillance-automated-count-evidence
+  - biosecbench-surveillance-automated-subset-1-evidence
+  - biosecbench-surveillance-automated-subset-2-evidence
+  - biosecbench-surveillance-automated-subset-3-evidence
+  - biosecbench-surveillance-automated-subset-4-evidence
+  - biosecbench-surveillance-automated-subset-5-evidence
+  - biosecbench-surveillance-automated-subset-6-evidence
+  - biosecbench-surveillance-automated-subset-7-evidence
+  - biosecbench-surveillance-automated-subset-8-evidence
+  - biosecbench-surveillance-automated-subset-9-evidence
+  - biosecbench-surveillance-automated-subset-10-evidence
+  - biosecbench-surveillance-automated-subset-11-evidence
+  - biosecbench-surveillance-automated-subset-12-evidence
+  - biosecbench-surveillance-automated-subset-13-evidence
+  - biosecbench-surveillance-automated-subset-14-evidence
+  - biosecbench-surveillance-automated-subset-15-evidence
+  - biosecbench-surveillance-automated-subset-16-evidence
+  - biosecbench-surveillance-automated-subset-17-evidence
+  - biosecbench-surveillance-automated-subset-18-evidence
+  - biosecbench-surveillance-automated-subset-19-evidence
+  - biosecbench-surveillance-automated-subset-20-evidence
+  - biosecbench-surveillance-automated-subset-21-evidence
+  - biosecbench-surveillance-automated-version-evidence
+audit:
+  status: audited-with-caveats
+  audited_date: '2026-07-30'
+  unresolved_fields: 1
+  notes: Automated double-pass extraction plus deterministic official-resource pin; the benchmark license remains unverified
+    and is published as null.
+field_status:
+- path: /access/license
+  status: provisional
+  confidence: high
+  reason: The double-pass review verified the official resource identity but did not establish a redistributable benchmark
+    license; the value remains null pending source-level license verification.
+  evidence_ids:
+  - biosecbench-surveillance-automated-resource-evidence
+verification:
+  status: verified
+  last_verified: '2026-07-30'
+  notes: New family admitted after creator source and official resource verification; the unresolved benchmark license is
+    visibly flagged.
+evidence:
+- id: biosecbench-surveillance-automated-metadata-1-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: section
+    value: Data availability
+    note: null
+    document_page: 7
+    printed_page: '7'
+    source_fragment_sha256: c947b9b0491115c064306906bbba7432d3ec36b057f8dd1c027260cdd2ee6172
+  supports:
+  - /access/artifacts
+- id: biosecbench-surveillance-automated-metadata-2-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: section
+    value: Data availability
+    note: null
+    document_page: 7
+    printed_page: '7'
+    source_fragment_sha256: 8d5ac92cd97b3e3993bdb2f83f5d68b38e4193f898d160d7867db824978f1f73
+  supports:
+  - /access/biosafety_notes
+- id: biosecbench-surveillance-automated-metadata-3-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: section
+    value: Data availability
+    note: null
+    document_page: 7
+    printed_page: '7'
+    source_fragment_sha256: 2d95b087029e38f56519d50d5197e229d3d720050f5fccdf3d3efe617d53c722
+  supports:
+  - /access/level
+- id: biosecbench-surveillance-automated-metadata-4-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: section
+    value: Data availability
+    note: null
+    document_page: 7
+    printed_page: '7'
+    source_fragment_sha256: 9cd4d1ce62593287bedd6351e1698615f63a717b9bc010a8c1fe3feca01667e9
+  supports:
+  - /access/tasks
+- id: biosecbench-surveillance-automated-metadata-5-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: section
+    value: Introduction
+    note: null
+    document_page: 2
+    printed_page: '2'
+    source_fragment_sha256: 8835f16f60e06e05995a6650e6d60bcfb21169401505974dd811c4d3fa2a592b
+  supports:
+  - /capabilities
+- id: biosecbench-surveillance-automated-metadata-6-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: section
+    value: Methods — Benchmark composition and data; Agent runs and execution
+    note: null
+    document_page: 7
+    printed_page: '7'
+    source_fragment_sha256: 2175cef09a0e89671f622f1cbf12dc41f881e1180963caf18f835dabb19597b4
+  supports:
+  - /domains
+- id: biosecbench-surveillance-automated-metadata-7-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: section
+    value: Introduction
+    note: null
+    document_page: 2
+    printed_page: '2'
+    source_fragment_sha256: 86d44cdc55b40b47d05305f247776ce518d25e2bc3cae72be542cc4ba2c79443
+  supports:
+  - /kind
+- id: biosecbench-surveillance-automated-metadata-8-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: section
+    value: Methods — Benchmark composition and data; Agent runs and execution
+    note: null
+    document_page: 7
+    printed_page: '7'
+    source_fragment_sha256: be85dd21fbf2f268b4b997b75cad9f3c7b60fef92261adfe511e9c4151ad98c8
+  supports:
+  - /modalities
+- id: biosecbench-surveillance-automated-metadata-9-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: section
+    value: Abstract
+    note: null
+    document_page: 1
+    printed_page: '1'
+    source_fragment_sha256: d8062a766e37ec1f470ba23e7973e72f44eff09d69f99acc298bd07bc84a5312
+  supports:
+  - /name
+- id: biosecbench-surveillance-automated-metadata-10-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: page
+    value: Author-affiliation mapping
+    note: null
+    document_page: 1
+    printed_page: '1'
+    source_fragment_sha256: b3f87859f204d156ce37bf698c31ab426d939c240a7f9fa4762ee50f2a81dec6
+  supports:
+  - /organizations
+- id: biosecbench-surveillance-automated-metadata-11-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: page
+    value: arXiv dateline
+    note: null
+    document_page: 1
+    printed_page: '1'
+    source_fragment_sha256: 611c54567b0f65f16bd9fdc25e80295903a4ee3dec4d99a40784f05b71bc5e74
+  supports:
+  - /release_date
+- id: biosecbench-surveillance-automated-metadata-12-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: section
+    value: Introduction and Benchmark construction
+    note: null
+    document_page: 2
+    printed_page: '2'
+    source_fragment_sha256: 7fa81a7e9913a2a1faa7b321edf3474c9bd40d12e7629050d3d71733eaa3b3b3
+  supports:
+  - /summary
+- id: biosecbench-surveillance-automated-metadata-13-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: section
+    value: Methods — Task format and deterministic grading
+    note: null
+    document_page: 7
+    printed_page: '7'
+    source_fragment_sha256: 4dc267c1494cdaf0dbac3b360d2f399bfc5da4d52e6ffdc5358441f6ca0967f3
+  supports:
+  - /task_formats
+- id: biosecbench-surveillance-automated-count-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: section
+    value: Abstract
+    note: null
+    document_page: 1
+    printed_page: '1'
+    source_fragment_sha256: eefd011459f343e68cbac3b78fcbdcad94bce0f2c65a1ffc2261ce90118ef237
+  supports:
+  - /task_counts/total
+  - /task_counts/basis
+  - /versions/0/task_counts/total
+  - /versions/0/task_counts/basis
+- id: biosecbench-surveillance-automated-subset-1-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: figure
+    value: Figure 1A
+    note: null
+    document_page: 3
+    printed_page: '3'
+    source_fragment_sha256: 60836cfbcaa2ac2b5eac4c17b429c650cd84efc98ba192bcdc538d9faff70479
+  supports:
+  - /task_counts/subsets
+  - /versions/0/task_counts/subsets
+  - /task_counts/subsets/0
+  - /versions/0/task_counts/subsets/0
+- id: biosecbench-surveillance-automated-subset-2-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: figure
+    value: Figure 1A
+    note: null
+    document_page: 3
+    printed_page: '3'
+    source_fragment_sha256: 827b7f283ec2f8827b885aa0d92020cdc4ea9b488a48c15329bf8d2ee17901f4
+  supports:
+  - /task_counts/subsets/1
+  - /versions/0/task_counts/subsets/1
+- id: biosecbench-surveillance-automated-subset-3-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: figure
+    value: Figure 1A
+    note: null
+    document_page: 3
+    printed_page: '3'
+    source_fragment_sha256: 4afdfb8b3dcf7c0f6c58fd8477d8d586fb3f66523094e881ef74137dc2103e9e
+  supports:
+  - /task_counts/subsets/2
+  - /versions/0/task_counts/subsets/2
+- id: biosecbench-surveillance-automated-subset-4-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: figure
+    value: Figure 1A
+    note: null
+    document_page: 3
+    printed_page: '3'
+    source_fragment_sha256: ee51f80f42f513f6bc159db8e2d9b70ebb4fb0e36071d101e212863c7784f32f
+  supports:
+  - /task_counts/subsets/3
+  - /versions/0/task_counts/subsets/3
+- id: biosecbench-surveillance-automated-subset-5-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: figure
+    value: Figure 1A
+    note: null
+    document_page: 3
+    printed_page: '3'
+    source_fragment_sha256: f09556c299711390ce8e2765d322c0e7d4b9bba4071d668d7971dba8b9e048bb
+  supports:
+  - /task_counts/subsets/4
+  - /versions/0/task_counts/subsets/4
+- id: biosecbench-surveillance-automated-subset-6-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: figure
+    value: Figure 1A
+    note: null
+    document_page: 3
+    printed_page: '3'
+    source_fragment_sha256: ba8d8027957cd81c1b1c45d77da11cf957d548dae41447a228f733b87e52c163
+  supports:
+  - /task_counts/subsets/5
+  - /versions/0/task_counts/subsets/5
+- id: biosecbench-surveillance-automated-subset-7-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: figure
+    value: Figure 1A
+    note: null
+    document_page: 3
+    printed_page: '3'
+    source_fragment_sha256: 436755afc4d989b87fe6a8fda4e5fc924c51a37b8f74f6f729eb4fbba17390f2
+  supports:
+  - /task_counts/subsets/6
+  - /versions/0/task_counts/subsets/6
+- id: biosecbench-surveillance-automated-subset-8-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: figure
+    value: Figure 1B
+    note: null
+    document_page: 3
+    printed_page: '3'
+    source_fragment_sha256: b13e4f3434eab7abe1c2841793562b0aabf5d6c808e05ebb86973dcd1fcab037
+  supports:
+  - /task_counts/subsets/7
+  - /versions/0/task_counts/subsets/7
+- id: biosecbench-surveillance-automated-subset-9-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: figure
+    value: Figure 1B
+    note: null
+    document_page: 3
+    printed_page: '3'
+    source_fragment_sha256: 2f266a64a2b67de4a0439f635cb417c8410fe90296e305556100665c9f01bdcc
+  supports:
+  - /task_counts/subsets/8
+  - /versions/0/task_counts/subsets/8
+- id: biosecbench-surveillance-automated-subset-10-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: figure
+    value: Figure 1B
+    note: null
+    document_page: 3
+    printed_page: '3'
+    source_fragment_sha256: 70a902f44c4e07c6b897eadf1c27972b2a7e2dc483bf65579f2be31d13de8def
+  supports:
+  - /task_counts/subsets/9
+  - /versions/0/task_counts/subsets/9
+- id: biosecbench-surveillance-automated-subset-11-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: figure
+    value: Figure 1B
+    note: null
+    document_page: 3
+    printed_page: '3'
+    source_fragment_sha256: 040fc853412a43620e02a51166cb29984754d1682f6950e4399bad55994388be
+  supports:
+  - /task_counts/subsets/10
+  - /versions/0/task_counts/subsets/10
+- id: biosecbench-surveillance-automated-subset-12-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: figure
+    value: Figure 1B
+    note: null
+    document_page: 3
+    printed_page: '3'
+    source_fragment_sha256: 8320b02f52d36922aa5fdc9996b4dd09432aeef951a3996951d655ca711959e4
+  supports:
+  - /task_counts/subsets/11
+  - /versions/0/task_counts/subsets/11
+- id: biosecbench-surveillance-automated-subset-13-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: figure
+    value: Figure 1B
+    note: null
+    document_page: 3
+    printed_page: '3'
+    source_fragment_sha256: 1c56c78949b9251aa16d18ca28841d6047c86974e77635245b0ff3af7ccb3f9a
+  supports:
+  - /task_counts/subsets/12
+  - /versions/0/task_counts/subsets/12
+- id: biosecbench-surveillance-automated-subset-14-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: figure
+    value: Figure 1C
+    note: null
+    document_page: 3
+    printed_page: '3'
+    source_fragment_sha256: 97c7e8c729915d3ef0cb5643b2ddb7246133e3f7c58e7253514ee3eda02651d0
+  supports:
+  - /task_counts/subsets/13
+  - /versions/0/task_counts/subsets/13
+- id: biosecbench-surveillance-automated-subset-15-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: figure
+    value: Figure 1C
+    note: null
+    document_page: 3
+    printed_page: '3'
+    source_fragment_sha256: 826617f2ea16addb52179bf5031a4f5c532f8733718539c50f7ef4c06a5fcd6e
+  supports:
+  - /task_counts/subsets/14
+  - /versions/0/task_counts/subsets/14
+- id: biosecbench-surveillance-automated-subset-16-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: figure
+    value: Figure 1C
+    note: null
+    document_page: 3
+    printed_page: '3'
+    source_fragment_sha256: 70be78fd5a68d5daa47eef601c446860e154160dcae4b744c5c65391ec8666b0
+  supports:
+  - /task_counts/subsets/15
+  - /versions/0/task_counts/subsets/15
+- id: biosecbench-surveillance-automated-subset-17-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: figure
+    value: Figure 1D
+    note: null
+    document_page: 3
+    printed_page: '3'
+    source_fragment_sha256: 4667a5475a548a0670691c363608560ae85a110d7b1a4e90645863813e1f5be2
+  supports:
+  - /task_counts/subsets/16
+  - /versions/0/task_counts/subsets/16
+- id: biosecbench-surveillance-automated-subset-18-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: figure
+    value: Figure 1D
+    note: null
+    document_page: 3
+    printed_page: '3'
+    source_fragment_sha256: 910118da0c5bbde931cc144359ee7b63aa1ab5967c1c94dc381660cb5f06b860
+  supports:
+  - /task_counts/subsets/17
+  - /versions/0/task_counts/subsets/17
+- id: biosecbench-surveillance-automated-subset-19-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: figure
+    value: Figure 1D
+    note: null
+    document_page: 3
+    printed_page: '3'
+    source_fragment_sha256: 163ad2f0100627f2295a9c88ac8c90b5b26c0331d8ba81fb76335e6e00bcfa5a
+  supports:
+  - /task_counts/subsets/18
+  - /versions/0/task_counts/subsets/18
+- id: biosecbench-surveillance-automated-subset-20-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: figure
+    value: Figure 1E
+    note: null
+    document_page: 3
+    printed_page: '3'
+    source_fragment_sha256: 632c750c1dbc880c43a145d3840967bb6c146c91dc9ce7c0fc9e2cd2e4ca72a9
+  supports:
+  - /task_counts/subsets/19
+  - /versions/0/task_counts/subsets/19
+- id: biosecbench-surveillance-automated-subset-21-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: figure
+    value: Figure 1E
+    note: null
+    document_page: 3
+    printed_page: '3'
+    source_fragment_sha256: 3e3a2a4eb6f71c599e2bfb71245d58402572ae2d139777538afad818cc4cc2a5
+  supports:
+  - /task_counts/subsets/20
+  - /versions/0/task_counts/subsets/20
+- id: biosecbench-surveillance-automated-resource-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: section
+    value: Data availability
+    note: null
+    document_page: 7
+    printed_page: '7'
+    source_fragment_sha256: ee8499693e901477a5198e6a3af425c4d0b06f7d99978b10cfc058b922196f14
+  supports:
+  - /resources
+  - /implementations
+  - /access/license
+- id: biosecbench-surveillance-automated-creator-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: page
+    value: arXiv dateline
+    note: null
+    document_page: 1
+    printed_page: '1'
+    source_fragment_sha256: 611c54567b0f65f16bd9fdc25e80295903a4ee3dec4d99a40784f05b71bc5e74
+  supports:
+  - /resources/0
+- id: biosecbench-surveillance-automated-version-evidence
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: page
+    value: arXiv dateline
+    note: null
+    document_page: 1
+    printed_page: '1'
+    source_fragment_sha256: 611c54567b0f65f16bd9fdc25e80295903a4ee3dec4d99a40784f05b71bc5e74
+  supports:
+  - /latest_version
+  - /versions/0

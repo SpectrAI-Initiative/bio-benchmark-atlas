@@ -1,0 +1,154 @@
+entity_type: benchmark_use
+id: biosecbench-surveillance-a-verifiable-benchmark-for-ai-biosecbench-surveillance-3-use
+work_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+work_version_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai-arxiv-v1
+benchmark_id: biosecbench-surveillance
+benchmark_version: null
+relation_type: evaluation
+status: partial
+model_ids:
+- anthropic-opus-4-6
+- anthropic-opus-4-7
+- anthropic-opus-4-8
+- anthropic-sonnet-4-6
+scope:
+  type: unknown
+  subset_kind: not-reported
+  n: 100
+  subset_id: null
+  selection: null
+  selection_method: null
+  reporting_status: not_reported
+metric_labels:
+- Endpoint pass rate
+evaluation_run_ids: []
+reporting_gaps:
+- Benchmark version is not reported.
+- Exact deployment snapshots and model release dates are not reported.
+- Prompt text, shots, token budget, and random seed are not reported.
+- Per-configuration gradable n and numerical confidence intervals are not reported.
+- benchmark version
+- numeric result
+notes: AI-assisted double-pass extraction; values are limited to independently supported claims.
+verification:
+  status: verified
+  last_verified: '2026-07-30'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: biosecbench-surveillance-a-verifiable-benchmark-for-ai-biosecbench-surveillance-3-use-evidence-1
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: figure
+    value: Figure 2
+    note: null
+    document_page: 4
+    printed_page: '4'
+    source_fragment_sha256: 2f2afd31cb3ee815b0c8eb081afc6fce1d3234e0a0eb88b22c2f47b80d3e3cfc
+  supports:
+  - /relation_type
+- id: biosecbench-surveillance-a-verifiable-benchmark-for-ai-biosecbench-surveillance-3-use-evidence-2
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: figure
+    value: Figure 2
+    note: null
+    document_page: 4
+    printed_page: '4'
+    source_fragment_sha256: 3df4097dabfa21db61364876c9d9676d0a8d9cd560bdf319f1f19d4a6266c833
+  supports:
+  - /benchmark_id
+- id: biosecbench-surveillance-a-verifiable-benchmark-for-ai-biosecbench-surveillance-3-use-evidence-3
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: section
+    value: Methods — Agent runs and execution
+    note: null
+    document_page: 7
+    printed_page: '7'
+    source_fragment_sha256: 6781fd905855d2b827bbb01794f899f45c14badbc40646c205e14b87035fc60d
+  supports:
+  - /scope
+- id: biosecbench-surveillance-a-verifiable-benchmark-for-ai-biosecbench-surveillance-3-use-evidence-4
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: section
+    value: Methods — Agent runs and execution
+    note: null
+    document_page: 7
+    printed_page: '7'
+    source_fragment_sha256: 6781fd905855d2b827bbb01794f899f45c14badbc40646c205e14b87035fc60d
+  supports:
+  - /scope
+- id: biosecbench-surveillance-a-verifiable-benchmark-for-ai-biosecbench-surveillance-3-use-evidence-5
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: section
+    value: Methods — Outcome classification and aggregation
+    note: null
+    document_page: 7
+    printed_page: '7'
+    source_fragment_sha256: 84ca65ca353a7f5a918982c004730263c1d3f9a91d7ebc67e7d308cc53baac85
+  supports:
+  - /metric_labels
+- id: biosecbench-surveillance-a-verifiable-benchmark-for-ai-biosecbench-surveillance-3-use-evidence-6
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: figure
+    value: Figure 2
+    note: null
+    document_page: 4
+    printed_page: '4'
+    source_fragment_sha256: adf9b621ab7af3862e23627d6235c244211db29f72b11e583fff3f6527f0b1d8
+  supports:
+  - /model_ids
+- id: biosecbench-surveillance-a-verifiable-benchmark-for-ai-biosecbench-surveillance-3-use-evidence-7
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: figure
+    value: Figure 2
+    note: null
+    document_page: 4
+    printed_page: '4'
+    source_fragment_sha256: 953bca4161760b5e8d6d1a62d2c270de4838505cd2d2919d009baec744d99a3e
+  supports:
+  - /model_ids
+- id: biosecbench-surveillance-a-verifiable-benchmark-for-ai-biosecbench-surveillance-3-use-evidence-8
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: figure
+    value: Figure 2
+    note: null
+    document_page: 4
+    printed_page: '4'
+    source_fragment_sha256: e908d26d21383bbd01c629ac3a72c84354702ddbe0e958beb2460a65922661ca
+  supports:
+  - /model_ids
+- id: biosecbench-surveillance-a-verifiable-benchmark-for-ai-biosecbench-surveillance-3-use-evidence-9
+  source_type: work
+  source_id: biosecbench-surveillance-a-verifiable-benchmark-for-ai
+  accessed_date: '2026-07-30'
+  locator:
+    type: figure
+    value: Figure 2
+    note: null
+    document_page: 4
+    printed_page: '4'
+    source_fragment_sha256: 83ce27bf9e6eca048b65bf033c8b31890e2fb7ab1dc185b878ec8841f6e096a6
+  supports:
+  - /model_ids

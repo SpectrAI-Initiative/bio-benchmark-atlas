@@ -1,0 +1,12 @@
+entity_type: model
+id: xai-grok-4-20-reasoning
+name: Grok 4.20 Reasoning
+provider: xAI
+release_date: null
+version_string: Grok 4.20 Reasoning
+version_status: reported
+aliases: []
+verification:
+  status: verified
+  last_verified: '2026-07-30'
+  notes: Exact model identity accepted by the automated double-pass paper review and pending owner PR approval.

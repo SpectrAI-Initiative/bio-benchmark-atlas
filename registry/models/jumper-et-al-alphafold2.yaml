@@ -1,0 +1,12 @@
+entity_type: model
+id: jumper-et-al-alphafold2
+name: AlphaFold2
+provider: Jumper et al.
+release_date: null
+version_string: model_1_ptm; model_1_multimer_v3 for multichain states
+version_status: reported
+aliases: []
+verification:
+  status: verified
+  last_verified: '2026-07-31'
+  notes: Exact model identity accepted by the automated double-pass paper review and pending owner PR approval.

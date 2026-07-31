@@ -1,0 +1,252 @@
+entity_type: benchmark_use
+id: an-integrative-approach-to-protein-sequence-design-thr-cam-benchmark-6-use
+work_id: an-integrative-approach-to-protein-sequence-design-thr
+work_version_id: an-integrative-approach-to-protein-sequence-design-thr-pmc-version-1
+benchmark_id: cam-benchmark
+benchmark_version: null
+relation_type: evaluation
+status: partial
+model_ids:
+- jumper-et-al-alphafold2
+- meier-et-al-esm-1v
+- proteinmpnn
+scope:
+  type: unknown
+  subset_kind: not-reported
+  n: 14
+  subset_id: null
+  selection: null
+  selection_method: Table 1's fourteen preprocessed CaM structures; NSGA-III with mutation rates 0.1, 0.3, and 0.5 and reference-direction
+    count equal to population size.
+  reporting_status: not_reported
+metric_labels:
+- native sequence recovery
+- ESM-1v log likelihood score
+- pMPNN-SD negative log likelihood score
+- AF2Rank composite score
+- pMPNN-SD log likelihood score hypervolume
+- AF2Rank composite score hypervolume
+- per-position sequence entropy
+evaluation_run_ids: []
+reporting_gaps:
+- Exact primary metric values are not printed in body text or tables; plotted values are unlabeled.
+- The starting random seed is not reported.
+- Confidence intervals and statistical uncertainty are not reported.
+- Exact release dates for the evaluated models are not reported.
+- benchmark version
+- numeric result
+notes: AI-assisted double-pass extraction; values are limited to independently supported claims.
+verification:
+  status: verified
+  last_verified: '2026-07-31'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: an-integrative-approach-to-protein-sequence-design-thr-cam-benchmark-6-use-evidence-1
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Results — GA[AF2Rank] recapitulates the CaM charge profile
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 74a63b0f5d7cc3b04b46a3c4687dcbfa5703195f65e2db2daa2a46f0967f40a6
+  supports:
+  - /relation_type
+- id: an-integrative-approach-to-protein-sequence-design-thr-cam-benchmark-6-use-evidence-2
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Methods — Structure preparation
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 87b872e188012dde7bc79f0050ec56e04f3529823616351d129b2015f528a74b
+  supports:
+  - /benchmark_id
+- id: an-integrative-approach-to-protein-sequence-design-thr-cam-benchmark-6-use-evidence-3
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Methods — Structure preparation
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 0f39807c6fb3f3e9eb7495acc5e658fd98f0f29df748527d77bd0d83c6e42b93
+  supports:
+  - /scope
+- id: an-integrative-approach-to-protein-sequence-design-thr-cam-benchmark-6-use-evidence-4
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Methods — Structure preparation
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: ac12d20d3f984b9203d14f0cc49274850b15975e0c0cb26517eaa0bb0fbe2eec
+  supports:
+  - /scope
+- id: an-integrative-approach-to-protein-sequence-design-thr-cam-benchmark-6-use-evidence-5
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Methods — Designable positions
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 9a88ee81f4e4d696841f42f60c6348bf1df58308780846408c88a5afcc6a69bc
+  supports:
+  - /scope
+- id: an-integrative-approach-to-protein-sequence-design-thr-cam-benchmark-6-use-evidence-6
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Methods — Structure preparation; Genetic algorithm; Results — Genetic algorithms can be applied to higher-dimensional
+      design problems
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 85b18c782e0732830776dc1204b5fa2da120f71492cf3a8fea580d6090a7db31
+  supports:
+  - /scope
+- id: an-integrative-approach-to-protein-sequence-design-thr-cam-benchmark-6-use-evidence-7
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Methods — ProteinMPNN; reference 20
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: d0ecae25229cc22728b3965bb6ee3777ff08bdfd609c9590a1f841a4bd207e24
+  supports:
+  - /model_ids
+- id: an-integrative-approach-to-protein-sequence-design-thr-cam-benchmark-6-use-evidence-8
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Methods — ESM-1v; reference 27
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 851eca4258667d01fdaeb5ba8407e56df82370828f65a8a8916a6925891f372e
+  supports:
+  - /model_ids
+- id: an-integrative-approach-to-protein-sequence-design-thr-cam-benchmark-6-use-evidence-9
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Methods — AF2Rank; reference 14
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: d880c3bbc4b5b4a55022c6716f9f4b0823b56aec6f1e5c5248a46ee4f6af5fd2
+  supports:
+  - /model_ids
+- id: an-integrative-approach-to-protein-sequence-design-thr-cam-benchmark-6-use-evidence-10
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Methods — Sequence analysis
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 73e829b7645ff5676e17c9f65b5094b9ba795d985eb2fe19ce7b1d544a9d1aa7
+  supports:
+  - /metric_labels
+- id: an-integrative-approach-to-protein-sequence-design-thr-cam-benchmark-6-use-evidence-11
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: figure
+    value: Fig. 5
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 5d711ea53328b2443eff56d2d96a03db3d02386fbcf70a4ee2872e0761c8d645
+  supports:
+  - /metric_labels
+- id: an-integrative-approach-to-protein-sequence-design-thr-cam-benchmark-6-use-evidence-12
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Methods — ProteinMPNN; Genetic algorithm
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: c7f2c62695aac513def7cd891643f022fccae7460e24091f33f8363ba49181ff
+  supports:
+  - /metric_labels
+- id: an-integrative-approach-to-protein-sequence-design-thr-cam-benchmark-6-use-evidence-13
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Methods — AF2Rank
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 2b79bf4eb79b770acaae96ce97df017cb4191bab24c83ad725fc0ee5bbbc885d
+  supports:
+  - /metric_labels
+- id: an-integrative-approach-to-protein-sequence-design-thr-cam-benchmark-6-use-evidence-14
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Fig. 5; Methods — Hypervolume
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: e1fa0b58eed5377b2ebec35793bbf02059b5ca42bcde192447309a3761560adc
+  supports:
+  - /metric_labels
+- id: an-integrative-approach-to-protein-sequence-design-thr-cam-benchmark-6-use-evidence-15
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Fig. 5; Methods — Hypervolume
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 97bb048b5e59391e0a64f9d04e11f20eefa2f39c01ed8f8425f55cc42f45dd34
+  supports:
+  - /metric_labels
+- id: an-integrative-approach-to-protein-sequence-design-thr-cam-benchmark-6-use-evidence-16
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Results — GA[AF2Rank] recapitulates the CaM charge profile; Figs. 5 and 3
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 7d066b58910a9ae5f69c558631cd6aefab25eaa1b6cd8d5d10f02f0b8eafc9c9
+  supports:
+  - /metric_labels

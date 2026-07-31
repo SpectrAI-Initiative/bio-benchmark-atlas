@@ -1,0 +1,264 @@
+entity_type: benchmark_use
+id: an-integrative-approach-to-protein-sequence-design-thr-rfah-benchmark-2-use
+work_id: an-integrative-approach-to-protein-sequence-design-thr
+work_version_id: an-integrative-approach-to-protein-sequence-design-thr-pmc-version-1
+benchmark_id: rfah-benchmark
+benchmark_version: null
+relation_type: evaluation
+status: partial
+model_ids:
+- jumper-et-al-alphafold2
+- meier-et-al-esm-1v
+- proteinmpnn
+scope:
+  type: unknown
+  subset_kind: not-reported
+  n: 2
+  subset_id: null
+  selection: null
+  selection_method: Preprocessed 5OND and the first 2LCL model; NSGA-II with two-point crossover, random/ESM position selection,
+    and pMPNN-AD or uniform mutation.
+  reporting_status: not_reported
+metric_labels:
+- native sequence recovery
+- ESM-1v log likelihood score
+- pMPNN-SD negative log likelihood score
+- AF2Rank composite score
+- HV[pMPNN]
+- HV[AF2Rank]
+- per-position sequence entropy
+- normalized BLOSUM62 sequence similarity
+evaluation_run_ids: []
+reporting_gaps:
+- Exact primary metric values are not printed in body text or tables; plotted values are unlabeled.
+- Confidence intervals and statistical uncertainty are not reported.
+- Exact release dates for the evaluated models are not reported.
+- benchmark version
+- numeric result
+notes: AI-assisted double-pass extraction; values are limited to independently supported claims.
+verification:
+  status: verified
+  last_verified: '2026-07-31'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: an-integrative-approach-to-protein-sequence-design-thr-rfah-benchmark-2-use-evidence-1
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: figure
+    value: Fig. 2
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: b880b790a2cc2afc3dc42f089a482d755602ba5ee6d0b9a5c97a77d0b58d8955
+  supports:
+  - /relation_type
+- id: an-integrative-approach-to-protein-sequence-design-thr-rfah-benchmark-2-use-evidence-2
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: figure
+    value: S2 Fig.
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 23f0081291069ebf2ea7d4b57d63ada8c425b78f851ffaae421e8f2b1eb8c64f
+  supports:
+  - /benchmark_id
+- id: an-integrative-approach-to-protein-sequence-design-thr-rfah-benchmark-2-use-evidence-3
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Results — The random resetting mutation operator results in slow convergence
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 82e6ed90c80b7bdf67bac5123d99e20567a95b5c6c3a9ac94d3ccf02c0da886e
+  supports:
+  - /scope
+- id: an-integrative-approach-to-protein-sequence-design-thr-rfah-benchmark-2-use-evidence-4
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: figure
+    value: Fig. 1
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 173f32f35e2438186a86683bcb0dead6a2164c9a86705544e5642e19b267663a
+  supports:
+  - /scope
+- id: an-integrative-approach-to-protein-sequence-design-thr-rfah-benchmark-2-use-evidence-5
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Methods — Designable positions
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 1436948f6a443a50960456dcdd3cfb4ed98ecc1932f5a606c47125a78f85fe10
+  supports:
+  - /scope
+- id: an-integrative-approach-to-protein-sequence-design-thr-rfah-benchmark-2-use-evidence-6
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Methods — Structure preparation; Genetic algorithm
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 8b3cb1e91b33bf600132fed874b5f16e7940fff31ea96e9bfb6eb0b64a983deb
+  supports:
+  - /scope
+- id: an-integrative-approach-to-protein-sequence-design-thr-rfah-benchmark-2-use-evidence-7
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Methods — ProteinMPNN; reference 20
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: d0ecae25229cc22728b3965bb6ee3777ff08bdfd609c9590a1f841a4bd207e24
+  supports:
+  - /model_ids
+- id: an-integrative-approach-to-protein-sequence-design-thr-rfah-benchmark-2-use-evidence-8
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Methods — ESM-1v; reference 27
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 851eca4258667d01fdaeb5ba8407e56df82370828f65a8a8916a6925891f372e
+  supports:
+  - /model_ids
+- id: an-integrative-approach-to-protein-sequence-design-thr-rfah-benchmark-2-use-evidence-9
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Methods — AF2Rank; reference 14
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: d880c3bbc4b5b4a55022c6716f9f4b0823b56aec6f1e5c5248a46ee4f6af5fd2
+  supports:
+  - /model_ids
+- id: an-integrative-approach-to-protein-sequence-design-thr-rfah-benchmark-2-use-evidence-10
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Methods — Sequence analysis
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 73e829b7645ff5676e17c9f65b5094b9ba795d985eb2fe19ce7b1d544a9d1aa7
+  supports:
+  - /metric_labels
+- id: an-integrative-approach-to-protein-sequence-design-thr-rfah-benchmark-2-use-evidence-11
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: figure
+    value: Fig. 2
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: bbe368435b4fe0465e8a74e90eea3b27319ab55dde56e3e75f5430337283c15d
+  supports:
+  - /metric_labels
+- id: an-integrative-approach-to-protein-sequence-design-thr-rfah-benchmark-2-use-evidence-12
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Methods — ProteinMPNN; Genetic algorithm
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: c7f2c62695aac513def7cd891643f022fccae7460e24091f33f8363ba49181ff
+  supports:
+  - /metric_labels
+- id: an-integrative-approach-to-protein-sequence-design-thr-rfah-benchmark-2-use-evidence-13
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Methods — AF2Rank
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 2b79bf4eb79b770acaae96ce97df017cb4191bab24c83ad725fc0ee5bbbc885d
+  supports:
+  - /metric_labels
+- id: an-integrative-approach-to-protein-sequence-design-thr-rfah-benchmark-2-use-evidence-14
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: figure
+    value: Fig. 2
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 347bc6993f747157e15292fac4c8bf28f6117b48c5788512e987d04c999f29c7
+  supports:
+  - /metric_labels
+- id: an-integrative-approach-to-protein-sequence-design-thr-rfah-benchmark-2-use-evidence-15
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: figure
+    value: Fig. 2
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 97912c308c6d6112a65a08fdc920dad4a3c6b938952c798a33a4610e6dcbddd7
+  supports:
+  - /metric_labels
+- id: an-integrative-approach-to-protein-sequence-design-thr-rfah-benchmark-2-use-evidence-16
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: figure
+    value: Fig. 3; Results — The random resetting mutation operator results in slow convergence
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 87db3fd6ba3a9b18b35bd7e60a0b095a52a09b8a689842359b979ec68f082b4a
+  supports:
+  - /metric_labels
+- id: an-integrative-approach-to-protein-sequence-design-thr-rfah-benchmark-2-use-evidence-17
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Methods — Sequence analysis
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 686a745bfa8d4938a100a718bf205508ad630591178929f94c706fe8b7b80106
+  supports:
+  - /metric_labels

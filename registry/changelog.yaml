@@ -1,6 +1,24 @@
 - date: '2026-07-31'
   version: 1.4.0-dev
   type: paper-intake
+  summary: AI-assisted double-pass paper intake (paper-intake:an-integrative-approach-to-protein-sequence-design-thr); production
+    inclusion required owner approval of the final head SHA.
+  entity_ids:
+  - an-integrative-approach-to-protein-sequence-design-thr
+  - rfah-benchmark
+  - papd-benchmark
+  - cam-benchmark
+  - jumper-et-al-alphafold2
+  - meier-et-al-esm-1v
+  - an-integrative-approach-to-protein-sequence-design-thr-rfah-benchmark-1-use
+  - an-integrative-approach-to-protein-sequence-design-thr-rfah-benchmark-2-use
+  - an-integrative-approach-to-protein-sequence-design-thr-papd-benchmark-3-use
+  - an-integrative-approach-to-protein-sequence-design-thr-papd-benchmark-4-use
+  - an-integrative-approach-to-protein-sequence-design-thr-cam-benchmark-5-use
+  - an-integrative-approach-to-protein-sequence-design-thr-cam-benchmark-6-use
+- date: '2026-07-31'
+  version: 1.4.0-dev
+  type: paper-intake
   summary: AI-assisted double-pass paper intake (paper-intake:crafted-experiments-to-evaluate-feature-selection-meth); production
     inclusion required owner approval of the final head SHA.
   entity_ids:

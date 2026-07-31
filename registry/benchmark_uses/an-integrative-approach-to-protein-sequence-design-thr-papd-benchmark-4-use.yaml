@@ -13,7 +13,7 @@ model_ids:
 scope:
   type: unknown
   subset_kind: not-reported
-  n: 3
+  n: null
   subset_id: null
   selection: null
   selection_method: Preprocessed 1N0L, 1PDK, and 1QPP structures; NSGA-II with mutation rates 0.1, 0.3, and 0.5 and otherwise
@@ -29,6 +29,7 @@ metric_labels:
 - per-position sequence entropy
 evaluation_run_ids: []
 reporting_gaps:
+- realized n/scope
 - Exact primary metric values are not printed in body text or tables; plotted values are unlabeled.
 - The starting random seed is not reported.
 - Confidence intervals and statistical uncertainty are not reported.

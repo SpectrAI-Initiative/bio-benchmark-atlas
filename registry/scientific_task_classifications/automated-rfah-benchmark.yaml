@@ -3,6 +3,18 @@ classifications:
     status: partial
     benchmark_version: initial-release
     as_of: null
-    notes: Candidate artifact-derived Scientific Task mappings lacked an official artifact-level locator and were omitted;
-      task mapping remains pending a targeted official-artifact audit.
-    entries: []
+    notes: The creator paper explicitly frames this benchmark system as multistate protein sequence design; more specific
+      downstream design objectives are not exhaustively classified.
+    entries:
+    - task_type_id: protein-sequence-design
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: null
+      count_unit: systems
+      count_basis: Creator-defined multistate protein sequence-design benchmark system.
+      count_ref: null
+      reporting_status: not_reported
+      evidence_ids:
+      - rfah-benchmark-automated-metadata-2-evidence
+      notes: The two modeled conformational states are objective dimensions, not two independent sequence-design tasks.

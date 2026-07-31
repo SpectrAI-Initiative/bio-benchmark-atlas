@@ -13,7 +13,7 @@ model_ids:
 scope:
   type: unknown
   subset_kind: not-reported
-  n: 2
+  n: null
   subset_id: null
   selection: null
   selection_method: Preprocessed 5OND and the first 2LCL model; NSGA-II with two-point crossover, random/ESM position selection,
@@ -30,6 +30,7 @@ metric_labels:
 - normalized BLOSUM62 sequence similarity
 evaluation_run_ids: []
 reporting_gaps:
+- realized n/scope
 - Exact primary metric values are not printed in body text or tables; plotted values are unlabeled.
 - Confidence intervals and statistical uncertainty are not reported.
 - Exact release dates for the evaluated models are not reported.

@@ -1,0 +1,54 @@
+entity_type: benchmark_use
+id: an-integrative-approach-to-protein-sequence-design-thr-rfah-benchmark-1-use
+work_id: an-integrative-approach-to-protein-sequence-design-thr
+work_version_id: an-integrative-approach-to-protein-sequence-design-thr-pmc-version-1
+benchmark_id: rfah-benchmark
+benchmark_version: null
+relation_type: benchmark-creation
+status: non-evaluation
+model_ids: []
+scope:
+  type: unknown
+  subset_kind: not-applicable
+  n: null
+  subset_id: null
+  selection: null
+  selection_method: null
+  reporting_status: not_applicable
+metric_labels: []
+evaluation_run_ids: []
+reporting_gaps:
+- No formal benchmark version or release identifier is reported.
+- The repository and benchmark-data license is not reported.
+notes: AI-assisted double-pass extraction; values are limited to independently supported claims.
+verification:
+  status: verified
+  last_verified: '2026-07-31'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: an-integrative-approach-to-protein-sequence-design-thr-rfah-benchmark-1-use-evidence-1
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Introduction; Results — The random resetting mutation operator results in slow convergence
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 976f6766a97eaca86974c18e41a70639cbc51c3dd1a5a3940437a202e4ab0e59
+  supports:
+  - /relation_type
+- id: an-integrative-approach-to-protein-sequence-design-thr-rfah-benchmark-1-use-evidence-2
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Methods — Hypervolume
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 5746ab7b9a237bab9f7874e25fb9eb477020c4ef36fcda7c81217f61f535cec8
+  supports:
+  - /benchmark_id

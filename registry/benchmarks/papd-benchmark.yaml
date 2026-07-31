@@ -1,0 +1,293 @@
+entity_type: benchmark
+id: papd-benchmark
+name: PapD benchmark
+aliases: []
+summary: A multistate protein sequence-design benchmark targeting the multispecific PapD binding interface.
+kind: dataset
+parent_id: null
+organizations:
+- University of California, San Francisco
+- Quantitative Biosciences Institute
+- Chan Zuckerberg Biohub
+release_date: '2024-07-11'
+latest_version: initial-release
+domains:
+- life-science
+- protein-science
+- protein-sequence
+- protein-structure
+- protein-design
+- protein-protein-binding
+capabilities:
+- design
+- optimization
+modalities:
+- protein-sequence
+- structure-3d
+task_formats:
+- unclassified
+task_counts: &id001
+  total: 3
+  basis: Fig. 1B explicitly defines the complete PapD design problem as three-state.
+  reporting_status: reported
+  subsets: []
+coverage_notes: []
+access:
+  level: fully-open
+  tasks: See the linked official creator resources.
+  artifacts: See the linked official creator resources.
+  grader: Not established by the independently verified metadata claims.
+  license: null
+  biosafety_notes: null
+resources:
+- id: papd-benchmark-creator-paper-resource
+  type: paper
+  url: https://doi.org/10.1371/journal.pcbi.1011953
+  license: null
+  access_notes: Versioned creator source; full text is not mirrored.
+  last_checked: '2026-07-31'
+  pin: null
+- id: papd-benchmark-official-repository-resource
+  type: repository
+  url: https://github.com/luhong88/int_seq_des
+  license: null
+  access_notes: Official resource pinned immutably during intake.
+  last_checked: '2026-07-31'
+  pin:
+    kind: commit
+    value: b16a0ef3d5c44f65714b1a6c51826f6b4bdaa998
+    url: https://github.com/luhong88/int_seq_des/commit/b16a0ef3d5c44f65714b1a6c51826f6b4bdaa998
+implementations:
+- framework: official repository
+  status: official
+  url: https://github.com/luhong88/int_seq_des
+  commit: b16a0ef3d5c44f65714b1a6c51826f6b4bdaa998
+  notes: Commit resolved deterministically during paper intake.
+versions:
+- id: papd-benchmark-initial-release-version
+  label: initial-release
+  status: current
+  release_date: '2024-07-11'
+  as_of: null
+  task_counts: *id001
+  formal_tracks: []
+  notes: Atlas snapshot label for the creator-paper release; the source does not report a formal benchmark version.
+  evidence_ids:
+  - papd-benchmark-automated-count-evidence
+  - papd-benchmark-automated-version-evidence
+audit:
+  status: audited-with-caveats
+  audited_date: '2026-07-31'
+  unresolved_fields: 2
+  notes: Automated double-pass extraction plus deterministic official-resource pin; the benchmark license remains unverified
+    and is published as null.
+field_status:
+- path: /task_counts/subsets
+  status: provisional
+  confidence: high
+  reason: The double-pass review established the root item total but did not establish an exhaustive formal-subset inventory;
+    the empty list must not be interpreted as evidence that the benchmark has no subsets.
+  evidence_ids:
+  - papd-benchmark-automated-subset-coverage-evidence
+- path: /access/license
+  status: provisional
+  confidence: high
+  reason: The double-pass review verified the official resource identity but did not establish a redistributable benchmark
+    license; the value remains null pending source-level license verification.
+  evidence_ids:
+  - papd-benchmark-automated-resource-evidence
+verification:
+  status: verified
+  last_verified: '2026-07-31'
+  notes: New family admitted after creator source and official resource verification; the unresolved benchmark license is
+    visibly flagged.
+evidence:
+- id: papd-benchmark-automated-metadata-1-evidence
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Data Availability
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: cbdee6951e5532b57429398b51436fe8e2abfc9f78df018593e82380271ae3fc
+  supports:
+  - /access/level
+- id: papd-benchmark-automated-metadata-2-evidence
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Results — Genetic algorithms can be applied to higher-dimensional design problems
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: fb77bf96dd1177ced1e894036d1f38021a551bc2d2586536f0957b1fe6c1c5c7
+  supports:
+  - /capabilities
+- id: papd-benchmark-automated-metadata-3-evidence
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Results — Genetic algorithms can be applied to higher-dimensional design problems
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: c3fa14ff4a216ab69805c6f2078d528a9dfbee0e37ee6372d78e27e001e36b8e
+  supports:
+  - /domains
+- id: papd-benchmark-automated-metadata-4-evidence
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Data Availability
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 6e6903443229eedd52871ff2829f1ae65202e38c28b6be6dcf62d0c145ae0384
+  supports:
+  - /kind
+- id: papd-benchmark-automated-metadata-5-evidence
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Results — Genetic algorithms can be applied to higher-dimensional design problems
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 9e679f94db5ad08134b7b062f8a1c29b3afb20cfae96940036dedce90a756bd1
+  supports:
+  - /modalities
+- id: papd-benchmark-automated-metadata-6-evidence
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Methods — Structure preparation
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 848cd33a2bc2f062912f7f517b0dd4422bf797fb25a4a1a0eea407983c427d30
+  supports:
+  - /name
+- id: papd-benchmark-automated-metadata-7-evidence
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: other
+    value: Front matter — author-affiliation mapping
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 06c4d9bdb31c2ac3c4e3ceb12dff9a706e3bc8b0d242cbef9e52e7f81cb2a18e
+  supports:
+  - /organizations
+- id: papd-benchmark-automated-metadata-8-evidence
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Results — Genetic algorithms can be applied to higher-dimensional design problems
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 0c14f8d38b38f7f6d49953960b0792f82518e785b9d7dd19a3554714df109818
+  supports:
+  - /summary
+- id: papd-benchmark-automated-bibliographic-evidence
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: other
+    value: Crossref bibliographic metadata
+    note: Resolved from the canonical paper identifier during intake.
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 5b45963847a151050eb2419c23684ca38e9325e2457145144b7ec0d2ea01d410
+  supports:
+  - /release_date
+- id: papd-benchmark-automated-count-evidence
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: figure
+    value: Fig. 1
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: c4fc0e4b4019757c5cfba59423f2766c466fc9f993eec8de7ee759b14fe80b65
+  supports:
+  - /task_counts/total
+  - /task_counts/basis
+  - /versions/0/task_counts/total
+  - /versions/0/task_counts/basis
+- id: papd-benchmark-automated-subset-coverage-evidence
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: figure
+    value: Fig. 1
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: c4fc0e4b4019757c5cfba59423f2766c466fc9f993eec8de7ee759b14fe80b65
+  supports:
+  - /task_counts/subsets
+  - /versions/0/task_counts/subsets
+- id: papd-benchmark-automated-resource-evidence
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Data Availability
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: cbdee6951e5532b57429398b51436fe8e2abfc9f78df018593e82380271ae3fc
+  supports:
+  - /resources
+  - /implementations
+  - /access/license
+- id: papd-benchmark-automated-creator-evidence
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: other
+    value: Front matter — DOI
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 6115205069f1a4999f060235c61c133f276780408241486c68044ff841a14049
+  supports:
+  - /resources/0
+- id: papd-benchmark-automated-version-evidence
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: other
+    value: Front matter — DOI
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 6115205069f1a4999f060235c61c133f276780408241486c68044ff841a14049
+  supports:
+  - /latest_version
+  - /versions/0

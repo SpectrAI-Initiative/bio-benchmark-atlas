@@ -1310,7 +1310,8 @@ def test_scientific_task_exports_are_normalized_and_preserve_units() -> None:
         "bioinstruction", "lab-bench", "genebench-pro", "biomysterybench",
             "compbiobench", "bixbench", "blade", "scigym", "tape", "genomic-benchmarks",
             "beacon-rna", "moleculenet", "atom3d", "guacamol", "scib", "spatialbench",
-            "anthropic-key-life-sciences-evals",
+            "anthropic-key-life-sciences-evals", "rfah-benchmark", "papd-benchmark",
+            "cam-benchmark",
         }
     generation = next(item for item in tasks if item["id"] == "small-molecule-generation")
     assert generation["coverage_family_count"] == 1

@@ -1,0 +1,54 @@
+entity_type: benchmark_use
+id: an-integrative-approach-to-protein-sequence-design-thr-papd-benchmark-3-use
+work_id: an-integrative-approach-to-protein-sequence-design-thr
+work_version_id: an-integrative-approach-to-protein-sequence-design-thr-pmc-version-1
+benchmark_id: papd-benchmark
+benchmark_version: null
+relation_type: benchmark-creation
+status: non-evaluation
+model_ids: []
+scope:
+  type: unknown
+  subset_kind: not-applicable
+  n: null
+  subset_id: null
+  selection: null
+  selection_method: null
+  reporting_status: not_applicable
+metric_labels: []
+evaluation_run_ids: []
+reporting_gaps:
+- No formal benchmark version or release identifier is reported.
+- The repository and benchmark-data license is not reported.
+notes: AI-assisted double-pass extraction; values are limited to independently supported claims.
+verification:
+  status: verified
+  last_verified: '2026-07-31'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: an-integrative-approach-to-protein-sequence-design-thr-papd-benchmark-3-use-evidence-1
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Results — Genetic algorithms can be applied to higher-dimensional design problems
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 34d261bc074e5ace5f53c1cffe5fd9099051baa146e4ac933c44fb16838803dd
+  supports:
+  - /relation_type
+- id: an-integrative-approach-to-protein-sequence-design-thr-papd-benchmark-3-use-evidence-2
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Methods — Structure preparation
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 428f04090aa0b0d79809a82d27a309df646ca8c1fe0746a2c3f92596d3b7b834
+  supports:
+  - /benchmark_id

@@ -1,0 +1,20 @@
+classifications:
+  papd-benchmark:
+    status: partial
+    benchmark_version: initial-release
+    as_of: null
+    notes: The creator paper explicitly frames this benchmark system as multistate protein sequence design; more specific
+      downstream design objectives are not exhaustively classified.
+    entries:
+    - task_type_id: protein-sequence-design
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: null
+      count_unit: systems
+      count_basis: Creator-defined multistate protein sequence-design benchmark system.
+      count_ref: null
+      reporting_status: not_reported
+      evidence_ids:
+      - papd-benchmark-automated-metadata-2-evidence
+      notes: The three modeled binding states are objective dimensions, not three independent sequence-design tasks.

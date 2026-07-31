@@ -1,0 +1,292 @@
+entity_type: benchmark
+id: rfah-benchmark
+name: RfaH benchmark
+aliases: []
+summary: A multistate protein sequence-design benchmark using the fold-switching conformations of RfaH.
+kind: dataset
+parent_id: null
+organizations:
+- University of California, San Francisco
+- Quantitative Biosciences Institute
+- Chan Zuckerberg Biohub
+release_date: '2024-07-11'
+latest_version: initial-release
+domains:
+- life-science
+- protein-science
+- protein-sequence
+- protein-structure
+- protein-design
+capabilities:
+- design
+- optimization
+modalities:
+- protein-sequence
+- structure-3d
+task_formats:
+- unclassified
+task_counts: &id001
+  total: 2
+  basis: Fig. 1B explicitly defines the complete RfaH design problem as two-state.
+  reporting_status: reported
+  subsets: []
+coverage_notes: []
+access:
+  level: fully-open
+  tasks: See the linked official creator resources.
+  artifacts: See the linked official creator resources.
+  grader: Not established by the independently verified metadata claims.
+  license: null
+  biosafety_notes: null
+resources:
+- id: rfah-benchmark-creator-paper-resource
+  type: paper
+  url: https://doi.org/10.1371/journal.pcbi.1011953
+  license: null
+  access_notes: Versioned creator source; full text is not mirrored.
+  last_checked: '2026-07-31'
+  pin: null
+- id: rfah-benchmark-official-repository-resource
+  type: repository
+  url: https://github.com/luhong88/int_seq_des
+  license: null
+  access_notes: Official resource pinned immutably during intake.
+  last_checked: '2026-07-31'
+  pin:
+    kind: commit
+    value: b16a0ef3d5c44f65714b1a6c51826f6b4bdaa998
+    url: https://github.com/luhong88/int_seq_des/commit/b16a0ef3d5c44f65714b1a6c51826f6b4bdaa998
+implementations:
+- framework: official repository
+  status: official
+  url: https://github.com/luhong88/int_seq_des
+  commit: b16a0ef3d5c44f65714b1a6c51826f6b4bdaa998
+  notes: Commit resolved deterministically during paper intake.
+versions:
+- id: rfah-benchmark-initial-release-version
+  label: initial-release
+  status: current
+  release_date: '2024-07-11'
+  as_of: null
+  task_counts: *id001
+  formal_tracks: []
+  notes: Atlas snapshot label for the creator-paper release; the source does not report a formal benchmark version.
+  evidence_ids:
+  - rfah-benchmark-automated-count-evidence
+  - rfah-benchmark-automated-version-evidence
+audit:
+  status: audited-with-caveats
+  audited_date: '2026-07-31'
+  unresolved_fields: 2
+  notes: Automated double-pass extraction plus deterministic official-resource pin; the benchmark license remains unverified
+    and is published as null.
+field_status:
+- path: /task_counts/subsets
+  status: provisional
+  confidence: high
+  reason: The double-pass review established the root item total but did not establish an exhaustive formal-subset inventory;
+    the empty list must not be interpreted as evidence that the benchmark has no subsets.
+  evidence_ids:
+  - rfah-benchmark-automated-subset-coverage-evidence
+- path: /access/license
+  status: provisional
+  confidence: high
+  reason: The double-pass review verified the official resource identity but did not establish a redistributable benchmark
+    license; the value remains null pending source-level license verification.
+  evidence_ids:
+  - rfah-benchmark-automated-resource-evidence
+verification:
+  status: verified
+  last_verified: '2026-07-31'
+  notes: New family admitted after creator source and official resource verification; the unresolved benchmark license is
+    visibly flagged.
+evidence:
+- id: rfah-benchmark-automated-metadata-1-evidence
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Data Availability
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: cbdee6951e5532b57429398b51436fe8e2abfc9f78df018593e82380271ae3fc
+  supports:
+  - /access/level
+- id: rfah-benchmark-automated-metadata-2-evidence
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Results — The random resetting mutation operator results in slow convergence
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 3e19ed1d066f54d5605a7f436a578ce7bae045d00a5af665eb727e332bf86fc0
+  supports:
+  - /capabilities
+- id: rfah-benchmark-automated-metadata-3-evidence
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Results — The random resetting mutation operator results in slow convergence
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 8d3f3b886ded53947f64600769dd861932936d0c320365566813b5c0d43e85a9
+  supports:
+  - /domains
+- id: rfah-benchmark-automated-metadata-4-evidence
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Data Availability
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 6e6903443229eedd52871ff2829f1ae65202e38c28b6be6dcf62d0c145ae0384
+  supports:
+  - /kind
+- id: rfah-benchmark-automated-metadata-5-evidence
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: figure
+    value: Fig. 1
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: f3f594888bef255b55222b36d3e680d7c43505d90a10c107aad536905e56e055
+  supports:
+  - /modalities
+- id: rfah-benchmark-automated-metadata-6-evidence
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Methods — Hypervolume
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: e5d671f353ebc91ccf2a583d7260d0931031355447522158d2919359486c39d6
+  supports:
+  - /name
+- id: rfah-benchmark-automated-metadata-7-evidence
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: other
+    value: Front matter — author-affiliation mapping
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 06c4d9bdb31c2ac3c4e3ceb12dff9a706e3bc8b0d242cbef9e52e7f81cb2a18e
+  supports:
+  - /organizations
+- id: rfah-benchmark-automated-metadata-8-evidence
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: figure
+    value: Fig. 1
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 229f55e6020d2c34a78b2acb9235ab508a7af8bd056b5f980797f1bd9c59034a
+  supports:
+  - /summary
+- id: rfah-benchmark-automated-bibliographic-evidence
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: other
+    value: Crossref bibliographic metadata
+    note: Resolved from the canonical paper identifier during intake.
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 5b45963847a151050eb2419c23684ca38e9325e2457145144b7ec0d2ea01d410
+  supports:
+  - /release_date
+- id: rfah-benchmark-automated-count-evidence
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: figure
+    value: Fig. 1
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 7705b1f875bf17c0e6ab97786fb20f88491ceb770418c5f806fef0bfb856f59b
+  supports:
+  - /task_counts/total
+  - /task_counts/basis
+  - /versions/0/task_counts/total
+  - /versions/0/task_counts/basis
+- id: rfah-benchmark-automated-subset-coverage-evidence
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: figure
+    value: Fig. 1
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 7705b1f875bf17c0e6ab97786fb20f88491ceb770418c5f806fef0bfb856f59b
+  supports:
+  - /task_counts/subsets
+  - /versions/0/task_counts/subsets
+- id: rfah-benchmark-automated-resource-evidence
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Data Availability
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: cbdee6951e5532b57429398b51436fe8e2abfc9f78df018593e82380271ae3fc
+  supports:
+  - /resources
+  - /implementations
+  - /access/license
+- id: rfah-benchmark-automated-creator-evidence
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: other
+    value: Front matter — DOI
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 6115205069f1a4999f060235c61c133f276780408241486c68044ff841a14049
+  supports:
+  - /resources/0
+- id: rfah-benchmark-automated-version-evidence
+  source_type: work
+  source_id: an-integrative-approach-to-protein-sequence-design-thr
+  accessed_date: '2026-07-31'
+  locator:
+    type: other
+    value: Front matter — DOI
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 6115205069f1a4999f060235c61c133f276780408241486c68044ff841a14049
+  supports:
+  - /latest_version
+  - /versions/0

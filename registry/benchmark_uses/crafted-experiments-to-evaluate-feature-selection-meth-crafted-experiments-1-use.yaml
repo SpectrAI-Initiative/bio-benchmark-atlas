@@ -1,0 +1,55 @@
+entity_type: benchmark_use
+id: crafted-experiments-to-evaluate-feature-selection-meth-crafted-experiments-1-use
+work_id: crafted-experiments-to-evaluate-feature-selection-meth
+work_version_id: crafted-experiments-to-evaluate-feature-selection-meth-2025-03-19
+benchmark_id: crafted-experiments
+benchmark_version: null
+relation_type: benchmark-creation
+status: non-evaluation
+model_ids: []
+scope:
+  type: unknown
+  subset_kind: not-applicable
+  n: null
+  subset_id: null
+  selection: null
+  selection_method: null
+  reporting_status: not_applicable
+metric_labels: []
+evaluation_run_ids: []
+reporting_gaps:
+- Benchmark version is not reported.
+- An explicit benchmark release date is not reported.
+- The released crafted-dataset artifact's license is not reported.
+notes: AI-assisted double-pass extraction; values are limited to independently supported claims.
+verification:
+  status: verified
+  last_verified: '2026-07-31'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: crafted-experiments-to-evaluate-feature-selection-meth-crafted-experiments-1-use-evidence-1
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Introduction
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: 704e0de5dc664413c19d895d12b82fd9c86283ba443eea2782d438ded3f09ebe
+  supports:
+  - /relation_type
+- id: crafted-experiments-to-evaluate-feature-selection-meth-crafted-experiments-1-use-evidence-2
+  source_type: work
+  source_id: crafted-experiments-to-evaluate-feature-selection-meth
+  accessed_date: '2026-07-31'
+  locator:
+    type: section
+    value: Introduction
+    note: null
+    document_page: null
+    printed_page: lqaf023
+    source_fragment_sha256: 047411fa0329617e06c84ef40f453a55b21e288d3ebbca40a5cf352261a3083b
+  supports:
+  - /benchmark_id

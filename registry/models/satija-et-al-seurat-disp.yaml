@@ -1,0 +1,12 @@
+entity_type: model
+id: satija-et-al-seurat-disp
+name: Seurat.disp
+provider: Satija et al.
+release_date: null
+version_string: null
+version_status: not_reported
+aliases: []
+verification:
+  status: verified
+  last_verified: '2026-07-31'
+  notes: Exact model identity accepted by the automated double-pass paper review and pending owner PR approval.

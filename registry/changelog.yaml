@@ -1,3 +1,20 @@
+- date: '2026-07-31'
+  version: 1.4.0-dev
+  type: paper-intake
+  summary: AI-assisted double-pass paper intake (paper-intake:crafted-experiments-to-evaluate-feature-selection-meth); production
+    inclusion required owner approval of the final head SHA.
+  entity_ids:
+  - crafted-experiments-to-evaluate-feature-selection-meth
+  - crafted-experiments
+  - kim-zhou-and-chen-hippo
+  - liu-et-al-pp-anb
+  - liu-et-al-qq-anb
+  - liu-et-al-wdist-med
+  - satija-et-al-seurat-disp
+  - stuart-et-al-seurat-vst
+  - townes-et-al-deviancefs
+  - crafted-experiments-to-evaluate-feature-selection-meth-crafted-experiments-1-use
+  - crafted-experiments-to-evaluate-feature-selection-meth-crafted-experiments-2-use
 - date: '2026-07-30'
   version: 1.4.0-dev
   type: paper-intake

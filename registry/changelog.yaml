@@ -1,3 +1,16 @@
+- date: '2026-08-02'
+  version: 1.4.0-dev
+  type: paper-intake
+  summary: AI-assisted double-pass paper intake (paper-intake:enhancing-molecular-property-prediction-with-auxiliary); production
+    inclusion required owner approval of the final head SHA.
+  entity_ids:
+  - enhancing-molecular-property-prediction-with-auxiliary
+  - hu-et-al-supervised-contextpred-sup-cp
+  - hu-et-al-supervised-sup
+  - enhancing-molecular-property-prediction-with-auxiliary-moleculenet-1-use
+  - enhancing-molecular-property-prediction-with-auxiliary-moleculenet-2-use
+  - enhancing-molecular-property-prediction-with-auxiliary-moleculenet-3-use
+  - enhancing-molecular-property-prediction-with-auxiliary-moleculenet-4-use
 - date: '2026-07-31'
   version: 1.4.0-dev
   type: paper-intake

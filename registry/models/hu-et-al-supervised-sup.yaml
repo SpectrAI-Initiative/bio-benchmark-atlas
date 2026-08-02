@@ -1,0 +1,12 @@
+entity_type: model
+id: hu-et-al-supervised-sup
+name: supervised (Sup)
+provider: Hu et al.
+release_date: null
+version_string: supervised
+version_status: reported
+aliases: []
+verification:
+  status: verified
+  last_verified: '2026-08-02'
+  notes: Exact model identity accepted by the automated double-pass paper review and pending owner PR approval.

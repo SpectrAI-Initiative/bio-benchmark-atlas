@@ -1,0 +1,46 @@
+entity_type: work
+id: enhancing-molecular-property-prediction-with-auxiliary
+title: Enhancing molecular property prediction with auxiliary learning and task-specific adaptation
+authors:
+- Vishal Dey
+- Xia Ning
+organizations:
+- The Ohio State University
+work_type: paper
+source_class: independent_reproduction
+publication_date: '2024-07-24'
+canonical_url: https://www.ebi.ac.uk/europepmc/webservices/rest/PMC11270959/fullTextXML
+doi: 10.1186/s13321-024-00880-7
+arxiv: null
+status: published
+source_versions:
+- id: enhancing-molecular-property-prediction-with-auxiliary-pmc-version-1
+  label: PMC version 1
+  status: version-of-record
+  publication_date: '2024-07-24'
+  canonical_url: https://www.ebi.ac.uk/europepmc/webservices/rest/PMC11270959/fullTextXML
+  doi: 10.1186/s13321-024-00880-7
+  arxiv: null
+  source_access: open-url
+  content_sha256: a7badc354868c05383f3df6991b2b45adf2b6ae7ab6f3b6a1c2cfc477c00e232
+  content_type: application/xml
+  retrieved_at: '2026-08-02T04:01:46+00:00'
+current_version_id: enhancing-molecular-property-prediction-with-auxiliary-pmc-version-1
+review_provenance:
+  method: local-codex-double-pass
+  pipeline_version: 1.4.0
+  prompt_version: paper-evidence-local-v15
+  source_version_id: enhancing-molecular-property-prediction-with-auxiliary-pmc-version-1
+  extractor_model_requested: gpt-5.6-sol
+  extractor_model_resolved: null
+  verifier_model_requested: gpt-5.6-sol
+  verifier_model_resolved: null
+  generated_at: '2026-08-02T04:01:46+00:00'
+  execution_surface: local-codex-cli
+  model_resolution_status: not-reported
+  codex_cli_version: codex-cli 0.146.0-alpha.9.2
+  local_run_id: 09185fe4-a3fd-4558-a472-24b59dace0f4
+verification:
+  status: verified
+  last_verified: '2026-08-02'
+  notes: AI-assisted double-pass extraction; production inclusion still requires the owner SHA-comment gate.

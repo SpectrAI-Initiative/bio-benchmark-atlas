@@ -1,0 +1,8 @@
+classifications:
+  benchmark-dual-human-crispr-cas9-library:
+    status: partial
+    benchmark_version: initial-release
+    as_of: null
+    notes: Candidate artifact-derived Scientific Task mappings lacked an official artifact-level locator and were omitted;
+      task mapping remains pending a targeted official-artifact audit.
+    entries: []

@@ -597,7 +597,7 @@ def _materialize_benchmark_metadata(
         metadata_source = str(bibliography.get("metadata_source") or "").casefold()
         publication_date = bibliography.get("publication_date")
         try:
-            if metadata_source in {"crossref", "arxiv"} and publication_date:
+            if metadata_source in {"crossref", "arxiv", "arxiv api"} and publication_date:
                 date.fromisoformat(str(publication_date))
                 metadata["release_date"] = str(publication_date)
                 values_by_path["/release_date"] = str(publication_date)

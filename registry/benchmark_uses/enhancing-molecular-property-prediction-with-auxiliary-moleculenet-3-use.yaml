@@ -1,0 +1,140 @@
+entity_type: benchmark_use
+id: enhancing-molecular-property-prediction-with-auxiliary-moleculenet-3-use
+work_id: enhancing-molecular-property-prediction-with-auxiliary
+work_version_id: enhancing-molecular-property-prediction-with-auxiliary-pmc-version-1
+benchmark_id: moleculenet
+benchmark_version: null
+relation_type: evaluation
+status: partial
+model_ids:
+- hu-et-al-supervised-contextpred-sup-cp
+scope:
+  type: subset
+  subset_kind: paper-specific
+  n: 8
+  subset_id: null
+  selection: filtered
+  selection_method: 'Eight MoleculeNet classification datasets: BBBP, Tox21, ToxCast, SIDER, ClinTox, MUV, HIV, and BACE.'
+  reporting_status: reported
+metric_labels:
+- Test ROC-AUC (Sup-CP; AM,IG,MP)
+evaluation_run_ids: []
+reporting_gaps:
+- MoleculeNet version is not reported.
+- Realized test-set sample sizes are not reported.
+- Repeat count is not stated for Table 2.
+- Exact checkpoint revision and release date are not reported.
+- Scaffold splitting is the within-dataset split protocol, not the method used to select the eight benchmark datasets.
+- Table rows vary by adaptation strategy; those strategies are not normalized here as standalone model identities.
+- benchmark version
+- numeric result
+notes: AI-assisted double-pass extraction; values are limited to independently supported claims.
+verification:
+  status: verified
+  last_verified: '2026-08-02'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: enhancing-molecular-property-prediction-with-auxiliary-moleculenet-3-use-evidence-1
+  source_type: work
+  source_id: enhancing-molecular-property-prediction-with-auxiliary
+  accessed_date: '2026-08-02'
+  locator:
+    type: table
+    value: Table 2
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 0c35e9a59735d17c5e67b413c2c4cad6da2f4768bd9779ed57652c0a244b49e2
+  supports:
+  - /relation_type
+- id: enhancing-molecular-property-prediction-with-auxiliary-moleculenet-3-use-evidence-2
+  source_type: work
+  source_id: enhancing-molecular-property-prediction-with-auxiliary
+  accessed_date: '2026-08-02'
+  locator:
+    type: section
+    value: Results and discussion > Experimental setup
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: d980d38df62519335682b1964134b0b656d479c9f7c490e8736c48b95492f4ea
+  supports:
+  - /benchmark_id
+- id: enhancing-molecular-property-prediction-with-auxiliary-moleculenet-3-use-evidence-3
+  source_type: work
+  source_id: enhancing-molecular-property-prediction-with-auxiliary
+  accessed_date: '2026-08-02'
+  locator:
+    type: section
+    value: Results and discussion > Experimental setup
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: d980d38df62519335682b1964134b0b656d479c9f7c490e8736c48b95492f4ea
+  supports:
+  - /scope
+- id: enhancing-molecular-property-prediction-with-auxiliary-moleculenet-3-use-evidence-4
+  source_type: work
+  source_id: enhancing-molecular-property-prediction-with-auxiliary
+  accessed_date: '2026-08-02'
+  locator:
+    type: section
+    value: Results and discussion > Experimental setup
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: d980d38df62519335682b1964134b0b656d479c9f7c490e8736c48b95492f4ea
+  supports:
+  - /scope
+- id: enhancing-molecular-property-prediction-with-auxiliary-moleculenet-3-use-evidence-5
+  source_type: work
+  source_id: enhancing-molecular-property-prediction-with-auxiliary
+  accessed_date: '2026-08-02'
+  locator:
+    type: table
+    value: Table 2, dataset columns
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 1be2ace855d6b72411fc8616ecadc846eaa3a9bd399ec7f33e242b91fe899d13
+  supports:
+  - /scope
+- id: enhancing-molecular-property-prediction-with-auxiliary-moleculenet-3-use-evidence-6
+  source_type: work
+  source_id: enhancing-molecular-property-prediction-with-auxiliary
+  accessed_date: '2026-08-02'
+  locator:
+    type: section
+    value: Results and discussion > Reproducibility and implementation details
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 8e19f2f648510df76c5f9b958ebd2e94207d5a8eb90aa81c8b47987fb98a28ed
+  supports:
+  - /scope
+- id: enhancing-molecular-property-prediction-with-auxiliary-moleculenet-3-use-evidence-7
+  source_type: work
+  source_id: enhancing-molecular-property-prediction-with-auxiliary
+  accessed_date: '2026-08-02'
+  locator:
+    type: other
+    value: Experimental setup; reference 17
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 22aea0bb5f9afc4285c7787ad872b14ce52ae91697d1ec2a436feebb94ee4ea4
+  supports:
+  - /model_ids
+- id: enhancing-molecular-property-prediction-with-auxiliary-moleculenet-3-use-evidence-8
+  source_type: work
+  source_id: enhancing-molecular-property-prediction-with-auxiliary
+  accessed_date: '2026-08-02'
+  locator:
+    type: table
+    value: Table 2 caption and footnote
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: b1c9789e729a3d36992012efd84095cb0e84ec97225fb3eee7c83095d8dc1b6e
+  supports:
+  - /metric_labels

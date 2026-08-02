@@ -1,0 +1,12 @@
+entity_type: model
+id: hu-et-al-supervised-contextpred-sup-cp
+name: supervised_contextpred (Sup-CP)
+provider: Hu et al.
+release_date: null
+version_string: supervised_contextpred
+version_status: reported
+aliases: []
+verification:
+  status: verified
+  last_verified: '2026-08-02'
+  notes: Exact model identity accepted by the automated double-pass paper review and pending owner PR approval.

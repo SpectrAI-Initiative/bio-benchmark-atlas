@@ -423,7 +423,12 @@ def test_generator_creates_normalized_run_only_from_supported_numeric_claims() -
 
 def test_new_benchmark_requires_creator_repo_pin_and_builds_same_pr_entities() -> None:
     metadata = {
-        "name": "SyntheticBioBench", "aliases": [],
+        "name": "SyntheticBioBench",
+        "aliases": [
+            "SYNTHETICBIOBENCH",
+            "Synthetic fitness suite",
+            "synthetic_fitness_suite",
+        ],
         "summary": "A synthetic test-only benchmark for protein fitness prediction evaluation.",
         "kind": "dataset", "organizations": ["Example Institute"], "release_date": "2026-07-01",
         "domains": ["protein-sequence"], "capabilities": ["prediction"],
@@ -478,6 +483,7 @@ def test_new_benchmark_requires_creator_repo_pin_and_builds_same_pr_entities() -
     assert records.blocked_reasons == []
     assert records.work["source_class"] == "benchmark_creator"
     assert [item["id"] for item in records.benchmarks] == ["syntheticbiobench"]
+    assert records.benchmarks[0]["aliases"] == ["Synthetic fitness suite"]
     assert records.benchmarks[0]["resources"][1]["pin"]["value"] == "b" * 40
     task_entry = records.classifications["syntheticbiobench"]["entries"][0]
     assert task_entry["task_type_id"] == "protein-fitness-prediction"
@@ -488,6 +494,7 @@ def test_new_benchmark_requires_creator_repo_pin_and_builds_same_pr_entities() -
         if item["path"] == "/task_counts/subsets"
     )
     assert subset_status["status"] == "provisional"
+    assert "did not establish an exhaustive formal-subset inventory" in subset_status["reason"]
 
     different_basis_claims = json.loads(json.dumps(claims))
     task_payload = json.loads(different_basis_claims[8]["value_json"])

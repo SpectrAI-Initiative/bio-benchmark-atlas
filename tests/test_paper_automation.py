@@ -1091,7 +1091,10 @@ def test_new_benchmark_atomic_metadata_keeps_independently_supported_fields() ->
     assert "/access/license" in license_evidence["supports"]
 
 
-def test_atomic_metadata_uses_canonical_bibliographic_date_and_unclassified_format() -> None:
+@pytest.mark.parametrize("metadata_source", ["Crossref", "arXiv API"])
+def test_atomic_metadata_uses_canonical_bibliographic_date_and_unclassified_format(
+    metadata_source: str,
+) -> None:
     values = {
         "/name": "BibliographicDateBench",
         "/summary": "A synthetic benchmark whose release date comes from canonical metadata.",
@@ -1112,7 +1115,7 @@ def test_atomic_metadata_uses_canonical_bibliographic_date_and_unclassified_form
     metadata, evidence_claims, bibliographic_supports = _materialize_benchmark_metadata(
         claims,
         bibliographic_metadata={
-            "metadata_source": "Crossref",
+            "metadata_source": metadata_source,
             "publication_date": "2024-12-03",
         },
     )

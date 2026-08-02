@@ -63,6 +63,28 @@ def slugify(value: str, *, maximum: int = 72) -> str:
     return slug[:maximum].rstrip("-") or "record"
 
 
+def _dedupe_benchmark_aliases(
+    name: str,
+    benchmark_id: str,
+    aliases: list[Any],
+) -> list[str]:
+    """Drop blank, repeated, and name-equivalent aliases deterministically."""
+
+    def alias_key(value: str) -> str:
+        return value.casefold().replace("_", "-").replace(" ", "-")
+
+    seen = {benchmark_id, alias_key(name)}
+    output: list[str] = []
+    for raw_alias in aliases:
+        alias = str(raw_alias).strip()
+        key = alias_key(alias)
+        if not alias or key in seen:
+            continue
+        seen.add(key)
+        output.append(alias)
+    return output
+
+
 def stable_work_id(title: str, doi: str | None, existing_ids: set[str]) -> str:
     base = slugify(title, maximum=54)
     if base not in existing_ids:
@@ -870,9 +892,9 @@ def _build_new_benchmark(
             "status": "provisional",
             "confidence": "high",
             "reason": (
-                "The double-pass review established the root item total but did not establish "
-                "an exhaustive formal-subset inventory; the empty list must not be interpreted "
-                "as evidence that the benchmark has no subsets."
+                "The double-pass review did not establish an exhaustive formal-subset inventory; "
+                "the empty list must not be interpreted as evidence that the benchmark has no "
+                "subsets."
             ),
             "evidence_ids": [f"{benchmark_id}-automated-subset-coverage-evidence"],
         })
@@ -987,7 +1009,9 @@ def _build_new_benchmark(
         "entity_type": "benchmark",
         "id": benchmark_id,
         "name": str(metadata["name"]),
-        "aliases": list(dict.fromkeys(str(item) for item in metadata.get("aliases", []))),
+        "aliases": _dedupe_benchmark_aliases(
+            str(metadata["name"]), benchmark_id, metadata.get("aliases", [])
+        ),
         "summary": str(metadata["summary"]),
         "kind": metadata["kind"],
         "parent_id": None,

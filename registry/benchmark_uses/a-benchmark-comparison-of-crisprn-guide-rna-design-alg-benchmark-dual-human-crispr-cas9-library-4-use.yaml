@@ -1,0 +1,89 @@
+entity_type: benchmark_use
+id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg-benchmark-dual-human-crispr-cas9-library-4-use
+work_id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg
+work_version_id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg-pmc-version-1
+benchmark_id: benchmark-dual-human-crispr-cas9-library
+benchmark_version: null
+relation_type: evaluation
+status: partial
+model_ids: []
+scope:
+  type: unknown
+  subset_kind: not-reported
+  n: null
+  subset_id: null
+  selection: null
+  selection_method: null
+  reporting_status: not_reported
+metric_labels:
+- log-fold changes
+- Chronos gene fitness estimate
+evaluation_run_ids: []
+reporting_gaps:
+- The benchmark version is not reported.
+- The sample size and uncertainty for the reported −0.9 delta are not reported.
+- Other performance values appear only in figures; no rasterized figure pages were supplied.
+- Run-level seeds are not reported.
+- Conflicted metric claim omitted after independent verification; the evaluation relationship is published conservatively.
+- benchmark version
+- realized n/scope
+- exact model
+- numeric result
+notes: AI-assisted double-pass extraction; values are limited to independently supported claims.
+verification:
+  status: verified
+  last_verified: '2026-08-02'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg-benchmark-dual-human-crispr-cas9-library-4-use-evidence-1
+  source_type: work
+  source_id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg
+  accessed_date: '2026-08-02'
+  locator:
+    type: section
+    value: Results and discussion, Par14
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: b6cffa5ad95ff4541993e85c39b898d62ef30574dce11ca692b18ff7c47d9b82
+  supports:
+  - /relation_type
+- id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg-benchmark-dual-human-crispr-cas9-library-4-use-evidence-2
+  source_type: work
+  source_id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg
+  accessed_date: '2026-08-02'
+  locator:
+    type: section
+    value: Results and discussion, Par14
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 66a116f9e5a267c0aa4ef9d499b38d61031f2e76d31b8d9cbc06acba3a5b5e61
+  supports:
+  - /benchmark_id
+- id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg-benchmark-dual-human-crispr-cas9-library-4-use-evidence-3
+  source_type: work
+  source_id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg
+  accessed_date: '2026-08-02'
+  locator:
+    type: section
+    value: Results and discussion, Par14
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: b063c6d1007272161a3d6f21c1f64fd8deac7322c00976c923a05b294c470c12
+  supports:
+  - /metric_labels
+- id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg-benchmark-dual-human-crispr-cas9-library-4-use-evidence-4
+  source_type: work
+  source_id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg
+  accessed_date: '2026-08-02'
+  locator:
+    type: section
+    value: Results and discussion, Par14
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: dccbcb43398754742b5b877360dfbf891f2d1cb6dec02d479cf8bac1a30f0bee
+  supports:
+  - /metric_labels

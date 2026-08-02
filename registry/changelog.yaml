@@ -1,6 +1,19 @@
 - date: '2026-08-02'
   version: 1.4.0-dev
   type: paper-intake
+  summary: AI-assisted double-pass paper intake (paper-intake:a-benchmark-comparison-of-crisprn-guide-rna-design-alg); production
+    inclusion required owner approval of the final head SHA.
+  entity_ids:
+  - a-benchmark-comparison-of-crisprn-guide-rna-design-alg
+  - benchmark-human-crispr-cas9-library
+  - benchmark-dual-human-crispr-cas9-library
+  - a-benchmark-comparison-of-crisprn-guide-rna-design-alg-benchmark-human-crispr-cas9-library-1-use
+  - a-benchmark-comparison-of-crisprn-guide-rna-design-alg-benchmark-human-crispr-cas9-library-2-use
+  - a-benchmark-comparison-of-crisprn-guide-rna-design-alg-benchmark-dual-human-crispr-cas9-library-3-use
+  - a-benchmark-comparison-of-crisprn-guide-rna-design-alg-benchmark-dual-human-crispr-cas9-library-4-use
+- date: '2026-08-02'
+  version: 1.4.0-dev
+  type: paper-intake
   summary: AI-assisted double-pass paper intake (paper-intake:enhancing-molecular-property-prediction-with-auxiliary); production
     inclusion required owner approval of the final head SHA.
   entity_ids:

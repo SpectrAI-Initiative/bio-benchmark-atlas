@@ -1,0 +1,54 @@
+entity_type: work
+id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg
+title: A benchmark comparison of CRISPRn guide-RNA design algorithms and generation of small single and dual-targeting libraries
+  to boost screening efficiency
+authors:
+- Sebastian Lukasiak
+- Alex Kalinka
+- Nikhil Gupta
+- Angelos Papadopoulos
+- Khalid Saeed
+- Ultan McDermott
+- Gregory James Hannon
+- Douglas Ross-Thriepland
+- David Walter
+organizations:
+- Joint Astrazeneca-Cancer Research Horizons Functional Genomics Centre
+work_type: paper
+source_class: benchmark_creator
+publication_date: '2025-02-26'
+canonical_url: https://doi.org/10.1186/s12864-025-11386-3
+doi: 10.1186/s12864-025-11386-3
+arxiv: null
+status: published
+source_versions:
+- id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg-pmc-version-1
+  label: PMC version 1
+  status: version-of-record
+  publication_date: '2025-02-26'
+  canonical_url: https://doi.org/10.1186/s12864-025-11386-3
+  doi: 10.1186/s12864-025-11386-3
+  arxiv: null
+  source_access: open-url
+  content_sha256: 35eadf11308ce68bbab41ecd842ec948338a5bb1bfb394bd6eb25741e6de068e
+  content_type: application/xml
+  retrieved_at: '2026-08-02T12:44:02+00:00'
+current_version_id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg-pmc-version-1
+review_provenance:
+  method: local-codex-double-pass
+  pipeline_version: 1.4.0
+  prompt_version: paper-evidence-local-v15
+  source_version_id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg-pmc-version-1
+  extractor_model_requested: gpt-5.6-sol
+  extractor_model_resolved: null
+  verifier_model_requested: gpt-5.6-sol
+  verifier_model_resolved: null
+  generated_at: '2026-08-02T12:44:02+00:00'
+  execution_surface: local-codex-cli
+  model_resolution_status: not-reported
+  codex_cli_version: codex-cli 0.146.0-alpha.9.2
+  local_run_id: e0b79cbc-5e78-41f6-a2ac-5352db58aec4
+verification:
+  status: verified
+  last_verified: '2026-08-02'
+  notes: AI-assisted double-pass extraction; production inclusion still requires the owner SHA-comment gate.

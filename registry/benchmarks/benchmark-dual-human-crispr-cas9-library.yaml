@@ -1,0 +1,297 @@
+entity_type: benchmark
+id: benchmark-dual-human-crispr-cas9-library
+name: benchmark-dual human CRISPR-Cas9 library
+aliases:
+- dual-guide benchmark library
+- dual-guide benchmarking library
+summary: A human CRISPR-Cas9 paired-guide library created to compare dual- and single-targeting strategies in loss-of-function
+  screens.
+kind: dataset
+parent_id: null
+organizations:
+- Joint Astrazeneca-Cancer Research Horizons Functional Genomics Centre
+release_date: '2025-02-26'
+latest_version: initial-release
+domains:
+- genomics
+- molecular-cell-biology
+- assay-screening
+capabilities:
+- prediction
+modalities:
+- dna-rna-sequence
+- wet-lab-output
+task_formats:
+- unclassified
+task_counts: &id001
+  total: 45720
+  basis: Source-reported final dual-guide benchmarking library inventory.
+  reporting_status: reported
+  subsets: []
+coverage_notes: []
+access:
+  level: fully-open
+  tasks: See the linked official creator resources.
+  artifacts: See the linked official creator resources.
+  grader: Not established by the independently verified metadata claims.
+  license: null
+  biosafety_notes: null
+resources:
+- id: benchmark-dual-human-crispr-cas9-library-creator-paper-resource
+  type: paper
+  url: https://doi.org/10.1186/s12864-025-11386-3
+  license: null
+  access_notes: Versioned creator source; full text is not mirrored.
+  last_checked: '2026-08-02'
+  pin: null
+- id: benchmark-dual-human-crispr-cas9-library-official-dataset-resource
+  type: dataset
+  url: https://zenodo.org/records/11164566
+  license: null
+  access_notes: Official resource pinned immutably during intake.
+  last_checked: '2026-08-02'
+  pin:
+    kind: version
+    value: 1.0.0
+    url: https://zenodo.org/records/11164566
+implementations: []
+versions:
+- id: benchmark-dual-human-crispr-cas9-library-initial-release-version
+  label: initial-release
+  status: current
+  release_date: '2025-02-26'
+  as_of: null
+  task_counts: *id001
+  formal_tracks: []
+  notes: Atlas snapshot label for the creator-paper release; the source does not report a formal benchmark version.
+  evidence_ids:
+  - benchmark-dual-human-crispr-cas9-library-automated-count-evidence
+  - benchmark-dual-human-crispr-cas9-library-automated-version-evidence
+audit:
+  status: audited-with-caveats
+  audited_date: '2026-08-02'
+  unresolved_fields: 2
+  notes: Automated double-pass extraction plus deterministic official-resource pin; the benchmark license remains unverified
+    and is published as null.
+field_status:
+- path: /task_counts/subsets
+  status: provisional
+  confidence: high
+  reason: The double-pass review established the root item total but did not establish an exhaustive formal-subset inventory;
+    the empty list must not be interpreted as evidence that the benchmark has no subsets.
+  evidence_ids:
+  - benchmark-dual-human-crispr-cas9-library-automated-subset-coverage-evidence
+- path: /access/license
+  status: provisional
+  confidence: high
+  reason: The double-pass review verified the official resource identity but did not establish a redistributable benchmark
+    license; the value remains null pending source-level license verification.
+  evidence_ids:
+  - benchmark-dual-human-crispr-cas9-library-automated-resource-evidence
+verification:
+  status: verified
+  last_verified: '2026-08-02'
+  notes: New family admitted after creator source and official resource verification; the unresolved benchmark license is
+    visibly flagged.
+evidence:
+- id: benchmark-dual-human-crispr-cas9-library-automated-metadata-1-evidence
+  source_type: work
+  source_id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg
+  accessed_date: '2026-08-02'
+  locator:
+    type: section
+    value: Data availability
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 6badb7f86f61b6567302684be94b7d02ad77de557ce9bb92d14e2ae97b073523
+  supports:
+  - /access/level
+- id: benchmark-dual-human-crispr-cas9-library-automated-metadata-2-evidence
+  source_type: work
+  source_id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg
+  accessed_date: '2026-08-02'
+  locator:
+    type: section
+    value: Figure 2 caption and Methods, Sec9, Par26
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: b6beacdabfa3da634d1c5ed5956190f955ca94ec97d7c20c431efc55dca0fa95
+  supports:
+  - /aliases
+- id: benchmark-dual-human-crispr-cas9-library-automated-metadata-3-evidence
+  source_type: work
+  source_id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg
+  accessed_date: '2026-08-02'
+  locator:
+    type: section
+    value: Methods, Sec9, Par26; Results and discussion, Par12
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 823dfc9bdf7e718c2f90d05308b5720643d904f878b55ade7bbbc0c2433225de
+  supports:
+  - /capabilities
+- id: benchmark-dual-human-crispr-cas9-library-automated-metadata-4-evidence
+  source_type: work
+  source_id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg
+  accessed_date: '2026-08-02'
+  locator:
+    type: section
+    value: Abstract, Par9
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 62a256c216c566e7bdb30cb276eb0e471d6bf2b1eff4710200a8e0549950cbb0
+  supports:
+  - /domains
+- id: benchmark-dual-human-crispr-cas9-library-automated-metadata-5-evidence
+  source_type: work
+  source_id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg
+  accessed_date: '2026-08-02'
+  locator:
+    type: section
+    value: Data availability
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: a348a05ccd30032681a84d7b2a72b38aba6ef8e77dfdc9b55049e5643b4b693a
+  supports:
+  - /kind
+- id: benchmark-dual-human-crispr-cas9-library-automated-metadata-6-evidence
+  source_type: work
+  source_id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg
+  accessed_date: '2026-08-02'
+  locator:
+    type: section
+    value: Data availability
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 93de163bffb3720ce82dd25f33333bec6180cb488277c2efd3ec9548a11cff37
+  supports:
+  - /modalities
+- id: benchmark-dual-human-crispr-cas9-library-automated-metadata-7-evidence
+  source_type: work
+  source_id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg
+  accessed_date: '2026-08-02'
+  locator:
+    type: section
+    value: Results and discussion, Par14
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 874d21c535461e8fe020d585de0c412948736c9c14c902474c8ec11f69de00c8
+  supports:
+  - /name
+- id: benchmark-dual-human-crispr-cas9-library-automated-metadata-8-evidence
+  source_type: work
+  source_id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg
+  accessed_date: '2026-08-02'
+  locator:
+    type: section
+    value: 'Front matter: contrib-group and Aff1'
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: dd142f02521050383739d43e085b5bd2f3c741c734b04acced8aae31e800e9e7
+  supports:
+  - /organizations
+- id: benchmark-dual-human-crispr-cas9-library-automated-metadata-9-evidence
+  source_type: work
+  source_id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg
+  accessed_date: '2026-08-02'
+  locator:
+    type: section
+    value: Results and discussion, Par14
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 7bd819988af194ec507f63842d57e20ab9b73f76a63789e9d2609260c14a9e18
+  supports:
+  - /summary
+- id: benchmark-dual-human-crispr-cas9-library-automated-bibliographic-evidence
+  source_type: work
+  source_id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg
+  accessed_date: '2026-08-02'
+  locator:
+    type: other
+    value: Crossref bibliographic metadata
+    note: Resolved from the canonical paper identifier during intake.
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: b5c780106941b5f895588a9efedaafe8aeea464cff6edb5121894832c0978052
+  supports:
+  - /release_date
+- id: benchmark-dual-human-crispr-cas9-library-automated-count-evidence
+  source_type: work
+  source_id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg
+  accessed_date: '2026-08-02'
+  locator:
+    type: section
+    value: Methods, Sec9, Par26
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: cca1499a2c0db292e40ad81a43e9da5edd090862b9394ff1ce9c751691ac1704
+  supports:
+  - /task_counts/total
+  - /task_counts/basis
+  - /versions/0/task_counts/total
+  - /versions/0/task_counts/basis
+- id: benchmark-dual-human-crispr-cas9-library-automated-subset-coverage-evidence
+  source_type: work
+  source_id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg
+  accessed_date: '2026-08-02'
+  locator:
+    type: section
+    value: Methods, Sec9, Par26
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: cca1499a2c0db292e40ad81a43e9da5edd090862b9394ff1ce9c751691ac1704
+  supports:
+  - /task_counts/subsets
+  - /versions/0/task_counts/subsets
+- id: benchmark-dual-human-crispr-cas9-library-automated-resource-evidence
+  source_type: work
+  source_id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg
+  accessed_date: '2026-08-02'
+  locator:
+    type: section
+    value: Data availability
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 6badb7f86f61b6567302684be94b7d02ad77de557ce9bb92d14e2ae97b073523
+  supports:
+  - /resources
+  - /access/license
+- id: benchmark-dual-human-crispr-cas9-library-automated-creator-evidence
+  source_type: work
+  source_id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg
+  accessed_date: '2026-08-02'
+  locator:
+    type: section
+    value: 'Front matter: article DOI'
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: fbdde9f192cdcc4c69a769fe8e89efec9636b795fdba90d128d55722bb45aa80
+  supports:
+  - /resources/0
+- id: benchmark-dual-human-crispr-cas9-library-automated-version-evidence
+  source_type: work
+  source_id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg
+  accessed_date: '2026-08-02'
+  locator:
+    type: section
+    value: 'Front matter: article DOI'
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: fbdde9f192cdcc4c69a769fe8e89efec9636b795fdba90d128d55722bb45aa80
+  supports:
+  - /latest_version
+  - /versions/0

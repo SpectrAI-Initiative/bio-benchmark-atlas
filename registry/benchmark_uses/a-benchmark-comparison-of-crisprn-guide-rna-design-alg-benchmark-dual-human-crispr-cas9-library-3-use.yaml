@@ -1,0 +1,81 @@
+entity_type: benchmark_use
+id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg-benchmark-dual-human-crispr-cas9-library-3-use
+work_id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg
+work_version_id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg-pmc-version-1
+benchmark_id: benchmark-dual-human-crispr-cas9-library
+benchmark_version: null
+relation_type: benchmark-creation
+status: non-evaluation
+model_ids: []
+scope:
+  type: unknown
+  subset_kind: not-applicable
+  n: null
+  subset_id: null
+  selection: null
+  selection_method: null
+  reporting_status: not_applicable
+metric_labels: []
+evaluation_run_ids: []
+reporting_gaps:
+- No benchmark version is reported.
+- The final neutral-gene count is not printed after eight genes were removed.
+- The released dataset's license and version are not reported.
+notes: AI-assisted double-pass extraction; values are limited to independently supported claims.
+verification:
+  status: verified
+  last_verified: '2026-08-02'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg-benchmark-dual-human-crispr-cas9-library-3-use-evidence-1
+  source_type: work
+  source_id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg
+  accessed_date: '2026-08-02'
+  locator:
+    type: section
+    value: Results and discussion, Par14
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 874d21c535461e8fe020d585de0c412948736c9c14c902474c8ec11f69de00c8
+  supports:
+  - /relation_type
+- id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg-benchmark-dual-human-crispr-cas9-library-3-use-evidence-2
+  source_type: work
+  source_id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg
+  accessed_date: '2026-08-02'
+  locator:
+    type: section
+    value: Results and discussion, Par14
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 874d21c535461e8fe020d585de0c412948736c9c14c902474c8ec11f69de00c8
+  supports:
+  - /benchmark_id
+- id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg-benchmark-dual-human-crispr-cas9-library-3-use-evidence-3
+  source_type: work
+  source_id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg
+  accessed_date: '2026-08-02'
+  locator:
+    type: section
+    value: Methods, Sec9, Par26
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 4ec5530e16f32eafa83fae6bd99781cc94eaf4b23e79700435ec0b1ee51654e6
+  supports:
+  - /scope
+- id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg-benchmark-dual-human-crispr-cas9-library-3-use-evidence-4
+  source_type: work
+  source_id: a-benchmark-comparison-of-crisprn-guide-rna-design-alg
+  accessed_date: '2026-08-02'
+  locator:
+    type: section
+    value: Methods, Sec9, Par26
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: dd0f038f47f415483864de293af96c0de7540b456bce03c6286efe1c2eeee2f3
+  supports:
+  - /scope

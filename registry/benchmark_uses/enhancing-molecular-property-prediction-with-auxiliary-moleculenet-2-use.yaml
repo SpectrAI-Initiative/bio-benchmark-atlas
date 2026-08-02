@@ -14,7 +14,7 @@ scope:
   n: 8
   subset_id: null
   selection: filtered
-  selection_method: scaffold splitting
+  selection_method: 'Eight MoleculeNet classification datasets: BBBP, Tox21, ToxCast, SIDER, ClinTox, MUV, HIV, and BACE.'
   reporting_status: reported
 metric_labels:
 - Test ROC-AUC (Sup-CP; AM,CP,EP,IG,MP)
@@ -23,6 +23,8 @@ reporting_gaps:
 - MoleculeNet version is not reported.
 - Realized test-set sample sizes are not reported.
 - Exact checkpoint revision and release date are not reported.
+- Scaffold splitting is the within-dataset split protocol, not the method used to select the eight benchmark datasets.
+- Table rows vary by adaptation strategy; those strategies are not normalized here as standalone model identities.
 - Conflicted result claim omitted after independent verification; the evaluation relationship is published conservatively.
 - benchmark version
 - numeric result

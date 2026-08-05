@@ -1,0 +1,141 @@
+entity_type: benchmark_use
+id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-6-use
+work_id: comprehensive-benchmark-of-differential-transcript-usa
+work_version_id: comprehensive-benchmark-of-differential-transcript-usa-final-published-version
+benchmark_id: comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu
+benchmark_version: null
+relation_type: evaluation
+status: partial
+model_ids: []
+scope:
+  type: track
+  subset_kind: not-applicable
+  n: 8
+  subset_id: time-series-sars-cov-2-gse157490
+  selection: null
+  selection_method: GSE157490 SARS-CoV-2 infection single-end transcriptomics with eight time points and four replicates.
+  reporting_status: reported
+metric_labels:
+- DTU genes detected
+- Overlapping DTU genes
+evaluation_run_ids: []
+reporting_gaps:
+- Versions of the evaluated time-series DTU methods are not reported.
+- The real time-series dataset has no DTU ground truth.
+- Most intersection counts in Figure 7 are not needed to establish the reported aggregate comparisons.
+- Conflicted selection-method claim omitted after independent verification; the evaluation relationship is published conservatively.
+- Conflicted tools claim omitted after independent verification; the evaluation relationship is published conservatively.
+- Conflicted result claim omitted after independent verification; the evaluation relationship is published conservatively.
+- benchmark version
+- exact model
+- numeric result
+notes: AI-assisted double-pass extraction; values are limited to independently supported claims.
+verification:
+  status: verified
+  last_verified: '2026-08-05'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-6-use-evidence-1
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: section
+    value: Time series IS analysis
+    note: null
+    document_page: 9
+    printed_page: '8'
+    source_fragment_sha256: 899bbaa6c11ea33537beefe35116968de42a3c312c19a9bd07fa399a381b0d50
+  supports:
+  - /relation_type
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-6-use-evidence-2
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: page
+    value: Title and Abstract
+    note: null
+    document_page: 2
+    printed_page: '1'
+    source_fragment_sha256: df4ff96eb6d5ce3db553eddfe0c04a09ec2b4acba1632660a91ed29eacac5fb0
+  supports:
+  - /benchmark_id
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-6-use-evidence-3
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: section
+    value: Section heading
+    note: null
+    document_page: 9
+    printed_page: '8'
+    source_fragment_sha256: 13ce878ae7c049692f20e6f6313fe171da8f1d03f894cefe19c5eeac93365253
+  supports:
+  - /scope
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-6-use-evidence-4
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: section
+    value: RNA-seq dataset used
+    note: null
+    document_page: 3
+    printed_page: '2'
+    source_fragment_sha256: 7439d2979c6e32f1022b8bf0d703ae7139c558c20a1c4dc5d44d70e4f857c3b0
+  supports:
+  - /scope
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-6-use-evidence-5
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: other
+    value: RNA-seq dataset used and Time series IS analysis, document pages 3 and 9
+    note: null
+    document_page: null
+    printed_page: 2, 8
+    source_fragment_sha256: 6d2cc0fabd5571a38202f534e3ae18111b99592a7086671f3340a1b576ad36b2
+  supports:
+  - /scope
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-6-use-evidence-6
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: section
+    value: Time series IS analysis
+    note: null
+    document_page: 9
+    printed_page: '8'
+    source_fragment_sha256: 97ef099eb9b05a802d821190da136e922704587482c62cbb2d614d6c102db1cc
+  supports:
+  - /scope
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-6-use-evidence-7
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: figure
+    value: Figure 7B
+    note: null
+    document_page: 11
+    printed_page: '10'
+    source_fragment_sha256: 1bf7df5225020c5eaf89790b9c972a33a5786f09fc3428354b39e3ae9df65a28
+  supports:
+  - /metric_labels
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-6-use-evidence-8
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: figure
+    value: Figure 7A
+    note: null
+    document_page: 11
+    printed_page: '10'
+    source_fragment_sha256: b5a59b6182416b55830854cd6e167d476d7cd0008c1a641736108c8f4f2a149b
+  supports:
+  - /metric_labels

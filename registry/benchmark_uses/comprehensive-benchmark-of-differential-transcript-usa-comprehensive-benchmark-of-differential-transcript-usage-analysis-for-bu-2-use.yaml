@@ -1,0 +1,208 @@
+entity_type: benchmark_use
+id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-2-use
+work_id: comprehensive-benchmark-of-differential-transcript-usa
+work_version_id: comprehensive-benchmark-of-differential-transcript-usa-final-published-version
+benchmark_id: comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu
+benchmark_version: null
+relation_type: evaluation
+status: partial
+model_ids: []
+scope:
+  type: track
+  subset_kind: not-applicable
+  n: null
+  subset_id: simulated-bulk-rna-seq
+  selection: null
+  selection_method: RSEM v1.3.3 simulation using parameters estimated from real RNA-seq datasets and a GRCh38 reference.
+  reporting_status: reported
+metric_labels:
+- root mean squared error
+- Spearman correlation
+- Pearson correlation
+- Precision
+- Recall
+- FDR
+- F1 score
+evaluation_run_ids: []
+reporting_gaps:
+- Versions of the evaluated DTU methods are not reported.
+- Simulation random seeds and repeat counts beyond the four/eight biological-replicate settings are not reported.
+- Most plotted performance values are not numerically labeled and were not extracted.
+- benchmark version
+- exact model
+- numeric result
+notes: AI-assisted double-pass extraction; values are limited to independently supported claims.
+verification:
+  status: verified
+  last_verified: '2026-08-05'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-2-use-evidence-1
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: section
+    value: Overall performance of DTU detection
+    note: null
+    document_page: 5
+    printed_page: '4'
+    source_fragment_sha256: c14dcabd35ead6309170241dc5695bcb624e718f48c6128fd24b756013e8da3e
+  supports:
+  - /relation_type
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-2-use-evidence-2
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: page
+    value: Title and Abstract
+    note: null
+    document_page: 2
+    printed_page: '1'
+    source_fragment_sha256: df4ff96eb6d5ce3db553eddfe0c04a09ec2b4acba1632660a91ed29eacac5fb0
+  supports:
+  - /benchmark_id
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-2-use-evidence-3
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: section
+    value: Overall performance of DTU detection
+    note: null
+    document_page: 5
+    printed_page: '4'
+    source_fragment_sha256: b719238e3fdc6fa2544c6967b6d8e320d6628182f366a96a73a22ca278b8f28f
+  supports:
+  - /scope
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-2-use-evidence-4
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: table
+    value: Table 1
+    note: null
+    document_page: 4
+    printed_page: '3'
+    source_fragment_sha256: 20264f063a1429abfd0b4f1f2ef1f6b9450c91bf590230349a49f0ff5a3db2dd
+  supports:
+  - /scope
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-2-use-evidence-5
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: table
+    value: Table 1
+    note: null
+    document_page: 4
+    printed_page: '3'
+    source_fragment_sha256: e93766474b795812916ddda2ed8d4e8bad2f655a8c406d057d32e932f68c5853
+  supports:
+  - /scope
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-2-use-evidence-6
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: section
+    value: Simulation, document pages 3–4
+    note: null
+    document_page: 3
+    printed_page: 2–3
+    source_fragment_sha256: 9b23c2d59cea663bb4135542805a6830facc2577791e9907b3ffdac32212d870
+  supports:
+  - /scope
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-2-use-evidence-7
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: figure
+    value: Figure 2
+    note: null
+    document_page: 5
+    printed_page: '4'
+    source_fragment_sha256: c652426c55eec2d1f8f29f8fa5138330913602ae5c680b9f0626c5eeba3beccf
+  supports:
+  - /metric_labels
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-2-use-evidence-8
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: figure
+    value: Figure 2
+    note: null
+    document_page: 5
+    printed_page: '4'
+    source_fragment_sha256: 762ff10bcc847e2096cf5a7a8a867d321ed2678902917945688c893b9e771d73
+  supports:
+  - /metric_labels
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-2-use-evidence-9
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: figure
+    value: Figure 2
+    note: null
+    document_page: 5
+    printed_page: '4'
+    source_fragment_sha256: 762ff10bcc847e2096cf5a7a8a867d321ed2678902917945688c893b9e771d73
+  supports:
+  - /metric_labels
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-2-use-evidence-10
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: section
+    value: Evaluation of performance
+    note: null
+    document_page: 5
+    printed_page: '4'
+    source_fragment_sha256: 59e350208efa9224c57c8536a3a24e8e1d4ac10bc2eeb0301413d1278f6156d2
+  supports:
+  - /metric_labels
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-2-use-evidence-11
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: section
+    value: Evaluation of performance
+    note: null
+    document_page: 5
+    printed_page: '4'
+    source_fragment_sha256: 4e55a7f35a1bc3b25a9eaec566105ffd9551e7972bb011df814e21ee370a65f8
+  supports:
+  - /metric_labels
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-2-use-evidence-12
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: section
+    value: Evaluation of performance
+    note: null
+    document_page: 5
+    printed_page: '4'
+    source_fragment_sha256: e32516fa25e02a7aa9aa02d39582af36c88093c0e25f9e9df3e7eceb271289fa
+  supports:
+  - /metric_labels
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-2-use-evidence-13
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: section
+    value: Evaluation of performance
+    note: null
+    document_page: 5
+    printed_page: '4'
+    source_fragment_sha256: a879f858554bfc969ee2c97c5de4c1b0e714859516d7b0f6d7e811cb195fdc0c
+  supports:
+  - /metric_labels

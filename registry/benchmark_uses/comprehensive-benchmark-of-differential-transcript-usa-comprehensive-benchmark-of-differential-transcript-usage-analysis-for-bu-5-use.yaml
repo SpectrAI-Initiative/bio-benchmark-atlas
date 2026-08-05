@@ -1,0 +1,138 @@
+entity_type: benchmark_use
+id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-5-use
+work_id: comprehensive-benchmark-of-differential-transcript-usa
+work_version_id: comprehensive-benchmark-of-differential-transcript-usa-final-published-version
+benchmark_id: comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu
+benchmark_version: null
+relation_type: evaluation
+status: partial
+model_ids: []
+scope:
+  type: track
+  subset_kind: not-applicable
+  n: null
+  subset_id: single-cell-pseudo-bulk-meta-cell-analysis
+  selection: null
+  selection_method: Aggregate transcript counts into meta-cells, then analyze with DTUrtle, satuRn, LimmaDS, and DEXSeq.
+  reporting_status: reported
+metric_labels:
+- Precision
+- Recall
+evaluation_run_ids: []
+reporting_gaps:
+- Pseudo-bulk simulation seed and repeat count are not reported.
+- Realized random cell counts for individual unbalanced datasets are not reported.
+- Most balanced-data values are only shown in unlabeled plots.
+- benchmark version
+- exact model
+- numeric result
+notes: AI-assisted double-pass extraction; values are limited to independently supported claims.
+verification:
+  status: verified
+  last_verified: '2026-08-05'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-5-use-evidence-1
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: section
+    value: Performance in single-cell data
+    note: null
+    document_page: 9
+    printed_page: '8'
+    source_fragment_sha256: 669bbfb6872beba51b78a44bff53f6caaf04ba80f0434f795334ed91cba5f490
+  supports:
+  - /relation_type
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-5-use-evidence-2
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: page
+    value: Title and Abstract
+    note: null
+    document_page: 2
+    printed_page: '1'
+    source_fragment_sha256: df4ff96eb6d5ce3db553eddfe0c04a09ec2b4acba1632660a91ed29eacac5fb0
+  supports:
+  - /benchmark_id
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-5-use-evidence-3
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: figure
+    value: Figure 6B
+    note: null
+    document_page: 10
+    printed_page: '9'
+    source_fragment_sha256: 343079b1e12948b1fb5aafc09068126d3c65f2950367c25d51fafe402d49e551
+  supports:
+  - /scope
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-5-use-evidence-4
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: figure
+    value: Figure 6B
+    note: null
+    document_page: 10
+    printed_page: '9'
+    source_fragment_sha256: 343079b1e12948b1fb5aafc09068126d3c65f2950367c25d51fafe402d49e551
+  supports:
+  - /scope
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-5-use-evidence-5
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: section
+    value: Performance in single-cell data
+    note: null
+    document_page: 9
+    printed_page: '8'
+    source_fragment_sha256: 589270d5e9c9dc274ed7e20f9e6a0f0e0bb2dc19027e72c60752afbd5cb785c8
+  supports:
+  - /scope
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-5-use-evidence-6
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: section
+    value: Performance in single-cell data
+    note: null
+    document_page: 9
+    printed_page: '8'
+    source_fragment_sha256: 2b91c0c0c976ada5e09e5f605f5dc7d58afd16cf358f5bd848afa77e939e480d
+  supports:
+  - /scope
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-5-use-evidence-7
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: figure
+    value: Figure 6B
+    note: null
+    document_page: 10
+    printed_page: '9'
+    source_fragment_sha256: 803233c987da6711a7e2ceda6b81a96f8153f05f0329292a11a78ef25e65677a
+  supports:
+  - /metric_labels
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-5-use-evidence-8
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: figure
+    value: Figure 6B
+    note: null
+    document_page: 10
+    printed_page: '9'
+    source_fragment_sha256: 803233c987da6711a7e2ceda6b81a96f8153f05f0329292a11a78ef25e65677a
+  supports:
+  - /metric_labels

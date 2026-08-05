@@ -1,0 +1,124 @@
+entity_type: benchmark_use
+id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-3-use
+work_id: comprehensive-benchmark-of-differential-transcript-usa
+work_version_id: comprehensive-benchmark-of-differential-transcript-usa-final-published-version
+benchmark_id: comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu
+benchmark_version: null
+relation_type: evaluation
+status: partial
+model_ids: []
+scope:
+  type: track
+  subset_kind: not-applicable
+  n: null
+  subset_id: real-prostate-tumor-gse22260
+  selection: null
+  selection_method: Reads quantified with Salmon, kallisto, and RSEM; DTU gene overlaps and enriched GO terms compared.
+  reporting_status: reported
+metric_labels:
+- DTU genes detected
+evaluation_run_ids: []
+reporting_gaps:
+- The realized sample count after removing matching patients is not explicitly stated.
+- Versions of the evaluated DTU methods are not reported.
+- The real dataset has no DTU ground truth; evaluation is descriptive through overlaps and GO enrichment.
+- benchmark version
+- exact model
+- numeric result
+notes: AI-assisted double-pass extraction; values are limited to independently supported claims.
+verification:
+  status: verified
+  last_verified: '2026-08-05'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-3-use-evidence-1
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: section
+    value: Benchmarking with a real transcriptome dataset
+    note: null
+    document_page: 7
+    printed_page: '6'
+    source_fragment_sha256: 3dd15740dc6d7771880bdafa802a058cfaf0c854cdd919a704a4fd8637b88b97
+  supports:
+  - /relation_type
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-3-use-evidence-2
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: page
+    value: Title and Abstract
+    note: null
+    document_page: 2
+    printed_page: '1'
+    source_fragment_sha256: df4ff96eb6d5ce3db553eddfe0c04a09ec2b4acba1632660a91ed29eacac5fb0
+  supports:
+  - /benchmark_id
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-3-use-evidence-3
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: section
+    value: Section heading
+    note: null
+    document_page: 7
+    printed_page: '6'
+    source_fragment_sha256: 48499757d92d7e57bd4a8b009ff8cc38c3ee0bee56ce4ef929e07d2b59becc86
+  supports:
+  - /scope
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-3-use-evidence-4
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: section
+    value: Evaluation of performance
+    note: null
+    document_page: 5
+    printed_page: '4'
+    source_fragment_sha256: 3ba6b9e6cb8892265a04857b1a6d24936f4d533b61a1f052b93df3e044cb5d45
+  supports:
+  - /scope
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-3-use-evidence-5
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: section
+    value: RNA-seq dataset used
+    note: null
+    document_page: 3
+    printed_page: '2'
+    source_fragment_sha256: 9d4aad396a916e9a805e10a454c94771592b776f86a73c2e19414fe85191b5df
+  supports:
+  - /scope
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-3-use-evidence-6
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: section
+    value: Benchmarking with a real transcriptome dataset
+    note: null
+    document_page: 7
+    printed_page: '6'
+    source_fragment_sha256: 01010903fa6fad04fc2350d95bb5ea9a77cb4148c95e59156b1254ded591aab5
+  supports:
+  - /scope
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-3-use-evidence-7
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: section
+    value: Figure 5 description
+    note: null
+    document_page: 9
+    printed_page: '8'
+    source_fragment_sha256: 9712ea3f067d641f3489ca9aab6633394d1c8d1e75078f22643339d8b825a317
+  supports:
+  - /metric_labels

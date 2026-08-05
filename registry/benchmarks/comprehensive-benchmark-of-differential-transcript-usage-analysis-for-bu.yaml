@@ -1,0 +1,293 @@
+entity_type: benchmark
+id: comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu
+name: Comprehensive benchmark of differential transcript usage analysis for bulk and single-cell RNA sequencing
+aliases: []
+summary: Evaluation of differential transcript usage detection tools across simulated and real bulk, single-cell, and time-series
+  transcriptomics.
+kind: suite
+parent_id: null
+organizations:
+- Technical University of Munich
+- University of Hamburg
+- National Institutes of Health
+- University of Southern Denmark
+- Vrije Universiteit Amsterdam
+release_date: '2025-09-11'
+latest_version: initial-release
+domains:
+- transcriptomics
+- single-cell
+capabilities:
+- data-analysis
+modalities:
+- raw-omics
+task_formats:
+- unclassified
+task_counts: &id001
+  total: null
+  basis: The reusable scenario matrix spans simulated and real datasets and does not report one finite primary item inventory.
+  reporting_status: not_reported
+  subsets: []
+coverage_notes: []
+access:
+  level: fully-open
+  tasks: See the linked official creator resources.
+  artifacts: See the linked official creator resources.
+  grader: Not established by the independently verified metadata claims.
+  license: GNU General Public License, Version 3
+  biosafety_notes: null
+resources:
+- id: comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-creator-paper-resource
+  type: paper
+  url: https://doi.org/10.1093/nargab/lqaf117
+  license: null
+  access_notes: Versioned creator source; full text is not mirrored.
+  last_checked: '2026-08-05'
+  pin: null
+- id: comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-official-repository-resource
+  type: repository
+  url: https://github.com/yollct/diffIsoUsage_benchmark
+  license: GNU General Public License, Version 3
+  access_notes: Official resource pinned immutably during intake.
+  last_checked: '2026-08-05'
+  pin:
+    kind: commit
+    value: e4116544113740084c9118a1192e4de2a347edd3
+    url: https://github.com/yollct/diffIsoUsage_benchmark/commit/e4116544113740084c9118a1192e4de2a347edd3
+implementations:
+- framework: official repository
+  status: official
+  url: https://github.com/yollct/diffIsoUsage_benchmark
+  commit: e4116544113740084c9118a1192e4de2a347edd3
+  notes: Commit resolved deterministically during paper intake.
+versions:
+- id: comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-initial-release-version
+  label: initial-release
+  status: current
+  release_date: '2025-09-11'
+  as_of: null
+  task_counts: *id001
+  formal_tracks: []
+  notes: Atlas snapshot label for the creator-paper release; the source does not report a formal benchmark version.
+  evidence_ids:
+  - comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-automated-count-evidence
+  - comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-automated-version-evidence
+audit:
+  status: audited-with-caveats
+  audited_date: '2026-08-05'
+  unresolved_fields: 1
+  notes: Automated double-pass extraction plus deterministic official-resource pin; owner approval required.
+field_status:
+- path: /task_counts/subsets
+  status: provisional
+  confidence: high
+  reason: The double-pass review did not establish an exhaustive formal-subset inventory; the empty list must not be interpreted
+    as evidence that the benchmark has no subsets.
+  evidence_ids:
+  - comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-automated-subset-coverage-evidence
+verification:
+  status: verified
+  last_verified: '2026-08-05'
+  notes: New family admitted only after creator source, official resource, and owner PR review.
+evidence:
+- id: comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-automated-metadata-1-evidence
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: section
+    value: Data availability, document pages 12–13
+    note: null
+    document_page: 12
+    printed_page: 11–12
+    source_fragment_sha256: 37e9662228e3fc3321de746f740c2692b9d5d14c31a4407b26fd0340c9fa9141
+  supports:
+  - /access/level
+- id: comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-automated-metadata-2-evidence
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: section
+    value: Data availability
+    note: null
+    document_page: 13
+    printed_page: '12'
+    source_fragment_sha256: 809bb9ccd872f9e819bf7678efb5ae9d8401334e89da61cd3f69c03aae4475bf
+  supports:
+  - /access/license
+- id: comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-automated-metadata-3-evidence
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: section
+    value: Abstract
+    note: null
+    document_page: 2
+    printed_page: '1'
+    source_fragment_sha256: 8c8be3f54056d5fc89a1a7fc9640120ae289067440ecd352ff2d2b716490b006
+  supports:
+  - /capabilities
+- id: comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-automated-metadata-4-evidence
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: page
+    value: Article title
+    note: null
+    document_page: 2
+    printed_page: '1'
+    source_fragment_sha256: e03fee90320120bc7c01494006fc41e34535f3f5295cd0484cebc194b9398f94
+  supports:
+  - /domains
+- id: comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-automated-metadata-5-evidence
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: section
+    value: Abstract
+    note: null
+    document_page: 2
+    printed_page: '1'
+    source_fragment_sha256: 7bd9181ab1e7b2916274ee2be7b1b1acb6eee3995d9ee8ac081ed525d78239d5
+  supports:
+  - /kind
+- id: comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-automated-metadata-6-evidence
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: figure
+    value: Figure 2
+    note: null
+    document_page: 5
+    printed_page: '4'
+    source_fragment_sha256: 986c9fd7c01cc4bf86d89e391147a46ae3260a2e563f868c31d6e16e22828d5e
+  supports:
+  - /modalities
+- id: comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-automated-metadata-7-evidence
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: page
+    value: Article title
+    note: null
+    document_page: 2
+    printed_page: '1'
+    source_fragment_sha256: e35160733c655a0caa8e257f1592e50e98d8594e3c2bd3fca558e7350684c6c0
+  supports:
+  - /name
+- id: comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-automated-metadata-8-evidence
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: page
+    value: Author-affiliation mapping
+    note: null
+    document_page: 2
+    printed_page: '1'
+    source_fragment_sha256: 58353ae2b0afa529c08e8737e4648adac33e4fb5fa1ad7e4f2056df130971e40
+  supports:
+  - /organizations
+- id: comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-automated-metadata-9-evidence
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: section
+    value: Abstract
+    note: null
+    document_page: 2
+    printed_page: '1'
+    source_fragment_sha256: 7bd9181ab1e7b2916274ee2be7b1b1acb6eee3995d9ee8ac081ed525d78239d5
+  supports:
+  - /summary
+- id: comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-automated-bibliographic-evidence
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: other
+    value: Crossref bibliographic metadata
+    note: Resolved from the canonical paper identifier during intake.
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 024cc20ffcadeaa4a6ada869e4a789bce2627d4f853d78f6f06b96ceb8b44470
+  supports:
+  - /release_date
+- id: comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-automated-count-evidence
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: section
+    value: Abstract; complete 14-page source
+    note: null
+    document_page: 2
+    printed_page: '1'
+    source_fragment_sha256: 7bd9181ab1e7b2916274ee2be7b1b1acb6eee3995d9ee8ac081ed525d78239d5
+  supports:
+  - /task_counts/total
+  - /task_counts/basis
+  - /versions/0/task_counts/total
+  - /versions/0/task_counts/basis
+- id: comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-automated-subset-coverage-evidence
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: section
+    value: Abstract; complete 14-page source
+    note: null
+    document_page: 2
+    printed_page: '1'
+    source_fragment_sha256: 7bd9181ab1e7b2916274ee2be7b1b1acb6eee3995d9ee8ac081ed525d78239d5
+  supports:
+  - /task_counts/subsets
+  - /versions/0/task_counts/subsets
+- id: comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-automated-resource-evidence
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: section
+    value: Data availability, document pages 12–13
+    note: null
+    document_page: 12
+    printed_page: 11–12
+    source_fragment_sha256: 99a372d839aadbaf21864f922cff58080ca3c54eb5c761eca0873b536d056e97
+  supports:
+  - /resources
+  - /implementations
+- id: comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-automated-creator-evidence
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: page
+    value: Article header and Abstract
+    note: null
+    document_page: 2
+    printed_page: '1'
+    source_fragment_sha256: f406044f6f4d05f29b6d8d43c124431b30d63867f1ad6212cf0b55bf5a684015
+  supports:
+  - /resources/0
+- id: comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-automated-version-evidence
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-05'
+  locator:
+    type: page
+    value: Article header and Abstract
+    note: null
+    document_page: 2
+    printed_page: '1'
+    source_fragment_sha256: f406044f6f4d05f29b6d8d43c124431b30d63867f1ad6212cf0b55bf5a684015
+  supports:
+  - /latest_version
+  - /versions/0

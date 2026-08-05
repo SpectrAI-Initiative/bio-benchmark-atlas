@@ -98,6 +98,14 @@ output.
   outcomes and publishes only the independently verified relation (plus exact
   model identities, when supported) as a partial `BenchmarkUse`. Creation
   identity/version and relation conflicts remain blocking.
+- When the independently verified root-total claim is correctly `Not reported`
+  for a reusable scenario matrix, simulator, or rolling benchmark, and the only
+  conflicts are inside the creator-paper evaluation, the owner may post
+  `/resolve-paper-conflict benchmark-total=not-reported exclude=creator-evaluation`.
+  This retains the supported null root total and benchmark metadata, publishes
+  the evaluation only as a partial `BenchmarkUse`, and drops every evaluation
+  setting and outcome. It cannot override benchmark identity, creation version,
+  creator source, official resource, license, root-total, or relation conflicts.
 - Use `intake-failed` only for local CLI, network, or temporary technical failures.
 - Never treat a failed extraction as `not_reported`.
 - Never retry by switching to a different model or remote API.

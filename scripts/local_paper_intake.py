@@ -256,34 +256,52 @@ def _issue(number: int, *, runner: CommandRunner = subprocess.run) -> dict[str, 
 def _owner_conflict_resolution(issue: dict[str, Any]) -> dict[str, Any] | None:
     """Read the single narrow conflict override supported by local intake.
 
-    The command does not accept prose or arbitrary field paths. It only lets the
-    repository owner preserve an independently supported root total while
-    excluding every conflicted benchmark subcount.
+    The command does not accept prose or arbitrary field paths. It lets the
+    repository owner either preserve an independently supported numeric root
+    total while excluding conflicted subcounts, or preserve an independently
+    supported `not_reported` root total while omitting a conflicted creator
+    evaluation in full.
     """
 
-    pattern = re.compile(
+    count_pattern = re.compile(
         r"^/resolve-paper-conflict benchmark-total=(\d+) "
         r"exclude=(benchmark-subcounts(?:,creator-evaluation)?)$"
+    )
+    not_reported_pattern = re.compile(
+        r"^/resolve-paper-conflict benchmark-total=not-reported "
+        r"exclude=(creator-evaluation)$"
     )
     resolutions: list[dict[str, Any]] = []
     for comment in issue.get("comments", []):
         author = (comment.get("author") or {}).get("login")
         if author != OWNER_LOGIN:
             continue
-        match = pattern.fullmatch(str(comment.get("body") or "").strip())
-        if not match:
+        body = str(comment.get("body") or "").strip()
+        count_match = count_pattern.fullmatch(body)
+        not_reported_match = not_reported_pattern.fullmatch(body)
+        if not count_match and not not_reported_match:
             continue
-        total = int(match.group(1))
-        if total <= 0:
-            continue
+        if count_match:
+            total: int | None = int(count_match.group(1))
+            exclude = count_match.group(2)
+            if total <= 0:
+                continue
+        else:
+            total = None
+            exclude = not_reported_match.group(1)
         resolutions.append({
             "benchmark_total": total,
-            "exclude": match.group(2),
-            "exclude_creator_evaluation": match.group(2).endswith(",creator-evaluation"),
+            "exclude": exclude,
+            "exclude_creator_evaluation": (
+                exclude == "creator-evaluation"
+                or exclude.endswith(",creator-evaluation")
+            ),
             "approved_by": OWNER_LOGIN,
             "approved_at": comment.get("createdAt"),
         })
-    if len(resolutions) > 1 and len({item["benchmark_total"] for item in resolutions}) > 1:
+    if len(resolutions) > 1 and len({
+        (item["benchmark_total"], item["exclude"]) for item in resolutions
+    }) > 1:
         raise LocalIntakeError("owner conflict-resolution comments disagree")
     return resolutions[-1] if resolutions else None
 
@@ -1034,11 +1052,18 @@ def run_issue(
             "or verification draft is included in this PR.\n"
         )
         if conflict_resolution:
-            summary += (
-                "\nOwner-approved conflict handling: preserve the independently supported "
-                f"root total `{conflict_resolution['benchmark_total']}`; exclude all conflicted "
-                "benchmark subcounts and publish the inventory caveat.\n"
-            )
+            if conflict_resolution.get("benchmark_total") is None:
+                summary += (
+                    "\nOwner-approved conflict handling: retain the independently supported "
+                    "`Not reported` root-total claim and exclude all conflicted creator-paper "
+                    "evaluation settings and outcomes.\n"
+                )
+            else:
+                summary += (
+                    "\nOwner-approved conflict handling: preserve the independently supported "
+                    f"root total `{conflict_resolution['benchmark_total']}`; exclude all conflicted "
+                    "benchmark subcounts and publish the inventory caveat.\n"
+                )
             if conflict_resolution.get("exclude_creator_evaluation"):
                 summary += (
                     "The creator-paper evaluation is published only as a partial relationship: "

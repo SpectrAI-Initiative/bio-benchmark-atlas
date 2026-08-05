@@ -1635,6 +1635,27 @@ def test_owner_conflict_resolution_requires_exact_owner_command() -> None:
     issue["comments"][1]["body"] = "/resolve-paper-conflict benchmark-total=394 exclude=anything"
     assert _owner_conflict_resolution(issue) is None
 
+    issue["comments"] = [{
+        "author": {"login": "wang422003"},
+        "body": (
+            "/resolve-paper-conflict benchmark-total=not-reported "
+            "exclude=creator-evaluation"
+        ),
+        "createdAt": "2026-07-25T02:00:00Z",
+    }]
+    assert _owner_conflict_resolution(issue) == {
+        "benchmark_total": None,
+        "exclude": "creator-evaluation",
+        "exclude_creator_evaluation": True,
+        "approved_by": "wang422003",
+        "approved_at": "2026-07-25T02:00:00Z",
+    }
+    issue["comments"][0]["body"] = (
+        "/resolve-paper-conflict benchmark-total=not-reported "
+        "exclude=benchmark-subcounts,creator-evaluation"
+    )
+    assert _owner_conflict_resolution(issue) is None
+
 
 def test_local_intake_only_creates_missing_issue_labels() -> None:
     existing = [
@@ -2509,6 +2530,165 @@ def test_owner_can_downgrade_conflicted_creator_evaluation_to_partial_use() -> N
                 "exclude": "benchmark-subcounts,creator-evaluation",
                 "exclude_creator_evaluation": True,
             },
+        )
+
+
+def test_owner_can_downgrade_creator_evaluation_with_not_reported_root_total() -> None:
+    metadata = {
+        "name": "ScenarioMatrixBench",
+        "aliases": [],
+        "summary": "A reusable scenario matrix for conservative creator-evaluation intake tests.",
+        "kind": "dataset",
+        "organizations": ["Example Institute"],
+        "release_date": "2026-07-01",
+        "domains": ["transcriptomics"],
+        "capabilities": ["data-analysis"],
+        "modalities": ["raw-omics"],
+        "task_formats": ["analysis"],
+        "access": {
+            "level": "fully-open",
+            "tasks": "Scenario definitions are public.",
+            "artifacts": "Simulation and analysis artifacts are public.",
+            "grader": "Source-defined statistical metrics.",
+            "license": "Apache-2.0",
+            "biosafety_notes": None,
+        },
+    }
+    claims = [
+        claim(
+            "claim-1",
+            "paper-identity",
+            {"title": "Synthetic benchmark evaluation paper"},
+            mention_id=None,
+        ),
+        claim("claim-2", "relation", "benchmark-creation"),
+        claim("claim-3", "benchmark-identity", "ScenarioMatrixBench"),
+        claim("claim-4", "benchmark-metadata", metadata),
+        claim("claim-5", "benchmark-version", "paper-v1"),
+        claim("claim-6", "benchmark-count", {
+            "label": "root scenario-matrix inventory",
+            "count": None,
+            "unit": "other",
+            "basis": "The source defines a reusable scenario matrix without one finite item total.",
+            "reporting_status": "not_reported",
+            "subset_id": None,
+            "exclusive": False,
+            "exhaustive": False,
+            "partition_group": None,
+        }),
+        claim("claim-7", "creator-source", {"url": "https://doi.org/10.9999/scenario.1"}),
+        claim("claim-8", "official-repository", {
+            "url": "https://github.com/example/scenario-matrix-bench",
+            "license": "Apache-2.0",
+        }),
+        claim("claim-9", "tools", {
+            "browser": False,
+            "internet": False,
+            "databases": [],
+            "code_execution": True,
+            "container": True,
+            "external_tools": [],
+        }),
+        claim("claim-10", "relation", "evaluation", mention_id="mention-2"),
+        claim("claim-11", "benchmark-identity", "ScenarioMatrixBench", mention_id="mention-2"),
+        claim("claim-12", "model", {
+            "name": "Example Tool",
+            "provider": "Example Institute",
+            "version_string": "example-tool-1.0",
+            "release_date": "2026-07-01",
+        }, mention_id="mention-2"),
+        claim("claim-13", "scope-type", "subset", mention_id="mention-2"),
+        claim("claim-14", "scope-n", 30, mention_id="mention-2"),
+        claim("claim-15", "metric", {
+            "source_label": "F1", "unit": "fraction", "range": [0, 1],
+            "higher_is_better": True, "aggregation": "macro", "pass_threshold": None,
+            "tolerance": None, "kind": "absolute", "baseline_model_name": None,
+            "statistical": None,
+        }, mention_id="mention-2"),
+        claim("claim-16", "result", {
+            "model_name": "Example Tool", "metric_source_label": "F1", "value": 0.5,
+            "ci_low": None, "ci_high": None, "n": 30, "notes": None,
+            "numeric_source": "table",
+        }, mention_id="mention-2"),
+    ]
+    creation_mention = {
+        "mention_id": "mention-1",
+        "benchmark_name": "ScenarioMatrixBench",
+        "registry_benchmark_id": None,
+        "relation_type": "benchmark-creation",
+        "is_new_benchmark": True,
+        "background_only": False,
+        "claim_ids": [f"claim-{index}" for index in range(2, 10)],
+        "reporting_gaps": [],
+    }
+    evaluation_mention = {
+        "mention_id": "mention-2",
+        "benchmark_name": "ScenarioMatrixBench",
+        "registry_benchmark_id": None,
+        "relation_type": "evaluation",
+        "is_new_benchmark": True,
+        "background_only": False,
+        "claim_ids": [f"claim-{index}" for index in range(10, 17)],
+        "reporting_gaps": [],
+    }
+    payload = verified_result(claims, creation_mention)
+    payload["draft"]["benchmark_mentions"] = [creation_mention, evaluation_mention]
+    payload["verification"]["blocking_conflicts"] = [
+        "The realized evaluation sample n is internally inconsistent.",
+        "The body and figure caption identify different evaluated tools.",
+    ]
+    for item in payload["verification"]["claims"]:
+        if item["claim_id"] in {"claim-9", "claim-14", "claim-15", "claim-16"}:
+            item.update({"verdict": "conflicted", "confidence": "high"})
+    source = {**SOURCE, "repository_pins": {
+        "https://github.com/example/scenario-matrix-bench": {
+            "kind": "commit",
+            "value": "e" * 40,
+            "url": "https://github.com/example/scenario-matrix-bench/commit/" + "e" * 40,
+        }
+    }}
+    resolution = {
+        "benchmark_total": None,
+        "exclude": "creator-evaluation",
+        "exclude_creator_evaluation": True,
+        "approved_by": "wang422003",
+        "approved_at": "2026-07-27T02:00:00Z",
+    }
+
+    records = build_records(
+        payload,
+        source=source,
+        generated_at=SOURCE["retrieved_at"],
+        verified_on="2026-07-27",
+        owner_conflict_resolution=resolution,
+    )
+    benchmark = records.benchmarks[0]
+    assert benchmark["task_counts"]["total"] is None
+    assert benchmark["task_counts"]["reporting_status"] == "not_reported"
+    assert "Root total retained after owner review" not in str(benchmark["versions"][0]["notes"])
+    evaluation_use = next(item for item in records.uses if item["relation_type"] == "evaluation")
+    assert evaluation_use["status"] == "partial"
+    assert evaluation_use["scope"]["type"] == "unknown"
+    assert evaluation_use["scope"]["n"] is None
+    assert evaluation_use["model_ids"] == ["example-institute-example-tool"]
+    assert evaluation_use["metric_labels"] == []
+    assert evaluation_use["evaluation_run_ids"] == []
+    assert records.runs == []
+
+    unsafe = json.loads(json.dumps(payload))
+    unsafe["verification"]["blocking_conflicts"].append(
+        "The benchmark identity conflicts with the official resource."
+    )
+    for item in unsafe["verification"]["claims"]:
+        if item["claim_id"] == "claim-3":
+            item.update({"verdict": "conflicted", "confidence": "high"})
+    with pytest.raises(GenerationBlocked, match="cannot override conflicted claim types"):
+        build_records(
+            unsafe,
+            source=source,
+            generated_at=SOURCE["retrieved_at"],
+            verified_on="2026-07-27",
+            owner_conflict_resolution=resolution,
         )
 
 

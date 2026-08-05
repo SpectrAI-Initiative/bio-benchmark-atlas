@@ -31,7 +31,7 @@ from paper_source import MAX_PDF_PAGES
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL_TMP_ROOT = ROOT / ".paper-intake-tmp"
 PIPELINE_VERSION = "1.4.0"
-PROMPT_VERSION = "paper-evidence-local-v16"
+PROMPT_VERSION = "paper-evidence-local-v17"
 SOURCE_INPUT_PROTOCOL_VERSION = "page-anchored-pdf-v4"
 DEFAULT_MODEL = "gpt-5.6-sol"
 REVIEW_METHOD = "local-codex-double-pass"
@@ -174,6 +174,15 @@ benchmark or dataset overview for an overall benchmark or evaluation size. When
 the source states that the benchmark comprises or contains N problems, tasks,
 questions, examples, evaluations, or equivalent items, emit a dedicated
 benchmark-count claim labeled as the overall total with count_role=root-total.
+Every new benchmark-creation mention must have exactly one root-total claim. If
+the source defines a reusable scenario matrix, simulator, rolling evaluation, or
+other benchmark without a single finite inventory in one primary item unit, emit
+that root-total with count=null, reporting_status=not_reported, unit=other, and a
+basis that states that the source does not report one finite item inventory. Use
+a locator in the benchmark overview or data-availability material that supports
+the reusable benchmark definition, and add the missing total to reporting_gaps.
+This null claim records an independently reviewable absence; it is never
+permission to sum scenarios, tools, parameter combinations, runs, or datasets.
 Use root-total only for the complete inventory of the exact named benchmark or
 dataset in its primary item unit. A count of genes, categories, algorithms,
 platforms, cell lines, replicates, runs, or another attribute is auxiliary unless
@@ -326,6 +335,13 @@ attributes are auxiliary unless that entity is itself the complete named
 benchmark inventory. Support formal-subset only for a source-defined subset in
 the same item unit as the root total and with a unique stable subset identity.
 Different measurements of the same subset are not separate formal subsets.
+For a new benchmark whose root-total has count=null and reporting_status=
+not_reported, independently inspect the complete source for a finite inventory.
+Support the null root-total only when the source instead defines a reusable
+scenario matrix, simulator, rolling evaluation, or equivalent benchmark without
+one finite primary item inventory. Confirm unit=other, a precise basis, and a
+matching reporting gap. Do not replace the null with a sum of scenarios, tools,
+parameter combinations, runs, or datasets.
 
 For new benchmark metadata, verify each atomic benchmark-metadata field claim
 independently from every other metadata field and from dedicated count, version,

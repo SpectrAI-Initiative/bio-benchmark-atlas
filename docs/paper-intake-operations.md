@@ -161,6 +161,22 @@ evaluation to a partial `BenchmarkUse`. Benchmark version, scope and realized
 reconciliation. Independently supported exact model identities may remain.
 Creation identity/version conflicts and relation conflicts always stop intake.
 
+For a reusable scenario matrix, simulator, or rolling benchmark whose single
+root-total claim is independently verified as `Not reported`, the owner may
+instead omit only the conflicted creator evaluation:
+
+```text
+/resolve-paper-conflict benchmark-total=not-reported exclude=creator-evaluation
+```
+
+This command is accepted only when there is exactly one new benchmark, exactly
+one high-confidence null root-total claim, and every conflict belongs to the
+creator-paper evaluation. The benchmark creation record and supported null total
+remain intact; evaluation version, scope, realized `n`, protocol, metrics, and
+results are withheld and the relation is published as a partial `BenchmarkUse`.
+Benchmark identity, creation version, creator source, official resource, license,
+root-total, and relation conflicts remain non-overridable.
+
 Sources, short excerpts, transcripts, and structured drafts live only under the ignored `.paper-intake-tmp/` directory and are deleted in cleanup. They must never appear in Git diff, Actions artifacts, Pages, or a Release.
 
 ## 4. Local golden gate

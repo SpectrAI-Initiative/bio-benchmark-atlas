@@ -8,5 +8,9 @@
 - Do not infer a full run from an unspecified scope. Do not infer a subtype or count from a broad topic label.
 - Do not digitize chart geometry. A result is admissible only from body text, a table, or a figure with the number printed next to the mark.
 - Record genuine source omissions as partial BenchmarkUse or `null` with the appropriate reporting status.
-- Reject or flag claims when the extractor and independent verifier disagree.
+- Classify verifier disagreements. An extractor misread is an `extractor-error`
+  and rejects only that claim. Contradictions within one source are
+  `source-internal`; unresolved contradictions across authoritative sources are
+  `cross-source`. The latter two are blocking and must never be silently
+  downgraded to an extractor error.
 - Accept only claims supported by both passes at high confidence with a resolvable locator.

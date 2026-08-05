@@ -68,6 +68,7 @@ from paper_models import (  # noqa: E402
     PaperEvidenceDraft,
     PaperEvidenceVerification,
     accepted_claims,
+    effective_blocking_conflicts,
 )
 from paper_extraction_eval import (  # noqa: E402
     GoldenSource,
@@ -166,6 +167,7 @@ def verified_result(claims: list[dict[str, Any]], mention: dict[str, Any]) -> di
         "draft": draft,
         "verification": {
             "source_parseable": True,
+            "conflicts": [],
             "blocking_conflicts": [],
             "claims": [{
                 "claim_id": item["claim_id"], "verdict": "supported", "confidence": "high",
@@ -224,6 +226,55 @@ def test_structured_output_bounds_long_quotes_and_rejects_unlabeled_graph_values
     assert [item.claim_id for item in accepted_claims(draft, verification)] == ["claim-1"]
 
 
+def test_structured_conflicts_distinguish_extractor_errors_from_source_conflicts() -> None:
+    claim_verification = {
+        "claim_id": "claim-1",
+        "verdict": "unsupported",
+        "confidence": "high",
+        "locator": locator(),
+        "notes": "The extractor read a repeat count as sample n.",
+    }
+    extractor_error = PaperEvidenceVerification.model_validate({
+        "claims": [claim_verification],
+        "source_parseable": True,
+        "conflicts": [{
+            "kind": "extractor-error",
+            "claim_ids": ["claim-1"],
+            "summary": "Five independent runs are repeats, not realized sample n.",
+        }],
+        "blocking_conflicts": [],
+    })
+    assert effective_blocking_conflicts(extractor_error) == []
+
+    source_conflict = PaperEvidenceVerification.model_validate({
+        "claims": [{**claim_verification, "verdict": "conflicted"}],
+        "source_parseable": True,
+        "conflicts": [{
+            "kind": "source-internal",
+            "claim_ids": ["claim-1"],
+            "summary": "The source prints incompatible inventory totals.",
+        }],
+        "blocking_conflicts": [],
+    })
+    assert effective_blocking_conflicts(source_conflict) == [
+        "claim-1: The source prints incompatible inventory totals."
+    ]
+
+    with pytest.raises(ValidationError, match="cannot both be populated"):
+        PaperEvidenceVerification.model_validate({
+            **source_conflict.model_dump(mode="json"),
+            "blocking_conflicts": ["legacy duplicate"],
+        })
+
+    legacy = PaperEvidenceVerification.model_validate({
+        "claims": [],
+        "source_parseable": True,
+        "blocking_conflicts": ["Legacy source conflict."],
+    })
+    assert legacy.conflicts == []
+    assert effective_blocking_conflicts(legacy) == ["Legacy source conflict."]
+
+
 def test_model_facing_schemas_require_every_declared_property() -> None:
     for model in (PaperEvidenceDraft, PaperEvidenceVerification):
         schema = model.model_json_schema()
@@ -243,7 +294,7 @@ def test_verifier_prompt_treats_creator_and_evaluation_relations_as_compatible()
         VERIFIER_PROMPT,
     )
 
-    assert PROMPT_VERSION == "paper-evidence-local-v15"
+    assert PROMPT_VERSION == "paper-evidence-local-v16"
     assert SOURCE_INPUT_PROTOCOL_VERSION == "page-anchored-pdf-v4"
     assert "Normalize arXiv identifiers to the base numeric ID" in EXTRACTOR_PROMPT
     assert "the suffix belongs to the paper version" in VERIFIER_PROMPT
@@ -275,6 +326,9 @@ def test_verifier_prompt_treats_creator_and_evaluation_relations_as_compatible()
     assert "can only become a partial BenchmarkUse" in EXTRACTOR_PROMPT
     assert "requires a partial BenchmarkUse" in VERIFIER_PROMPT
     assert "does not support a metric or result claim" in EXTRACTOR_PROMPT
+    assert "extractor-error" in VERIFIER_PROMPT
+    assert "source-internal" in VERIFIER_PROMPT
+    assert "legacy blocking_conflicts field must always be" in VERIFIER_PROMPT
 
 
 def test_generator_downgrades_incomplete_evaluation_to_partial_use() -> None:
@@ -300,6 +354,72 @@ def test_generator_downgrades_incomplete_evaluation_to_partial_use() -> None:
     assert "numeric result" in records.uses[0]["reporting_gaps"]
     assert records.work["review_provenance"]["method"] == "automated-double-pass"
     assert records.work["source_versions"][0]["content_sha256"] == "a" * 64
+    assert records.normalization_readiness == [{
+        "mention_id": "mention-1",
+        "benchmark_id": "lifescibench",
+        "relation_type": "evaluation",
+        "status": "partial-only",
+        "blockers": [
+            "benchmark version not reported",
+            "scope is unknown",
+            "exact model is not reported",
+            "metric is not reported",
+            "numeric result is not reported",
+        ],
+    }]
+
+
+def test_generator_rejects_extractor_error_claim_without_blocking_partial_use() -> None:
+    claims = [
+        claim("claim-1", "paper-identity", {"title": "Synthetic benchmark evaluation paper"}, mention_id=None),
+        claim("claim-2", "relation", "evaluation"),
+        claim("claim-3", "benchmark-identity", "lifescibench"),
+        claim("claim-4", "scope-n", 5),
+    ]
+    mention = {
+        "mention_id": "mention-1", "benchmark_name": "LifeSciBench",
+        "registry_benchmark_id": "lifescibench", "relation_type": "evaluation",
+        "is_new_benchmark": False, "background_only": False,
+        "claim_ids": ["claim-2", "claim-3", "claim-4"],
+        "reporting_gaps": ["benchmark version", "scope", "metric", "numeric result"],
+    }
+    payload = verified_result(claims, mention)
+    payload["verification"]["conflicts"] = [{
+        "kind": "extractor-error",
+        "claim_ids": ["claim-4"],
+        "summary": "Five independent runs are repeats, not realized sample n.",
+    }]
+    next(
+        item for item in payload["verification"]["claims"]
+        if item["claim_id"] == "claim-4"
+    )["verdict"] = "unsupported"
+    records = build_records(
+        payload,
+        source=SOURCE,
+        generated_at=SOURCE["retrieved_at"],
+        verified_on="2026-08-05",
+    )
+    assert records.uses[0]["status"] == "partial"
+    assert records.runs == []
+
+    source_conflict = json.loads(json.dumps(payload))
+    source_conflict["verification"]["conflicts"] = [{
+        "kind": "source-internal",
+        "claim_ids": ["claim-3"],
+        "summary": "The source contradicts the benchmark identity.",
+    }]
+    for item in source_conflict["verification"]["claims"]:
+        if item["claim_id"] == "claim-3":
+            item["verdict"] = "conflicted"
+        if item["claim_id"] == "claim-4":
+            item["verdict"] = "unsupported"
+    with pytest.raises(GenerationBlocked, match="blocking source conflicts"):
+        build_records(
+            source_conflict,
+            source=SOURCE,
+            generated_at=SOURCE["retrieved_at"],
+            verified_on="2026-08-05",
+        )
 
 
 def test_generator_classifies_official_provider_system_card_from_source_domain() -> None:
@@ -419,6 +539,8 @@ def test_generator_creates_normalized_run_only_from_supported_numeric_claims() -
     assert records.runs[0]["metrics"][0]["kind"] == "absolute"
     assert records.runs[0]["results"][0]["value"] == 0.72
     assert records.runs[0]["results"][0]["evidence_ids"]
+    assert records.normalization_readiness[0]["status"] == "normalized-ready"
+    assert records.normalization_readiness[0]["blockers"] == []
 
 
 def test_new_benchmark_requires_creator_repo_pin_and_builds_same_pr_entities() -> None:
@@ -2379,6 +2501,7 @@ def test_local_codex_double_pass_is_independent_read_only_and_ephemeral(
     draft = draft_payload(claims, mention)
     verification = {
         "source_parseable": True,
+        "conflicts": [],
         "blocking_conflicts": [],
         "claims": [{
             "claim_id": claim_id,
@@ -2501,6 +2624,7 @@ def test_long_pdf_double_pass_exposes_only_owner_selected_pages(
         item["locators"][0]["document_page"] = 1
     verification = {
         "source_parseable": True,
+        "conflicts": [],
         "blocking_conflicts": [],
         "claims": [{
             "claim_id": claim_id,
@@ -2764,6 +2888,7 @@ def test_structured_output_diagnostic_omits_claim_values() -> None:
                 },
                 "notes": None,
             }],
+            "conflicts": [],
             "blocking_conflicts": [],
             "source_parseable": True,
         })

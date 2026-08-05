@@ -78,7 +78,11 @@ output.
 
 ## Stop conditions
 
-- Stop with `needs-human-review` for source conflicts, ambiguous benchmark identity/version/count, missing creator evidence, unparseable sources, refusals, or invalid structured output.
+- The verifier must classify disagreements as `extractor-error`,
+  `source-internal`, or `cross-source`. An `extractor-error` rejects the affected
+  claim but does not block an otherwise publishable partial use. Genuine
+  `source-internal` and `cross-source` conflicts remain blocking.
+- Stop with `needs-human-review` for genuine source conflicts, ambiguous benchmark identity/version/count, missing creator evidence, unparseable sources, refusals, or invalid structured output.
 - A count conflict may continue only after `wang422003` posts the exact Issue comment
   `/resolve-paper-conflict benchmark-total=<N> exclude=benchmark-subcounts`.
   The approved root total must still be independently supported with high

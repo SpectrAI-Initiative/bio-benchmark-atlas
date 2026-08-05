@@ -31,7 +31,7 @@ from paper_source import MAX_PDF_PAGES
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL_TMP_ROOT = ROOT / ".paper-intake-tmp"
 PIPELINE_VERSION = "1.4.0"
-PROMPT_VERSION = "paper-evidence-local-v15"
+PROMPT_VERSION = "paper-evidence-local-v16"
 SOURCE_INPUT_PROTOCOL_VERSION = "page-anchored-pdf-v4"
 DEFAULT_MODEL = "gpt-5.6-sol"
 REVIEW_METHOD = "local-codex-double-pass"
@@ -248,6 +248,21 @@ trust the extractor's excerpt or locator. Return supported only when the value,
 meaning, benchmark relation, and independently found locator all match. Treat
 ambiguous versions, model identities, subset sizes, and unlabeled chart values as
 not-verifiable or conflicted. Accuracy is more important than recall.
+
+Classify every reported disagreement in the structured conflicts list:
+- extractor-error: the extractor misstated, misread, or over-interpreted a source
+  that is itself consistent. Mark the affected claim unsupported (not conflicted).
+  This is a rejected claim and must never be a blocking source conflict.
+- source-internal: the same source gives incompatible values or definitions that
+  cannot be reconciled by version, subset, metric, or unit. Mark affected claims
+  conflicted. This blocks publication unless an explicit owner policy safely
+  excludes the conflicted material.
+- cross-source: authoritative source artifacts disagree and the discrepancy cannot
+  be resolved by versioning. Mark affected claims conflicted. This also blocks.
+Use claim_ids whenever the disagreement is claim-anchored; an unanchored source
+conflict may use an empty list. The legacy blocking_conflicts field must always be
+an empty list in new output. Do not label an extractor error as source-internal
+merely because the draft and source differ.
 
 For paper-identity claims, compare normalized identifiers. An arXiv base ID and
 the same ID printed with an `arXiv:` prefix or `vN` suffix identify the same paper;

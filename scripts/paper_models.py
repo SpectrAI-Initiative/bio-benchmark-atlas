@@ -12,7 +12,7 @@ import json
 import re
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator, model_validator
 
 
 Confidence = Literal["high", "medium", "low"]
@@ -183,10 +183,76 @@ class ClaimVerification(StrictModel):
     notes: str | None
 
 
+class VerificationConflict(StrictModel):
+    """Classify a verifier disagreement without conflating it with source conflict."""
+
+    kind: Literal["extractor-error", "source-internal", "cross-source"]
+    claim_ids: list[str]
+    summary: str = Field(min_length=1)
+
+
 class PaperEvidenceVerification(StrictModel):
     claims: list[ClaimVerification]
-    blocking_conflicts: list[str]
     source_parseable: bool
+    conflicts: list[VerificationConflict]
+    # Backward compatibility for receipts and fixtures produced before the
+    # structured conflict taxonomy. New verifier passes always return [].
+    blocking_conflicts: list[str]
+
+    @model_validator(mode="before")
+    @classmethod
+    def add_empty_structured_conflicts_to_legacy_payload(
+        cls,
+        value: object,
+    ) -> object:
+        if isinstance(value, dict) and "conflicts" not in value:
+            return {**value, "conflicts": []}
+        return value
+
+    @model_validator(mode="after")
+    def conflicts_match_claim_verdicts(self) -> PaperEvidenceVerification:
+        if self.conflicts and self.blocking_conflicts:
+            raise ValueError(
+                "structured conflicts and legacy blocking_conflicts cannot both be populated"
+            )
+        verdicts = {item.claim_id: item.verdict for item in self.claims}
+        for conflict in self.conflicts:
+            unknown = sorted(set(conflict.claim_ids) - set(verdicts))
+            if unknown:
+                raise ValueError(f"conflict references unknown claim IDs: {unknown}")
+            expected = "unsupported" if conflict.kind == "extractor-error" else "conflicted"
+            mismatched = [
+                claim_id for claim_id in conflict.claim_ids
+                if verdicts[claim_id] != expected
+            ]
+            if mismatched:
+                raise ValueError(
+                    f"{conflict.kind} conflicts require {expected} verdicts: {mismatched}"
+                )
+        return self
+
+
+def effective_blocking_conflicts(
+    verification: PaperEvidenceVerification,
+) -> list[str]:
+    """Return only conflicts that genuinely make source publication unsafe.
+
+    Once structured conflicts are present they are authoritative. Extractor
+    mistakes remain claim-level rejections, while contradictions within the
+    source or between authoritative sources continue to block generation. Old
+    payloads without structured conflicts retain their conservative behavior.
+    """
+
+    if verification.conflicts:
+        return [
+            (
+                f"{' '.join(conflict.claim_ids)}: {conflict.summary}"
+                if conflict.claim_ids else conflict.summary
+            )
+            for conflict in verification.conflicts
+            if conflict.kind in {"source-internal", "cross-source"}
+        ]
+    return list(verification.blocking_conflicts)
 
 
 def locator_is_resolved(locator: LocatorDraft | None) -> bool:

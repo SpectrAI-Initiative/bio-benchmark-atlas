@@ -28,6 +28,7 @@ from paper_models import (
     PaperEvidenceDraft,
     PaperEvidenceVerification,
     accepted_claims,
+    effective_blocking_conflicts,
     locator_is_resolved,
 )
 from registry_io import ROOT, load_entities, load_taxonomies
@@ -55,6 +56,7 @@ class GeneratedRecords:
     skipped_background_mentions: list[str] = field(default_factory=list)
     omitted_unresolved_mentions: list[str] = field(default_factory=list)
     blocked_reasons: list[str] = field(default_factory=list)
+    normalization_readiness: list[dict[str, Any]] = field(default_factory=list)
 
 
 def slugify(value: str, *, maximum: int = 72) -> str:
@@ -1579,6 +1581,8 @@ def build_records(
 ) -> GeneratedRecords:
     draft = PaperEvidenceDraft.model_validate(result_payload["draft"])
     verification = PaperEvidenceVerification.model_validate(result_payload["verification"])
+    verification = verification.model_copy(deep=True)
+    verification.blocking_conflicts = effective_blocking_conflicts(verification)
     draft, verification = _downgrade_safe_existing_evaluation_conflicts(
         draft,
         verification,
@@ -1924,6 +1928,41 @@ def build_records(
                 "benchmark-creation", "training", "fine-tuning", "validation", "model-selection"
             } else "partial"
         )
+        normalization_blockers: list[str] = []
+        if mention.relation_type == "evaluation" and not can_normalize:
+            if benchmark_version is None:
+                normalization_blockers.append("benchmark version not reported")
+            elif not version_is_registered:
+                normalization_blockers.append("benchmark version is not registered")
+            if scope["type"] == "unknown":
+                normalization_blockers.append("scope is unknown")
+            elif scope["type"] != "track" and scope["n"] is None:
+                normalization_blockers.append("realized n is not reported")
+            if not full_count_is_verified:
+                normalization_blockers.append("full scope does not match a verified total")
+            if not subset_is_valid:
+                normalization_blockers.append("subset identity or selection is unresolved")
+            if not model_ids:
+                normalization_blockers.append("exact model is not reported")
+            if not metrics:
+                normalization_blockers.append("metric is not reported")
+            if not results:
+                normalization_blockers.append("numeric result is not reported")
+            if not delta_baselines_are_known:
+                normalization_blockers.append("delta baseline model is unresolved")
+            if provider_qualified_identity:
+                normalization_blockers.append("provider-qualified benchmark identity is not a normalized setting")
+        output.normalization_readiness.append({
+            "mention_id": mention.mention_id,
+            "benchmark_id": benchmark_id,
+            "relation_type": mention.relation_type,
+            "status": (
+                "normalized-ready" if can_normalize else
+                "partial-only" if mention.relation_type == "evaluation" else
+                "not-applicable"
+            ),
+            "blockers": normalization_blockers,
+        })
         use_scope = _use_scope(
             scope,
             partial_use=use_status == "partial",
@@ -2049,6 +2088,12 @@ def chinese_summary(records: GeneratedRecords) -> str:
             f"- `{use['benchmark_id']}`：{use['relation_type']} / {use['status']}；"
             f"scope={use['scope']['type']}，n={use['scope']['n'] if use['scope']['n'] is not None else 'Not reported'}；"
             f"metrics={', '.join(use['metric_labels']) or 'Not reported'}；缺口：{gaps}。"
+        )
+    for readiness in records.normalization_readiness:
+        blockers = "、".join(readiness["blockers"]) or "无"
+        lines.append(
+            f"- Normalization readiness `{readiness['benchmark_id']}`："
+            f"{readiness['status']}；阻断项：{blockers}。"
         )
     if records.skipped_background_mentions:
         lines.append("- 已排除纯 related-work 引用：" + "、".join(records.skipped_background_mentions) + "。")

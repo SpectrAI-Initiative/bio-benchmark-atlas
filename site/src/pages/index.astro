@@ -2,7 +2,7 @@
 import Layout from '../components/Layout.astro';
 import PlotCard from '../components/PlotCard.astro';
 import Tag from '../components/Tag.astro';
-import { data, familyBenchmarks, termMaps, withBase } from '../lib/data';
+import { data, familyBenchmarks, fieldStatus, termMaps, withBase } from '../lib/data';
 
 const families = familyBenchmarks();
 const publicFamilies = families.filter((b) => b.access.level !== 'private-internal');
@@ -20,7 +20,9 @@ const coverage = focusDomains.map((domain) => ({
   label: termMaps.domains.get(domain)?.label ?? domain,
   value: publicFamilies.filter((b) => b.domains.includes(domain)).length,
 }));
-const timeline = publicFamilies.map((b) => ({ label: b.name, date: new Date(`${b.release_date}T00:00:00Z`), group: b.kind }));
+const timeline = publicFamilies
+  .filter((benchmark) => !fieldStatus(benchmark, '/kind'))
+  .map((b) => ({ label: b.name, date: new Date(`${b.release_date}T00:00:00Z`), group: b.kind }));
 const featured = ['lifescibench', 'genebench-pro', 'biomysterybench', 'proteingym', 'compbiobench', 'lab-bench'].map((id) => data.benchmarks.find((b) => b.id === id)!);
 const objectTaskHeatmap = data.taxonomies.scientific_objects.flatMap((object) => data.taxonomies.task_families.map((family) => {
   const taskIds = new Set(data.scientific_tasks.filter((task) => task.object_ids.includes(object.id) && task.task_family_id === family.id).map((task) => task.id));
@@ -103,7 +105,7 @@ const recent = {
       <p><a href={withBase('/tasks/')}>Explore all Scientific Tasks, aliases, counts, and coverage gaps →</a></p>
     </section>
     <section class="section-tight">
-      <PlotCard title="Benchmark release timeline" description="Initial public release date for each v1 benchmark family." kind="timeline" values={timeline} tableColumns={[{key:'label',label:'Benchmark'},{key:'date',label:'Release date'},{key:'group',label:'Kind'}]} options={{height: 510}} />
+      <PlotCard title="Benchmark release timeline" description="Initial public release date for benchmark families with a verified, non-provisional kind classification." kind="timeline" values={timeline} tableColumns={[{key:'label',label:'Benchmark'},{key:'date',label:'Release date'},{key:'group',label:'Kind'}]} options={{height: 510}} />
     </section>
     <section class="section-tight"><p class="eyebrow">Registry activity</p><h2>New or re-verified evidence in the last 30 / 90 days</h2><div class="stat-grid" aria-label="Recent registry additions"><div class="stat"><strong>{recent.papers30} / {recent.papers90}</strong><span>papers and works</span></div><div class="stat"><strong>{recent.uses30} / {recent.uses90}</strong><span>benchmark-use relations</span></div><div class="stat"><strong>{recent.runs30} / {recent.runs90}</strong><span>normalized runs</span></div><div class="stat"><strong>{data.meta.release_date}</strong><span>registry as-of date</span></div></div><p class="small muted">Counts use versioned review timestamps, not paper publication dates. Candidate issues are excluded until owner-reviewed and merged.</p></section>
     <section class="section">

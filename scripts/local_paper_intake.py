@@ -303,7 +303,36 @@ def _owner_conflict_resolution(issue: dict[str, Any]) -> dict[str, Any] | None:
         (item["benchmark_total"], item["exclude"]) for item in resolutions
     }) > 1:
         raise LocalIntakeError("owner conflict-resolution comments disagree")
-    return resolutions[-1] if resolutions else None
+    resolution = dict(resolutions[-1]) if resolutions else None
+
+    metadata_pattern = re.compile(
+        r"^/resolve-paper-metadata benchmark-kind=(suite) status=(provisional)$"
+    )
+    metadata_resolutions: list[dict[str, Any]] = []
+    for comment in issue.get("comments", []):
+        author = (comment.get("author") or {}).get("login")
+        if author != OWNER_LOGIN:
+            continue
+        match = metadata_pattern.fullmatch(str(comment.get("body") or "").strip())
+        if not match:
+            continue
+        metadata_resolutions.append({
+            "provisional_benchmark_kind": match.group(1),
+            "provisional_kind_status": match.group(2),
+            "provisional_kind_approved_at": comment.get("createdAt"),
+        })
+    if len({
+        (item["provisional_benchmark_kind"], item["provisional_kind_status"])
+        for item in metadata_resolutions
+    }) > 1:
+        raise LocalIntakeError("owner provisional-metadata comments disagree")
+    if metadata_resolutions:
+        if resolution is None:
+            raise LocalIntakeError(
+                "provisional benchmark-kind approval requires a conflict-resolution command"
+            )
+        resolution.update(metadata_resolutions[-1])
+    return resolution
 
 
 def _issue_labels(issue: dict[str, Any]) -> set[str]:
@@ -1069,6 +1098,12 @@ def run_issue(
                     "The creator-paper evaluation is published only as a partial relationship: "
                     "conflicted version, scope, protocol, metric, and result claims are excluded "
                     "pending manual reconciliation.\n"
+                )
+            if conflict_resolution.get("provisional_benchmark_kind"):
+                summary += (
+                    "The benchmark kind is published as `"
+                    f"{conflict_resolution['provisional_benchmark_kind']}` with a visible "
+                    "provisional field warning; it is excluded from unqualified kind summaries.\n"
                 )
         _update_state(selected_run_id, status="publishing")
         pr_url = _publish_records(

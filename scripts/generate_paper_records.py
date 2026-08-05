@@ -839,10 +839,14 @@ def _build_new_benchmark(
     bibliography = source.get("bibliographic_metadata") or {}
     bibliographic_source = str(bibliography.get("metadata_source") or "bibliographic")
     bibliographic_date = str(bibliography.get("publication_date") or "")
+    metadata_evidence_ids = {
+        metadata_claim.claim_id: f"{benchmark_id}-automated-metadata-{index}-evidence"
+        for index, (metadata_claim, _supports) in enumerate(metadata_evidence_claims, 1)
+    }
     evidence = [
         *[
             {
-                "id": f"{benchmark_id}-automated-metadata-{index}-evidence",
+                "id": metadata_evidence_ids[metadata_claim.claim_id],
                 "source_type": "work", "source_id": work_id, "accessed_date": verified_on,
                 "locator": _source_locator(verdicts[metadata_claim.claim_id]),
                 "supports": supports,
@@ -923,6 +927,27 @@ def _build_new_benchmark(
         },
     ]
     field_status: list[dict[str, Any]] = []
+    provisional_kind_claim_id = (
+        resolved_count_conflict.get("provisional_kind_claim_id")
+        if resolved_count_conflict else None
+    )
+    if provisional_kind_claim_id:
+        evidence_id = metadata_evidence_ids.get(provisional_kind_claim_id)
+        if evidence_id is None:
+            raise GenerationBlocked(
+                f"{benchmark_id}: provisional kind claim has no generated metadata evidence"
+            )
+        field_status.append({
+            "path": "/kind",
+            "status": "provisional",
+            "confidence": "medium",
+            "reason": (
+                "The creator source and independent verifier support the Registry suite mapping, "
+                "but the extractor assigned medium confidence because the source describes a "
+                "benchmarking analysis and workflow rather than using the controlled word suite."
+            ),
+            "evidence_ids": [evidence_id],
+        })
     if not subset_evidence_claims and not count_conflict_resolution:
         field_status.append({
             "path": "/task_counts/subsets",
@@ -1235,6 +1260,54 @@ def _apply_owner_not_reported_creator_evaluation_resolution(
             "not-reported creator-evaluation resolution found no matching evaluation relationship"
         )
 
+    provisional_kind_claim = None
+    provisional_kind = resolution.get("provisional_benchmark_kind")
+    if provisional_kind is not None:
+        if (
+            provisional_kind != "suite"
+            or resolution.get("provisional_kind_status") != "provisional"
+        ):
+            raise GenerationBlocked(
+                "owner provisional benchmark-kind resolution is unsupported"
+            )
+        kind_claims = [
+            claim
+            for claim in draft.claims
+            if claim.mention_id == creation_mention_id
+            and claim.claim_type == "benchmark-metadata"
+            and claim.field_path == f"{_ATOMIC_METADATA_PREFIX}/kind"
+        ]
+        kind_claim_ids = {claim.claim_id for claim in kind_claims}
+        accepted_kind_claims = [
+            claim for claim in accepted if claim.claim_id in kind_claim_ids
+        ]
+        if accepted_kind_claims:
+            if len(accepted_kind_claims) != 1 or _claim_value(accepted_kind_claims[0]) != provisional_kind:
+                raise GenerationBlocked(
+                    "owner provisional benchmark-kind value conflicts with an accepted kind claim"
+                )
+        else:
+            verdicts = {item.claim_id: item for item in verification.claims}
+            provisional_candidates = []
+            for claim in kind_claims:
+                verdict = verdicts.get(claim.claim_id)
+                if (
+                    _claim_value(claim) == provisional_kind
+                    and claim.confidence == "medium"
+                    and verdict is not None
+                    and verdict.verdict == "supported"
+                    and verdict.confidence == "high"
+                    and locator_is_resolved(verdict.locator)
+                ):
+                    provisional_candidates.append(claim)
+            if len(provisional_candidates) != 1:
+                raise GenerationBlocked(
+                    "owner provisional benchmark-kind approval requires exactly one source-located "
+                    "medium/high suite claim"
+                )
+            provisional_kind_claim = provisional_candidates[0]
+            accepted = [*accepted, provisional_kind_claim]
+
     root_totals = []
     for claim in accepted:
         payload = _claim_value(claim)
@@ -1326,6 +1399,9 @@ def _apply_owner_not_reported_creator_evaluation_resolution(
         "approved_by": resolution.get("approved_by"),
         "approved_at": resolution.get("approved_at"),
         "creator_evaluation_mentions": sorted(creator_evaluation_mentions),
+        "provisional_kind_claim_id": (
+            provisional_kind_claim.claim_id if provisional_kind_claim else None
+        ),
     }
 
 

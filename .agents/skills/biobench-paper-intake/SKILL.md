@@ -106,6 +106,14 @@ output.
   the evaluation only as a partial `BenchmarkUse`, and drops every evaluation
   setting and outcome. It cannot override benchmark identity, creation version,
   creator source, official resource, license, root-total, or relation conflicts.
+- If that same intake has a source-located `kind=suite` claim with extractor
+  confidence `medium` but verifier verdict `supported`, verifier confidence
+  `high`, and a resolved locator, the owner may additionally post
+  `/resolve-paper-metadata benchmark-kind=suite status=provisional`. The command
+  is valid only together with an accepted conflict-resolution command. It
+  preserves the source-backed value with a machine-readable `/kind` provisional
+  warning and excludes it from unqualified kind summaries. It cannot change a
+  different extracted value or authorize any other field.
 - Use `intake-failed` only for local CLI, network, or temporary technical failures.
 - Never treat a failed extraction as `not_reported`.
 - Never retry by switching to a different model or remote API.

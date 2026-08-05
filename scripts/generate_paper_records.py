@@ -125,6 +125,18 @@ def _fragment_hash(excerpt: str) -> str:
     return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
 
 
+def _complete_publication_date(*values: Any) -> str | None:
+    """Return the first real ISO calendar date, ignoring year-only model output."""
+    for value in values:
+        if not isinstance(value, str) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", value):
+            continue
+        try:
+            return date.fromisoformat(value).isoformat()
+        except ValueError:
+            continue
+    return None
+
+
 def _reported(value: Any, notes: str | None = None) -> dict[str, Any]:
     return {"value": value, "reporting_status": "reported", "notes": notes}
 
@@ -617,17 +629,23 @@ def _materialize_benchmark_metadata(
 
     bibliographic_supports: list[str] = []
     bibliography = bibliographic_metadata or {}
+    if "/release_date" in values_by_path and _complete_publication_date(
+        str(values_by_path["/release_date"])
+    ) is None:
+        # A year-only model claim is not a Registry date. Remove both its value
+        # and claim-level support so a complete primary bibliographic date can
+        # replace it without falsely attributing the day to the PDF excerpt.
+        values_by_path.pop("/release_date", None)
+        claims_by_path.pop("/release_date", None)
+        metadata.pop("release_date", None)
     if "/release_date" not in values_by_path:
         metadata_source = str(bibliography.get("metadata_source") or "").casefold()
         publication_date = bibliography.get("publication_date")
-        try:
-            if metadata_source in {"crossref", "arxiv", "arxiv api"} and publication_date:
-                date.fromisoformat(str(publication_date))
-                metadata["release_date"] = str(publication_date)
-                values_by_path["/release_date"] = str(publication_date)
-                bibliographic_supports.append("/release_date")
-        except ValueError:
-            pass
+        complete_date = _complete_publication_date(str(publication_date or ""))
+        if metadata_source in {"crossref", "arxiv", "arxiv api"} and complete_date:
+            metadata["release_date"] = complete_date
+            values_by_path["/release_date"] = complete_date
+            bibliographic_supports.append("/release_date")
     if "/access/level" not in values_by_path and default_access_level:
         metadata["access"]["level"] = default_access_level
         values_by_path["/access/level"] = default_access_level
@@ -702,6 +720,16 @@ def _build_new_benchmark(
         bibliographic_metadata=source.get("bibliographic_metadata"),
         default_access_level="partially-open" if resource_type == "dataset" else None,
     )
+    for field_name in ("tasks", "artifacts", "grader"):
+        access_value = (metadata.get("access") or {}).get(field_name)
+        if isinstance(access_value, list) and access_value and all(
+            isinstance(item, str) and item.strip() for item in access_value
+        ):
+            metadata["access"][field_name] = "; ".join(item.strip() for item in access_value)
+        elif not isinstance(access_value, str) or not access_value.strip():
+            raise GenerationBlocked(
+                f"{benchmark_id}: access.{field_name} must be verified text or a non-empty string list"
+            )
     version_claim = next(iter(by_type.get("benchmark-version", [])), None)
     version_label = (
         str(_claim_value(version_claim)) if version_claim is not None else "initial-release"
@@ -1625,7 +1653,13 @@ def build_records(
     duplicates = duplicate_work_candidates(identity, entities["work"])
     existing_work = next((item for item in entities["work"] if duplicates and item["id"] == duplicates[0]["work_id"]), None)
     work_id = existing_work["id"] if existing_work else stable_work_id(draft.paper.title, identity["doi"], existing_work_ids)
-    publication_date = draft.paper.publication_date or verified_on
+    publication_date = _complete_publication_date(
+        draft.paper.publication_date,
+        (source.get("bibliographic_metadata") or {}).get("publication_date"),
+        verified_on,
+    )
+    if publication_date is None:
+        raise GenerationBlocked("paper publication date is not a complete ISO calendar date")
     version_suffix = slugify(draft.paper.version_label or publication_date, maximum=24)
     work_version_id = existing_work["current_version_id"] if existing_work else f"{work_id}-{version_suffix}"
 

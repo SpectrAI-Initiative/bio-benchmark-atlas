@@ -456,7 +456,7 @@ def ensure_issue_for_url(url: str, *, runner: CommandRunner = subprocess.run) ->
 
 def _existing_pr(issue_number: int, *, runner: CommandRunner = subprocess.run) -> str | None:
     items = _json_command([
-        "gh", "pr", "list", "--repo", REPOSITORY, "--state", "all", "--limit", "100",
+        "gh", "pr", "list", "--repo", REPOSITORY, "--state", "open", "--limit", "100",
         "--json", "headRefName,url",
     ], runner=runner)
     for item in items:

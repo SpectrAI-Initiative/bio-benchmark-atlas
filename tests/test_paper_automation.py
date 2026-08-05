@@ -84,6 +84,7 @@ from local_paper_intake import (  # noqa: E402
     MAX_PARALLEL_RUNS,
     _active_run_states,
     _ensure_labels,
+    _existing_pr,
     _owner_conflict_resolution,
     _reserve_run,
     _run,
@@ -1634,7 +1635,6 @@ def test_owner_conflict_resolution_requires_exact_owner_command() -> None:
     assert _owner_conflict_resolution(issue)["exclude_creator_evaluation"] is True
     issue["comments"][1]["body"] = "/resolve-paper-conflict benchmark-total=394 exclude=anything"
     assert _owner_conflict_resolution(issue) is None
-
     issue["comments"] = [{
         "author": {"login": "wang422003"},
         "body": (
@@ -1671,6 +1671,28 @@ def test_owner_conflict_resolution_requires_exact_owner_command() -> None:
         "exclude=benchmark-subcounts,creator-evaluation"
     )
     assert _owner_conflict_resolution(issue) is None
+
+
+def test_existing_pr_dedup_only_queries_open_pull_requests() -> None:
+    commands: list[list[str]] = []
+
+    def runner(command: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        commands.append(command)
+        return subprocess.CompletedProcess(
+            command,
+            0,
+            json.dumps([{
+                "headRefName": "paper-intake/example-paper-142",
+                "url": "https://github.com/SpectrAI-Initiative/bio-benchmark-atlas/pull/999",
+            }]),
+            "",
+        )
+
+    assert _existing_pr(142, runner=runner) == (
+        "https://github.com/SpectrAI-Initiative/bio-benchmark-atlas/pull/999"
+    )
+    assert "--state" in commands[0]
+    assert commands[0][commands[0].index("--state") + 1] == "open"
 
 
 def test_local_intake_only_creates_missing_issue_labels() -> None:

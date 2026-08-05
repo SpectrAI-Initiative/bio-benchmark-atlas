@@ -1304,15 +1304,22 @@ def test_scientific_task_exports_are_normalized_and_preserve_units() -> None:
     subprocess.run([sys.executable, "scripts/build_registry.py"], cwd=ROOT, check=True)
     tasks = json.loads((ROOT / "exports" / "scientific-tasks.json").read_text(encoding="utf-8"))
     coverage = json.loads((ROOT / "exports" / "scientific-task-coverage.json").read_text(encoding="utf-8"))
+    benchmarks = json.loads((ROOT / "exports" / "benchmarks.json").read_text(encoding="utf-8"))
     assert len(tasks) >= 69
-    assert {item["root_family_id"] for item in coverage} == {
-        "lifescibench", "proteingym", "casp", "cameo", "flip", "proteinlmbench",
-        "bioinstruction", "lab-bench", "genebench-pro", "biomysterybench",
-            "compbiobench", "bixbench", "blade", "scigym", "tape", "genomic-benchmarks",
-            "beacon-rna", "moleculenet", "atom3d", "guacamol", "scib", "spatialbench",
-            "anthropic-key-life-sciences-evals", "rfah-benchmark", "papd-benchmark",
-            "cam-benchmark",
-        }
+    benchmark_by_id = {item["id"]: item for item in benchmarks}
+
+    def root_family_id(benchmark: dict[str, Any]) -> str:
+        current = benchmark
+        while current["parent_id"] is not None:
+            current = benchmark_by_id[current["parent_id"]]
+        return current["id"]
+
+    expected_root_families = {
+        root_family_id(benchmark)
+        for benchmark in benchmarks
+        if benchmark["scientific_task_classification"]["entries"]
+    }
+    assert {item["root_family_id"] for item in coverage} == expected_root_families
     generation = next(item for item in tasks if item["id"] == "small-molecule-generation")
     assert generation["coverage_family_count"] == 1
     units = {

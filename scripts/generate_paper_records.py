@@ -1286,6 +1286,7 @@ def _apply_owner_not_reported_creator_evaluation_resolution(
                 raise GenerationBlocked(
                     "owner provisional benchmark-kind value conflicts with an accepted kind claim"
                 )
+            provisional_kind_claim = accepted_kind_claims[0]
         else:
             verdicts = {item.claim_id: item for item in verification.claims}
             provisional_candidates = []

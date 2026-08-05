@@ -2733,6 +2733,24 @@ def test_owner_can_downgrade_creator_evaluation_with_not_reported_root_total() -
     assert evaluation_use["evaluation_run_ids"] == []
     assert records.runs == []
 
+    high_confidence_kind = json.loads(json.dumps(payload))
+    for item in high_confidence_kind["draft"]["claims"]:
+        if item["field_path"] == "/benchmark-metadata/kind":
+            item["confidence"] = "high"
+    high_confidence_records = build_records(
+        high_confidence_kind,
+        source=source,
+        generated_at=SOURCE["retrieved_at"],
+        verified_on="2026-07-27",
+        owner_conflict_resolution=resolution,
+    )
+    high_confidence_kind_status = next(
+        item
+        for item in high_confidence_records.benchmarks[0]["field_status"]
+        if item["path"] == "/kind"
+    )
+    assert high_confidence_kind_status["status"] == "provisional"
+
     wrong_kind = json.loads(json.dumps(payload))
     for item in wrong_kind["draft"]["claims"]:
         if item["field_path"] == "/benchmark-metadata/kind":

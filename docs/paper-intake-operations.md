@@ -107,6 +107,20 @@ intake instead of silently dropping evidence.
 
 Only claims supported with high confidence in both passes can reach deterministic generation. Unsupported, conflicted, or not-verifiable claims are withheld. Unknown benchmark version, model identity, or subset size produces a partial `BenchmarkUse`; it cannot be upgraded by inference.
 
+Verifier disagreements are machine-classified. `extractor-error` means the
+source is consistent but the first pass misread or over-interpreted it; the claim
+is rejected without blocking the whole paper. `source-internal` means the source
+itself is irreconcilable, and `cross-source` means authoritative artifacts
+disagree without a versioned explanation. The latter two remain blocking. New
+verifier output uses this structured taxonomy; the legacy free-text blocking list
+is retained only for old local receipts and fixtures.
+
+The deterministic PR summary includes a normalization-readiness line for every
+evaluation. It reports `normalized-ready` or `partial-only` and lists exact
+blockers such as an unregistered benchmark version, unknown scope, missing
+realized `n`, unresolved model identity, missing metric, or missing numeric
+result. This report is an audit aid, not evidence, and cannot promote a claim.
+
 ### Owner-reviewed count conflicts
 
 When official sources independently support a root benchmark total but conflict

@@ -6,6 +6,7 @@
 - Separate benchmark creation, evaluation, training, fine-tuning, validation, model selection, external result summaries, and background citations.
 - Require a versioned primary locator for benchmark identity, version, count, evaluation scope, realized `n`, model identity, metric, result, grader, tools, and repeats when reported.
 - Do not infer a full run from an unspecified scope. Do not infer a subtype or count from a broad topic label.
+- A new benchmark must have exactly one independently verified root-total claim. When a reusable scenario matrix, simulator, or rolling benchmark has no single finite primary item inventory, record `count: null`, `unit: other`, and `reporting_status: not_reported`; never sum scenarios, tools, parameter combinations, runs, or datasets to manufacture a total.
 - Do not digitize chart geometry. A result is admissible only from body text, a table, or a figure with the number printed next to the mark.
 - Record genuine source omissions as partial BenchmarkUse or `null` with the appropriate reporting status.
 - Classify verifier disagreements. An extractor misread is an `extractor-error`

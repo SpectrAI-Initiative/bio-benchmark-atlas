@@ -294,7 +294,7 @@ def test_verifier_prompt_treats_creator_and_evaluation_relations_as_compatible()
         VERIFIER_PROMPT,
     )
 
-    assert PROMPT_VERSION == "paper-evidence-local-v16"
+    assert PROMPT_VERSION == "paper-evidence-local-v17"
     assert SOURCE_INPUT_PROTOCOL_VERSION == "page-anchored-pdf-v4"
     assert "Normalize arXiv identifiers to the base numeric ID" in EXTRACTOR_PROMPT
     assert "the suffix belongs to the paper version" in VERIFIER_PROMPT
@@ -319,6 +319,10 @@ def test_verifier_prompt_treats_creator_and_evaluation_relations_as_compatible()
     assert "Do not promote a source-" in VERIFIER_PROMPT
     assert "explicitly inspect the abstract, introduction" in EXTRACTOR_PROMPT
     assert "not permission to sum" in EXTRACTOR_PROMPT
+    assert "must have exactly one root-total claim" in EXTRACTOR_PROMPT
+    assert "count=null, reporting_status=not_reported, unit=other" in EXTRACTOR_PROMPT
+    assert "independently inspect the complete source for a finite inventory" in VERIFIER_PROMPT
+    assert "Do not replace the null with a sum" in VERIFIER_PROMPT
     assert "be copied into benchmark-metadata" in VERIFIER_PROMPT
     assert "printed author-affiliation mapping" in EXTRACTOR_PROMPT
     assert "paper's printed author-affiliation" in VERIFIER_PROMPT
@@ -873,6 +877,68 @@ def test_new_benchmark_rejects_uncontrolled_scientific_task_count_unit() -> None
     }
     with pytest.raises(PaperExtractionError, match="count_unit must use the controlled"):
         _validate_draft_structure(PaperEvidenceDraft.model_validate(draft_payload(claims, mention)))
+
+
+def test_new_scenario_matrix_benchmark_accepts_verified_unreported_root_total() -> None:
+    metadata = {
+        "name": "ScenarioMatrixBench", "aliases": [],
+        "summary": "A reusable simulation matrix without one finite benchmark item inventory.",
+        "kind": "dataset", "organizations": ["Example Institute"],
+        "release_date": "2026-07-01", "domains": ["transcriptomics"],
+        "capabilities": ["data-analysis"], "modalities": ["raw-omics"],
+        "task_formats": ["simulation"],
+        "access": {
+            "level": "fully-open", "tasks": "Scenarios are generated from public code.",
+            "artifacts": "The simulator and configurations are public.",
+            "grader": "Scenario-specific deterministic metrics", "license": "GPL-3.0",
+            "biosafety_notes": None,
+        },
+    }
+    claims = [
+        claim("claim-1", "paper-identity", {"title": "Synthetic benchmark evaluation paper"}, mention_id=None),
+        claim("claim-2", "relation", "benchmark-creation"),
+        claim("claim-3", "benchmark-identity", "ScenarioMatrixBench"),
+        claim("claim-4", "benchmark-metadata", metadata),
+        claim("claim-5", "benchmark-count", {
+            "label": "finite root item inventory", "count": None, "unit": "other",
+            "basis": "The source defines a scenario matrix and reports no single finite item inventory.",
+            "reporting_status": "not_reported", "count_role": "root-total",
+            "subset_id": None, "exclusive": False, "exhaustive": False,
+            "partition_group": None,
+        }),
+        claim("claim-6", "creator-source", {"url": "https://doi.org/10.9999/scenario.1"}),
+        claim("claim-7", "official-repository", {
+            "url": "https://github.com/example/scenariomatrixbench", "license": "GPL-3.0",
+        }),
+    ]
+    mention = {
+        "mention_id": "mention-1", "benchmark_name": "ScenarioMatrixBench",
+        "registry_benchmark_id": None, "relation_type": "benchmark-creation",
+        "is_new_benchmark": True, "background_only": False,
+        "claim_ids": [item["claim_id"] for item in claims if item["mention_id"]],
+        "reporting_gaps": ["finite root benchmark item total"],
+    }
+    source = {**SOURCE, "repository_pins": {
+        "https://github.com/example/scenariomatrixbench": {
+            "kind": "commit", "value": "f" * 40,
+            "url": "https://github.com/example/scenariomatrixbench/commit/" + "f" * 40,
+        }
+    }}
+
+    records = build_records(
+        verified_result(claims, mention), source=source,
+        generated_at=SOURCE["retrieved_at"], verified_on="2026-07-30",
+    )
+
+    assert records.blocked_reasons == []
+    benchmark = records.benchmarks[0]
+    assert benchmark["task_counts"] == {
+        "total": None,
+        "basis": "The source defines a scenario matrix and reports no single finite item inventory.",
+        "reporting_status": "not_reported",
+        "subsets": [],
+    }
+    assert benchmark["versions"][0]["task_counts"] == benchmark["task_counts"]
 
 
 def test_extractor_requires_explicit_consistent_benchmark_count_roles() -> None:

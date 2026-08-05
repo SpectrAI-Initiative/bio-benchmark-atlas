@@ -177,6 +177,21 @@ results are withheld and the relation is published as a partial `BenchmarkUse`.
 Benchmark identity, creation version, creator source, official resource, license,
 root-total, and relation conflicts remain non-overridable.
 
+If the same intake has a source-located `kind=suite` claim that the extractor
+rates `medium` while the independent verifier returns `supported`, `high`, and a
+resolved locator, the owner may add this exact comment:
+
+```text
+/resolve-paper-metadata benchmark-kind=suite status=provisional
+```
+
+This command is valid only alongside an accepted `/resolve-paper-conflict`
+command. It does not promote the mapping to verified: `/kind` is recorded in
+`field_status` as provisional, displayed beside the value, exported in JSON/CSV,
+and excluded from unqualified kind summaries. A different extracted kind, a low
+confidence claim, a non-high verifier result, or an unresolved locator still
+stops intake.
+
 Sources, short excerpts, transcripts, and structured drafts live only under the ignored `.paper-intake-tmp/` directory and are deleted in cleanup. They must never appear in Git diff, Actions artifacts, Pages, or a Release.
 
 ## 4. Local golden gate

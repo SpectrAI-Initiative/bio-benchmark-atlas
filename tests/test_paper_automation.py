@@ -1650,6 +1650,22 @@ def test_owner_conflict_resolution_requires_exact_owner_command() -> None:
         "approved_by": "wang422003",
         "approved_at": "2026-07-25T02:00:00Z",
     }
+    issue["comments"].append({
+        "author": {"login": "wang422003"},
+        "body": "/resolve-paper-metadata benchmark-kind=suite status=provisional",
+        "createdAt": "2026-07-25T03:00:00Z",
+    })
+    assert _owner_conflict_resolution(issue) == {
+        "benchmark_total": None,
+        "exclude": "creator-evaluation",
+        "exclude_creator_evaluation": True,
+        "approved_by": "wang422003",
+        "approved_at": "2026-07-25T02:00:00Z",
+        "provisional_benchmark_kind": "suite",
+        "provisional_kind_status": "provisional",
+        "provisional_kind_approved_at": "2026-07-25T03:00:00Z",
+    }
+    issue["comments"].pop()
     issue["comments"][0]["body"] = (
         "/resolve-paper-conflict benchmark-total=not-reported "
         "exclude=benchmark-subcounts,creator-evaluation"
@@ -2554,6 +2570,33 @@ def test_owner_can_downgrade_creator_evaluation_with_not_reported_root_total() -
             "biosafety_notes": None,
         },
     }
+    atomic_values = {
+        "/name": metadata["name"],
+        "/aliases": metadata["aliases"],
+        "/summary": metadata["summary"],
+        "/kind": "suite",
+        "/organizations": metadata["organizations"],
+        "/release_date": metadata["release_date"],
+        "/domains": metadata["domains"],
+        "/capabilities": metadata["capabilities"],
+        "/modalities": metadata["modalities"],
+        "/task_formats": metadata["task_formats"],
+        "/access/level": metadata["access"]["level"],
+        "/access/tasks": metadata["access"]["tasks"],
+        "/access/artifacts": metadata["access"]["artifacts"],
+        "/access/grader": metadata["access"]["grader"],
+        "/access/license": metadata["access"]["license"],
+        "/access/biosafety_notes": metadata["access"]["biosafety_notes"],
+    }
+    metadata_claims = [
+        claim(
+            f"claim-{index}",
+            "benchmark-metadata",
+            value,
+            field_path=f"/benchmark-metadata{path}",
+        )
+        for index, (path, value) in enumerate(atomic_values.items(), 20)
+    ]
     claims = [
         claim(
             "claim-1",
@@ -2563,7 +2606,7 @@ def test_owner_can_downgrade_creator_evaluation_with_not_reported_root_total() -
         ),
         claim("claim-2", "relation", "benchmark-creation"),
         claim("claim-3", "benchmark-identity", "ScenarioMatrixBench"),
-        claim("claim-4", "benchmark-metadata", metadata),
+        *metadata_claims,
         claim("claim-5", "benchmark-version", "paper-v1"),
         claim("claim-6", "benchmark-count", {
             "label": "root scenario-matrix inventory",
@@ -2618,7 +2661,7 @@ def test_owner_can_downgrade_creator_evaluation_with_not_reported_root_total() -
         "relation_type": "benchmark-creation",
         "is_new_benchmark": True,
         "background_only": False,
-        "claim_ids": [f"claim-{index}" for index in range(2, 10)],
+        "claim_ids": [item["claim_id"] for item in claims if item["mention_id"] == "mention-1"],
         "reporting_gaps": [],
     }
     evaluation_mention = {
@@ -2633,6 +2676,11 @@ def test_owner_can_downgrade_creator_evaluation_with_not_reported_root_total() -
     }
     payload = verified_result(claims, creation_mention)
     payload["draft"]["benchmark_mentions"] = [creation_mention, evaluation_mention]
+    kind_claim = next(
+        item for item in payload["draft"]["claims"]
+        if item["field_path"] == "/benchmark-metadata/kind"
+    )
+    kind_claim["confidence"] = "medium"
     payload["verification"]["blocking_conflicts"] = [
         "The realized evaluation sample n is internally inconsistent.",
         "The body and figure caption identify different evaluated tools.",
@@ -2653,6 +2701,9 @@ def test_owner_can_downgrade_creator_evaluation_with_not_reported_root_total() -
         "exclude_creator_evaluation": True,
         "approved_by": "wang422003",
         "approved_at": "2026-07-27T02:00:00Z",
+        "provisional_benchmark_kind": "suite",
+        "provisional_kind_status": "provisional",
+        "provisional_kind_approved_at": "2026-07-27T02:01:00Z",
     }
 
     records = build_records(
@@ -2665,6 +2716,13 @@ def test_owner_can_downgrade_creator_evaluation_with_not_reported_root_total() -
     benchmark = records.benchmarks[0]
     assert benchmark["task_counts"]["total"] is None
     assert benchmark["task_counts"]["reporting_status"] == "not_reported"
+    kind_status = next(item for item in benchmark["field_status"] if item["path"] == "/kind")
+    assert kind_status["status"] == "provisional"
+    assert kind_status["confidence"] == "medium"
+    kind_evidence = next(
+        item for item in benchmark["evidence"] if item["id"] in kind_status["evidence_ids"]
+    )
+    assert kind_evidence["supports"] == ["/kind"]
     assert "Root total retained after owner review" not in str(benchmark["versions"][0]["notes"])
     evaluation_use = next(item for item in records.uses if item["relation_type"] == "evaluation")
     assert evaluation_use["status"] == "partial"
@@ -2674,6 +2732,19 @@ def test_owner_can_downgrade_creator_evaluation_with_not_reported_root_total() -
     assert evaluation_use["metric_labels"] == []
     assert evaluation_use["evaluation_run_ids"] == []
     assert records.runs == []
+
+    wrong_kind = json.loads(json.dumps(payload))
+    for item in wrong_kind["draft"]["claims"]:
+        if item["field_path"] == "/benchmark-metadata/kind":
+            item["value_json"] = json.dumps("dataset")
+    with pytest.raises(GenerationBlocked, match="requires exactly one source-located"):
+        build_records(
+            wrong_kind,
+            source=source,
+            generated_at=SOURCE["retrieved_at"],
+            verified_on="2026-07-27",
+            owner_conflict_resolution=resolution,
+        )
 
     unsafe = json.loads(json.dumps(payload))
     unsafe["verification"]["blocking_conflicts"].append(

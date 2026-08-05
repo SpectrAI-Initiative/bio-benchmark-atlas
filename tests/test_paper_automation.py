@@ -918,15 +918,20 @@ def test_new_scenario_matrix_benchmark_accepts_verified_unreported_root_total() 
         "claim_ids": [item["claim_id"] for item in claims if item["mention_id"]],
         "reporting_gaps": ["finite root benchmark item total"],
     }
-    source = {**SOURCE, "repository_pins": {
+    source = {**SOURCE, "bibliographic_metadata": {
+        "metadata_source": "Crossref",
+        "publication_date": "2025-09-11",
+    }, "repository_pins": {
         "https://github.com/example/scenariomatrixbench": {
             "kind": "commit", "value": "f" * 40,
             "url": "https://github.com/example/scenariomatrixbench/commit/" + "f" * 40,
         }
     }}
 
+    result = verified_result(claims, mention)
+    result["draft"]["paper"]["publication_date"] = "2025"
     records = build_records(
-        verified_result(claims, mention), source=source,
+        result, source=source,
         generated_at=SOURCE["retrieved_at"], verified_on="2026-07-30",
     )
 
@@ -939,6 +944,8 @@ def test_new_scenario_matrix_benchmark_accepts_verified_unreported_root_total() 
         "subsets": [],
     }
     assert benchmark["versions"][0]["task_counts"] == benchmark["task_counts"]
+    assert records.work["publication_date"] == "2025-09-11"
+    assert records.work["source_versions"][0]["publication_date"] == "2025-09-11"
 
 
 def test_extractor_requires_explicit_consistent_benchmark_count_roles() -> None:
@@ -1322,6 +1329,108 @@ def test_atomic_metadata_uses_canonical_bibliographic_date_and_unclassified_form
         for _claim, supports in evidence_claims
         for support in supports
     }
+
+
+def test_atomic_metadata_replaces_year_only_claim_with_complete_bibliographic_date() -> None:
+    values = {
+        "/name": "YearOnlyDateBench",
+        "/summary": "A synthetic benchmark with only a year printed in its PDF header.",
+        "/kind": "dataset",
+        "/organizations": ["Example Institute"],
+        "/release_date": "2025",
+        "/domains": ["transcriptomics"],
+        "/capabilities": ["data-analysis"],
+        "/modalities": ["raw-omics"],
+        "/access/level": "fully-open",
+    }
+    claims = [
+        EvidenceClaimDraft.model_validate(claim(
+            f"claim-{index}", "benchmark-metadata", value,
+            field_path=f"/benchmark-metadata{path}",
+        ))
+        for index, (path, value) in enumerate(values.items(), 1)
+    ]
+
+    metadata, evidence_claims, bibliographic_supports = _materialize_benchmark_metadata(
+        claims,
+        bibliographic_metadata={
+            "metadata_source": "Crossref",
+            "publication_date": "2025-09-11",
+        },
+    )
+
+    assert metadata["release_date"] == "2025-09-11"
+    assert bibliographic_supports == ["/release_date"]
+    assert "/release_date" not in {
+        support
+        for _claim, supports in evidence_claims
+        for support in supports
+    }
+
+
+def test_new_benchmark_normalizes_verified_access_text_lists() -> None:
+    claims = [
+        claim("claim-1", "paper-identity", {"title": "Synthetic benchmark evaluation paper"}, mention_id=None),
+        claim("claim-2", "relation", "benchmark-creation"),
+        claim("claim-3", "benchmark-identity", "AccessListBench"),
+    ]
+    metadata_values = {
+        "/name": "AccessListBench",
+        "/summary": "A synthetic benchmark used to test access description normalization.",
+        "/kind": "suite",
+        "/organizations": ["Example Institute"],
+        "/release_date": "2026-07-01",
+        "/domains": ["transcriptomics"],
+        "/capabilities": ["data-analysis"],
+        "/modalities": ["raw-omics"],
+        "/access/level": "fully-open",
+        "/access/tasks": ["simulation code", "analysis code"],
+        "/access/artifacts": ["configurations", "plot scripts"],
+        "/access/grader": "Deterministic scenario metrics",
+    }
+    for path, value in metadata_values.items():
+        claims.append(claim(
+            f"claim-{len(claims) + 1}", "benchmark-metadata", value,
+            field_path=f"/benchmark-metadata{path}",
+        ))
+    claims.extend([
+        claim(f"claim-{len(claims) + 1}", "benchmark-count", {
+            "label": "finite root item inventory", "count": None, "unit": "other",
+            "basis": "The source reports no single finite item inventory.",
+            "reporting_status": "not_reported", "count_role": "root-total",
+            "subset_id": None, "exclusive": False, "exhaustive": False,
+            "partition_group": None,
+        }),
+        claim(f"claim-{len(claims) + 2}", "creator-source", {
+            "url": "https://doi.org/10.9999/access-list.1",
+        }),
+        claim(f"claim-{len(claims) + 3}", "official-repository", {
+            "url": "https://github.com/example/access-list-bench", "license": "GPL-3.0",
+        }),
+    ])
+    mention = {
+        "mention_id": "mention-1", "benchmark_name": "AccessListBench",
+        "registry_benchmark_id": None, "relation_type": "benchmark-creation",
+        "is_new_benchmark": True, "background_only": False,
+        "claim_ids": [item["claim_id"] for item in claims if item["mention_id"]],
+        "reporting_gaps": ["finite root benchmark item total"],
+    }
+    source = {**SOURCE, "repository_pins": {
+        "https://github.com/example/access-list-bench": {
+            "kind": "commit", "value": "d" * 40,
+            "url": "https://github.com/example/access-list-bench/commit/" + "d" * 40,
+        }
+    }}
+
+    records = build_records(
+        verified_result(claims, mention), source=source,
+        generated_at=SOURCE["retrieved_at"], verified_on="2026-07-30",
+    )
+
+    assert records.blocked_reasons == []
+    access = records.benchmarks[0]["access"]
+    assert access["tasks"] == "simulation code; analysis code"
+    assert access["artifacts"] == "configurations; plot scripts"
 
 
 def test_atomic_dataset_metadata_can_use_conservative_resolved_access_floor() -> None:
@@ -3700,6 +3809,7 @@ def test_crossref_resolution_retries_transient_tls_errors(
                 "message": {
                     "title": ["PPB-Affinity"],
                     "author": [{"given": "A.", "family": "Researcher"}],
+                    "published-print": {"date-parts": [[2024]]},
                     "published-online": {"date-parts": [[2024, 12, 3]]},
                     "DOI": "10.1038/s41597-024-03997-4",
                     "URL": "https://doi.org/10.1038/s41597-024-03997-4",
@@ -3720,6 +3830,12 @@ def test_crossref_resolution_retries_transient_tls_errors(
     assert calls == 3
     assert metadata["publication_date"] == "2024-12-03"
     assert metadata["source"] == "Crossref"
+
+
+def test_crossref_date_parts_does_not_invent_a_day_for_year_only_metadata() -> None:
+    from triage_paper import _date_parts
+
+    assert _date_parts({"published": {"date-parts": [[2025]]}}) is None
 
 
 def test_work_ids_are_deterministic_and_workflows_have_required_guards() -> None:

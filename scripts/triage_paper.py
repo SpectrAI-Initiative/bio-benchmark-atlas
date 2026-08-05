@@ -15,6 +15,7 @@ import time
 import unicodedata
 import urllib.parse
 import xml.etree.ElementTree as ET
+from datetime import date
 from pathlib import Path
 from typing import Any
 
@@ -86,11 +87,16 @@ def parse_issue_form(body: str) -> dict[str, str]:
 
 
 def _date_parts(message: dict[str, Any]) -> str | None:
-    for key in ("published-print", "published-online", "published", "issued"):
+    # Prefer the exact online version-of-record date over an issue/print
+    # placeholder, and never manufacture January 1 from a year-only deposit.
+    for key in ("published-online", "published-print", "published", "issued"):
         parts = message.get(key, {}).get("date-parts", [])
-        if parts and parts[0]:
-            values = list(parts[0]) + [1, 1]
-            return f"{values[0]:04d}-{values[1]:02d}-{values[2]:02d}"
+        if parts and len(parts[0]) >= 3:
+            year, month, day = parts[0][:3]
+            try:
+                return date(int(year), int(month), int(day)).isoformat()
+            except (TypeError, ValueError):
+                continue
     return None
 
 

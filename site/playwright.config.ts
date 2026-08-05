@@ -15,7 +15,7 @@ export default defineConfig({
     { name: 'mobile', use: { ...devices['Pixel 7'], channel: process.env.CI ? undefined : 'chrome' } },
   ],
   webServer: {
-    command: 'pnpm --dir .. registry:build && pnpm build && pnpm preview --host 127.0.0.1 --port 4321',
+    command: 'pnpm --dir .. registry:build && pnpm --dir .. results:validate && pnpm --dir .. results:build && pnpm build && pnpm preview --host 127.0.0.1 --port 4321',
     url: 'http://127.0.0.1:4321/bio-benchmark-atlas/',
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

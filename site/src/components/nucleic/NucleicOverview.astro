@@ -1,0 +1,97 @@
+---
+import Layout from '../Layout.astro';
+import NucleicNav from './NucleicNav.astro';
+import CoverageBadge from './CoverageBadge.astro';
+import { NUCLEIC_SNAPSHOT, integer, nucleicCatalog, nucleicRoot, snapshotRoot, text } from '../../lib/nucleicAcids';
+import { withBase } from '../../lib/data';
+import type { NucleicLanguage } from '../../lib/nucleicLocale';
+
+interface Props { lang?: NucleicLanguage; }
+const { lang = 'en' } = Astro.props;
+const zh = lang === 'zh';
+const root = nucleicRoot(zh);
+const snapshot = snapshotRoot(zh);
+const numericCoverage = nucleicCatalog.coverage.filter((row) => text(row, 'baseline_sota_status', text(row, 'status')) === 'numeric_results_available');
+const noNumeric = nucleicCatalog.benchmarks.length - numericCoverage.length;
+const resultCount = nucleicCatalog.coverage.reduce((total, row) => total + integer(row, 'result_count'), 0);
+const strictSotaCount = nucleicCatalog.coverage.reduce((total, row) => total + integer(row, 'strict_cross_work_sota_count'), 0);
+const coverageGroups = [...new Set(nucleicCatalog.coverage.map((row) => text(row, 'baseline_sota_status', text(row, 'status'))))]
+  .map((status) => ({ status, count: nucleicCatalog.coverage.filter((row) => text(row, 'baseline_sota_status', text(row, 'status')) === status).length }));
+---
+
+<Layout
+  title={zh ? '核酸 Benchmark 结果' : 'Nucleic-acid benchmark results'}
+  description={zh ? '按评测协议严格对齐的核酸 benchmark baseline、表内最佳和官方榜单结果。' : 'Protocol-aligned baselines, original-table bests, official leaders, and evidence for nucleic-acid benchmarks.'}
+  canonicalPath={`${root}/`}
+  alternatePath={zh ? '/nucleic-acids/' : '/zh/nucleic-acids/'}
+  lang={zh ? 'zh-CN' : 'en'}
+>
+  <NucleicNav lang={lang} active="overview" />
+  <div class="shell" data-na-overview>
+    <section class="hero na-hero">
+      <div>
+        <p class="eyebrow">{zh ? '证据优先 · 协议敏感' : 'Evidence-first · protocol-sensitive'}</p>
+        <h1>{zh ? <>看清口径，<em>再看分数。</em></> : <>Read the protocol. <em>Then the score.</em></>}</h1>
+        <p class="lede">{zh
+          ? '逐 benchmark 浏览 baseline、原论文表内最佳、官方榜单领先者与证据。只有评测协议完全一致的结果才允许放在同一排名中。'
+          : 'Browse baselines, original-table bests, official-board leaders, and their evidence. Results enter one ranking only when their evaluation protocols align.'}</p>
+        <div class="hero-actions">
+          <a class="button" href={withBase(`${snapshot}/benchmarks/`)}>{zh ? '浏览 47 个 benchmark →' : 'Browse 47 benchmarks →'}</a>
+          <a class="button secondary" href={withBase(`${root}/methodology/`)}>{zh ? '了解对齐规则' : 'Read the alignment rules'}</a>
+        </div>
+      </div>
+      <aside class="hero-card">
+        <p class="eyebrow">{zh ? '快照原则' : 'Snapshot rule'}</p>
+        <h3>{strictSotaCount} {zh ? '条严格跨工作 SOTA' : 'strict cross-work SOTA claims'}</h3>
+        <p class="muted">{zh
+          ? '这不是缺失值。当关键协议字段未知或工作间口径不一致时，本站不会把“原论文表内最佳”改名为 SOTA。'
+          : 'This is not a missing-value shortcut. When critical protocol fields are unknown or differ across works, an original-table best is not renamed SOTA.'}</p>
+      </aside>
+    </section>
+
+    <div class="stat-grid" aria-label={zh ? '核酸结果快照摘要' : 'Nucleic result snapshot summary'}>
+      <div class="stat"><strong>{nucleicCatalog.benchmarks.length}</strong><span>benchmarks</span></div>
+      <div class="stat"><strong>{nucleicCatalog.tasks.length}</strong><span>{zh ? '任务' : 'tasks'}</span></div>
+      <div class="stat"><strong>{nucleicCatalog.protocols.length}</strong><span>{zh ? '评测协议' : 'evaluation protocols'}</span></div>
+      <div class="stat"><strong>{resultCount.toLocaleString('en-US')}</strong><span>{zh ? '有来源定位的结果行' : 'source-located result rows'}</span></div>
+    </div>
+
+    <section class="section grid two">
+      <div>
+        <p class="eyebrow">{zh ? '覆盖情况' : 'Coverage'}</p>
+        <h2>{numericCoverage.length} {zh ? '个 benchmark 有公开数值结果' : 'benchmarks with public numeric results'}</h2>
+        <p class="lede">{zh
+          ? `其余 ${noNumeric} 个 benchmark 仍保留可审计的缺口页，不会为了表面完整而估算分数。`
+          : `The other ${noNumeric} benchmarks keep auditable gap pages. Scores are never estimated to make the catalog look complete.`}</p>
+        <div class="na-coverage-list">
+          {coverageGroups.map((group) => <div><CoverageBadge status={group.status} zh={zh} /><strong>{group.count}</strong></div>)}
+        </div>
+      </div>
+      <div class="card na-rule-card">
+        <p class="eyebrow">{zh ? '四类声明，分开呈现' : 'Four claims, kept separate'}</p>
+        <ol class="na-claim-key">
+          <li><strong>Official baseline</strong><span>{zh ? '主办方或 benchmark 论文明确指定。' : 'Explicitly designated by the organizer or benchmark paper.'}</span></li>
+          <li><strong>Original-table best</strong><span>{zh ? '仅代表同一来源表内最佳。' : 'Best only within the same source table.'}</span></li>
+          <li><strong>Official-board leader</strong><span>{zh ? '限定在同一轮次与榜单快照。' : 'Bound to one round and leaderboard snapshot.'}</span></li>
+          <li><strong>Strict cross-work SOTA</strong><span>{zh ? '只在所有关键口径可证明一致时成立。' : 'Allowed only when every critical comparison field aligns.'}</span></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section-tight">
+      <div class="na-section-head">
+        <div><p class="eyebrow">{zh ? '定位结果' : 'Find a result'}</p><h2>{zh ? '从 benchmark 或 task 开始' : 'Start from a benchmark or a task'}</h2></div>
+      </div>
+      <div class="grid two">
+        <a class="card na-entry-card" href={withBase(`${snapshot}/benchmarks/`)}><span class="na-entry-number">47</span><h3>{zh ? '浏览 benchmark' : 'Browse benchmarks'}</h3><p>{zh ? '查看覆盖状态、track、protocol、baseline 和强结果。' : 'Inspect coverage, tracks, protocols, baselines, and qualified leaders.'}</p></a>
+        <a class="card na-entry-card" href={withBase(`${snapshot}/tasks/`)}><span class="na-entry-number">58</span><h3>{zh ? '浏览任务' : 'Browse tasks'}</h3><p>{zh ? '按分子类型、输出形式和机器学习问题查找评测。' : 'Find evaluations by molecule, output representation, and ML formulation.'}</p></a>
+      </div>
+    </section>
+
+    <section class="section-tight na-snapshot-strip">
+      <div><p class="eyebrow">{zh ? '不可变快照' : 'Immutable snapshot'}</p><h2>{NUCLEIC_SNAPSHOT}</h2></div>
+      <p>{zh ? `文献截止 ${nucleicCatalog.literature_cutoff}。后续更新将创建新的日期路径，而不会静默改写本快照。` : `Literature cutoff ${nucleicCatalog.literature_cutoff}. Future updates create a new dated path instead of silently rewriting this snapshot.`}</p>
+      <a class="button secondary" href={withBase(`${root}/downloads/`)}>{zh ? '查看数据接口' : 'View data interfaces'}</a>
+    </section>
+  </div>
+</Layout>

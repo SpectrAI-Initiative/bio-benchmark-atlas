@@ -1,0 +1,68 @@
+---
+import Layout from '../Layout.astro';
+import NucleicNav from './NucleicNav.astro';
+import CoverageBadge from './CoverageBadge.astro';
+import ClaimCards from './ClaimCards.astro';
+import { benchmarkTaskIds, coverageForBenchmark, integer, nucleicCatalog, protocolsForBenchmark, safeExternalUrl, snapshotRoot, summariesForBenchmark, taskById, text, trackById, type NucleicRow } from '../../lib/nucleicAcids';
+import { withBase } from '../../lib/data';
+import type { NucleicLanguage } from '../../lib/nucleicLocale';
+
+interface Props { benchmark: NucleicRow; lang?: NucleicLanguage; }
+const { benchmark, lang = 'en' } = Astro.props;
+const zh = lang === 'zh';
+const root = snapshotRoot(zh);
+const id = text(benchmark, 'benchmark_id');
+const coverage = coverageForBenchmark(id);
+const status = text(coverage, 'baseline_sota_status', text(coverage, 'status'));
+const protocols = protocolsForBenchmark(id);
+const summaries = summariesForBenchmark(id);
+const taskIds = benchmarkTaskIds(id);
+const trackIds = [...new Set(nucleicCatalog.task_benchmark.filter((row) => text(row, 'benchmark_id') === id).map((row) => text(row, 'track_id')))];
+const crosswalks = nucleicCatalog.benchmark_crosswalk.filter((row) => text(row, 'nucleic_acid_benchmark_id', text(row, 'nucleic_benchmark_id', text(row, 'benchmark_id'))) === id);
+const grouped = protocols.map((protocol) => ({ protocol, summaries: summaries.filter((row) => text(row, 'protocol_id') === text(protocol, 'protocol_id')) }));
+---
+<Layout title={text(benchmark, 'benchmark_name')} description={text(benchmark, 'notes', `Protocol-aligned results for ${text(benchmark, 'benchmark_name')}.`)} canonicalPath={`${root}/benchmarks/${id}/`} alternatePath={`${zh ? '' : '/zh'}${root.replace(/^\/zh/, '')}/benchmarks/${id}/`} lang={zh ? 'zh-CN' : 'en'}>
+  <NucleicNav lang={lang} active="benchmarks" />
+  <header class="page-head page-head--compact shell">
+    <div class="breadcrumbs"><a href={withBase(`${root}/benchmarks/`)}>Benchmarks</a><span>/</span><span>{id}</span></div>
+    <div class="na-title-line"><p class="eyebrow">Tier {text(benchmark, 'tier')} · {text(benchmark, 'benchmark_package_type')}</p><CoverageBadge status={status} zh={zh} /></div>
+    <h1>{text(benchmark, 'benchmark_name')}</h1>
+    <p class="lede">{text(benchmark, 'notes')}</p>
+    <div class="tag-list"><span class="tag accent">{id}</span><span class="tag">{text(benchmark, 'standardization_level')}</span><span class="tag">{text(benchmark, 'oracle_validation_level')}</span></div>
+  </header>
+  <div class="shell section detail-grid">
+    <div>
+      <section>
+        <p class="eyebrow">{zh ? '结果覆盖' : 'Result coverage'}</p>
+        <h2>{integer(coverage, 'result_count').toLocaleString('en-US')} {zh ? '条结果，' : 'result rows across'} {integer(coverage, 'protocol_count')} {zh ? '个协议' : 'protocols'}</h2>
+        {status !== 'numeric_results_available' && <div class="callout info"><strong>{zh ? '可审计缺口' : 'Auditable gap'}</strong><br />{text(coverage, 'gap_reason', text(coverage, 'remaining_blockers'))}</div>}
+        <dl class="definition-list">
+          <div><dt>{zh ? '主来源覆盖' : 'Primary sources'}</dt><dd>{text(coverage, 'primary_source_coverage')}</dd></div>
+          <div><dt>{zh ? '相关工作覆盖' : 'Related works'}</dt><dd>{text(coverage, 'related_work_coverage')}</dd></div>
+          <div><dt>{zh ? '权威性准备度' : 'Authority readiness'}</dt><dd>{text(coverage, 'authority_readiness')}</dd></div>
+          <div><dt>{zh ? '文献截止' : 'Literature cutoff'}</dt><dd>{text(coverage, 'literature_cutoff')}</dd></div>
+        </dl>
+      </section>
+
+      <section class="section-tight">
+        <p class="eyebrow">{zh ? '协议级结果' : 'Protocol-level results'}</p>
+        <h2>{zh ? '先选口径，再比较分数。' : 'Choose the evaluation unit before comparing scores.'}</h2>
+        <p class="muted">{zh ? '每个卡片仅展示同一 protocol + metric fingerprint 的四类声明。' : 'Each card keeps the four claim types inside one protocol + metric fingerprint.'}</p>
+        {grouped.length ? <div class="na-protocol-stack">{grouped.map(({ protocol, summaries: protocolSummaries }) => <article class="na-protocol-group" data-protocol-id={text(protocol, 'protocol_id')}>
+          <header><div><p class="eyebrow">{text(taskById(text(protocol, 'task_id')), zh ? 'name_zh' : 'name_en', text(protocol, 'task_id'))} · {text(protocol, 'track_id')} · {text(protocol, 'comparison_scope')}</p><h3>{text(protocol, 'native_track')}</h3></div><a class="button secondary" href={withBase(`${root}/protocols/${text(protocol, 'protocol_id')}/`)}>{zh ? '完整结果 →' : 'Full results →'}</a></header>
+          <p class="small muted">{text(protocol, 'target_subset')} · {text(protocol, 'split')} · {text(protocol, 'evaluation_regime')}</p>
+          {protocolSummaries.map((summary) => <details class="na-metric-summary" open={protocolSummaries.length === 1}>
+            <summary><strong>{text(summary, 'metric_name')}</strong><span>{text(summary, 'metric_variant')} · {integer(summary, 'result_count')} {zh ? '条结果' : 'results'}</span></summary>
+            <ClaimCards summary={summary} zh={zh} />
+            <p class="small fingerprint"><strong>{zh ? '指纹' : 'Fingerprint'}:</strong> <code>{text(summary, 'protocol_metric_fingerprint')}</code></p>
+          </details>)}
+        </article>)}</div> : <div class="callout info">{zh ? '本快照没有可重建的数值评测协议。' : 'This snapshot has no reconstructable numeric evaluation protocol for this benchmark.'}</div>}
+      </section>
+    </div>
+    <aside class="sidebar sidebar-stack">
+      <div class="card"><p class="eyebrow">{zh ? '任务与 track' : 'Tasks & tracks'}</p><div class="tag-list">{taskIds.map((taskId) => <a class="tag accent" href={withBase(`${root}/tasks/${taskId}/`)}>{text(taskById(taskId), zh ? 'name_zh' : 'name_en', taskId)}</a>)}</div><ul>{trackIds.filter((trackId) => trackId !== 'NR').map((trackId) => <li><strong>{trackId}</strong><br/><span class="small muted">{text(trackById(trackId), 'track_name')}</span></li>)}</ul></div>
+      <div class="card"><p class="eyebrow">{zh ? '官方链接' : 'Official links'}</p><ul>{[['paper_url', zh ? '论文' : 'Paper'], ['code_url', zh ? '代码' : 'Code'], ['data_url', zh ? '数据' : 'Data']].map(([key, label]) => { const url = safeExternalUrl(benchmark[key]); return url && <li><a href={url} rel="noreferrer">{label} ↗</a></li>; })}</ul><p class="small muted">{zh ? '许可证' : 'License'}: {text(benchmark, 'license')}<br/>{zh ? '访问' : 'Access'}: {text(benchmark, 'access')}</p></div>
+      {crosswalks.length > 0 && <div class="card"><p class="eyebrow">Atlas crosswalk</p>{crosswalks.map((row) => <p><code>{text(row, 'registry_benchmark_id', text(row, 'registry_id'))}</code><br/><span class="small muted">{text(row, 'relationship', text(row, 'mapping_type'))}</span></p>)}</div>}
+    </aside>
+  </div>
+</Layout>

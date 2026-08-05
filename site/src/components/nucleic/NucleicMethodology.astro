@@ -1,0 +1,37 @@
+---
+import Layout from '../Layout.astro';
+import NucleicNav from './NucleicNav.astro';
+import { nucleicRoot } from '../../lib/nucleicAcids';
+import type { NucleicLanguage } from '../../lib/nucleicLocale';
+
+interface Props { lang?: NucleicLanguage; }
+const { lang = 'en' } = Astro.props;
+const zh = lang === 'zh';
+const root = nucleicRoot(zh);
+const steps = zh ? [
+  ['固定数据与 split', '必须确认 benchmark 版本、dataset 版本、split/挑战轮次、目标子集与标签可见性。'],
+  ['固定指标定义', 'Macro/micro、mean/median、public/private、first/best model 都是不同口径；尺度转换保留原值与规则。'],
+  ['固定训练与推理制度', 'Zero-shot、probe、fine-tuning、外部数据、MSA/template、ensemble、best-of-N 与推理预算的差异会拆分比较组。'],
+  ['验证证据与配置身份', '每个数值结果都需要 work、configuration、protocol、metric 和 canonical evidence；不接受未标注图中估读。'],
+] : [
+  ['Fix data and split', 'Benchmark version, dataset version, split or challenge round, target subset, and label visibility must align.'],
+  ['Fix the metric definition', 'Macro/micro, mean/median, public/private, and first/best model are distinct. Scale conversions retain the original value and rule.'],
+  ['Fix training and inference', 'Zero-shot, probing, fine-tuning, external data, MSA/templates, ensembles, best-of-N, and inference budget split comparison groups.'],
+  ['Verify evidence and identity', 'Every numeric result needs a work, configuration, protocol, metric, and canonical evidence. Unlabelled chart estimates are excluded.'],
+];
+---
+<Layout title={zh ? '核酸结果方法学' : 'Nucleic result methodology'} canonicalPath={`${root}/methodology/`} alternatePath={`${zh ? '' : '/zh'}${root.replace(/^\/zh/, '')}/methodology/`} lang={zh ? 'zh-CN' : 'en'}>
+  <NucleicNav lang={lang} active="methodology" />
+  <header class="page-head page-head--compact shell"><p class="eyebrow">{zh ? '口径先于排名' : 'Protocol before rank'}</p><h1>{zh ? '什么时候，两个分数才能放在一起？' : 'When do two scores belong in one comparison?'}</h1><p class="lede">{zh ? '本站把 benchmark 名称当作起点，而不是可比性证明。真正的排名单元是经过指纹化的 protocol + metric。' : 'A benchmark name is a starting point, not proof of comparability. The ranking unit is a fingerprinted protocol + metric.'}</p></header>
+  <div class="shell section prose">
+    <section><p class="eyebrow">{zh ? '四步对齐' : 'Four alignment steps'}</p><div class="grid two na-method-grid">{steps.map(([title, description], index) => <article class="card na-method-step"><span>{String(index + 1).padStart(2, '0')}</span><h3>{title}</h3><p>{description}</p></article>)}</div></section>
+    <section><h2>{zh ? '四类领先声明不能混用' : 'Four leader claims are not interchangeable'}</h2><div class="table-wrap"><table><thead><tr><th>Claim</th><th>{zh ? '它真正表示什么' : 'What it actually means'}</th><th>{zh ? '不能表示什么' : 'What it cannot imply'}</th></tr></thead><tbody>
+      <tr><td>Official baseline</td><td>{zh ? '官方指定的参考点。' : 'Organizer- or benchmark-designated reference.'}</td><td>{zh ? '不一定是最弱或最早方法。' : 'Not necessarily the weakest or earliest method.'}</td></tr>
+      <tr><td>Original-table best</td><td>{zh ? '同一来源表内的最佳数值。' : 'Best value inside one source table.'}</td><td>{zh ? '不能声称跨论文 SOTA。' : 'Cannot claim literature-wide SOTA.'}</td></tr>
+      <tr><td>Official-board leader</td><td>{zh ? '同一挑战轮次与快照的官方领先者。' : 'Leader in one official round and snapshot.'}</td><td>{zh ? '不能跨 public/private 或轮次外推。' : 'Cannot be extrapolated across public/private boards or rounds.'}</td></tr>
+      <tr><td>Strict cross-work SOTA</td><td>{zh ? '至少两个独立 work 在完整一致口径中的最佳。' : 'Best across at least two independent works under a complete shared protocol.'}</td><td>{zh ? '关键字段未知时不成立。' : 'Unavailable when a critical field is unknown.'}</td></tr>
+    </tbody></table></div></section>
+    <section><h2>{zh ? '排名和缺口' : 'Ranking and gaps'}</h2><ul><li>{zh ? '官方名次原样保留；内部重算使用 competition ranking 并保留并列。' : 'Official ranks are preserved; recomputed ranks use competition ranking and keep every tie.'}</li><li>{zh ? '结果库不完整时，重算名次标记为 observed subset rank。' : 'When the result inventory is incomplete, recomputed rank is explicitly an observed-subset rank.'}</li><li>{zh ? '无公开精确值、访问受限、无标准数值协议和无法重建口径分开标记。' : 'No public exact value, restricted access, no standard numeric protocol, and unreconstructable protocol are separate states.'}</li><li>{zh ? '不计算跨 benchmark 综合分或全局模型排名。' : 'No cross-benchmark aggregate score or global model leaderboard is computed.'}</li></ul></section>
+    <section><h2>{zh ? '数据快照与可追溯性' : 'Snapshots and traceability'}</h2><p>{zh ? '每个日期快照保留 manifest、内容哈希、分片行数与文献截止日。动态榜单变化时创建新快照，不静默改写旧分数。' : 'Every dated snapshot keeps a manifest, content hashes, chunk row counts, and literature cutoff. Dynamic leaderboard changes create a new snapshot instead of silently overwriting old scores.'}</p></section>
+  </div>
+</Layout>

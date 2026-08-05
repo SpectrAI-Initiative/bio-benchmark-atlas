@@ -6,11 +6,14 @@
   "scripts": {
     "registry:validate": "python3 scripts/validate_registry.py",
     "registry:build": "python3 scripts/build_registry.py",
+    "results:validate": "python3 scripts/validate_nucleic_acid_results.py",
+    "results:build": "python3 scripts/build_nucleic_acid_results.py",
+    "results:release": "python3 scripts/package_nucleic_acid_release.py",
     "test:data": "python3 -m pytest",
     "site:build": "pnpm --dir site build",
     "site:dev": "pnpm --dir site dev",
     "site:test": "pnpm --dir site test",
-    "build": "pnpm registry:validate && pnpm registry:build && pnpm site:build",
+    "build": "pnpm registry:validate && pnpm registry:build && pnpm results:validate && pnpm results:build && pnpm site:build",
     "test": "pnpm test:data && pnpm build"
   }
 }

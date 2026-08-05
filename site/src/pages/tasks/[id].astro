@@ -2,6 +2,7 @@
 import Layout from '../../components/Layout.astro';
 import Tag from '../../components/Tag.astro';
 import { benchmarkMap, data, taskDescendantIds, termMaps, withBase, workMap } from '../../lib/data';
+import { nucleicCatalog, snapshotRoot, text as nucleicText } from '../../lib/nucleicAcids';
 
 export function getStaticPaths() {
   return data.scientific_tasks.map((task) => ({ params: { id: task.id }, props: { task } }));
@@ -22,6 +23,7 @@ for (const id of benchmarkIds) {
 const runs = data.evaluation_runs.filter((run) => relatedBenchmarkIds.has(run.benchmark_id));
 const works = [...new Set(runs.map((run) => run.work_id))].map((id) => workMap.get(id)).filter(Boolean);
 const parent = task.parent_id ? termMaps.scientific_tasks.get(task.parent_id) : undefined;
+const nucleicCrosswalks = nucleicCatalog.task_crosswalk.filter((row) => nucleicText(row, 'registry_task_id') === task.id && nucleicText(row, 'relationship') !== 'taxonomy_gap');
 ---
 <Layout title={task.label} description={task.definition} canonicalPath={`/tasks/${task.id}/`}>
   <header class="page-head shell">
@@ -34,6 +36,7 @@ const parent = task.parent_id ? termMaps.scientific_tasks.get(task.parent_id) : 
   </header>
   <div class="shell section detail-grid">
     <div>
+      {nucleicCrosswalks.length > 0 && <div class="callout info"><strong>Nucleic-acid result atlas:</strong> {nucleicCrosswalks.map((row, index) => <>{index > 0 && ' · '}<a href={withBase(`${snapshotRoot(false)}/tasks/${nucleicText(row, 'nucleic_acid_task_id')}/`)}>{nucleicText(row, 'nucleic_acid_task_id')} results</a> <span class="small muted">({nucleicText(row, 'relationship')})</span></>)}</div>}
       <section>
         <h2>Definition and search aliases</h2>
         <dl class="definition-list">

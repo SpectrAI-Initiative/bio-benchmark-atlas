@@ -7,12 +7,14 @@
     "dev": "astro dev",
     "build": "astro check && astro build",
     "preview": "astro preview",
-    "test": "playwright test"
+    "test": "playwright test",
+    "test:nucleic-acids": "playwright test tests/nucleic-acid-results.spec.ts"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.10",
     "@observablehq/plot": "^0.6.17",
     "astro": "^7.1.6",
+    "fflate": "^0.8.3",
     "typescript": "5.9.3"
   },
   "devDependencies": {

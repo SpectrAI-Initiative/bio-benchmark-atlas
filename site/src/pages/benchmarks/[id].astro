@@ -6,6 +6,7 @@ import StatusBadge from '../../components/StatusBadge.astro';
 import Tag from '../../components/Tag.astro';
 import UseCard from '../../components/UseCard.astro';
 import { aliasSlug, benchmarkMap, benchmarkUseMap, data, evidenceLocator, evidenceSourceId, fieldStatus, modelMap, runMap, termMaps, withBase, workMap } from '../../lib/data';
+import { nucleicCatalog, snapshotRoot, text as nucleicText } from '../../lib/nucleicAcids';
 
 export function getStaticPaths() {
   return data.benchmarks.flatMap((benchmark) => [
@@ -37,6 +38,9 @@ const graderSummary = benchmark.access.grader.length > 96 ? `${benchmark.access.
 const implementationSummary = benchmark.implementations.length
   ? `${benchmark.implementations.length} recorded · ${[...new Set(benchmark.implementations.map((implementation) => implementation.status))].join(', ')}`
   : 'None recorded';
+const nucleicCrosswalks = nucleicCatalog.benchmark_crosswalk.filter((row) =>
+  nucleicText(row, 'registry_benchmark_id') === benchmark.id && ['same_entity', 'family_member'].includes(nucleicText(row, 'relationship')),
+);
 const resultCharts = benchmark.access.level === 'private-internal' ? [] : runs.flatMap((run) => run!.metrics.filter((metric) => metric.kind === 'absolute').map((metric) => ({
   run: run!, metric,
   values: run!.results
@@ -60,6 +64,7 @@ const resultCharts = benchmark.access.level === 'private-internal' ? [] : runs.f
     </header>
     <div class="shell section detail-grid">
       <div>
+        {nucleicCrosswalks.length > 0 && <div class="callout info"><strong>Nucleic-acid result atlas:</strong> {nucleicCrosswalks.map((row, index) => <>{index > 0 && ' · '}<a href={withBase(`${snapshotRoot(false)}/benchmarks/${nucleicText(row, 'nucleic_acid_benchmark_id')}/`)}>{nucleicText(row, 'nucleic_acid_benchmark_id')} results</a> <span class="small muted">({nucleicText(row, 'relationship')})</span></>)}</div>}
         {benchmark.audit.status === 'legacy' ? <div class="callout info"><strong>Legacy record:</strong> this entry has not yet completed the v1.1 field-level audit. Existing values remain visible but do not carry the stronger audited claim.</div> : benchmark.field_status.length > 0 && <div class="callout"><strong>Audited with caveats:</strong> {benchmark.field_status.length} field(s) are marked provisional or conflicted. Warnings are shown next to affected values and these claims are excluded from unqualified comparisons.</div>}
         {benchmark.id === 'lifescibench' && <div class="callout"><strong>Protein & binding audit:</strong> 136 tasks use Protein and Structural Biology as the primary domain; 62 are in Design, Optimization & Prediction. Protein binding is explicitly in scope, but its standalone task count is <strong>Not reported</strong>.</div>}
         {benchmark.id === 'proteingym' && <div class="callout"><strong>Version and binding audit:</strong> v1.0 reports 14 generic Binding substitution assays; the v1.1–v1.3 reference files contain 13. The v1.3 release archive contains 66 DMS indel assay records while its pinned README says 74, so the current count remains <strong>Conflicted</strong>.</div>}

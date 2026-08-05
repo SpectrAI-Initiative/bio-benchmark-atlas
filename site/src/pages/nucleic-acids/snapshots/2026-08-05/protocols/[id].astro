@@ -1,0 +1,7 @@
+---
+import ProtocolDetail from '../../../../../components/nucleic/ProtocolDetail.astro';
+import { nucleicCatalog, text } from '../../../../../lib/nucleicAcids';
+export function getStaticPaths() { return nucleicCatalog.protocols.map((protocol) => ({ params: { id: text(protocol, 'protocol_id') }, props: { protocol } })); }
+const { protocol } = Astro.props;
+---
+<ProtocolDetail protocol={protocol} lang="en" />

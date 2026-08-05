@@ -53,6 +53,7 @@ const recent = {
         <p class="lede">A maintained registry of protein, omics, and life-science benchmarks—plus the works, exact models, scopes, tools, graders, and metrics behind every verified evaluation.</p>
         <div class="hero-actions">
           <a class="button" href={withBase('/benchmarks/')}>Explore the registry →</a>
+          <a class="button secondary" href={withBase('/nucleic-acids/')}>Nucleic results</a>
           <a class="button secondary" href={withBase('/contribute/')}>Add a source</a>
         </div>
       </div>
@@ -111,6 +112,13 @@ const recent = {
         <div><p class="eyebrow">Machine-readable by default</p><h2>One normalized object, every public surface.</h2><p class="lede">The website, JSON, and CSV exports are built from the same verified YAML records. Draft entries appear in previews, never in production exports.</p></div>
         <div class="card"><h3>Public interfaces</h3><ul><li><a href={withBase('/data/registry.json')}>Complete registry JSON</a></li><li><a href={withBase('/data/benchmarks.csv')}>Benchmark CSV</a></li><li><a href={withBase('/data/evaluation-results.csv')}>Evaluation results CSV</a></li><li><a href={withBase('/schema/registry.schema.json')}>JSON Schema</a></li></ul></div>
       </div>
+    </section>
+    <section class="section-tight">
+      <a class="card na-entry-card" href={withBase('/nucleic-acids/')}>
+        <span class="na-entry-number">55,989</span>
+        <h2>Nucleic-acid benchmark results</h2>
+        <p>Browse protocol-aligned baselines, original-table bests, official-board leaders, and evidence across 47 benchmarks and 58 tasks. No cross-benchmark leaderboard.</p>
+      </a>
     </section>
   </div>
 </Layout>

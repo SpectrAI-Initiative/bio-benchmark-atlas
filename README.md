@@ -80,6 +80,10 @@ Use the issue forms or open a pull request. Paper submissions must include a leg
 
 Use the repository release that you consulted. Release snapshots attach immutable generated JSON and CSV assets; citation metadata is available in `CITATION.cff`.
 
+The nucleic-acid result snapshot has a separate deterministic packaging and
+publication procedure in
+[`docs/nucleic-acid-results-release.md`](docs/nucleic-acid-results-release.md).
+
 ## Licensing
 
 Code is licensed under Apache-2.0. Original curated metadata is licensed under CC BY 4.0. Referenced benchmark content remains under its original owners' licenses.

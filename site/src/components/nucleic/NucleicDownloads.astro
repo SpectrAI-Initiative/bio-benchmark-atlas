@@ -1,0 +1,37 @@
+---
+import Layout from '../Layout.astro';
+import NucleicNav from './NucleicNav.astro';
+import { NUCLEIC_SNAPSHOT, nucleicCatalog, nucleicRoot } from '../../lib/nucleicAcids';
+import { withBase } from '../../lib/data';
+import type { NucleicLanguage } from '../../lib/nucleicLocale';
+
+interface Props { lang?: NucleicLanguage; }
+const { lang = 'en' } = Astro.props;
+const zh = lang === 'zh';
+const root = nucleicRoot(zh);
+const publicRoot = `/data/nucleic-acids/${NUCLEIC_SNAPSHOT}`;
+const publicLayout = [
+  '/data/nucleic-acids/latest.json',
+  `${publicRoot}/manifest.json`,
+  `${publicRoot}/catalog.<hash>.json.gz`,
+  `${publicRoot}/entities.<hash>.json.gz`,
+  `${publicRoot}/evidence.<hash>.json.gz`,
+  `${publicRoot}/usage-index.<hash>.json.gz`,
+  `${publicRoot}/protocols/<hash>.json.gz`,
+].join('\n');
+---
+<Layout title={zh ? '核酸结果数据下载' : 'Nucleic result downloads'} canonicalPath={`${root}/downloads/`} alternatePath={`${zh ? '' : '/zh'}${root.replace(/^\/zh/, '')}/downloads/`} lang={zh ? 'zh-CN' : 'en'}>
+  <NucleicNav lang={lang} active="downloads" />
+  <header class="page-head page-head--compact shell"><p class="eyebrow">{zh ? '机器可读与不可变' : 'Machine-readable and immutable'}</p><h1>{zh ? '下载快照，或按协议加载数据。' : 'Download the snapshot or load one protocol at a time.'}</h1><p class="lede">{zh ? '网站使用相同的版本化 manifest。结果按协议分片，不需要在首屏下载全部 55,989 条结果。' : 'The site reads this same versioned manifest. Results are protocol-sharded, so the first page never downloads all 55,989 rows.'}</p></header>
+  <div class="shell section prose">
+    <section><div class="grid two">
+      <article class="card na-download-card"><p class="eyebrow">{zh ? '发现最新快照' : 'Discover the latest snapshot'}</p><h3>latest.json</h3><p>{zh ? '转向当前发布的快照和 manifest。' : 'Points to the currently published snapshot and manifest.'}</p><p><a href={withBase('/data/nucleic-acids/latest.json')}><code>/data/nucleic-acids/latest.json</code></a></p></article>
+      <article class="card na-download-card"><p class="eyebrow">{zh ? '快照清单' : 'Snapshot manifest'}</p><h3>{NUCLEIC_SNAPSHOT}</h3><p>{zh ? '包含数量、文献截止日、资产 URL、SHA-256、行数和字节数。' : 'Contains counts, literature cutoff, asset URLs, SHA-256 hashes, rows, and byte sizes.'}</p><p><a href={withBase(`${publicRoot}/manifest.json`)}><code>{publicRoot}/manifest.json</code></a></p></article>
+      <article class="card na-download-card"><p class="eyebrow">JSON Schema</p><h3>nucleic-acid-results.schema.json</h3><p>{zh ? '公开 manifest、catalog、entity 和 protocol chunk 的字段合约。' : 'Public field contract for manifests, catalogs, entities, and protocol chunks.'}</p><p><a href={withBase('/schema/nucleic-acid-results.schema.json')}><code>/schema/nucleic-acid-results.schema.json</code></a></p></article>
+      <article class="card na-download-card"><p class="eyebrow">GitHub Release</p><h3>Full CSV + workbook</h3><p>{zh ? '完整 CSV ZIP、Excel 工作簿、数据字典、验证 JSON 和 SHA256SUMS 通过日期化 Release 发布。' : 'The complete CSV ZIP, Excel workbook, data dictionary, validation JSON, and SHA256SUMS are published as a dated release.'}</p><p><a href={`https://github.com/SpectrAI-Initiative/bio-benchmark-atlas/releases/tag/nucleic-acid-results-${NUCLEIC_SNAPSHOT}`}>nucleic-acid-results-{NUCLEIC_SNAPSHOT} ↗</a></p></article>
+    </div></section>
+    <section><h2>{zh ? '公共数据布局' : 'Public data layout'}</h2><pre><code>{publicLayout}</code></pre><p>{zh ? '请从 manifest 读取带哈希的真实文件名，不要猜测资产 URL。' : 'Read hashed filenames from the manifest; do not guess asset URLs.'}</p></section>
+    <section><h2>{zh ? '快照内容' : 'Snapshot contents'}</h2><div class="stat-grid"><div class="stat"><strong>{nucleicCatalog.benchmarks.length}</strong><span>benchmarks</span></div><div class="stat"><strong>{nucleicCatalog.tasks.length}</strong><span>tasks</span></div><div class="stat"><strong>{nucleicCatalog.protocols.length}</strong><span>protocol chunks</span></div><div class="stat"><strong>{nucleicCatalog.summaries.length}</strong><span>baseline/SOTA summaries</span></div></div></section>
+    <section><h2>{zh ? '许可与引用' : 'License and citation'}</h2><p>{zh ? '站点代码采用 Apache-2.0，规范化 metadata 采用 CC BY 4.0。原始论文、榜单与第三方数据仍受各自来源条款约束；请引用对应 work 和 canonical evidence。' : 'Site code is Apache-2.0 and normalized metadata is CC BY 4.0. Source papers, leaderboards, and third-party data retain their own terms; cite the linked work and canonical evidence.'}</p></section>
+  </div>
+</Layout>

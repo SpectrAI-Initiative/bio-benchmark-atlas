@@ -1,0 +1,233 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spectrai-initiative.github.io/bio-benchmark-atlas/schema/nucleic-acid-results.schema.json",
+  "title": "BioBench Atlas nucleic-acid benchmark results artifacts",
+  "oneOf": [
+    { "$ref": "#/$defs/latest" },
+    { "$ref": "#/$defs/manifest" },
+    { "$ref": "#/$defs/catalog" },
+    { "$ref": "#/$defs/entities" },
+    { "$ref": "#/$defs/evidence" },
+    { "$ref": "#/$defs/usageIndex" },
+    { "$ref": "#/$defs/protocolChunk" }
+  ],
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "row": {
+      "type": "object",
+      "additionalProperties": { "type": ["string", "number", "boolean", "null", "array", "object"] }
+    },
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "rowCount", "compressedBytes", "uncompressedBytes"],
+      "properties": {
+        "path": { "type": "string", "pattern": "^[^/].*\\.json\\.gz$" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "rowCount": { "type": "integer", "minimum": 0 },
+        "compressedBytes": { "type": "integer", "minimum": 1 },
+        "uncompressedBytes": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "common": {
+      "type": "object",
+      "required": ["schema_version", "snapshot_date"],
+      "properties": {
+        "schema_version": { "const": "nucleic-acid-results-v1" },
+        "snapshot_date": { "type": "string", "format": "date" }
+      }
+    },
+    "latest": {
+      "allOf": [
+        { "$ref": "#/$defs/common" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["schema_version", "snapshot_date", "manifest_path", "available_snapshots"],
+          "properties": {
+            "schema_version": true,
+            "snapshot_date": true,
+            "manifest_path": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}/manifest\\.json$" },
+            "available_snapshots": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": { "type": "string", "format": "date" }
+            }
+          }
+        }
+      ]
+    },
+    "manifest": {
+      "allOf": [
+        { "$ref": "#/$defs/common" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["schema_version", "snapshot_date", "literature_cutoff", "counts", "assets", "protocolChunks"],
+          "properties": {
+            "schema_version": true,
+            "snapshot_date": true,
+            "literature_cutoff": { "type": "string", "format": "date" },
+            "counts": {
+              "type": "object",
+              "additionalProperties": { "type": "integer", "minimum": 0 }
+            },
+            "assets": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["catalog", "entities", "evidence", "usage_index"],
+              "properties": {
+                "catalog": { "$ref": "#/$defs/asset" },
+                "entities": { "$ref": "#/$defs/asset" },
+                "evidence": { "$ref": "#/$defs/asset" },
+                "usage_index": { "$ref": "#/$defs/asset" }
+              }
+            },
+            "protocolChunks": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": { "$ref": "#/$defs/asset" }
+            }
+          }
+        }
+      ]
+    },
+    "catalog": {
+      "allOf": [
+        { "$ref": "#/$defs/common" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["schema_version", "snapshot_date", "literature_cutoff", "benchmarks", "tasks", "tracks", "task_benchmark", "coverage", "protocols", "metrics", "summaries", "leaders", "benchmark_crosswalk", "task_crosswalk"],
+          "properties": {
+            "schema_version": true,
+            "snapshot_date": true,
+            "literature_cutoff": { "type": "string", "format": "date" },
+            "benchmarks": { "type": "array", "items": { "$ref": "#/$defs/row" } },
+            "tasks": { "type": "array", "items": { "$ref": "#/$defs/row" } },
+            "tracks": { "type": "array", "items": { "$ref": "#/$defs/row" } },
+            "task_benchmark": { "type": "array", "items": { "$ref": "#/$defs/row" } },
+            "coverage": { "type": "array", "items": { "$ref": "#/$defs/row" } },
+            "protocols": { "type": "array", "items": { "$ref": "#/$defs/row" } },
+            "metrics": { "type": "array", "items": { "$ref": "#/$defs/row" } },
+            "summaries": { "type": "array", "items": { "$ref": "#/$defs/row" } },
+            "leaders": { "type": "array", "items": { "$ref": "#/$defs/row" } },
+            "benchmark_crosswalk": { "type": "array", "items": { "$ref": "#/$defs/row" } },
+            "task_crosswalk": { "type": "array", "items": { "$ref": "#/$defs/row" } }
+          }
+        }
+      ]
+    },
+    "entities": {
+      "allOf": [
+        { "$ref": "#/$defs/common" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["schema_version", "snapshot_date", "participants", "configurations", "works"],
+          "properties": {
+            "schema_version": true,
+            "snapshot_date": true,
+            "participants": { "type": "array", "items": { "$ref": "#/$defs/row" } },
+            "configurations": { "type": "array", "items": { "$ref": "#/$defs/row" } },
+            "works": { "type": "array", "items": { "$ref": "#/$defs/row" } }
+          }
+        }
+      ]
+    },
+    "evidence": {
+      "allOf": [
+        { "$ref": "#/$defs/common" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["schema_version", "snapshot_date", "sources", "result_sources", "leaderboard_snapshots"],
+          "properties": {
+            "schema_version": true,
+            "snapshot_date": true,
+            "sources": { "type": "array", "items": { "$ref": "#/$defs/row" } },
+            "result_sources": { "type": "array", "items": { "$ref": "#/$defs/row" } },
+            "leaderboard_snapshots": { "type": "array", "items": { "$ref": "#/$defs/row" } }
+          }
+        }
+      ]
+    },
+    "usageIndex": {
+      "allOf": [
+        { "$ref": "#/$defs/common" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["schema_version", "snapshot_date", "benchmark_protocols", "task_protocols", "track_protocols", "participant_protocols", "configuration_protocols", "work_protocols", "protocol_result_counts", "benchmark_result_counts", "participant_result_counts"],
+          "properties": {
+            "schema_version": true,
+            "snapshot_date": true,
+            "benchmark_protocols": { "$ref": "#/$defs/stringListMap" },
+            "task_protocols": { "$ref": "#/$defs/stringListMap" },
+            "track_protocols": { "$ref": "#/$defs/stringListMap" },
+            "participant_protocols": { "$ref": "#/$defs/stringListMap" },
+            "configuration_protocols": { "$ref": "#/$defs/stringListMap" },
+            "work_protocols": { "$ref": "#/$defs/stringListMap" },
+            "protocol_result_counts": { "$ref": "#/$defs/countMap" },
+            "benchmark_result_counts": { "$ref": "#/$defs/countMap" },
+            "participant_result_counts": { "$ref": "#/$defs/countMap" }
+          }
+        }
+      ]
+    },
+    "stringListMap": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "uniqueItems": true,
+        "items": { "type": "string", "minLength": 1 }
+      }
+    },
+    "countMap": {
+      "type": "object",
+      "additionalProperties": { "type": "integer", "minimum": 0 }
+    },
+    "protocolChunk": {
+      "allOf": [
+        { "$ref": "#/$defs/common" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["schema_version", "snapshot_date", "protocol_id", "protocol_fingerprint", "benchmark_id", "task_id", "track_id", "results"],
+          "properties": {
+            "schema_version": true,
+            "snapshot_date": true,
+            "protocol_id": { "type": "string", "minLength": 1 },
+            "protocol_fingerprint": { "type": "string", "pattern": "^PF-v1-" },
+            "benchmark_id": { "type": "string", "pattern": "^B[0-9]{2}$" },
+            "task_id": { "type": "string", "pattern": "^T[0-9]{2}$" },
+            "track_id": { "type": "string" },
+            "results": {
+              "type": "array",
+              "items": {
+                "allOf": [
+                  { "$ref": "#/$defs/row" },
+                  {
+                    "type": "object",
+                    "required": ["result_id", "protocol_id", "metric_id", "participant_id", "configuration_id", "work_id", "canonical_value", "canonical_evidence_source_id", "sources"],
+                    "properties": {
+                      "sources": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": { "$ref": "#/$defs/row" }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

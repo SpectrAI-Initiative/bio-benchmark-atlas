@@ -40,8 +40,23 @@ jobs:
           tests/test_paper_owner_gate.py
           --durations=10
 
+  results-tests:
+    name: nucleic-acid result tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with: {python-version: '3.10', cache: pip}
+      - run: python -m pip install -e '.[test]'
+      - run: >-
+          python -m pytest
+          tests/test_nucleic_acid_results.py
+          tests/test_nucleic_acid_release.py
+          --durations=10
+
   build:
-    name: registry and site build
+    name: registry, results, and site build
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -54,29 +69,30 @@ jobs:
         with: {node-version: '24', cache: pnpm}
       - run: python -m pip install -e .
       - run: pnpm install --frozen-lockfile
-      - run: pnpm registry:validate
-      - run: pnpm registry:build
-      - run: pnpm site:build
+      - run: pnpm build
       - name: Verify generated exports are deterministic
         run: |
-          find exports -type f -exec sha256sum {} + | sort > /tmp/first.sha
+          find exports site/public/data/nucleic-acids -type f -exec sha256sum {} + | sort > /tmp/first.sha
           pnpm registry:build
-          find exports -type f -exec sha256sum {} + | sort > /tmp/second.sha
+          pnpm results:build
+          find exports site/public/data/nucleic-acids -type f -exec sha256sum {} + | sort > /tmp/second.sha
           diff -u /tmp/first.sha /tmp/second.sha
 
   # Preserve the existing required-check context while the expensive work runs
   # concurrently. Deploy Pages also waits for this workflow's aggregate result.
   validate:
     if: always()
-    needs: [registry-tests, paper-tests, build]
+    needs: [registry-tests, paper-tests, results-tests, build]
     runs-on: ubuntu-latest
     steps:
       - name: Require every validation shard
         env:
           REGISTRY_TESTS: ${{ needs.registry-tests.result }}
           PAPER_TESTS: ${{ needs.paper-tests.result }}
+          RESULTS_TESTS: ${{ needs.results-tests.result }}
           BUILD: ${{ needs.build.result }}
         run: |
           test "$REGISTRY_TESTS" = success
           test "$PAPER_TESTS" = success
+          test "$RESULTS_TESTS" = success
           test "$BUILD" = success

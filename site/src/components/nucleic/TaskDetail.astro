@@ -1,0 +1,55 @@
+---
+import Layout from '../Layout.astro';
+import NucleicNav from './NucleicNav.astro';
+import CoverageBadge from './CoverageBadge.astro';
+import { benchmarkById, coverageForBenchmark, integer, nucleicCatalog, protocolsForTask, snapshotRoot, taskBenchmarkIds, text, type NucleicRow } from '../../lib/nucleicAcids';
+import { withBase } from '../../lib/data';
+import type { NucleicLanguage } from '../../lib/nucleicLocale';
+
+interface Props { task: NucleicRow; lang?: NucleicLanguage; }
+const { task, lang = 'en' } = Astro.props;
+const zh = lang === 'zh';
+const root = snapshotRoot(zh);
+const id = text(task, 'task_id');
+const benchmarkIds = taskBenchmarkIds(id);
+const protocols = protocolsForTask(id);
+const mappings = nucleicCatalog.task_benchmark.filter((row) => text(row, 'task_id') === id);
+const crosswalks = nucleicCatalog.task_crosswalk.filter((row) => text(row, 'nucleic_acid_task_id', text(row, 'nucleic_task_id', text(row, 'task_id'))) === id);
+---
+<Layout title={text(task, zh ? 'name_zh' : 'name_en')} description={text(task, 'definition')} canonicalPath={`${root}/tasks/${id}/`} alternatePath={`${zh ? '' : '/zh'}${root.replace(/^\/zh/, '')}/tasks/${id}/`} lang={zh ? 'zh-CN' : 'en'}>
+  <NucleicNav lang={lang} active="tasks" />
+  <header class="page-head page-head--compact shell">
+    <div class="breadcrumbs"><a href={withBase(`${root}/tasks/`)}>{zh ? '任务' : 'Tasks'}</a><span>/</span><span>{id}</span></div>
+    <p class="eyebrow">{text(task, 'domain_id')} · {text(task, zh ? 'domain_zh' : 'domain_en')}</p>
+    <h1>{text(task, zh ? 'name_zh' : 'name_en')}</h1>
+    <p class="lede">{text(task, 'definition')}</p>
+    {zh && <p class="muted"><strong>{text(task, 'name_en')}</strong></p>}
+    <div class="tag-list"><span class="tag accent">{id}</span><span class="tag">{text(task, 'molecule')}</span><span class="tag">{text(task, 'ml_formulation')}</span></div>
+  </header>
+  <div class="shell section detail-grid">
+    <div>
+      <section>
+        <h2>{zh ? '任务定义' : 'Task definition'}</h2>
+        <dl class="definition-list">
+          <div><dt>{zh ? '输入粒度' : 'Input granularity'}</dt><dd>{text(task, 'input_modality_granularity')}</dd></div>
+          <div><dt>{zh ? '生物学目标' : 'Biological target'}</dt><dd>{text(task, 'biological_target')}</dd></div>
+          <div><dt>{zh ? '输出表示' : 'Output representation'}</dt><dd>{text(task, 'output_representation')}</dd></div>
+          <div><dt>ML formulation</dt><dd>{text(task, 'ml_formulation')}</dd></div>
+          <div><dt>{zh ? '计数说明' : 'Counting notes'}</dt><dd>{text(task, 'scope_counting_notes')}</dd></div>
+        </dl>
+      </section>
+      <section class="section-tight">
+        <p class="eyebrow">Benchmark coverage</p><h2>{benchmarkIds.length} {zh ? '个 benchmark 覆盖该任务' : 'benchmarks cover this task'}</h2>
+        <div class="grid two">{benchmarkIds.map((benchmarkId) => { const benchmark = benchmarkById(benchmarkId); const coverage = coverageForBenchmark(benchmarkId); const status = text(coverage, 'baseline_sota_status', text(coverage, 'status')); return <article class="card" data-benchmark-id={benchmarkId}><div class="meta"><code>{benchmarkId}</code><CoverageBadge status={status} zh={zh} /></div><h3><a class="stretched" href={withBase(`${root}/benchmarks/${benchmarkId}/`)}>{text(benchmark, 'benchmark_name')}</a></h3><p>{text(benchmark, 'notes')}</p><span class="small muted">{integer(coverage, 'protocol_count')} {zh ? '个 benchmark 数值协议' : 'benchmark-wide protocols'} · {integer(coverage, 'result_count').toLocaleString('en-US')} {zh ? '条 benchmark 全局结果（非 task 小计）' : 'benchmark-wide rows (not a task subtotal)'}</span></article>; })}</div>
+      </section>
+      <section class="section-tight">
+        <p class="eyebrow">{zh ? '评测协议' : 'Evaluation protocols'}</p><h2>{protocols.length} {zh ? '个口径单元' : 'protocol units'}</h2>
+        {protocols.length ? <div class="table-wrap"><table><thead><tr><th>Protocol</th><th>Track</th><th>Split / subset</th><th>{zh ? '可比状态' : 'Comparability'}</th></tr></thead><tbody>{protocols.map((protocol) => <tr data-protocol-id={text(protocol, 'protocol_id')}><td><a href={withBase(`${root}/protocols/${text(protocol, 'protocol_id')}/`)}><code>{text(protocol, 'protocol_id')}</code></a></td><td>{text(protocol, 'native_track')}<br/><span class="small muted">{text(protocol, 'track_id')}</span></td><td>{text(protocol, 'split')}<br/><span class="small muted">{text(protocol, 'target_subset')}</span></td><td>{text(protocol, 'comparability_status')}<br/><span class="small muted">{text(protocol, 'critical_unknown_fields')}</span></td></tr>)}</tbody></table></div> : <div class="callout info">{zh ? '该任务已有 benchmark 映射，但当前没有可重建的数值协议。' : 'This task has benchmark mappings but no reconstructable numeric protocol in the current snapshot.'}</div>}
+      </section>
+    </div>
+    <aside class="sidebar sidebar-stack">
+      <div class="card"><p class="eyebrow">{zh ? '映射' : 'Mappings'}</p><dl class="definition-list compact"><div><dt>Benchmarks</dt><dd>{benchmarkIds.length}</dd></div><div><dt>Tracks</dt><dd>{new Set(mappings.map((row) => text(row, 'track_id'))).size}</dd></div><div><dt>{zh ? '主映射' : 'Primary'}</dt><dd>{mappings.filter((row) => text(row, 'mapping_type') === 'primary').length}</dd></div><div><dt>{zh ? '次要映射' : 'Secondary'}</dt><dd>{mappings.filter((row) => text(row, 'mapping_type') === 'secondary').length}</dd></div></dl></div>
+      {crosswalks.length > 0 && <div class="card"><p class="eyebrow">Atlas taxonomy crosswalk</p>{crosswalks.map((row) => <p><code>{text(row, 'registry_task_id', text(row, 'registry_id'))}</code><br/><span class="small muted">{text(row, 'relationship', text(row, 'mapping_type'))}</span></p>)}</div>}
+    </aside>
+  </div>
+</Layout>

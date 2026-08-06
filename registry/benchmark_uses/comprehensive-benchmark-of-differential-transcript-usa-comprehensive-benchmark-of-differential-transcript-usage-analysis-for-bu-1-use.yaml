@@ -1,0 +1,55 @@
+entity_type: benchmark_use
+id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-1-use
+work_id: comprehensive-benchmark-of-differential-transcript-usa
+work_version_id: comprehensive-benchmark-of-differential-transcript-usa-final-published-version
+benchmark_id: comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu
+benchmark_version: null
+relation_type: benchmark-creation
+status: non-evaluation
+model_ids: []
+scope:
+  type: unknown
+  subset_kind: not-applicable
+  n: null
+  subset_id: null
+  selection: null
+  selection_method: null
+  reporting_status: not_applicable
+metric_labels: []
+evaluation_run_ids: []
+reporting_gaps:
+- No single finite primary item inventory is reported for the reusable benchmark matrix.
+- No benchmark version or separate release date is stated.
+- The paper does not explicitly assign a Registry access level.
+notes: AI-assisted double-pass extraction; values are limited to independently supported claims.
+verification:
+  status: verified
+  last_verified: '2026-08-06'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-1-use-evidence-1
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-06'
+  locator:
+    type: section
+    value: Abstract
+    note: null
+    document_page: 2
+    printed_page: '1'
+    source_fragment_sha256: 23af8973357fb73f9a51af2ec8bd60de2b2e436353b92b422e8f95a29be8d221
+  supports:
+  - /relation_type
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-1-use-evidence-2
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-06'
+  locator:
+    type: page
+    value: Article title
+    note: null
+    document_page: 2
+    printed_page: '1'
+    source_fragment_sha256: e35160733c655a0caa8e257f1592e50e98d8594e3c2bd3fca558e7350684c6c0
+  supports:
+  - /benchmark_id

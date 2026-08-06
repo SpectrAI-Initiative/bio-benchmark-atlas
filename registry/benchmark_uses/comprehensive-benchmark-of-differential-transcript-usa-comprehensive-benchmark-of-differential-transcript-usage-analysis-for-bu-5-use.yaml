@@ -1,0 +1,63 @@
+entity_type: benchmark_use
+id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-5-use
+work_id: comprehensive-benchmark-of-differential-transcript-usa
+work_version_id: comprehensive-benchmark-of-differential-transcript-usa-final-published-version
+benchmark_id: comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu
+benchmark_version: null
+relation_type: evaluation
+status: partial
+model_ids: []
+scope:
+  type: unknown
+  subset_kind: not-reported
+  n: null
+  subset_id: null
+  selection: null
+  selection_method: null
+  reporting_status: not_reported
+metric_labels: []
+evaluation_run_ids: []
+reporting_gaps:
+- The realized sample count after removing 10 matching samples is not explicitly reported.
+- The real dataset has no simulated ground truth.
+- F1 dots without printed numeric labels were not estimated.
+- benchmark version
+- realized n/scope
+- metric
+- numeric result
+- prompt and tools
+- grader and repeats
+- exact model
+notes: 'Owner-reviewed conservative publication: the creator evaluation is retained only as a partial relationship; conflicted
+  settings and outcomes are omitted pending manual reconciliation.'
+verification:
+  status: verified
+  last_verified: '2026-08-06'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-5-use-evidence-1
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-06'
+  locator:
+    type: section
+    value: Benchmarking with a real transcriptome dataset
+    note: null
+    document_page: 7
+    printed_page: '6'
+    source_fragment_sha256: 3dd15740dc6d7771880bdafa802a058cfaf0c854cdd919a704a4fd8637b88b97
+  supports:
+  - /relation_type
+- id: comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-5-use-evidence-2
+  source_type: work
+  source_id: comprehensive-benchmark-of-differential-transcript-usa
+  accessed_date: '2026-08-06'
+  locator:
+    type: page
+    value: Article title
+    note: null
+    document_page: 2
+    printed_page: '1'
+    source_fragment_sha256: e35160733c655a0caa8e257f1592e50e98d8594e3c2bd3fca558e7350684c6c0
+  supports:
+  - /benchmark_id

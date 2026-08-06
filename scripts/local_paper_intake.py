@@ -305,33 +305,60 @@ def _owner_conflict_resolution(issue: dict[str, Any]) -> dict[str, Any] | None:
         raise LocalIntakeError("owner conflict-resolution comments disagree")
     resolution = dict(resolutions[-1]) if resolutions else None
 
-    metadata_pattern = re.compile(
+    kind_metadata_pattern = re.compile(
         r"^/resolve-paper-metadata benchmark-kind=(suite) status=(provisional)$"
     )
-    metadata_resolutions: list[dict[str, Any]] = []
+    access_metadata_pattern = re.compile(
+        r"^/resolve-paper-metadata benchmark-access=(fully-open) status=(provisional)$"
+    )
+    kind_metadata_resolutions: list[dict[str, Any]] = []
+    access_metadata_resolutions: list[dict[str, Any]] = []
     for comment in issue.get("comments", []):
         author = (comment.get("author") or {}).get("login")
         if author != OWNER_LOGIN:
             continue
-        match = metadata_pattern.fullmatch(str(comment.get("body") or "").strip())
-        if not match:
-            continue
-        metadata_resolutions.append({
-            "provisional_benchmark_kind": match.group(1),
-            "provisional_kind_status": match.group(2),
-            "provisional_kind_approved_at": comment.get("createdAt"),
-        })
+        body = str(comment.get("body") or "").strip()
+        kind_match = kind_metadata_pattern.fullmatch(body)
+        access_match = access_metadata_pattern.fullmatch(body)
+        if kind_match:
+            kind_metadata_resolutions.append({
+                "provisional_benchmark_kind": kind_match.group(1),
+                "provisional_kind_status": kind_match.group(2),
+                "provisional_kind_approved_at": comment.get("createdAt"),
+            })
+        if access_match:
+            access_metadata_resolutions.append({
+                "provisional_access_level": access_match.group(1),
+                "provisional_access_status": access_match.group(2),
+                "provisional_access_approved_at": comment.get("createdAt"),
+            })
     if len({
         (item["provisional_benchmark_kind"], item["provisional_kind_status"])
-        for item in metadata_resolutions
+        for item in kind_metadata_resolutions
     }) > 1:
-        raise LocalIntakeError("owner provisional-metadata comments disagree")
-    if metadata_resolutions:
+        raise LocalIntakeError("owner provisional benchmark-kind comments disagree")
+    if len({
+        (item["provisional_access_level"], item["provisional_access_status"])
+        for item in access_metadata_resolutions
+    }) > 1:
+        raise LocalIntakeError("owner provisional benchmark-access comments disagree")
+    if kind_metadata_resolutions or access_metadata_resolutions:
         if resolution is None:
             raise LocalIntakeError(
-                "provisional benchmark-kind approval requires a conflict-resolution command"
+                "provisional benchmark metadata approval requires a conflict-resolution command"
             )
-        resolution.update(metadata_resolutions[-1])
+        if (
+            resolution.get("benchmark_total") is not None
+            or resolution.get("exclude") != "creator-evaluation"
+        ):
+            raise LocalIntakeError(
+                "provisional benchmark metadata approval requires the not-reported "
+                "creator-evaluation conflict policy"
+            )
+        if kind_metadata_resolutions:
+            resolution.update(kind_metadata_resolutions[-1])
+        if access_metadata_resolutions:
+            resolution.update(access_metadata_resolutions[-1])
     return resolution
 
 

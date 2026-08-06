@@ -114,6 +114,15 @@ output.
   preserves the source-backed value with a machine-readable `/kind` provisional
   warning and excludes it from unqualified kind summaries. It cannot change a
   different extracted value or authorize any other field.
+- If the source instead leaves only the Atlas-controlled access label unstated,
+  the owner may additionally post
+  `/resolve-paper-metadata benchmark-access=fully-open status=provisional`.
+  This command is valid only with the same accepted conflict-resolution command
+  and exactly one verified official resource plus independent high/high,
+  source-located descriptions of the public tasks, artifacts, and grader. It
+  cannot override a different extracted access value. The generated
+  `/access/level` carries a machine-readable provisional warning, appears with a
+  warning badge, and is excluded from unqualified fully-open summary counts.
 - Use `intake-failed` only for local CLI, network, or temporary technical failures.
 - Never treat a failed extraction as `not_reported`.
 - Never retry by switching to a different model or remote API.

@@ -1665,12 +1665,52 @@ def test_owner_conflict_resolution_requires_exact_owner_command() -> None:
         "provisional_kind_status": "provisional",
         "provisional_kind_approved_at": "2026-07-25T03:00:00Z",
     }
+    issue["comments"].append({
+        "author": {"login": "wang422003"},
+        "body": "/resolve-paper-metadata benchmark-access=fully-open status=provisional",
+        "createdAt": "2026-07-25T04:00:00Z",
+    })
+    assert _owner_conflict_resolution(issue) == {
+        "benchmark_total": None,
+        "exclude": "creator-evaluation",
+        "exclude_creator_evaluation": True,
+        "approved_by": "wang422003",
+        "approved_at": "2026-07-25T02:00:00Z",
+        "provisional_benchmark_kind": "suite",
+        "provisional_kind_status": "provisional",
+        "provisional_kind_approved_at": "2026-07-25T03:00:00Z",
+        "provisional_access_level": "fully-open",
+        "provisional_access_status": "provisional",
+        "provisional_access_approved_at": "2026-07-25T04:00:00Z",
+    }
+    issue["comments"].pop()
     issue["comments"].pop()
     issue["comments"][0]["body"] = (
         "/resolve-paper-conflict benchmark-total=not-reported "
         "exclude=benchmark-subcounts,creator-evaluation"
     )
     assert _owner_conflict_resolution(issue) is None
+
+    with pytest.raises(LocalIntakeError, match="requires a conflict-resolution command"):
+        _owner_conflict_resolution({"comments": [{
+            "author": {"login": "wang422003"},
+            "body": "/resolve-paper-metadata benchmark-access=fully-open status=provisional",
+            "createdAt": "2026-07-25T05:00:00Z",
+        }]})
+
+    with pytest.raises(LocalIntakeError, match="requires the not-reported"):
+        _owner_conflict_resolution({"comments": [
+            {
+                "author": {"login": "wang422003"},
+                "body": "/resolve-paper-conflict benchmark-total=12 exclude=benchmark-subcounts",
+                "createdAt": "2026-07-25T06:00:00Z",
+            },
+            {
+                "author": {"login": "wang422003"},
+                "body": "/resolve-paper-metadata benchmark-access=fully-open status=provisional",
+                "createdAt": "2026-07-25T07:00:00Z",
+            },
+        ]})
 
 
 def test_existing_pr_dedup_only_queries_open_pull_requests() -> None:
@@ -2603,7 +2643,6 @@ def test_owner_can_downgrade_creator_evaluation_with_not_reported_root_total() -
         "/capabilities": metadata["capabilities"],
         "/modalities": metadata["modalities"],
         "/task_formats": metadata["task_formats"],
-        "/access/level": metadata["access"]["level"],
         "/access/tasks": metadata["access"]["tasks"],
         "/access/artifacts": metadata["access"]["artifacts"],
         "/access/grader": metadata["access"]["grader"],
@@ -2726,7 +2765,24 @@ def test_owner_can_downgrade_creator_evaluation_with_not_reported_root_total() -
         "provisional_benchmark_kind": "suite",
         "provisional_kind_status": "provisional",
         "provisional_kind_approved_at": "2026-07-27T02:01:00Z",
+        "provisional_access_level": "fully-open",
+        "provisional_access_status": "provisional",
+        "provisional_access_approved_at": "2026-07-27T02:02:00Z",
     }
+
+    without_access_resolution = {
+        key: value
+        for key, value in resolution.items()
+        if not key.startswith("provisional_access")
+    }
+    blocked_without_access = build_records(
+        payload,
+        source=source,
+        generated_at=SOURCE["retrieved_at"],
+        verified_on="2026-07-27",
+        owner_conflict_resolution=without_access_resolution,
+    )
+    assert "/access/level" in "; ".join(blocked_without_access.blocked_reasons)
 
     records = build_records(
         payload,
@@ -2745,6 +2801,18 @@ def test_owner_can_downgrade_creator_evaluation_with_not_reported_root_total() -
         item for item in benchmark["evidence"] if item["id"] in kind_status["evidence_ids"]
     )
     assert kind_evidence["supports"] == ["/kind"]
+    access_status = next(
+        item for item in benchmark["field_status"] if item["path"] == "/access/level"
+    )
+    assert access_status["status"] == "provisional"
+    assert access_status["confidence"] == "medium"
+    assert benchmark["access"]["level"] == "fully-open"
+    access_evidence = [
+        item for item in benchmark["evidence"]
+        if item["id"] in access_status["evidence_ids"]
+    ]
+    assert len(access_evidence) == 4
+    assert all("/access/level" in item["supports"] for item in access_evidence)
     assert "Root total retained after owner review" not in str(benchmark["versions"][0]["notes"])
     evaluation_use = next(item for item in records.uses if item["relation_type"] == "evaluation")
     assert evaluation_use["status"] == "partial"
@@ -2754,6 +2822,57 @@ def test_owner_can_downgrade_creator_evaluation_with_not_reported_root_total() -
     assert evaluation_use["metric_labels"] == []
     assert evaluation_use["evaluation_run_ids"] == []
     assert records.runs == []
+
+    conflicting_access = json.loads(json.dumps(payload))
+    conflicting_access_claim = claim(
+        "claim-99",
+        "benchmark-metadata",
+        "partially-open",
+        field_path="/benchmark-metadata/access/level",
+    )
+    conflicting_access["draft"]["claims"].append(conflicting_access_claim)
+    conflicting_access["draft"]["benchmark_mentions"][0]["claim_ids"].append("claim-99")
+    conflicting_access["verification"]["claims"].append({
+        "claim_id": "claim-99",
+        "verdict": "supported",
+        "confidence": "high",
+        "locator": conflicting_access_claim["locators"][0],
+        "notes": None,
+    })
+    with pytest.raises(GenerationBlocked, match="conflicts with an extracted access claim"):
+        build_records(
+            conflicting_access,
+            source=source,
+            generated_at=SOURCE["retrieved_at"],
+            verified_on="2026-07-27",
+            owner_conflict_resolution=resolution,
+        )
+
+    missing_access_evidence = json.loads(json.dumps(payload))
+    grader_claim_id = next(
+        item["claim_id"]
+        for item in missing_access_evidence["draft"]["claims"]
+        if item["field_path"] == "/benchmark-metadata/access/grader"
+    )
+    missing_access_evidence["draft"]["claims"] = [
+        item for item in missing_access_evidence["draft"]["claims"]
+        if item["claim_id"] != grader_claim_id
+    ]
+    missing_access_evidence["draft"]["benchmark_mentions"][0]["claim_ids"].remove(
+        grader_claim_id
+    )
+    missing_access_evidence["verification"]["claims"] = [
+        item for item in missing_access_evidence["verification"]["claims"]
+        if item["claim_id"] != grader_claim_id
+    ]
+    with pytest.raises(GenerationBlocked, match="source claim for /access/grader"):
+        build_records(
+            missing_access_evidence,
+            source=source,
+            generated_at=SOURCE["retrieved_at"],
+            verified_on="2026-07-27",
+            owner_conflict_resolution=resolution,
+        )
 
     high_confidence_kind = json.loads(json.dumps(payload))
     for item in high_confidence_kind["draft"]["claims"]:

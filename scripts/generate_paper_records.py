@@ -668,6 +668,10 @@ def _materialize_benchmark_metadata(
                 )
                 for claim in atomic_claims
                 if claim.field_path.removeprefix(_ATOMIC_METADATA_PREFIX) in values_by_path
+                and not (
+                    claim.field_path.removeprefix(_ATOMIC_METADATA_PREFIX) == "/release_date"
+                    and _complete_publication_date(str(_claim_value(claim))) is None
+                )
             ),
             key=lambda item: (item[0], item[1].claim_id),
         )

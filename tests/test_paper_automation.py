@@ -2934,9 +2934,49 @@ def test_owner_can_downgrade_creator_evaluation_with_not_reported_root_total() -
         item for item in missing_access_evidence["verification"]["claims"]
         if item["claim_id"] != grader_claim_id
     ]
-    with pytest.raises(GenerationBlocked, match="source claim for /access/grader"):
+    records_with_missing_access_facet = build_records(
+        missing_access_evidence,
+        source=source,
+        generated_at=SOURCE["retrieved_at"],
+        verified_on="2026-07-27",
+        owner_conflict_resolution=resolution,
+    )
+    missing_facet_benchmark = records_with_missing_access_facet.benchmarks[0]
+    missing_facet_status = next(
+        item for item in missing_facet_benchmark["field_status"]
+        if item["path"] == "/access/level"
+    )
+    assert len(missing_facet_status["evidence_ids"]) == 3
+    assert missing_facet_benchmark["access"]["grader"] == (
+        "Not established by the independently verified metadata claims."
+    )
+
+    no_access_facet_evidence = json.loads(json.dumps(payload))
+    access_facet_claim_ids = {
+        item["claim_id"]
+        for item in no_access_facet_evidence["draft"]["claims"]
+        if item["field_path"] in {
+            "/benchmark-metadata/access/tasks",
+            "/benchmark-metadata/access/artifacts",
+            "/benchmark-metadata/access/grader",
+        }
+    }
+    no_access_facet_evidence["draft"]["claims"] = [
+        item for item in no_access_facet_evidence["draft"]["claims"]
+        if item["claim_id"] not in access_facet_claim_ids
+    ]
+    no_access_facet_evidence["draft"]["benchmark_mentions"][0]["claim_ids"] = [
+        claim_id
+        for claim_id in no_access_facet_evidence["draft"]["benchmark_mentions"][0]["claim_ids"]
+        if claim_id not in access_facet_claim_ids
+    ]
+    no_access_facet_evidence["verification"]["claims"] = [
+        item for item in no_access_facet_evidence["verification"]["claims"]
+        if item["claim_id"] not in access_facet_claim_ids
+    ]
+    with pytest.raises(GenerationBlocked, match="source claim for an access facet"):
         build_records(
-            missing_access_evidence,
+            no_access_facet_evidence,
             source=source,
             generated_at=SOURCE["retrieved_at"],
             verified_on="2026-07-27",

@@ -1,3 +1,17 @@
+- date: '2026-08-06'
+  version: 1.4.0-dev
+  type: paper-intake
+  summary: AI-assisted double-pass paper intake (paper-intake:comprehensive-benchmark-of-differential-transcript-usa); production
+    inclusion required owner approval of the final head SHA.
+  entity_ids:
+  - comprehensive-benchmark-of-differential-transcript-usa
+  - comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu
+  - comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-1-use
+  - comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-2-use
+  - comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-3-use
+  - comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-4-use
+  - comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-5-use
+  - comprehensive-benchmark-of-differential-transcript-usa-comprehensive-benchmark-of-differential-transcript-usage-analysis-for-bu-6-use
 - date: '2026-08-02'
   version: 1.4.0-dev
   type: paper-intake

@@ -660,7 +660,17 @@ def _materialize_benchmark_metadata(
         )
     evidence_claims = [
         (claim, [path])
-        for path, claim in sorted(claims_by_path.items())
+        for path, claim in sorted(
+            (
+                (
+                    claim.field_path.removeprefix(_ATOMIC_METADATA_PREFIX),
+                    claim,
+                )
+                for claim in atomic_claims
+                if claim.field_path.removeprefix(_ATOMIC_METADATA_PREFIX) in values_by_path
+            ),
+            key=lambda item: (item[0], item[1].claim_id),
+        )
     ]
     return metadata, evidence_claims, bibliographic_supports
 
@@ -1398,10 +1408,19 @@ def _apply_owner_not_reported_creator_evaluation_resolution(
                 and claim.claim_type == "benchmark-metadata"
                 and claim.field_path == f"{_ATOMIC_METADATA_PREFIX}{field_path}"
             ]
-            if len(candidates) != 1:
+            if not candidates:
                 raise GenerationBlocked(
-                    "owner provisional benchmark-access approval requires exactly one "
+                    "owner provisional benchmark-access approval requires at least one "
                     f"high-confidence source claim for {field_path}"
+                )
+            canonical_values = {
+                json.dumps(_claim_value(claim), sort_keys=True, ensure_ascii=False)
+                for claim in candidates
+            }
+            if len(canonical_values) != 1:
+                raise GenerationBlocked(
+                    "owner provisional benchmark-access approval found conflicting accepted "
+                    f"values for {field_path}"
                 )
             required_access_claims.extend(candidates)
         accepted_resource_claims = [

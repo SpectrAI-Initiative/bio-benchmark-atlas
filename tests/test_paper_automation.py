@@ -2823,6 +2823,23 @@ def test_owner_can_downgrade_creator_evaluation_with_not_reported_root_total() -
     assert evaluation_use["evaluation_run_ids"] == []
     assert records.runs == []
 
+    no_blocking_messages = json.loads(json.dumps(payload))
+    no_blocking_messages["verification"]["blocking_conflicts"] = []
+    records_without_repeated_conflict = build_records(
+        no_blocking_messages,
+        source=source,
+        generated_at=SOURCE["retrieved_at"],
+        verified_on="2026-07-27",
+        owner_conflict_resolution=resolution,
+    )
+    benchmark_without_repeated_conflict = records_without_repeated_conflict.benchmarks[0]
+    assert benchmark_without_repeated_conflict["kind"] == "suite"
+    assert benchmark_without_repeated_conflict["access"]["level"] == "fully-open"
+    assert {
+        item["path"] for item in benchmark_without_repeated_conflict["field_status"]
+    } >= {"/kind", "/access/level"}
+    assert records_without_repeated_conflict.runs == []
+
     conflicting_access = json.loads(json.dumps(payload))
     conflicting_access_claim = claim(
         "claim-99",

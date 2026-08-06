@@ -1553,14 +1553,9 @@ def _apply_owner_count_conflict_resolution(
     high confidence in both passes, and a machine-readable caveat on the basis field.
     """
 
-    if not verification.blocking_conflicts:
-        return accepted, None
-    if not resolution:
-        raise GenerationBlocked(
-            "blocking source conflicts: " + "; ".join(verification.blocking_conflicts)
-        )
     if (
-        resolution.get("benchmark_total") is None
+        resolution
+        and resolution.get("benchmark_total") is None
         and resolution.get("exclude") == "creator-evaluation"
     ):
         return _apply_owner_not_reported_creator_evaluation_resolution(
@@ -1568,6 +1563,12 @@ def _apply_owner_count_conflict_resolution(
             verification,
             accepted,
             resolution,
+        )
+    if not verification.blocking_conflicts:
+        return accepted, None
+    if not resolution:
+        raise GenerationBlocked(
+            "blocking source conflicts: " + "; ".join(verification.blocking_conflicts)
         )
     if resolution.get("exclude") not in {
         "benchmark-subcounts",

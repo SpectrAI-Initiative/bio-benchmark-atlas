@@ -579,6 +579,7 @@ def _materialize_benchmark_metadata(
     *,
     bibliographic_metadata: dict[str, Any] | None = None,
     default_access_level: str | None = None,
+    provisional_access_level: str | None = None,
 ) -> tuple[dict[str, Any], list[tuple[Any, list[str]]], list[str]]:
     """Build metadata from atomic field claims, with legacy bundle compatibility."""
 
@@ -592,8 +593,9 @@ def _materialize_benchmark_metadata(
         metadata = _claim_value(legacy_claim)
         if not isinstance(metadata, dict):
             raise GenerationBlocked("new benchmark metadata bundle is not an object")
-        if default_access_level and not (metadata.get("access") or {}).get("level"):
-            metadata.setdefault("access", {})["level"] = default_access_level
+        access_level = provisional_access_level or default_access_level
+        if access_level and not (metadata.get("access") or {}).get("level"):
+            metadata.setdefault("access", {})["level"] = access_level
         return metadata, [(
             legacy_claim,
             [
@@ -646,9 +648,10 @@ def _materialize_benchmark_metadata(
             metadata["release_date"] = complete_date
             values_by_path["/release_date"] = complete_date
             bibliographic_supports.append("/release_date")
-    if "/access/level" not in values_by_path and default_access_level:
-        metadata["access"]["level"] = default_access_level
-        values_by_path["/access/level"] = default_access_level
+    access_level = provisional_access_level or default_access_level
+    if "/access/level" not in values_by_path and access_level:
+        metadata["access"]["level"] = access_level
+        values_by_path["/access/level"] = access_level
 
     missing = sorted(_REQUIRED_ATOMIC_METADATA_PATHS - set(values_by_path))
     if missing:
@@ -721,10 +724,15 @@ def _build_new_benchmark(
             and (legacy_payload.get("access") or {}).get("level")
         )
     access_level_defaulted = not (atomic_access_claimed or legacy_access_claimed)
+    provisional_access_level = (
+        resolved_count_conflict.get("provisional_access_level")
+        if resolved_count_conflict else None
+    )
     metadata, metadata_evidence_claims, bibliographic_supports = _materialize_benchmark_metadata(
         metadata_claims,
         bibliographic_metadata=source.get("bibliographic_metadata"),
         default_access_level="partially-open" if resource_type == "dataset" else None,
+        provisional_access_level=provisional_access_level,
     )
     for field_name in ("tasks", "artifacts", "grader"):
         access_value = (metadata.get("access") or {}).get(field_name)
@@ -843,6 +851,26 @@ def _build_new_benchmark(
         metadata_claim.claim_id: f"{benchmark_id}-automated-metadata-{index}-evidence"
         for index, (metadata_claim, _supports) in enumerate(metadata_evidence_claims, 1)
     }
+    provisional_access_support_claim_ids = set(
+        resolved_count_conflict.get("provisional_access_support_claim_ids", [])
+        if resolved_count_conflict else []
+    )
+    if provisional_access_support_claim_ids:
+        metadata_evidence_claims = [
+            (
+                metadata_claim,
+                [
+                    *supports,
+                    *(
+                        ["/access/level"]
+                        if metadata_claim.claim_id in provisional_access_support_claim_ids
+                        and "/access/level" not in supports
+                        else []
+                    ),
+                ],
+            )
+            for metadata_claim, supports in metadata_evidence_claims
+        ]
     evidence = [
         *[
             {
@@ -909,7 +937,10 @@ def _build_new_benchmark(
             "supports": [
                 "/resources",
                 *(["/implementations"] if resource_type == "repository" else []),
-                *(["/access/level"] if access_level_defaulted else []),
+                *(
+                    ["/access/level"]
+                    if access_level_defaulted or provisional_access_level else []
+                ),
                 *(["/access/license"] if license_from_resource or license_unverified else []),
             ],
         },
@@ -947,6 +978,26 @@ def _build_new_benchmark(
                 "benchmarking analysis and workflow rather than using the controlled word suite."
             ),
             "evidence_ids": [evidence_id],
+        })
+    if provisional_access_level:
+        provisional_access_evidence_ids = [
+            metadata_evidence_ids[claim_id]
+            for claim_id in sorted(provisional_access_support_claim_ids)
+            if claim_id in metadata_evidence_ids
+        ]
+        provisional_access_evidence_ids.append(
+            f"{benchmark_id}-automated-resource-evidence"
+        )
+        field_status.append({
+            "path": "/access/level",
+            "status": "provisional",
+            "confidence": "medium",
+            "reason": (
+                "The official resource and source-located access descriptions are public, "
+                "but fully-open is an Atlas-controlled classification rather than a label "
+                "stated verbatim by the creator source."
+            ),
+            "evidence_ids": provisional_access_evidence_ids,
         })
     if not subset_evidence_claims and not count_conflict_resolution:
         field_status.append({
@@ -1260,6 +1311,7 @@ def _apply_owner_not_reported_creator_evaluation_resolution(
             "not-reported creator-evaluation resolution found no matching evaluation relationship"
         )
 
+    verdicts = {item.claim_id: item for item in verification.claims}
     provisional_kind_claim = None
     provisional_kind = resolution.get("provisional_benchmark_kind")
     if provisional_kind is not None:
@@ -1288,7 +1340,6 @@ def _apply_owner_not_reported_creator_evaluation_resolution(
                 )
             provisional_kind_claim = accepted_kind_claims[0]
         else:
-            verdicts = {item.claim_id: item for item in verification.claims}
             provisional_candidates = []
             for claim in kind_claims:
                 verdict = verdicts.get(claim.claim_id)
@@ -1308,6 +1359,84 @@ def _apply_owner_not_reported_creator_evaluation_resolution(
                 )
             provisional_kind_claim = provisional_candidates[0]
             accepted = [*accepted, provisional_kind_claim]
+
+    provisional_access_level = resolution.get("provisional_access_level")
+    provisional_access_support_claim_ids: list[str] = []
+    if provisional_access_level is not None:
+        if (
+            provisional_access_level != "fully-open"
+            or resolution.get("provisional_access_status") != "provisional"
+        ):
+            raise GenerationBlocked(
+                "owner provisional benchmark-access resolution is unsupported"
+            )
+        access_level_claims = [
+            claim
+            for claim in draft.claims
+            if claim.mention_id == creation_mention_id
+            and claim.claim_type == "benchmark-metadata"
+            and claim.field_path == f"{_ATOMIC_METADATA_PREFIX}/access/level"
+        ]
+        if any(_claim_value(claim) != provisional_access_level for claim in access_level_claims):
+            raise GenerationBlocked(
+                "owner provisional benchmark-access value conflicts with an extracted access claim"
+            )
+        accepted_ids = {claim.claim_id for claim in accepted}
+        accepted_access_level_claims = [
+            claim for claim in access_level_claims if claim.claim_id in accepted_ids
+        ]
+        if len(accepted_access_level_claims) > 1:
+            raise GenerationBlocked(
+                "owner provisional benchmark-access resolution found multiple accepted access claims"
+            )
+        required_access_claims = []
+        for field_path in ("/access/tasks", "/access/artifacts", "/access/grader"):
+            candidates = [
+                claim
+                for claim in accepted
+                if claim.mention_id == creation_mention_id
+                and claim.claim_type == "benchmark-metadata"
+                and claim.field_path == f"{_ATOMIC_METADATA_PREFIX}{field_path}"
+            ]
+            if len(candidates) != 1:
+                raise GenerationBlocked(
+                    "owner provisional benchmark-access approval requires exactly one "
+                    f"high-confidence source claim for {field_path}"
+                )
+            required_access_claims.extend(candidates)
+        accepted_resource_claims = [
+            claim
+            for claim in accepted
+            if claim.mention_id == creation_mention_id
+            and claim.claim_type in {"official-repository", "official-resource"}
+        ]
+        if len(accepted_resource_claims) != 1:
+            raise GenerationBlocked(
+                "owner provisional benchmark-access approval requires exactly one verified "
+                "official resource"
+            )
+        support_claims = [
+            *accepted_access_level_claims,
+            *required_access_claims,
+            *accepted_resource_claims,
+        ]
+        for claim in support_claims:
+            verdict = verdicts.get(claim.claim_id)
+            if (
+                claim.confidence != "high"
+                or verdict is None
+                or verdict.verdict != "supported"
+                or verdict.confidence != "high"
+                or not locator_is_resolved(verdict.locator)
+            ):
+                raise GenerationBlocked(
+                    "owner provisional benchmark-access approval requires high/high "
+                    "source-located access and resource evidence"
+                )
+        provisional_access_support_claim_ids = [
+            claim.claim_id
+            for claim in [*accepted_access_level_claims, *required_access_claims]
+        ]
 
     root_totals = []
     for claim in accepted:
@@ -1403,6 +1532,8 @@ def _apply_owner_not_reported_creator_evaluation_resolution(
         "provisional_kind_claim_id": (
             provisional_kind_claim.claim_id if provisional_kind_claim else None
         ),
+        "provisional_access_level": provisional_access_level,
+        "provisional_access_support_claim_ids": provisional_access_support_claim_ids,
     }
 
 

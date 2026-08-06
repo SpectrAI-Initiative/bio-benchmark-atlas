@@ -6,7 +6,7 @@ import { data, familyBenchmarks, fieldStatus, termMaps, withBase } from '../lib/
 
 const families = familyBenchmarks();
 const publicFamilies = families.filter((b) => b.access.level !== 'private-internal');
-const openCount = publicFamilies.filter((b) => b.access.level === 'fully-open').length;
+const openCount = publicFamilies.filter((b) => b.access.level === 'fully-open' && !fieldStatus(b, '/access/level')).length;
 const officialWorkCount = data.works.filter((work) => work.source_class === 'official_model_provider').length;
 const resultCount = data.evaluation_runs.reduce((sum, run) => sum + run.results.length, 0);
 const focusDomains = ['protein-sequence', 'protein-structure', 'protein-design', 'protein-protein-binding', 'protein-ligand-binding', 'genomics', 'transcriptomics', 'single-cell', 'proteomics', 'multiomics'];
@@ -71,7 +71,7 @@ const recent = {
       <div class="stat"><strong>{publicFamilies.length}</strong><span>public/metadata benchmark families</span></div>
       <div class="stat"><strong>{data.evaluation_runs.length}</strong><span>normalized evaluation runs</span></div>
       <div class="stat"><strong>{resultCount}</strong><span>source-located result rows</span></div>
-      <div class="stat"><strong>{openCount}/{publicFamilies.length}</strong><span>fully open public families</span></div>
+      <div class="stat"><strong>{openCount}/{publicFamilies.length}</strong><span>verified fully open public families</span></div>
     </div>
 
     <section class="section">

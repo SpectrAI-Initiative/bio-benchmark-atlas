@@ -1413,10 +1413,11 @@ def _apply_owner_not_reported_creator_evaluation_resolution(
                 and claim.field_path == f"{_ATOMIC_METADATA_PREFIX}{field_path}"
             ]
             if not candidates:
-                raise GenerationBlocked(
-                    "owner provisional benchmark-access approval requires at least one "
-                    f"high-confidence source claim for {field_path}"
-                )
+                # A provisional Atlas-level access classification may be approved
+                # when the creator source does not separately describe every
+                # access facet. Keep the facet's conservative generated text and
+                # do not fabricate claim-level support for the missing path.
+                continue
             canonical_values = {
                 json.dumps(_claim_value(claim), sort_keys=True, ensure_ascii=False)
                 for claim in candidates
@@ -1427,6 +1428,11 @@ def _apply_owner_not_reported_creator_evaluation_resolution(
                     f"values for {field_path}"
                 )
             required_access_claims.extend(candidates)
+        if not required_access_claims:
+            raise GenerationBlocked(
+                "owner provisional benchmark-access approval requires at least one "
+                "high-confidence source claim for an access facet"
+            )
         accepted_resource_claims = [
             claim
             for claim in accepted

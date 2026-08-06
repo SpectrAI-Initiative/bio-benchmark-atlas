@@ -117,7 +117,8 @@
             "summaries": { "type": "array", "items": { "$ref": "#/$defs/row" } },
             "leaders": { "type": "array", "items": { "$ref": "#/$defs/row" } },
             "benchmark_crosswalk": { "type": "array", "items": { "$ref": "#/$defs/row" } },
-            "task_crosswalk": { "type": "array", "items": { "$ref": "#/$defs/row" } }
+            "task_crosswalk": { "type": "array", "items": { "$ref": "#/$defs/row" } },
+            "track_coverage": { "type": "array", "items": { "$ref": "#/$defs/row" } }
           }
         }
       ]

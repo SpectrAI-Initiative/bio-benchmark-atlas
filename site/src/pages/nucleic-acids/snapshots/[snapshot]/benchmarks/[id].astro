@@ -1,0 +1,7 @@
+---
+import BenchmarkDetail from '../../../../../components/nucleic/BenchmarkDetail.astro';
+import { NUCLEIC_SNAPSHOTS, nucleicDataFor, text } from '../../../../../lib/nucleicAcids';
+export function getStaticPaths() { return NUCLEIC_SNAPSHOTS.flatMap((snapshot) => nucleicDataFor(snapshot).catalog.benchmarks.map((benchmark) => ({ params: { snapshot, id: text(benchmark, 'benchmark_id') }, props: { benchmark, snapshot } }))); }
+const { benchmark, snapshot } = Astro.props;
+---
+<BenchmarkDetail benchmark={benchmark} lang="en" snapshot={snapshot} />

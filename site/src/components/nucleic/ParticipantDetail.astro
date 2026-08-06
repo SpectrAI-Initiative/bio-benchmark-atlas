@@ -1,14 +1,15 @@
 ---
 import Layout from '../Layout.astro';
 import NucleicNav from './NucleicNav.astro';
-import { benchmarkById, metricById, nucleicCatalog, nucleicEntities, nucleicUsageIndex, safeExternalUrl, snapshotRoot, taskById, text, type NucleicRow } from '../../lib/nucleicAcids';
+import { NUCLEIC_SNAPSHOT, benchmarkById, metricById, nucleicDataFor, safeExternalUrl, snapshotRoot, taskById, text, type NucleicRow } from '../../lib/nucleicAcids';
 import { withBase } from '../../lib/data';
 import type { NucleicLanguage } from '../../lib/nucleicLocale';
 
-interface Props { participant: NucleicRow; lang?: NucleicLanguage; }
-const { participant, lang = 'en' } = Astro.props;
+interface Props { participant: NucleicRow; lang?: NucleicLanguage; snapshot?: string; }
+const { participant, lang = 'en', snapshot = NUCLEIC_SNAPSHOT } = Astro.props;
 const zh = lang === 'zh';
-const root = snapshotRoot(zh);
+const root = snapshotRoot(zh, snapshot);
+const { catalog: nucleicCatalog, entities: nucleicEntities, usage: nucleicUsageIndex } = nucleicDataFor(snapshot);
 const id = text(participant, 'participant_id');
 const protocolIds = nucleicUsageIndex.participant_protocols[id] ?? [];
 const protocols = protocolIds.map((protocolId) => nucleicCatalog.protocols.find((row) => text(row, 'protocol_id') === protocolId)).filter(Boolean) as NucleicRow[];
@@ -22,7 +23,7 @@ const protocolLink = (protocol: NucleicRow) => {
 };
 ---
 <Layout title={text(participant, 'participant_name')} description={zh ? '参与者在核酸 benchmark 中的协议级结果。' : 'Protocol-level nucleic-acid benchmark results for this participant.'} canonicalPath={`${root}/participants/${id}/`} alternatePath={`${zh ? '' : '/zh'}${root.replace(/^\/zh/, '')}/participants/${id}/`} lang={zh ? 'zh-CN' : 'en'}>
-  <NucleicNav lang={lang} />
+  <NucleicNav lang={lang} snapshot={snapshot} />
   <header class="page-head page-head--compact shell" data-participant-id={id}>
     <div class="breadcrumbs"><a href={withBase(`${zh ? '/zh' : ''}/nucleic-acids/`)}>{zh ? '核酸结果' : 'Nucleic-acid results'}</a><span>/</span><span>{zh ? '参与者' : 'Participants'}</span><span>/</span><span>{id}</span></div>
     <p class="eyebrow">{text(participant, 'participant_type')}</p><h1>{text(participant, 'participant_name')}</h1>
@@ -33,9 +34,9 @@ const protocolLink = (protocol: NucleicRow) => {
     <div>
       <div class="callout info"><strong>{zh ? '协议级视图' : 'Protocol-level view'}</strong><br/>{zh ? '本页不计算跨 task 平均分或全局排名。点击任一 protocol 会在原口径中加载并筛选该参与者的结果。' : 'No cross-task average or global rank is computed. Open a protocol to load this participant’s results inside the original evaluation unit.'}</div>
       <section class="section-tight"><p class="eyebrow">{zh ? '评测覆盖' : 'Evaluation coverage'}</p><h2>{protocols.length} {zh ? '个 protocol' : 'protocols'}</h2>
-        <div class="table-wrap"><table><thead><tr><th>Benchmark / task</th><th>Protocol / track</th><th>Metric</th><th>{zh ? '关联结果行' : 'Related rows'}</th></tr></thead><tbody>{protocols.map((protocol) => { const protocolId = text(protocol, 'protocol_id'); const summaries = nucleicCatalog.summaries.filter((row) => text(row, 'protocol_id') === protocolId); return <tr data-protocol-id={protocolId}><td><a href={withBase(`${root}/benchmarks/${text(protocol, 'benchmark_id')}/`)}>{text(benchmarkById(text(protocol, 'benchmark_id')), 'benchmark_name')}</a><br/><span class="small muted">{text(taskById(text(protocol, 'task_id')), zh ? 'name_zh' : 'name_en')}</span></td><td><a href={withBase(protocolLink(protocol))}><code>{protocolId}</code></a><br/><span class="small muted">{text(protocol, 'native_track')}</span></td><td>{summaries.map((summary) => <><span>{text(summary, 'metric_name', text(metricById(text(summary, 'metric_id')), 'metric_name'))}</span><br/></>)}</td><td>{nucleicUsageIndex.protocol_result_counts[protocolId] ?? 0}<br/><span class="small muted">{zh ? '协议全部结果，不是该 participant 小计' : 'all protocol rows; not a participant subtotal'}</span></td></tr>; })}</tbody></table></div>
+        <div class="table-wrap"><table><thead><tr><th>Benchmark / task</th><th>Protocol / track</th><th>Metric</th><th>{zh ? '关联结果行' : 'Related rows'}</th></tr></thead><tbody>{protocols.map((protocol) => { const protocolId = text(protocol, 'protocol_id'); const summaries = nucleicCatalog.summaries.filter((row) => text(row, 'protocol_id') === protocolId); return <tr data-protocol-id={protocolId}><td><a href={withBase(`${root}/benchmarks/${text(protocol, 'benchmark_id')}/`)}>{text(benchmarkById(text(protocol, 'benchmark_id'), snapshot), 'benchmark_name')}</a><br/><span class="small muted">{text(taskById(text(protocol, 'task_id'), snapshot), zh ? 'name_zh' : 'name_en')}</span></td><td><a href={withBase(protocolLink(protocol))}><code>{protocolId}</code></a><br/><span class="small muted">{text(protocol, 'native_track')}</span></td><td>{summaries.map((summary) => <><span>{text(summary, 'metric_name', text(metricById(text(summary, 'metric_id'), snapshot), 'metric_name'))}</span><br/></>)}</td><td>{nucleicUsageIndex.protocol_result_counts[protocolId] ?? 0}<br/><span class="small muted">{zh ? '协议全部结果，不是该 participant 小计' : 'all protocol rows; not a participant subtotal'}</span></td></tr>; })}</tbody></table></div>
       </section>
-      {leaders.length > 0 && <section class="section-tight"><p class="eyebrow">{zh ? '可追溯的 leader 声明' : 'Traceable leader claims'}</p><h2>{leaders.length} {zh ? '条声明' : 'claims'}</h2><div class="table-wrap"><table><thead><tr><th>Claim</th><th>Protocol</th><th>Metric / score</th><th>Evidence</th></tr></thead><tbody>{leaders.map((leader) => <tr><td>{text(leader, 'claim_type')}</td><td><a href={withBase(`${root}/protocols/${text(leader, 'protocol_id')}/`)}><code>{text(leader, 'protocol_id')}</code></a></td><td>{text(metricById(text(leader, 'metric_id')), 'metric_name')}<br/><strong>{text(leader, 'canonical_value')} {text(leader, 'canonical_scale')}</strong></td><td>{safeExternalUrl(leader.evidence_url) && <a href={safeExternalUrl(leader.evidence_url)}>Source ↗</a>}</td></tr>)}</tbody></table></div></section>}
+      {leaders.length > 0 && <section class="section-tight"><p class="eyebrow">{zh ? '可追溯的 leader 声明' : 'Traceable leader claims'}</p><h2>{leaders.length} {zh ? '条声明' : 'claims'}</h2><div class="table-wrap"><table><thead><tr><th>Claim</th><th>Protocol</th><th>Metric / score</th><th>Evidence</th></tr></thead><tbody>{leaders.map((leader) => <tr><td>{text(leader, 'claim_type')}</td><td><a href={withBase(`${root}/protocols/${text(leader, 'protocol_id')}/`)}><code>{text(leader, 'protocol_id')}</code></a></td><td>{text(metricById(text(leader, 'metric_id'), snapshot), 'metric_name')}<br/><strong>{text(leader, 'canonical_value')} {text(leader, 'canonical_scale')}</strong></td><td>{safeExternalUrl(leader.evidence_url) && <a href={safeExternalUrl(leader.evidence_url)}>Source ↗</a>}</td></tr>)}</tbody></table></div></section>}
     </div>
     <aside class="sidebar sidebar-stack">
       <div class="card"><p class="eyebrow">Profile</p><dl class="definition-list compact"><div><dt>Type</dt><dd>{text(participant, 'participant_type')}</dd></div><div><dt>{zh ? '机构' : 'Organization'}</dt><dd>{text(participant, 'organization')}</dd></div><div><dt>{zh ? '配置' : 'Configurations'}</dt><dd>{configurations.length}</dd></div></dl>{officialUrl && <p><a href={officialUrl}>{zh ? '官方页面 ↗' : 'Official page ↗'}</a></p>}</div>

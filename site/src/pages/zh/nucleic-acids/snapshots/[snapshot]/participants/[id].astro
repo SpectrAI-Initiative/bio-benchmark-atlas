@@ -1,0 +1,7 @@
+---
+import ParticipantDetail from '../../../../../../components/nucleic/ParticipantDetail.astro';
+import { NUCLEIC_SNAPSHOTS, nucleicDataFor, text } from '../../../../../../lib/nucleicAcids';
+export function getStaticPaths() { return NUCLEIC_SNAPSHOTS.flatMap((snapshot) => nucleicDataFor(snapshot).entities.participants.map((participant) => ({ params: { snapshot, id: text(participant, 'participant_id') }, props: { participant, snapshot } }))); }
+const { participant, snapshot } = Astro.props;
+---
+<ParticipantDetail participant={participant} lang="zh" snapshot={snapshot} />

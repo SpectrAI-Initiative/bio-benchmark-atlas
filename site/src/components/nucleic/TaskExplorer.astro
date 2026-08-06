@@ -1,27 +1,28 @@
 ---
 import Layout from '../Layout.astro';
 import NucleicNav from './NucleicNav.astro';
-import { nucleicCatalog, protocolsForTask, snapshotRoot, taskBenchmarkIds, text } from '../../lib/nucleicAcids';
+import { NUCLEIC_SNAPSHOT, nucleicDataFor, protocolsForTask, snapshotRoot, taskBenchmarkIds, text } from '../../lib/nucleicAcids';
 import { withBase } from '../../lib/data';
 import type { NucleicLanguage } from '../../lib/nucleicLocale';
 
-interface Props { lang?: NucleicLanguage; }
-const { lang = 'en' } = Astro.props;
+interface Props { lang?: NucleicLanguage; snapshot?: string; }
+const { lang = 'en', snapshot = NUCLEIC_SNAPSHOT } = Astro.props;
 const zh = lang === 'zh';
-const root = snapshotRoot(zh);
+const root = snapshotRoot(zh, snapshot);
+const nucleicCatalog = nucleicDataFor(snapshot).catalog;
 const domains = [...new Set(nucleicCatalog.tasks.map((row) => text(row, 'domain_id')))].sort();
 const molecules = [...new Set(nucleicCatalog.tasks.map((row) => text(row, 'molecule')))].sort();
 const formulations = [...new Set(nucleicCatalog.tasks.map((row) => text(row, 'ml_formulation')))].sort();
 const rows = nucleicCatalog.tasks.map((task) => {
   const id = text(task, 'task_id');
-  const benchmarkIds = taskBenchmarkIds(id);
-  const protocols = protocolsForTask(id);
+  const benchmarkIds = taskBenchmarkIds(id, snapshot);
+  const protocols = protocolsForTask(id, snapshot);
   const name = text(task, zh ? 'name_zh' : 'name_en');
   return { task, id, benchmarkIds, protocols, search: `${id} ${text(task, 'name_en')} ${text(task, 'name_zh')} ${text(task, 'definition')} ${text(task, 'biological_target')}`.toLowerCase(), name };
 });
 ---
 <Layout title={zh ? '核酸任务' : 'Nucleic-acid tasks'} canonicalPath={`${root}/tasks/`} alternatePath={`${zh ? '' : '/zh'}${root.replace(/^\/zh/, '')}/tasks/`} lang={zh ? 'zh-CN' : 'en'}>
-  <NucleicNav lang={lang} active="tasks" />
+  <NucleicNav lang={lang} active="tasks" snapshot={snapshot} />
   <header class="page-head page-head--compact shell">
     <div class="breadcrumbs"><a href={withBase(`${zh ? '/zh' : ''}/nucleic-acids/`)}>{zh ? '核酸结果' : 'Nucleic-acid results'}</a><span>/</span><span>{zh ? '任务' : 'Tasks'}</span></div>
     <p class="eyebrow">{zh ? '任务体系' : 'Task atlas'}</p>

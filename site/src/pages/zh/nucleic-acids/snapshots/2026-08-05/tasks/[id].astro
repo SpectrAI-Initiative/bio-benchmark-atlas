@@ -1,7 +1,0 @@
----
-import TaskDetail from '../../../../../../components/nucleic/TaskDetail.astro';
-import { nucleicCatalog, text } from '../../../../../../lib/nucleicAcids';
-export function getStaticPaths() { return nucleicCatalog.tasks.map((task) => ({ params: { id: text(task, 'task_id') }, props: { task } })); }
-const { task } = Astro.props;
----
-<TaskDetail task={task} lang="zh" />

@@ -1,9 +1,14 @@
-import catalogJson from '../generated/nucleic-acid-results/2026-08-05/catalog.json';
-import entitiesJson from '../generated/nucleic-acid-results/2026-08-05/entities.json';
-import usageIndexJson from '../generated/nucleic-acid-results/2026-08-05/usage-index.json';
+import catalog20260805 from '../generated/nucleic-acid-results/2026-08-05/catalog.json';
+import entities20260805 from '../generated/nucleic-acid-results/2026-08-05/entities.json';
+import usage20260805 from '../generated/nucleic-acid-results/2026-08-05/usage-index.json';
+import catalog20260806 from '../generated/nucleic-acid-results/2026-08-06/catalog.json';
+import entities20260806 from '../generated/nucleic-acid-results/2026-08-06/entities.json';
+import usage20260806 from '../generated/nucleic-acid-results/2026-08-06/usage-index.json';
 
-export const NUCLEIC_SNAPSHOT = '2026-08-05';
-export const NUCLEIC_SNAPSHOT_SOURCE_DATE = '2026-08-01';
+export const NUCLEIC_SNAPSHOTS = ['2026-08-05', '2026-08-06'] as const;
+export type NucleicSnapshot = typeof NUCLEIC_SNAPSHOTS[number];
+export const NUCLEIC_SNAPSHOT: NucleicSnapshot = '2026-08-06';
+export const NUCLEIC_SNAPSHOT_SOURCE_DATE = '2026-08-06';
 
 export type NucleicRow = Record<string, unknown>;
 
@@ -22,17 +27,17 @@ export type NucleicCatalog = {
   leaders: NucleicRow[];
   benchmark_crosswalk: NucleicRow[];
   task_crosswalk: NucleicRow[];
+  track_coverage?: NucleicRow[];
 };
 
-export const nucleicCatalog = catalogJson as unknown as NucleicCatalog;
-export const nucleicEntities = entitiesJson as unknown as {
+export type NucleicEntities = {
   schema_version: string;
   snapshot_date: string;
   participants: NucleicRow[];
   configurations: NucleicRow[];
   works: NucleicRow[];
 };
-export const nucleicUsageIndex = usageIndexJson as unknown as {
+export type NucleicUsageIndex = {
   schema_version: string;
   snapshot_date: string;
   participant_protocols: Record<string, string[]>;
@@ -44,6 +49,26 @@ export const nucleicUsageIndex = usageIndexJson as unknown as {
   track_protocols: Record<string, string[]>;
   work_protocols: Record<string, string[]>;
 };
+
+const SNAPSHOT_DATA = {
+  '2026-08-05': { catalog: catalog20260805, entities: entities20260805, usage: usage20260805 },
+  '2026-08-06': { catalog: catalog20260806, entities: entities20260806, usage: usage20260806 },
+} as const;
+
+export function nucleicDataFor(snapshot: string = NUCLEIC_SNAPSHOT) {
+  const resolved = (NUCLEIC_SNAPSHOTS as readonly string[]).includes(snapshot) ? snapshot as NucleicSnapshot : NUCLEIC_SNAPSHOT;
+  const data = SNAPSHOT_DATA[resolved];
+  return {
+    snapshot: resolved,
+    catalog: data.catalog as unknown as NucleicCatalog,
+    entities: data.entities as unknown as NucleicEntities,
+    usage: data.usage as unknown as NucleicUsageIndex,
+  };
+}
+
+export const nucleicCatalog = nucleicDataFor().catalog;
+export const nucleicEntities = nucleicDataFor().entities;
+export const nucleicUsageIndex = nucleicDataFor().usage;
 
 export function text(row: NucleicRow | undefined, key: string, fallback = 'NR'): string {
   if (!row) return fallback;
@@ -73,58 +98,58 @@ export function splitList(row: NucleicRow | undefined, key: string): string[] {
   return value.split(/[;|]/).map((item) => item.trim()).filter(Boolean);
 }
 
-export function benchmarkById(id: string): NucleicRow | undefined {
-  return nucleicCatalog.benchmarks.find((row) => text(row, 'benchmark_id') === id);
+export function benchmarkById(id: string, snapshot: string = NUCLEIC_SNAPSHOT): NucleicRow | undefined {
+  return nucleicDataFor(snapshot).catalog.benchmarks.find((row) => text(row, 'benchmark_id') === id);
 }
 
-export function taskById(id: string): NucleicRow | undefined {
-  return nucleicCatalog.tasks.find((row) => text(row, 'task_id') === id);
+export function taskById(id: string, snapshot: string = NUCLEIC_SNAPSHOT): NucleicRow | undefined {
+  return nucleicDataFor(snapshot).catalog.tasks.find((row) => text(row, 'task_id') === id);
 }
 
-export function trackById(id: string): NucleicRow | undefined {
-  return nucleicCatalog.tracks.find((row) => text(row, 'track_id') === id);
+export function trackById(id: string, snapshot: string = NUCLEIC_SNAPSHOT): NucleicRow | undefined {
+  return nucleicDataFor(snapshot).catalog.tracks.find((row) => text(row, 'track_id') === id);
 }
 
-export function metricById(id: string): NucleicRow | undefined {
-  return nucleicCatalog.metrics.find((row) => text(row, 'metric_id') === id);
+export function metricById(id: string, snapshot: string = NUCLEIC_SNAPSHOT): NucleicRow | undefined {
+  return nucleicDataFor(snapshot).catalog.metrics.find((row) => text(row, 'metric_id') === id);
 }
 
-export function coverageForBenchmark(id: string): NucleicRow | undefined {
-  return nucleicCatalog.coverage.find((row) => text(row, 'benchmark_id') === id);
+export function coverageForBenchmark(id: string, snapshot: string = NUCLEIC_SNAPSHOT): NucleicRow | undefined {
+  return nucleicDataFor(snapshot).catalog.coverage.find((row) => text(row, 'benchmark_id') === id);
 }
 
-export function benchmarkTaskIds(id: string): string[] {
-  return [...new Set(nucleicCatalog.task_benchmark
+export function benchmarkTaskIds(id: string, snapshot: string = NUCLEIC_SNAPSHOT): string[] {
+  return [...new Set(nucleicDataFor(snapshot).catalog.task_benchmark
     .filter((row) => text(row, 'benchmark_id') === id)
     .map((row) => text(row, 'task_id'))
     .filter((value) => value !== 'NR'))];
 }
 
-export function taskBenchmarkIds(id: string): string[] {
-  return [...new Set(nucleicCatalog.task_benchmark
+export function taskBenchmarkIds(id: string, snapshot: string = NUCLEIC_SNAPSHOT): string[] {
+  return [...new Set(nucleicDataFor(snapshot).catalog.task_benchmark
     .filter((row) => text(row, 'task_id') === id)
     .map((row) => text(row, 'benchmark_id'))
     .filter((value) => value !== 'NR'))];
 }
 
-export function protocolsForBenchmark(id: string): NucleicRow[] {
-  return nucleicCatalog.protocols.filter((row) => text(row, 'benchmark_id') === id);
+export function protocolsForBenchmark(id: string, snapshot: string = NUCLEIC_SNAPSHOT): NucleicRow[] {
+  return nucleicDataFor(snapshot).catalog.protocols.filter((row) => text(row, 'benchmark_id') === id);
 }
 
-export function protocolsForTask(id: string): NucleicRow[] {
-  return nucleicCatalog.protocols.filter((row) => text(row, 'task_id') === id);
+export function protocolsForTask(id: string, snapshot: string = NUCLEIC_SNAPSHOT): NucleicRow[] {
+  return nucleicDataFor(snapshot).catalog.protocols.filter((row) => text(row, 'task_id') === id);
 }
 
-export function summariesForProtocol(id: string): NucleicRow[] {
-  return nucleicCatalog.summaries.filter((row) => text(row, 'protocol_id') === id);
+export function summariesForProtocol(id: string, snapshot: string = NUCLEIC_SNAPSHOT): NucleicRow[] {
+  return nucleicDataFor(snapshot).catalog.summaries.filter((row) => text(row, 'protocol_id') === id);
 }
 
-export function leadersForProtocol(id: string): NucleicRow[] {
-  return nucleicCatalog.leaders.filter((row) => text(row, 'protocol_id') === id);
+export function leadersForProtocol(id: string, snapshot: string = NUCLEIC_SNAPSHOT): NucleicRow[] {
+  return nucleicDataFor(snapshot).catalog.leaders.filter((row) => text(row, 'protocol_id') === id);
 }
 
-export function summariesForBenchmark(id: string): NucleicRow[] {
-  return nucleicCatalog.summaries.filter((row) => text(row, 'benchmark_id') === id);
+export function summariesForBenchmark(id: string, snapshot: string = NUCLEIC_SNAPSHOT): NucleicRow[] {
+  return nucleicDataFor(snapshot).catalog.summaries.filter((row) => text(row, 'benchmark_id') === id);
 }
 
 export function safeExternalUrl(value: unknown): string | undefined {
@@ -177,6 +202,6 @@ export function nucleicRoot(zh = false): string {
   return `${zh ? '/zh' : ''}/nucleic-acids`;
 }
 
-export function snapshotRoot(zh = false, snapshot = NUCLEIC_SNAPSHOT): string {
+export function snapshotRoot(zh = false, snapshot: string = NUCLEIC_SNAPSHOT): string {
   return `${nucleicRoot(zh)}/snapshots/${snapshot}`;
 }

@@ -1,0 +1,7 @@
+---
+import BenchmarkExplorer from '../../../../../../components/nucleic/BenchmarkExplorer.astro';
+import { NUCLEIC_SNAPSHOTS } from '../../../../../../lib/nucleicAcids';
+export function getStaticPaths() { return NUCLEIC_SNAPSHOTS.map((snapshot) => ({ params: { snapshot }, props: { snapshot } })); }
+const { snapshot } = Astro.props;
+---
+<BenchmarkExplorer lang="zh" snapshot={snapshot} />

@@ -951,13 +951,16 @@ def _update_state(run_id: str, **changes: Any) -> None:
 
 
 def _validate_generated_output(*, runner: CommandRunner) -> None:
-    if not (ROOT / "node_modules").exists():
-        _run(["pnpm", "install", "--frozen-lockfile", "--prefer-offline"], runner=runner)
+    # Always reconcile the local install with the lockfile. Merely checking for
+    # node_modules is insufficient after a dependency update and can leave a
+    # stale workspace missing packages that CI installs from scratch.
+    _run(["pnpm", "install", "--frozen-lockfile", "--prefer-offline"], runner=runner)
     commands = [
         [sys.executable, "scripts/validate_registry.py"],
         [sys.executable, "-m", "pytest"],
-        [sys.executable, "scripts/build_registry.py"],
-        ["pnpm", "site:build"],
+        # Match CI's production build order. The root build creates Registry
+        # exports and nucleic-acid assets before Astro resolves their imports.
+        ["pnpm", "build"],
         ["pnpm", "site:test"],
     ]
     for command in commands:

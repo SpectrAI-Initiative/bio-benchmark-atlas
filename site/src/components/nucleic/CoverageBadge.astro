@@ -1,0 +1,9 @@
+---
+import { statusLabel } from '../../lib/nucleicAcids';
+
+interface Props { status: string; zh?: boolean; }
+const { status, zh = false } = Astro.props;
+const positive = status === 'numeric_results_available';
+const restricted = status === 'restricted';
+---
+<span class:list={['na-status', { positive, restricted }]}>{statusLabel(status, zh)}</span>

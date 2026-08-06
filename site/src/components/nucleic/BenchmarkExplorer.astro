@@ -1,0 +1,88 @@
+---
+import Layout from '../Layout.astro';
+import NucleicNav from './NucleicNav.astro';
+import CoverageBadge from './CoverageBadge.astro';
+import { benchmarkTaskIds, coverageForBenchmark, integer, nucleicCatalog, snapshotRoot, statusLabel, taskById, text } from '../../lib/nucleicAcids';
+import { withBase } from '../../lib/data';
+import type { NucleicLanguage } from '../../lib/nucleicLocale';
+
+interface Props { lang?: NucleicLanguage; }
+const { lang = 'en' } = Astro.props;
+const zh = lang === 'zh';
+const root = snapshotRoot(zh);
+const statuses = [...new Set(nucleicCatalog.coverage.map((row) => text(row, 'baseline_sota_status', text(row, 'status'))))].sort();
+const tiers = [...new Set(nucleicCatalog.benchmarks.map((row) => text(row, 'tier')).filter((value) => value !== 'NR'))].sort();
+const rows = nucleicCatalog.benchmarks.map((benchmark) => {
+  const id = text(benchmark, 'benchmark_id');
+  const coverage = coverageForBenchmark(id);
+  const taskIds = benchmarkTaskIds(id);
+  const taskNames = taskIds.map((taskId) => text(taskById(taskId), zh ? 'name_zh' : 'name_en', taskId));
+  const status = text(coverage, 'baseline_sota_status', text(coverage, 'status'));
+  return { benchmark, coverage, id, taskIds, taskNames, status, search: `${id} ${text(benchmark, 'benchmark_name')} ${taskNames.join(' ')}`.toLowerCase() };
+});
+---
+<Layout title={zh ? '核酸 Benchmark' : 'Nucleic-acid benchmarks'} canonicalPath={`${root}/benchmarks/`} alternatePath={`${zh ? '' : '/zh'}${root.replace(/^\/zh/, '')}/benchmarks/`} lang={zh ? 'zh-CN' : 'en'}>
+  <NucleicNav lang={lang} active="benchmarks" />
+  <header class="page-head page-head--compact shell">
+    <div class="breadcrumbs"><a href={withBase(`${zh ? '/zh' : ''}/nucleic-acids/`)}>{zh ? '核酸结果' : 'Nucleic-acid results'}</a><span>/</span><span>Benchmarks</span></div>
+    <p class="eyebrow">{zh ? `${nucleicCatalog.snapshot_date} 快照` : `${nucleicCatalog.snapshot_date} snapshot`}</p>
+    <h1>{zh ? '47 个 benchmark，每一个都保留口径。' : '47 benchmarks, with the protocol attached.'}</h1>
+    <p class="lede">{zh ? '查找公开数值结果或可审计缺口。结果行数不等于独立实验数。' : 'Find public numeric results or an auditable gap. Result rows are not counts of independent experiments.'}</p>
+  </header>
+  <div class="shell section-tight" data-na-benchmark-explorer>
+    <form class="explorer-form" data-na-list-filter role="search">
+      <div class="explorer-controls">
+        <div class="field"><label for="na-benchmark-q">{zh ? '搜索' : 'Search'}</label><input id="na-benchmark-q" name="q" type="search" placeholder={zh ? 'GUE、RNA-Scope、结构预测…' : 'GUE, RNA-Scope, structure prediction…'} /></div>
+        <div class="field"><label for="na-benchmark-status">{zh ? '覆盖状态' : 'Coverage'}</label><select id="na-benchmark-status" name="status"><option value="">{zh ? '全部状态' : 'All statuses'}</option>{statuses.map((status) => <option value={status}>{statusLabel(status, zh)}</option>)}</select></div>
+        <div class="field"><label for="na-benchmark-tier">Tier</label><select id="na-benchmark-tier" name="tier"><option value="">{zh ? '全部 Tier' : 'All tiers'}</option>{tiers.map((tier) => <option value={tier}>Tier {tier}</option>)}</select></div>
+        <div class="field"><label for="na-benchmark-task">{zh ? '任务' : 'Task'}</label><select id="na-benchmark-task" name="task"><option value="">{zh ? '全部任务' : 'All tasks'}</option>{nucleicCatalog.tasks.map((task) => <option value={text(task, 'task_id')}>{text(task, zh ? 'name_zh' : 'name_en')}</option>)}</select></div>
+      </div>
+    </form>
+    <p class="small muted"><span data-na-visible-count>{rows.length}</span> / {rows.length} {zh ? '个 benchmark' : 'benchmarks'}</p>
+    <div class="grid two na-explorer-grid" data-na-list>
+      {rows.map(({ benchmark, coverage, id, taskIds, taskNames, status, search }) => <article class="card na-benchmark-card" data-na-item data-benchmark-id={id} data-search={search} data-status={status} data-tier={text(benchmark, 'tier')} data-tasks={taskIds.join(';')}>
+        <div class="meta"><code>{id}</code><CoverageBadge status={status} zh={zh} /></div>
+        <h2><a class="stretched" href={withBase(`${root}/benchmarks/${id}/`)}>{text(benchmark, 'benchmark_name')}</a></h2>
+        <p>{text(benchmark, 'notes')}</p>
+        <div class="tag-list"><span class="tag accent">Tier {text(benchmark, 'tier')}</span>{taskNames.slice(0, 4).map((name) => <span class="tag">{name}</span>)}</div>
+        <dl class="na-inline-stats"><div><dt>{zh ? '协议' : 'Protocols'}</dt><dd>{integer(coverage, 'protocol_count')}</dd></div><div><dt>{zh ? '结果行' : 'Results'}</dt><dd>{integer(coverage, 'result_count').toLocaleString('en-US')}</dd></div><div><dt>{zh ? '工作' : 'Works'}</dt><dd>{integer(coverage, 'work_count')}</dd></div></dl>
+      </article>)}
+    </div>
+    <p class="callout info" data-na-empty hidden>{zh ? '没有符合当前筛选条件的 benchmark。' : 'No benchmarks match these filters.'}</p>
+  </div>
+  <script is:inline>
+    document.querySelectorAll('[data-na-list-filter]').forEach((form) => {
+      if (!(form instanceof HTMLFormElement)) return;
+      const scope = form.closest('[data-na-benchmark-explorer]');
+      const items = [...(scope?.querySelectorAll('[data-na-item]') ?? [])];
+      const params = new URLSearchParams(location.search);
+      [...form.elements].forEach((field) => {
+        if (field instanceof HTMLInputElement || field instanceof HTMLSelectElement) field.value = params.get(field.name) ?? '';
+      });
+      const apply = () => {
+        const values = Object.fromEntries(new FormData(form).entries());
+        let visible = 0;
+        items.forEach((item) => {
+          if (!(item instanceof HTMLElement)) return;
+          const q = String(values.q ?? '').trim().toLowerCase();
+          const match = (!q || (item.dataset.search ?? '').includes(q))
+            && (!values.status || item.dataset.status === values.status)
+            && (!values.tier || item.dataset.tier === values.tier)
+            && (!values.task || (item.dataset.tasks ?? '').split(';').includes(String(values.task)));
+          item.hidden = !match;
+          if (match) visible += 1;
+        });
+        const next = new URLSearchParams();
+        Object.entries(values).forEach(([key, value]) => { if (value) next.set(key, String(value)); });
+        history.replaceState(null, '', `${location.pathname}${next.size ? `?${next}` : ''}`);
+        const count = scope?.querySelector('[data-na-visible-count]');
+        if (count) count.textContent = String(visible);
+        const empty = scope?.querySelector('[data-na-empty]');
+        if (empty instanceof HTMLElement) empty.hidden = visible !== 0;
+      };
+      form.addEventListener('input', apply);
+      form.addEventListener('change', apply);
+      apply();
+    });
+  </script>
+</Layout>

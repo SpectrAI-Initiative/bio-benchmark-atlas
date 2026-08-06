@@ -4171,8 +4171,9 @@ def test_work_ids_are_deterministic_and_workflows_have_required_guards() -> None
     assert "labels: [paper-intake, paper-candidate]" not in paper_form
     assert "registry-tests:" in validate_workflow
     assert "paper-tests:" in validate_workflow
+    assert "results-tests:" in validate_workflow
     assert "build:" in validate_workflow
-    assert "needs: [registry-tests, paper-tests, build]" in validate_workflow
+    assert "needs: [registry-tests, paper-tests, results-tests, build]" in validate_workflow
     assert "\n  validate:\n" in validate_workflow
     assert "OPENAI" + "_API_KEY" not in workflows
     assert "create-github-app-token" not in workflows

@@ -1,0 +1,378 @@
+---
+import Layout from '../Layout.astro';
+import NucleicNav from './NucleicNav.astro';
+import { benchmarkById, leadersForProtocol, metricById, nucleicCatalog, safeExternalUrl, snapshotRoot, summariesForProtocol, text, type NucleicRow } from '../../lib/nucleicAcids';
+import { withBase } from '../../lib/data';
+import type { NucleicLanguage } from '../../lib/nucleicLocale';
+
+interface Props { protocol: NucleicRow; lang?: NucleicLanguage; }
+const { protocol, lang = 'en' } = Astro.props;
+const zh = lang === 'zh';
+const root = snapshotRoot(zh);
+const protocolId = text(protocol, 'protocol_id');
+const benchmark = benchmarkById(text(protocol, 'benchmark_id'));
+const summaries = summariesForProtocol(protocolId);
+const leaders = leadersForProtocol(protocolId);
+const metricPairs = summaries.map((summary) => ({
+  metricId: text(summary, 'metric_id'),
+  metricName: text(summary, 'metric_name', text(metricById(text(summary, 'metric_id')), 'metric_name')),
+  variant: text(summary, 'metric_variant', text(metricById(text(summary, 'metric_id')), 'metric_variant')),
+  fingerprint: text(summary, 'protocol_metric_fingerprint'),
+  direction: text(summary, 'direction', text(metricById(text(summary, 'metric_id')), 'direction')),
+  unit: text(summary, 'unit', text(metricById(text(summary, 'metric_id')), 'unit')),
+}));
+const claimsByResult = leaders.reduce<Record<string, string[]>>((map, leader) => {
+  const resultId = text(leader, 'leader_result_id');
+  const claim = text(leader, 'claim_type');
+  if (resultId !== 'NR' && claim !== 'NR') (map[resultId] ??= []).push(claim);
+  return map;
+}, {});
+const protocolSource = safeExternalUrl(protocol.source_url);
+---
+<Layout title={`${text(benchmark, 'benchmark_name')} · ${text(protocol, 'native_track')}`} description={zh ? '按指标与协议指纹浏览可追溯的评测结果。' : 'Browse traceable evaluation results gated by metric and protocol fingerprint.'} canonicalPath={`${root}/protocols/${protocolId}/`} alternatePath={`${zh ? '' : '/zh'}${root.replace(/^\/zh/, '')}/protocols/${protocolId}/`} lang={zh ? 'zh-CN' : 'en'}>
+  <NucleicNav lang={lang} />
+  <header class="page-head page-head--compact shell">
+    <div class="breadcrumbs"><a href={withBase(`${root}/benchmarks/${text(protocol, 'benchmark_id')}/`)}>{text(benchmark, 'benchmark_name')}</a><span>/</span><span>Protocol</span></div>
+    <p class="eyebrow">{text(protocol, 'track_id')} · {text(protocol, 'comparison_scope')}</p>
+    <h1>{text(protocol, 'native_track')}</h1>
+    <p class="lede">{text(protocol, 'target_subset')}</p>
+    <div class="tag-list"><span class="tag accent">{text(protocol, 'comparability_status')}</span><span class="tag">{text(protocol, 'benchmark_version')}</span><span class="tag">{text(protocol, 'evaluation_regime')}</span></div>
+  </header>
+  <div class="shell section">
+    <section class="na-protocol-audit grid two">
+      <div>
+        <p class="eyebrow">{zh ? '协议指纹' : 'Protocol fingerprint'}</p>
+        <p class="fingerprint"><code>{text(protocol, 'protocol_fingerprint')}</code></p>
+        <p class="muted small">{zh ? '只有 metric 和 protocol-metric fingerprint 都明确选定后，页面才会加载结果分片。' : 'The result chunk loads only after both the metric and protocol-metric fingerprint are selected.'}</p>
+      </div>
+      <dl class="definition-list compact">
+        <div><dt>Split</dt><dd>{text(protocol, 'split')}</dd></div>
+        <div><dt>{zh ? '聚合' : 'Aggregation'}</dt><dd>{text(protocol, 'aggregation_method')}</dd></div>
+        <div><dt>{zh ? '外部数据' : 'External data'}</dt><dd>{text(protocol, 'external_data_policy')}</dd></div>
+        <div><dt>Ensemble / best-of-N</dt><dd>{text(protocol, 'ensemble_policy')} · {text(protocol, 'candidate_count')}</dd></div>
+        <div><dt>{zh ? '关键未知字段' : 'Critical unknowns'}</dt><dd>{text(protocol, 'critical_unknown_fields')}</dd></div>
+      </dl>
+    </section>
+
+    <section
+      class="na-results-explorer"
+      data-na-protocol-explorer
+      data-protocol-id={protocolId}
+      data-manifest-url={withBase(`/data/nucleic-acids/${nucleicCatalog.snapshot_date}/manifest.json`)}
+      data-pairs={JSON.stringify(metricPairs)}
+      data-claims={JSON.stringify(claimsByResult)}
+      data-lang={lang}
+      data-participant-root={withBase(`${root}/participants`)}
+    >
+      <div class="na-section-head">
+        <div><p class="eyebrow">{zh ? '交互结果表' : 'Interactive results'}</p><h2>{zh ? '在同一指纹内筛选和比较' : 'Filter and compare inside one fingerprint'}</h2></div>
+        <button class="button secondary" type="button" data-na-download-csv disabled>{zh ? '导出筛选后的 CSV' : 'Export filtered CSV'}</button>
+      </div>
+      <form class="explorer-form na-result-controls">
+        <fieldset class="na-gate-controls">
+          <legend>{zh ? '1. 固定评测口径' : '1. Fix the evaluation unit'}</legend>
+          <div class="explorer-controls">
+            <div class="field"><label for="metric">{zh ? '指标' : 'Metric'}</label><select id="metric" name="metric"><option value="">{zh ? '选择 metric' : 'Choose a metric'}</option>{[...new Map(metricPairs.map((pair) => [pair.metricId, pair])).values()].map((pair) => <option value={pair.metricId}>{pair.metricName} · {pair.variant}</option>)}</select></div>
+            <div class="field na-field-wide"><label for="fingerprint">{zh ? '协议 + 指标指纹' : 'Protocol + metric fingerprint'}</label><select id="fingerprint" name="fingerprint" disabled><option value="">{zh ? '先选择 metric' : 'Choose a metric first'}</option></select></div>
+          </div>
+        </fieldset>
+        <fieldset data-na-filter-fieldset disabled>
+          <legend>{zh ? '2. 筛选同口径结果' : '2. Filter aligned results'}</legend>
+          <div class="explorer-controls na-result-filter-grid">
+            <div class="field"><label for="participant">{zh ? '参与者' : 'Participant'}</label><select id="participant" name="participant"><option value="">{zh ? '全部' : 'All participants'}</option></select></div>
+            <div class="field"><label for="configuration">{zh ? '配置' : 'Configuration'}</label><select id="configuration" name="configuration"><option value="">{zh ? '全部' : 'All configurations'}</option></select></div>
+            <div class="field"><label for="baseline-role">Baseline role</label><select id="baseline-role" name="baseline-role"><option value="">{zh ? '全部' : 'All roles'}</option></select></div>
+            <div class="field"><label for="evaluation-owner">Evaluation owner</label><select id="evaluation-owner" name="evaluation-owner"><option value="">{zh ? '全部' : 'All owners'}</option></select></div>
+            <div class="field"><label for="rank-eligible">{zh ? '排名资格' : 'Rank eligibility'}</label><select id="rank-eligible" name="rank-eligible"><option value="">{zh ? '全部' : 'All results'}</option><option value="true">{zh ? '可排名' : 'Eligible'}</option><option value="false">{zh ? '不可排名' : 'Excluded'}</option></select></div>
+            <div class="field"><label for="claim-type">Claim type</label><select id="claim-type" name="claim-type"><option value="">{zh ? '全部' : 'All claims'}</option><option value="official_baseline">Official baseline</option><option value="original_table_best">Original-table best</option><option value="official_board_or_challenge_leader">Official-board leader</option><option value="strict_cross_work_sota">Strict cross-work SOTA</option><option value="none">{zh ? '无 leader 声明' : 'No leader claim'}</option></select></div>
+          </div>
+        </fieldset>
+      </form>
+
+      <div class="na-results-status callout info" role="status" aria-live="polite" data-na-results-status>{zh ? '请选择 metric 和指纹。' : 'Choose a metric and fingerprint to load results.'}</div>
+
+      <section class="chart-card na-result-chart" hidden data-na-chart-section>
+        <header><div><h3>{zh ? '前 50 个可排名结果' : 'Top 50 rank-eligible results'}</h3><p>{zh ? '只显示当前指纹与筛选条件。' : 'Current fingerprint and filters only.'}</p></div></header>
+        <div class="chart" data-na-result-chart aria-hidden="true"></div>
+      </section>
+
+      <div class="na-compare-bar" hidden data-na-compare-bar>
+        <span data-na-compare-count>0</span> {zh ? '条已选结果' : 'results selected'}
+        <button class="button secondary" type="button" data-na-compare disabled>{zh ? '同指纹比较' : 'Compare same-fingerprint results'}</button>
+        <span class="small muted">{zh ? '更换指纹会清空选择；跨指纹比较被禁止。' : 'Changing fingerprints clears selection; cross-fingerprint comparison is disabled.'}</span>
+      </div>
+      <section class="na-compare-panel" hidden data-na-compare-panel aria-labelledby="na-compare-title"><h3 id="na-compare-title">{zh ? '同口径并排' : 'Same-fingerprint comparison'}</h3><div class="table-wrap"><table><thead><tr><th>{zh ? '参与者' : 'Participant'}</th><th>{zh ? '配置' : 'Configuration'}</th><th>{zh ? '分数' : 'Score'}</th><th>{zh ? '排名' : 'Rank'}</th><th>Claim</th></tr></thead><tbody data-na-compare-body></tbody></table></div></section>
+
+      <div class="table-wrap" hidden data-na-table-wrap>
+        <table data-na-result-table>
+          <thead><tr><th><span class="visually-hidden">{zh ? '比较' : 'Compare'}</span></th><th>{zh ? '参与者 / 配置' : 'Participant / configuration'}</th><th>{zh ? '分数' : 'Score'}</th><th>{zh ? '排名' : 'Ranks'}</th><th>Baseline / claim</th><th>{zh ? '证据与配置' : 'Evidence & settings'}</th></tr></thead>
+          <tbody data-na-result-body></tbody>
+        </table>
+      </div>
+      <div class="na-pagination" hidden data-na-pagination><button type="button" class="button secondary" data-na-prev>{zh ? '上一页' : 'Previous'}</button><span data-na-page-label></span><button type="button" class="button secondary" data-na-next>{zh ? '下一页' : 'Next'}</button></div>
+    </section>
+
+    <section class="section-tight">
+      <h2>{zh ? '完整协议字段' : 'Complete protocol fields'}</h2>
+      <dl class="definition-list">
+        {['canonical_dataset_ids','data_version','label_visibility','input_modality','preprocessing','model_selection_rule','inference_budget','protocol_completeness'].map((key) => <div><dt>{key.replaceAll('_', ' ')}</dt><dd>{text(protocol, key)}</dd></div>)}
+      </dl>
+      {protocolSource && <p><a href={protocolSource} rel="noreferrer">{zh ? '打开协议来源 ↗' : 'Open protocol source ↗'}</a></p>}
+    </section>
+  </div>
+
+  <script>
+    import * as Plot from '@observablehq/plot';
+
+    type Row = Record<string, unknown> & { sources?: Record<string, unknown>[] };
+    type EntityPayload = { participants?: Row[]; configurations?: Row[]; works?: Row[] };
+    type Pair = { metricId: string; metricName: string; variant: string; fingerprint: string; direction: string; unit: string };
+    type Chunk = { protocol_id: string; protocol_fingerprint: string; results: Row[] };
+
+    const safeUrl = (value: unknown) => {
+      if (typeof value !== 'string') return undefined;
+      try { const url = new URL(value); return ['http:', 'https:'].includes(url.protocol) ? url.toString() : undefined; } catch { return undefined; }
+    };
+    const value = (row: Row | undefined, key: string, fallback = 'NR') => {
+      const found = row?.[key]; return found === undefined || found === null || found === '' ? fallback : String(found);
+    };
+    const csvCell = (input: unknown) => {
+      let output = String(input ?? '');
+      if (/^[=+\-@]/.test(output)) output = `'${output}`;
+      return `"${output.replaceAll('"', '""')}"`;
+    };
+    const option = (select: HTMLSelectElement, id: string, label: string) => { const item = document.createElement('option'); item.value = id; item.textContent = label; select.append(item); };
+    const link = (label: string, href?: string) => { const element = document.createElement(href ? 'a' : 'span'); element.textContent = label; if (element instanceof HTMLAnchorElement && href) { element.href = href; element.rel = 'noreferrer'; } return element; };
+
+    document.querySelectorAll<HTMLElement>('[data-na-protocol-explorer]').forEach((root) => {
+      const lang = root.dataset.lang === 'zh' ? 'zh' : 'en';
+      const protocolId = root.dataset.protocolId ?? '';
+      const manifestUrl = root.dataset.manifestUrl ?? '';
+      const participantRoot = root.dataset.participantRoot ?? '';
+      const pairs = JSON.parse(root.dataset.pairs ?? '[]') as Pair[];
+      const claims = JSON.parse(root.dataset.claims ?? '{}') as Record<string, string[]>;
+      const form = root.querySelector('form');
+      const metric = root.querySelector<HTMLSelectElement>('#metric');
+      const fingerprint = root.querySelector<HTMLSelectElement>('#fingerprint');
+      const filters = root.querySelector<HTMLFieldSetElement>('[data-na-filter-fieldset]');
+      const status = root.querySelector<HTMLElement>('[data-na-results-status]');
+      const body = root.querySelector<HTMLTableSectionElement>('[data-na-result-body]');
+      const tableWrap = root.querySelector<HTMLElement>('[data-na-table-wrap]');
+      const pagination = root.querySelector<HTMLElement>('[data-na-pagination]');
+      const pageLabel = root.querySelector<HTMLElement>('[data-na-page-label]');
+      const prev = root.querySelector<HTMLButtonElement>('[data-na-prev]');
+      const next = root.querySelector<HTMLButtonElement>('[data-na-next]');
+      const download = root.querySelector<HTMLButtonElement>('[data-na-download-csv]');
+      const chartSection = root.querySelector<HTMLElement>('[data-na-chart-section]');
+      const chartHost = root.querySelector<HTMLElement>('[data-na-result-chart]');
+      const compareBar = root.querySelector<HTMLElement>('[data-na-compare-bar]');
+      const compareCount = root.querySelector<HTMLElement>('[data-na-compare-count]');
+      const compareButton = root.querySelector<HTMLButtonElement>('[data-na-compare]');
+      const comparePanel = root.querySelector<HTMLElement>('[data-na-compare-panel]');
+      const compareBody = root.querySelector<HTMLTableSectionElement>('[data-na-compare-body]');
+      if (!form || !metric || !fingerprint || !filters || !status || !body || !tableWrap || !pagination || !pageLabel || !prev || !next || !download || !chartSection || !chartHost || !compareBar || !compareCount || !compareButton || !comparePanel || !compareBody) return;
+
+      let chunk: Chunk | undefined;
+      let entities: EntityPayload = {};
+      let filtered: Row[] = [];
+      let currentPage = 1;
+      const selected = new Set<string>();
+      const pageSize = 100;
+      const worker = new Worker(new URL('../../workers/nucleic-results.worker.ts', import.meta.url), { type: 'module' });
+      const pending = new Map<string, { resolve: (payload: unknown) => void; reject: (error: Error) => void }>();
+      worker.addEventListener('message', (event) => {
+        const message = event.data as { type: string; key: string; payload?: unknown; message?: string };
+        const request = pending.get(message.key); if (!request) return;
+        pending.delete(message.key);
+        if (message.type === 'loaded') request.resolve(message.payload); else request.reject(new Error(message.message ?? 'Load failed'));
+      });
+      const loadJson = (key: string, url: string) => new Promise<unknown>((resolve, reject) => { pending.set(key, { resolve, reject }); worker.postMessage({ type: 'load-json', key, url }); });
+      const maps = () => ({
+        participants: new Map((entities.participants ?? []).map((row) => [value(row, 'participant_id'), row])),
+        configurations: new Map((entities.configurations ?? []).map((row) => [value(row, 'configuration_id'), row])),
+        works: new Map((entities.works ?? []).map((row) => [value(row, 'work_id'), row])),
+      });
+      const resolveAsset = (path: string, manifestResponseUrl: string) => new URL(path, manifestResponseUrl).toString();
+      const params = new URLSearchParams(location.search);
+
+      const syncFingerprintOptions = (restore = '') => {
+        fingerprint.replaceChildren();
+        option(fingerprint, '', lang === 'zh' ? '选择指纹' : 'Choose a fingerprint');
+        const choices = pairs.filter((pair) => pair.metricId === metric.value);
+        choices.forEach((pair) => option(fingerprint, pair.fingerprint, `${pair.fingerprint} · ${pair.direction}`));
+        fingerprint.disabled = choices.length === 0;
+        if (restore && choices.some((pair) => pair.fingerprint === restore)) fingerprint.value = restore;
+        else if (choices.length === 1) fingerprint.value = choices[0].fingerprint;
+      };
+
+      const populateFilter = (id: string, rows: Row[], key: string, labelFor?: (id: string) => string) => {
+        const select = root.querySelector<HTMLSelectElement>(`#${id}`); if (!select) return;
+        const requested = select.value || params.get(id) || '';
+        const first = select.options[0]?.cloneNode(true) as HTMLOptionElement;
+        select.replaceChildren(first);
+        [...new Set(rows.map((row) => value(row, key)).filter((item) => item !== 'NR'))].sort().forEach((item) => option(select, item, labelFor?.(item) ?? item));
+        if (requested && [...select.options].some((item) => item.value === requested)) select.value = requested;
+        else select.value = '';
+      };
+
+      const selectedPair = () => pairs.find((pair) => pair.metricId === metric.value && pair.fingerprint === fingerprint.value);
+      const resultClaims = (row: Row) => claims[value(row, 'result_id')] ?? [];
+      const participantLabel = (row: Row) => value(maps().participants.get(value(row, 'participant_id')), 'participant_name', value(row, 'participant_id'));
+      const configurationLabel = (row: Row) => value(maps().configurations.get(value(row, 'configuration_id')), 'configuration_name', value(row, 'configuration_id'));
+      const numericScore = (row: Row) => { const score = Number(row.canonical_value); return Number.isFinite(score) ? score : Number.NaN; };
+
+      const updateUrl = () => {
+        const values = new FormData(form);
+        const nextParams = new URLSearchParams();
+        values.forEach((entry, key) => { if (entry) nextParams.set(key, String(entry)); });
+        if (currentPage > 1) nextParams.set('page', String(currentPage));
+        history.replaceState(null, '', `${location.pathname}${nextParams.size ? `?${nextParams}` : ''}`);
+      };
+
+      const renderChart = () => {
+        const pair = selectedPair();
+        const rows = filtered.filter((row) => value(row, 'rank_eligible') === 'true' && Number.isFinite(numericScore(row))).slice(0, 50);
+        chartSection.hidden = rows.length === 0;
+        if (!rows.length || !pair) { chartHost.replaceChildren(); return; }
+        const values = rows.map((row) => ({ label: participantLabel(row), value: numericScore(row), group: resultClaims(row)[0] ?? 'result' }));
+        const css = getComputedStyle(document.documentElement);
+        const plotWidth = Math.max(680, chartHost.clientWidth || 760);
+        const plot = Plot.plot({
+          width: plotWidth,
+          height: Math.max(260, values.length * 27),
+          marginLeft: 180,
+          marginRight: 65,
+          style: { background: 'transparent', color: css.getPropertyValue('--ink').trim(), fontSize: '11px' },
+          x: { label: `${pair.metricName} (${pair.unit}; ${pair.direction} is better)`, grid: true },
+          y: { label: null },
+          color: { legend: true },
+          marks: [Plot.ruleX([0]), Plot.dot(values, { x: 'value', y: 'label', fill: 'group', r: 6, tip: true })],
+        });
+        const canvas = document.createElement('div');
+        canvas.className = 'na-plot-canvas';
+        canvas.style.width = `${plotWidth}px`;
+        canvas.append(plot);
+        chartHost.replaceChildren(canvas);
+      };
+
+      const renderCompare = () => {
+        compareBody.replaceChildren();
+        const chosen = (chunk?.results ?? []).filter((row) => selected.has(value(row, 'result_id')));
+        chosen.forEach((row) => {
+          const tr = document.createElement('tr');
+          [participantLabel(row), configurationLabel(row), `${value(row, 'reported_score_text')} (${value(row, 'canonical_value')} ${value(row, 'canonical_scale')})`, value(row, 'observed_rank', value(row, 'same_table_rank', value(row, 'official_rank'))), resultClaims(row).join('; ') || 'none'].forEach((cellValue) => { const td = document.createElement('td'); td.textContent = cellValue; tr.append(td); });
+          compareBody.append(tr);
+        });
+        comparePanel.hidden = chosen.length < 2;
+      };
+
+      const renderRows = () => {
+        body.replaceChildren();
+        const start = (currentPage - 1) * pageSize;
+        const pageRows = filtered.slice(start, start + pageSize);
+        const entityMaps = maps();
+        pageRows.forEach((row) => {
+          const tr = document.createElement('tr'); tr.dataset.resultId = value(row, 'result_id');
+          const selectCell = document.createElement('td'); const checkbox = document.createElement('input'); checkbox.type = 'checkbox'; checkbox.checked = selected.has(value(row, 'result_id')); checkbox.setAttribute('aria-label', `${lang === 'zh' ? '选择比较' : 'Select for comparison'} ${participantLabel(row)}`); checkbox.addEventListener('change', () => { if (checkbox.checked) selected.add(value(row, 'result_id')); else selected.delete(value(row, 'result_id')); compareCount.textContent = String(selected.size); compareButton.disabled = selected.size < 2; compareBar.hidden = selected.size === 0; if (selected.size < 2) comparePanel.hidden = true; }); selectCell.append(checkbox);
+          const identity = document.createElement('td'); identity.append(link(participantLabel(row), `${participantRoot}/${encodeURIComponent(value(row, 'participant_id'))}/`), document.createElement('br')); const config = document.createElement('span'); config.className = 'small muted'; config.textContent = configurationLabel(row); identity.append(config);
+          const score = document.createElement('td'); const strong = document.createElement('strong'); strong.textContent = value(row, 'reported_score_text'); const canonical = document.createElement('span'); canonical.className = 'small muted'; canonical.textContent = `${value(row, 'canonical_value')} · ${value(row, 'canonical_scale')}`; score.append(strong, document.createElement('br'), canonical);
+          const ranks = document.createElement('td'); ranks.textContent = `official ${value(row, 'official_rank')} · observed ${value(row, 'observed_rank')} · table ${value(row, 'same_table_rank')}`;
+          const claim = document.createElement('td'); const labels = resultClaims(row); claim.textContent = labels.join('; ') || value(row, 'baseline_role'); if (value(row, 'rank_eligible') !== 'true') { const reason = document.createElement('span'); reason.className = 'small muted'; reason.textContent = ` · ${value(row, 'rank_exclusion_reason')}`; claim.append(reason); }
+          const detailCell = document.createElement('td'); const details = document.createElement('details'); const summary = document.createElement('summary'); summary.textContent = lang === 'zh' ? '查看证据' : 'Inspect evidence'; details.append(summary);
+          const configuration = entityMaps.configurations.get(value(row, 'configuration_id'));
+          const audit = document.createElement('dl'); audit.className = 'definition-list compact na-result-audit';
+          const auditRows: [string, string][] = [
+            ['Result ID', value(row, 'result_id')], ['Configuration ID', value(row, 'configuration_id')], ['Work ID', value(row, 'work_id')],
+            ['Conversion', value(row, 'conversion_rule')], ['Comparison / rank scope', `${value(row, 'comparison_scope')} / ${value(row, 'rank_scope')}`],
+            ['SOTA eligibility', `${value(row, 'sota_eligible')} — ${value(row, 'sota_exclusion_reason')}`], ['Base model', value(configuration, 'base_model')],
+            ['Fine-tuning', value(configuration, 'fine_tuning_regime')], ['External data', value(configuration, 'external_data')],
+            ['Ensemble / candidates', `${value(configuration, 'ensemble_size')} / ${value(configuration, 'candidate_count')}`], ['Inference budget', value(configuration, 'inference_budget')],
+          ];
+          auditRows.forEach(([term, description]) => { const wrapper = document.createElement('div'); const dt = document.createElement('dt'); const dd = document.createElement('dd'); dt.textContent = term; dd.textContent = description; wrapper.append(dt, dd); audit.append(wrapper); }); details.append(audit);
+          const work = entityMaps.works.get(value(row, 'work_id')); const workUrl = safeUrl(work?.official_url); const workP = document.createElement('p'); workP.append(link(value(work, 'title', value(row, 'work_id')), workUrl)); details.append(workP);
+          const sources = Array.isArray(row.sources) ? row.sources : [];
+          if (sources.length) { const list = document.createElement('ul'); sources.forEach((source) => { const item = document.createElement('li'); const href = safeUrl(source.source_url); item.append(link(`${value(source, 'table_or_supplement')} · ${value(source, 'page')} · ${value(source, 'row_label')}`, href)); const meta = document.createElement('span'); meta.className = 'small muted'; meta.textContent = ` — ${value(source, 'source_authority')} / ${value(source, 'result_provenance')} / ${value(source, 'extraction_method')} / canonical ${value(source, 'canonical_evidence')}`; item.append(meta); list.append(item); }); details.append(list); }
+          detailCell.append(details);
+          tr.append(selectCell, identity, score, ranks, claim, detailCell); body.append(tr);
+        });
+        tableWrap.hidden = filtered.length === 0;
+        pagination.hidden = filtered.length <= pageSize;
+        const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
+        pageLabel.textContent = lang === 'zh' ? `第 ${currentPage} / ${pageCount} 页 · ${filtered.length} 条` : `Page ${currentPage} of ${pageCount} · ${filtered.length} results`;
+        prev.disabled = currentPage <= 1; next.disabled = currentPage >= pageCount;
+        status.textContent = lang === 'zh' ? `已加载 ${chunk?.results.length ?? 0} 条；当前筛选 ${filtered.length} 条。` : `Loaded ${chunk?.results.length ?? 0} rows; ${filtered.length} match the current filters.`;
+        download.disabled = filtered.length === 0;
+        renderChart(); updateUrl();
+      };
+
+      const applyFilters = () => {
+        if (!chunk) return;
+        const values = Object.fromEntries(new FormData(form).entries());
+        const pair = selectedPair(); if (!pair) return;
+        filtered = chunk.results.filter((row) => {
+          const rowClaims = resultClaims(row);
+          return value(row, 'metric_id') === pair.metricId && value(row, 'protocol_metric_fingerprint') === pair.fingerprint
+            && (!values.participant || value(row, 'participant_id') === values.participant)
+            && (!values.configuration || value(row, 'configuration_id') === values.configuration)
+            && (!values['baseline-role'] || value(row, 'baseline_role') === values['baseline-role'])
+            && (!values['evaluation-owner'] || value(row, 'evaluation_owner') === values['evaluation-owner'])
+            && (!values['rank-eligible'] || value(row, 'rank_eligible') === values['rank-eligible'])
+            && (!values['claim-type'] || (values['claim-type'] === 'none' ? rowClaims.length === 0 : rowClaims.includes(String(values['claim-type']))));
+        });
+        const multiplier = pair.direction === 'lower' ? 1 : -1;
+        filtered.sort((a, b) => {
+          const left = numericScore(a); const right = numericScore(b);
+          if (!Number.isFinite(left)) return 1; if (!Number.isFinite(right)) return -1;
+          return (left - right) * multiplier;
+        });
+        const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize)); currentPage = Math.min(currentPage, pageCount); renderRows();
+      };
+
+      const load = async () => {
+        const pair = selectedPair();
+        if (!pair) { filters.disabled = true; status.textContent = lang === 'zh' ? '请选择 metric 和指纹。' : 'Choose a metric and fingerprint to load results.'; return; }
+        selected.clear(); compareBar.hidden = true; comparePanel.hidden = true; compareButton.disabled = true; compareCount.textContent = '0';
+        status.textContent = lang === 'zh' ? '正在加载协议分片…' : 'Loading protocol chunk…';
+        try {
+          if (!chunk) {
+            const manifestResponse = await fetch(manifestUrl, { cache: 'force-cache' }); if (!manifestResponse.ok) throw new Error(`Manifest ${manifestResponse.status}`);
+            const manifest = await manifestResponse.json(); const descriptor = manifest.protocolChunks?.[protocolId]; if (!descriptor?.path) throw new Error('Protocol chunk is missing from the manifest.');
+            const entityDescriptor = manifest.assets?.entities; if (!entityDescriptor?.path) throw new Error('Entity asset is missing from the manifest.');
+            const [chunkPayload, entityPayload] = await Promise.all([
+              loadJson(`protocol:${protocolId}`, resolveAsset(descriptor.path, manifestResponse.url)),
+              loadJson('entities', resolveAsset(entityDescriptor.path, manifestResponse.url)),
+            ]);
+            chunk = chunkPayload as Chunk; entities = entityPayload as EntityPayload;
+          }
+          const aligned = chunk.results.filter((row) => value(row, 'metric_id') === pair.metricId && value(row, 'protocol_metric_fingerprint') === pair.fingerprint);
+          const entityMaps = maps();
+          populateFilter('participant', aligned, 'participant_id', (id) => value(entityMaps.participants.get(id), 'participant_name', id));
+          populateFilter('configuration', aligned, 'configuration_id', (id) => value(entityMaps.configurations.get(id), 'configuration_name', id));
+          populateFilter('baseline-role', aligned, 'baseline_role'); populateFilter('evaluation-owner', aligned, 'evaluation_owner');
+          filters.disabled = false; currentPage = Number(params.get('page') ?? 1) || 1; applyFilters();
+        } catch (error) {
+          status.classList.remove('info'); status.textContent = `${lang === 'zh' ? '加载失败' : 'Could not load results'}: ${error instanceof Error ? error.message : String(error)}`;
+        }
+      };
+
+      metric.addEventListener('change', () => { syncFingerprintOptions(); filters.disabled = true; selected.clear(); updateUrl(); if (fingerprint.value) load(); });
+      fingerprint.addEventListener('change', () => { currentPage = 1; load(); });
+      filters.addEventListener('change', () => { currentPage = 1; applyFilters(); });
+      prev.addEventListener('click', () => { currentPage -= 1; renderRows(); root.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+      next.addEventListener('click', () => { currentPage += 1; renderRows(); root.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+      compareButton.addEventListener('click', renderCompare);
+      download.addEventListener('click', () => {
+        const columns = ['result_id','participant_id','configuration_id','reported_score_text','canonical_value','canonical_scale','official_rank','observed_rank','same_table_rank','rank_scope','rank_eligible','baseline_role','evaluation_owner','work_id','protocol_metric_fingerprint'];
+        const lines = [columns.map(csvCell).join(','), ...filtered.map((row) => columns.map((key) => csvCell(row[key])).join(','))];
+        const blob = new Blob([`\uFEFF${lines.join('\r\n')}\r\n`], { type: 'text/csv;charset=utf-8' }); const href = URL.createObjectURL(blob); const anchor = document.createElement('a'); anchor.href = href; anchor.download = `${protocolId}-${metric.value}.csv`; anchor.click(); URL.revokeObjectURL(href);
+      });
+      window.addEventListener('biobench-theme-change', renderChart);
+
+      const restoredMetric = params.get('metric');
+      if (restoredMetric && pairs.some((pair) => pair.metricId === restoredMetric)) metric.value = restoredMetric;
+      else if (new Set(pairs.map((pair) => pair.metricId)).size === 1) metric.value = pairs[0]?.metricId ?? '';
+      syncFingerprintOptions(params.get('fingerprint') ?? '');
+      if (metric.value && fingerprint.value) load();
+    });
+  </script>
+</Layout>

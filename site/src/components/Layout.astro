@@ -7,6 +7,7 @@ interface Props {
   description?: string;
   canonicalPath?: string;
   lang?: string;
+  alternatePath?: string;
 }
 
 const {
@@ -14,9 +15,12 @@ const {
   description = 'A source-grounded registry of protein, omics, and life-science benchmarks and their evaluation settings.',
   canonicalPath = '/',
   lang = 'en',
+  alternatePath,
 } = Astro.props;
 const fullTitle = title === 'BioBench Atlas' ? title : `${title} · BioBench Atlas`;
 const canonical = new URL(withBase(canonicalPath), 'https://spectrai-initiative.github.io').toString();
+const isZh = lang.toLowerCase().startsWith('zh');
+const languageHref = alternatePath ?? (isZh ? '/' : '/zh/');
 ---
 
 <!doctype html>
@@ -36,7 +40,7 @@ const canonical = new URL(withBase(canonicalPath), 'https://spectrai-initiative.
     <title>{fullTitle}</title>
   </head>
   <body>
-    <a class="skip-link" href="#main">Skip to content</a>
+    <a class="skip-link" href="#main">{isZh ? '跳到主要内容' : 'Skip to content'}</a>
     <header class="site-header">
       <a class="brand" href={withBase('/')} aria-label="BioBench Atlas home">
         <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
@@ -50,10 +54,11 @@ const canonical = new URL(withBase(canonicalPath), 'https://spectrai-initiative.
         <a href={withBase('/benchmarks/')}>Explorer</a>
         <a href={withBase('/works/')}>Papers</a>
         <a href={withBase('/tasks/')}>Tasks</a>
+        <a href={withBase(isZh ? '/zh/nucleic-acids/' : '/nucleic-acids/')}>{isZh ? '核酸结果' : 'Nucleic results'}</a>
         <a href={withBase('/methodology/')}>Methodology</a>
         <a href={withBase('/taxonomy/')}>Taxonomy</a>
         <a href={withBase('/archive/')}>Archive</a>
-        <a href={withBase('/zh/')}>中文</a>
+        <a href={withBase(languageHref)}>{isZh ? 'English' : '中文'}</a>
       </nav>
       <button class="theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle color theme">
         <span aria-hidden="true">◐</span>
@@ -68,6 +73,7 @@ const canonical = new URL(withBase(canonicalPath), 'https://spectrai-initiative.
       <div class="footer-links">
         <a href={withBase('/contribute/')}>Contribute</a>
         <a href={withBase('/data/registry.json')}>Registry JSON</a>
+        <a href={withBase(isZh ? '/zh/nucleic-acids/' : '/nucleic-acids/')}>{isZh ? '核酸结果' : 'Nucleic results'}</a>
         <a href="https://github.com/SpectrAI-Initiative/bio-benchmark-atlas">GitHub</a>
         <span>Code Apache-2.0 · Metadata CC BY 4.0</span>
       </div>

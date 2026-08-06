@@ -8,11 +8,13 @@ site/node_modules/
 site/dist/
 site/.astro/
 site/src/generated/*.json
+site/src/generated/nucleic-acid-results/
 site/public/data/
 site/public/schema/
 exports/
 site/test-results/
 site/playwright-report/
+release-artifacts/
 .source-monitor-state.json
 source-check-report.json
 source-issues.json

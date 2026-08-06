@@ -1,0 +1,34 @@
+---
+import { claimLabel, formatScore, optionalText, safeExternalUrl, text, type NucleicRow } from '../../lib/nucleicAcids';
+
+interface Props { summary: NucleicRow; zh?: boolean; }
+const { summary, zh = false } = Astro.props;
+const claims = [
+  { type: 'official_baseline', ids: 'official_baseline_result_ids', people: 'official_baseline_participants', scores: 'official_baseline_scores', urls: 'official_baseline_evidence_urls' },
+  { type: 'original_table_best', ids: 'original_table_best_result_ids', people: 'original_table_best_participants', scores: 'original_table_best_scores', urls: 'original_table_best_evidence_urls' },
+  { type: 'official_board_or_challenge_leader', ids: 'official_board_leader_result_ids', people: 'official_board_leader_participants', scores: 'official_board_leader_scores', urls: 'official_board_leader_evidence_urls' },
+  { type: 'strict_cross_work_sota', ids: 'strict_cross_work_sota_result_ids', people: 'strict_cross_work_sota_participants', scores: 'strict_cross_work_sota_scores', urls: 'strict_cross_work_sota_evidence_urls' },
+];
+---
+<div class="na-claim-grid">
+  {claims.map((claim) => {
+    const ids = optionalText(summary, claim.ids);
+    const people = optionalText(summary, claim.people);
+    const scores = optionalText(summary, claim.scores);
+    const url = safeExternalUrl(optionalText(summary, claim.urls)?.split(';')[0]);
+    return <article class:list={['na-claim-card', { empty: !ids }]} data-claim-type={claim.type}>
+      <p class="eyebrow">{claimLabel(claim.type, zh)}</p>
+      {ids ? <>
+        <strong>{people ?? ids}</strong>
+        <span class="na-score">{scores?.split(';').map(formatScore).join(' / ') ?? 'NR'}</span>
+        <span class="small muted">{text(summary, 'metric_name')} · {text(summary, 'canonical_scale')}</span>
+        {url && <a class="small" href={url} rel="noreferrer">{zh ? '证据 ↗' : 'Evidence ↗'}</a>}
+      </> : <>
+        <strong>{zh ? '未建立该类声明' : 'No eligible claim'}</strong>
+        <span class="small muted">{claim.type === 'strict_cross_work_sota'
+          ? (zh ? '不会用表内最佳值代替跨工作 SOTA。' : 'An original-table best is never substituted for cross-work SOTA.')
+          : (zh ? '当前快照没有符合口径的结果。' : 'No qualifying result exists in this snapshot.')}</span>
+      </>}
+    </article>;
+  })}
+</div>

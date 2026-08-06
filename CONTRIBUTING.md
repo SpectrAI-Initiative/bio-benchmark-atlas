@@ -42,6 +42,8 @@ python3 -m pip install -e '.[test]'
 pnpm install
 pnpm registry:validate
 pnpm registry:build
+pnpm results:validate
+pnpm results:build
 pnpm test:data
 pnpm site:build
 pnpm --dir site test

@@ -1,0 +1,36 @@
+---
+import { NUCLEIC_SNAPSHOT, nucleicRoot, snapshotRoot } from '../../lib/nucleicAcids';
+import { t, type NucleicLanguage } from '../../lib/nucleicLocale';
+import { withBase } from '../../lib/data';
+
+interface Props {
+  lang?: NucleicLanguage;
+  active?: 'overview' | 'benchmarks' | 'tasks' | 'methodology' | 'downloads';
+}
+
+const { lang = 'en', active } = Astro.props;
+const zh = lang === 'zh';
+const strings = t(lang);
+const root = nucleicRoot(zh);
+const snapshot = snapshotRoot(zh);
+const links = [
+  { id: 'overview', href: `${root}/`, label: strings.overview },
+  { id: 'benchmarks', href: `${snapshot}/benchmarks/`, label: strings.benchmarks },
+  { id: 'tasks', href: `${snapshot}/tasks/`, label: strings.tasks },
+  { id: 'methodology', href: `${root}/methodology/`, label: strings.methodology },
+  { id: 'downloads', href: `${root}/downloads/`, label: strings.downloads },
+];
+---
+
+<div class="na-context-bar">
+  <div class="shell na-context-inner">
+    <a class="na-context-title" href={withBase(`${root}/`)}>
+      <span aria-hidden="true" class="na-molecule-mark"><i></i><i></i><i></i><i></i></span>
+      <span>{strings.label}</span>
+    </a>
+    <nav class="na-context-nav" aria-label={zh ? '核酸结果导航' : 'Nucleic-acid results navigation'}>
+      {links.map((link) => <a href={withBase(link.href)} aria-current={active === link.id ? 'page' : undefined}>{link.label}</a>)}
+    </nav>
+    <label class="na-snapshot-picker"><span>{strings.snapshot}</span><select aria-label={zh ? '结果快照' : 'Results snapshot'} data-na-snapshot-select><option value={NUCLEIC_SNAPSHOT}>{NUCLEIC_SNAPSHOT}</option></select></label>
+  </div>
+</div>

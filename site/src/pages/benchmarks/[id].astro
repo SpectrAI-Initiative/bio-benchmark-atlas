@@ -29,6 +29,7 @@ const partialUses = uses.filter((use) => use!.relation_type === 'evaluation' && 
 const externalUses = uses.filter((use) => use!.relation_type === 'external-result-summary');
 const nonEvaluationUses = uses.filter((use) => use!.relation_type !== 'evaluation' && use!.relation_type !== 'external-result-summary');
 const statusFor = (path: string) => fieldStatus(benchmark, path);
+const kindStatus = statusFor('/kind');
 const taskClassification = benchmark.scientific_task_classification;
 const headerTags = [
   ...benchmark.domains.map((id) => ({ id, axis: 'domains', accent: true })),
@@ -57,7 +58,7 @@ const resultCharts = benchmark.access.level === 'private-internal' ? [] : runs.f
   <Layout title={benchmark.name} description={benchmark.summary} canonicalPath={`/benchmarks/${benchmark.id}/`}>
     <header class="page-head shell">
       <div class="breadcrumbs"><a href={withBase('/benchmarks/')}>Benchmarks</a><span>/</span>{parent && <><a href={withBase(`/benchmarks/${parent.id}/`)}>{parent.name}</a><span>/</span></>}<span>{benchmark.name}</span></div>
-      <p class="eyebrow">{benchmark.kind} · {benchmark.audit.status} · verified {benchmark.verification.last_verified}</p>
+      <p class="eyebrow">{benchmark.kind}{kindStatus && <> <StatusBadge status={kindStatus.status} confidence={kindStatus.confidence} reason={kindStatus.reason} /></>} · {benchmark.audit.status} · verified {benchmark.verification.last_verified}</p>
       <h1>{benchmark.name}</h1><p class="lede">{benchmark.summary}</p>
       <div class="tag-list">{headerTags.slice(0, 6).map((tag) => <Tag id={tag.id} axis={tag.axis} linked accent={tag.accent} />)}</div>
       {headerTags.length > 6 && <details class="tag-overflow"><summary>+{headerTags.length - 6} more</summary><div class="tag-list">{headerTags.slice(6).map((tag) => <Tag id={tag.id} axis={tag.axis} linked accent={tag.accent} />)}</div></details>}

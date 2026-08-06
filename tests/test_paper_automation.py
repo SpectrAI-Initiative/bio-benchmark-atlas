@@ -84,6 +84,7 @@ from local_paper_intake import (  # noqa: E402
     MAX_PARALLEL_RUNS,
     _active_run_states,
     _ensure_labels,
+    _existing_pr,
     _owner_conflict_resolution,
     _reserve_run,
     _run,
@@ -918,15 +919,20 @@ def test_new_scenario_matrix_benchmark_accepts_verified_unreported_root_total() 
         "claim_ids": [item["claim_id"] for item in claims if item["mention_id"]],
         "reporting_gaps": ["finite root benchmark item total"],
     }
-    source = {**SOURCE, "repository_pins": {
+    source = {**SOURCE, "bibliographic_metadata": {
+        "metadata_source": "Crossref",
+        "publication_date": "2025-09-11",
+    }, "repository_pins": {
         "https://github.com/example/scenariomatrixbench": {
             "kind": "commit", "value": "f" * 40,
             "url": "https://github.com/example/scenariomatrixbench/commit/" + "f" * 40,
         }
     }}
 
+    result = verified_result(claims, mention)
+    result["draft"]["paper"]["publication_date"] = "2025"
     records = build_records(
-        verified_result(claims, mention), source=source,
+        result, source=source,
         generated_at=SOURCE["retrieved_at"], verified_on="2026-07-30",
     )
 
@@ -939,6 +945,8 @@ def test_new_scenario_matrix_benchmark_accepts_verified_unreported_root_total() 
         "subsets": [],
     }
     assert benchmark["versions"][0]["task_counts"] == benchmark["task_counts"]
+    assert records.work["publication_date"] == "2025-09-11"
+    assert records.work["source_versions"][0]["publication_date"] == "2025-09-11"
 
 
 def test_extractor_requires_explicit_consistent_benchmark_count_roles() -> None:
@@ -1324,6 +1332,108 @@ def test_atomic_metadata_uses_canonical_bibliographic_date_and_unclassified_form
     }
 
 
+def test_atomic_metadata_replaces_year_only_claim_with_complete_bibliographic_date() -> None:
+    values = {
+        "/name": "YearOnlyDateBench",
+        "/summary": "A synthetic benchmark with only a year printed in its PDF header.",
+        "/kind": "dataset",
+        "/organizations": ["Example Institute"],
+        "/release_date": "2025",
+        "/domains": ["transcriptomics"],
+        "/capabilities": ["data-analysis"],
+        "/modalities": ["raw-omics"],
+        "/access/level": "fully-open",
+    }
+    claims = [
+        EvidenceClaimDraft.model_validate(claim(
+            f"claim-{index}", "benchmark-metadata", value,
+            field_path=f"/benchmark-metadata{path}",
+        ))
+        for index, (path, value) in enumerate(values.items(), 1)
+    ]
+
+    metadata, evidence_claims, bibliographic_supports = _materialize_benchmark_metadata(
+        claims,
+        bibliographic_metadata={
+            "metadata_source": "Crossref",
+            "publication_date": "2025-09-11",
+        },
+    )
+
+    assert metadata["release_date"] == "2025-09-11"
+    assert bibliographic_supports == ["/release_date"]
+    assert "/release_date" not in {
+        support
+        for _claim, supports in evidence_claims
+        for support in supports
+    }
+
+
+def test_new_benchmark_normalizes_verified_access_text_lists() -> None:
+    claims = [
+        claim("claim-1", "paper-identity", {"title": "Synthetic benchmark evaluation paper"}, mention_id=None),
+        claim("claim-2", "relation", "benchmark-creation"),
+        claim("claim-3", "benchmark-identity", "AccessListBench"),
+    ]
+    metadata_values = {
+        "/name": "AccessListBench",
+        "/summary": "A synthetic benchmark used to test access description normalization.",
+        "/kind": "suite",
+        "/organizations": ["Example Institute"],
+        "/release_date": "2026-07-01",
+        "/domains": ["transcriptomics"],
+        "/capabilities": ["data-analysis"],
+        "/modalities": ["raw-omics"],
+        "/access/level": "fully-open",
+        "/access/tasks": ["simulation code", "analysis code"],
+        "/access/artifacts": ["configurations", "plot scripts"],
+        "/access/grader": "Deterministic scenario metrics",
+    }
+    for path, value in metadata_values.items():
+        claims.append(claim(
+            f"claim-{len(claims) + 1}", "benchmark-metadata", value,
+            field_path=f"/benchmark-metadata{path}",
+        ))
+    claims.extend([
+        claim(f"claim-{len(claims) + 1}", "benchmark-count", {
+            "label": "finite root item inventory", "count": None, "unit": "other",
+            "basis": "The source reports no single finite item inventory.",
+            "reporting_status": "not_reported", "count_role": "root-total",
+            "subset_id": None, "exclusive": False, "exhaustive": False,
+            "partition_group": None,
+        }),
+        claim(f"claim-{len(claims) + 2}", "creator-source", {
+            "url": "https://doi.org/10.9999/access-list.1",
+        }),
+        claim(f"claim-{len(claims) + 3}", "official-repository", {
+            "url": "https://github.com/example/access-list-bench", "license": "GPL-3.0",
+        }),
+    ])
+    mention = {
+        "mention_id": "mention-1", "benchmark_name": "AccessListBench",
+        "registry_benchmark_id": None, "relation_type": "benchmark-creation",
+        "is_new_benchmark": True, "background_only": False,
+        "claim_ids": [item["claim_id"] for item in claims if item["mention_id"]],
+        "reporting_gaps": ["finite root benchmark item total"],
+    }
+    source = {**SOURCE, "repository_pins": {
+        "https://github.com/example/access-list-bench": {
+            "kind": "commit", "value": "d" * 40,
+            "url": "https://github.com/example/access-list-bench/commit/" + "d" * 40,
+        }
+    }}
+
+    records = build_records(
+        verified_result(claims, mention), source=source,
+        generated_at=SOURCE["retrieved_at"], verified_on="2026-07-30",
+    )
+
+    assert records.blocked_reasons == []
+    access = records.benchmarks[0]["access"]
+    assert access["tasks"] == "simulation code; analysis code"
+    assert access["artifacts"] == "configurations; plot scripts"
+
+
 def test_atomic_dataset_metadata_can_use_conservative_resolved_access_floor() -> None:
     values = {
         "/name": "DatasetAccessBench",
@@ -1525,6 +1635,64 @@ def test_owner_conflict_resolution_requires_exact_owner_command() -> None:
     assert _owner_conflict_resolution(issue)["exclude_creator_evaluation"] is True
     issue["comments"][1]["body"] = "/resolve-paper-conflict benchmark-total=394 exclude=anything"
     assert _owner_conflict_resolution(issue) is None
+    issue["comments"] = [{
+        "author": {"login": "wang422003"},
+        "body": (
+            "/resolve-paper-conflict benchmark-total=not-reported "
+            "exclude=creator-evaluation"
+        ),
+        "createdAt": "2026-07-25T02:00:00Z",
+    }]
+    assert _owner_conflict_resolution(issue) == {
+        "benchmark_total": None,
+        "exclude": "creator-evaluation",
+        "exclude_creator_evaluation": True,
+        "approved_by": "wang422003",
+        "approved_at": "2026-07-25T02:00:00Z",
+    }
+    issue["comments"].append({
+        "author": {"login": "wang422003"},
+        "body": "/resolve-paper-metadata benchmark-kind=suite status=provisional",
+        "createdAt": "2026-07-25T03:00:00Z",
+    })
+    assert _owner_conflict_resolution(issue) == {
+        "benchmark_total": None,
+        "exclude": "creator-evaluation",
+        "exclude_creator_evaluation": True,
+        "approved_by": "wang422003",
+        "approved_at": "2026-07-25T02:00:00Z",
+        "provisional_benchmark_kind": "suite",
+        "provisional_kind_status": "provisional",
+        "provisional_kind_approved_at": "2026-07-25T03:00:00Z",
+    }
+    issue["comments"].pop()
+    issue["comments"][0]["body"] = (
+        "/resolve-paper-conflict benchmark-total=not-reported "
+        "exclude=benchmark-subcounts,creator-evaluation"
+    )
+    assert _owner_conflict_resolution(issue) is None
+
+
+def test_existing_pr_dedup_only_queries_open_pull_requests() -> None:
+    commands: list[list[str]] = []
+
+    def runner(command: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        commands.append(command)
+        return subprocess.CompletedProcess(
+            command,
+            0,
+            json.dumps([{
+                "headRefName": "paper-intake/example-paper-142",
+                "url": "https://github.com/SpectrAI-Initiative/bio-benchmark-atlas/pull/999",
+            }]),
+            "",
+        )
+
+    assert _existing_pr(142, runner=runner) == (
+        "https://github.com/SpectrAI-Initiative/bio-benchmark-atlas/pull/999"
+    )
+    assert "--state" in commands[0]
+    assert commands[0][commands[0].index("--state") + 1] == "open"
 
 
 def test_local_intake_only_creates_missing_issue_labels() -> None:
@@ -2400,6 +2568,238 @@ def test_owner_can_downgrade_conflicted_creator_evaluation_to_partial_use() -> N
                 "exclude": "benchmark-subcounts,creator-evaluation",
                 "exclude_creator_evaluation": True,
             },
+        )
+
+
+def test_owner_can_downgrade_creator_evaluation_with_not_reported_root_total() -> None:
+    metadata = {
+        "name": "ScenarioMatrixBench",
+        "aliases": [],
+        "summary": "A reusable scenario matrix for conservative creator-evaluation intake tests.",
+        "kind": "dataset",
+        "organizations": ["Example Institute"],
+        "release_date": "2026-07-01",
+        "domains": ["transcriptomics"],
+        "capabilities": ["data-analysis"],
+        "modalities": ["raw-omics"],
+        "task_formats": ["analysis"],
+        "access": {
+            "level": "fully-open",
+            "tasks": "Scenario definitions are public.",
+            "artifacts": "Simulation and analysis artifacts are public.",
+            "grader": "Source-defined statistical metrics.",
+            "license": "Apache-2.0",
+            "biosafety_notes": None,
+        },
+    }
+    atomic_values = {
+        "/name": metadata["name"],
+        "/aliases": metadata["aliases"],
+        "/summary": metadata["summary"],
+        "/kind": "suite",
+        "/organizations": metadata["organizations"],
+        "/release_date": metadata["release_date"],
+        "/domains": metadata["domains"],
+        "/capabilities": metadata["capabilities"],
+        "/modalities": metadata["modalities"],
+        "/task_formats": metadata["task_formats"],
+        "/access/level": metadata["access"]["level"],
+        "/access/tasks": metadata["access"]["tasks"],
+        "/access/artifacts": metadata["access"]["artifacts"],
+        "/access/grader": metadata["access"]["grader"],
+        "/access/license": metadata["access"]["license"],
+        "/access/biosafety_notes": metadata["access"]["biosafety_notes"],
+    }
+    metadata_claims = [
+        claim(
+            f"claim-{index}",
+            "benchmark-metadata",
+            value,
+            field_path=f"/benchmark-metadata{path}",
+        )
+        for index, (path, value) in enumerate(atomic_values.items(), 20)
+    ]
+    claims = [
+        claim(
+            "claim-1",
+            "paper-identity",
+            {"title": "Synthetic benchmark evaluation paper"},
+            mention_id=None,
+        ),
+        claim("claim-2", "relation", "benchmark-creation"),
+        claim("claim-3", "benchmark-identity", "ScenarioMatrixBench"),
+        *metadata_claims,
+        claim("claim-5", "benchmark-version", "paper-v1"),
+        claim("claim-6", "benchmark-count", {
+            "label": "root scenario-matrix inventory",
+            "count": None,
+            "unit": "other",
+            "basis": "The source defines a reusable scenario matrix without one finite item total.",
+            "reporting_status": "not_reported",
+            "subset_id": None,
+            "exclusive": False,
+            "exhaustive": False,
+            "partition_group": None,
+        }),
+        claim("claim-7", "creator-source", {"url": "https://doi.org/10.9999/scenario.1"}),
+        claim("claim-8", "official-repository", {
+            "url": "https://github.com/example/scenario-matrix-bench",
+            "license": "Apache-2.0",
+        }),
+        claim("claim-9", "tools", {
+            "browser": False,
+            "internet": False,
+            "databases": [],
+            "code_execution": True,
+            "container": True,
+            "external_tools": [],
+        }),
+        claim("claim-10", "relation", "evaluation", mention_id="mention-2"),
+        claim("claim-11", "benchmark-identity", "ScenarioMatrixBench", mention_id="mention-2"),
+        claim("claim-12", "model", {
+            "name": "Example Tool",
+            "provider": "Example Institute",
+            "version_string": "example-tool-1.0",
+            "release_date": "2026-07-01",
+        }, mention_id="mention-2"),
+        claim("claim-13", "scope-type", "subset", mention_id="mention-2"),
+        claim("claim-14", "scope-n", 30, mention_id="mention-2"),
+        claim("claim-15", "metric", {
+            "source_label": "F1", "unit": "fraction", "range": [0, 1],
+            "higher_is_better": True, "aggregation": "macro", "pass_threshold": None,
+            "tolerance": None, "kind": "absolute", "baseline_model_name": None,
+            "statistical": None,
+        }, mention_id="mention-2"),
+        claim("claim-16", "result", {
+            "model_name": "Example Tool", "metric_source_label": "F1", "value": 0.5,
+            "ci_low": None, "ci_high": None, "n": 30, "notes": None,
+            "numeric_source": "table",
+        }, mention_id="mention-2"),
+    ]
+    creation_mention = {
+        "mention_id": "mention-1",
+        "benchmark_name": "ScenarioMatrixBench",
+        "registry_benchmark_id": None,
+        "relation_type": "benchmark-creation",
+        "is_new_benchmark": True,
+        "background_only": False,
+        "claim_ids": [item["claim_id"] for item in claims if item["mention_id"] == "mention-1"],
+        "reporting_gaps": [],
+    }
+    evaluation_mention = {
+        "mention_id": "mention-2",
+        "benchmark_name": "ScenarioMatrixBench",
+        "registry_benchmark_id": None,
+        "relation_type": "evaluation",
+        "is_new_benchmark": True,
+        "background_only": False,
+        "claim_ids": [f"claim-{index}" for index in range(10, 17)],
+        "reporting_gaps": [],
+    }
+    payload = verified_result(claims, creation_mention)
+    payload["draft"]["benchmark_mentions"] = [creation_mention, evaluation_mention]
+    kind_claim = next(
+        item for item in payload["draft"]["claims"]
+        if item["field_path"] == "/benchmark-metadata/kind"
+    )
+    kind_claim["confidence"] = "medium"
+    payload["verification"]["blocking_conflicts"] = [
+        "The realized evaluation sample n is internally inconsistent.",
+        "The body and figure caption identify different evaluated tools.",
+    ]
+    for item in payload["verification"]["claims"]:
+        if item["claim_id"] in {"claim-9", "claim-14", "claim-15", "claim-16"}:
+            item.update({"verdict": "conflicted", "confidence": "high"})
+    source = {**SOURCE, "repository_pins": {
+        "https://github.com/example/scenario-matrix-bench": {
+            "kind": "commit",
+            "value": "e" * 40,
+            "url": "https://github.com/example/scenario-matrix-bench/commit/" + "e" * 40,
+        }
+    }}
+    resolution = {
+        "benchmark_total": None,
+        "exclude": "creator-evaluation",
+        "exclude_creator_evaluation": True,
+        "approved_by": "wang422003",
+        "approved_at": "2026-07-27T02:00:00Z",
+        "provisional_benchmark_kind": "suite",
+        "provisional_kind_status": "provisional",
+        "provisional_kind_approved_at": "2026-07-27T02:01:00Z",
+    }
+
+    records = build_records(
+        payload,
+        source=source,
+        generated_at=SOURCE["retrieved_at"],
+        verified_on="2026-07-27",
+        owner_conflict_resolution=resolution,
+    )
+    benchmark = records.benchmarks[0]
+    assert benchmark["task_counts"]["total"] is None
+    assert benchmark["task_counts"]["reporting_status"] == "not_reported"
+    kind_status = next(item for item in benchmark["field_status"] if item["path"] == "/kind")
+    assert kind_status["status"] == "provisional"
+    assert kind_status["confidence"] == "medium"
+    kind_evidence = next(
+        item for item in benchmark["evidence"] if item["id"] in kind_status["evidence_ids"]
+    )
+    assert kind_evidence["supports"] == ["/kind"]
+    assert "Root total retained after owner review" not in str(benchmark["versions"][0]["notes"])
+    evaluation_use = next(item for item in records.uses if item["relation_type"] == "evaluation")
+    assert evaluation_use["status"] == "partial"
+    assert evaluation_use["scope"]["type"] == "unknown"
+    assert evaluation_use["scope"]["n"] is None
+    assert evaluation_use["model_ids"] == ["example-institute-example-tool"]
+    assert evaluation_use["metric_labels"] == []
+    assert evaluation_use["evaluation_run_ids"] == []
+    assert records.runs == []
+
+    high_confidence_kind = json.loads(json.dumps(payload))
+    for item in high_confidence_kind["draft"]["claims"]:
+        if item["field_path"] == "/benchmark-metadata/kind":
+            item["confidence"] = "high"
+    high_confidence_records = build_records(
+        high_confidence_kind,
+        source=source,
+        generated_at=SOURCE["retrieved_at"],
+        verified_on="2026-07-27",
+        owner_conflict_resolution=resolution,
+    )
+    high_confidence_kind_status = next(
+        item
+        for item in high_confidence_records.benchmarks[0]["field_status"]
+        if item["path"] == "/kind"
+    )
+    assert high_confidence_kind_status["status"] == "provisional"
+
+    wrong_kind = json.loads(json.dumps(payload))
+    for item in wrong_kind["draft"]["claims"]:
+        if item["field_path"] == "/benchmark-metadata/kind":
+            item["value_json"] = json.dumps("dataset")
+    with pytest.raises(GenerationBlocked, match="requires exactly one source-located"):
+        build_records(
+            wrong_kind,
+            source=source,
+            generated_at=SOURCE["retrieved_at"],
+            verified_on="2026-07-27",
+            owner_conflict_resolution=resolution,
+        )
+
+    unsafe = json.loads(json.dumps(payload))
+    unsafe["verification"]["blocking_conflicts"].append(
+        "The benchmark identity conflicts with the official resource."
+    )
+    for item in unsafe["verification"]["claims"]:
+        if item["claim_id"] == "claim-3":
+            item.update({"verdict": "conflicted", "confidence": "high"})
+    with pytest.raises(GenerationBlocked, match="cannot override conflicted claim types"):
+        build_records(
+            unsafe,
+            source=source,
+            generated_at=SOURCE["retrieved_at"],
+            verified_on="2026-07-27",
+            owner_conflict_resolution=resolution,
         )
 
 
@@ -3700,6 +4100,7 @@ def test_crossref_resolution_retries_transient_tls_errors(
                 "message": {
                     "title": ["PPB-Affinity"],
                     "author": [{"given": "A.", "family": "Researcher"}],
+                    "published-print": {"date-parts": [[2024]]},
                     "published-online": {"date-parts": [[2024, 12, 3]]},
                     "DOI": "10.1038/s41597-024-03997-4",
                     "URL": "https://doi.org/10.1038/s41597-024-03997-4",
@@ -3720,6 +4121,12 @@ def test_crossref_resolution_retries_transient_tls_errors(
     assert calls == 3
     assert metadata["publication_date"] == "2024-12-03"
     assert metadata["source"] == "Crossref"
+
+
+def test_crossref_date_parts_does_not_invent_a_day_for_year_only_metadata() -> None:
+    from triage_paper import _date_parts
+
+    assert _date_parts({"published": {"date-parts": [[2025]]}}) is None
 
 
 def test_work_ids_are_deterministic_and_workflows_have_required_guards() -> None:

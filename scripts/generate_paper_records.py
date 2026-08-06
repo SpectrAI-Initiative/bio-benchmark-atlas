@@ -125,6 +125,18 @@ def _fragment_hash(excerpt: str) -> str:
     return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
 
 
+def _complete_publication_date(*values: Any) -> str | None:
+    """Return the first real ISO calendar date, ignoring year-only model output."""
+    for value in values:
+        if not isinstance(value, str) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", value):
+            continue
+        try:
+            return date.fromisoformat(value).isoformat()
+        except ValueError:
+            continue
+    return None
+
+
 def _reported(value: Any, notes: str | None = None) -> dict[str, Any]:
     return {"value": value, "reporting_status": "reported", "notes": notes}
 
@@ -617,17 +629,23 @@ def _materialize_benchmark_metadata(
 
     bibliographic_supports: list[str] = []
     bibliography = bibliographic_metadata or {}
+    if "/release_date" in values_by_path and _complete_publication_date(
+        str(values_by_path["/release_date"])
+    ) is None:
+        # A year-only model claim is not a Registry date. Remove both its value
+        # and claim-level support so a complete primary bibliographic date can
+        # replace it without falsely attributing the day to the PDF excerpt.
+        values_by_path.pop("/release_date", None)
+        claims_by_path.pop("/release_date", None)
+        metadata.pop("release_date", None)
     if "/release_date" not in values_by_path:
         metadata_source = str(bibliography.get("metadata_source") or "").casefold()
         publication_date = bibliography.get("publication_date")
-        try:
-            if metadata_source in {"crossref", "arxiv", "arxiv api"} and publication_date:
-                date.fromisoformat(str(publication_date))
-                metadata["release_date"] = str(publication_date)
-                values_by_path["/release_date"] = str(publication_date)
-                bibliographic_supports.append("/release_date")
-        except ValueError:
-            pass
+        complete_date = _complete_publication_date(str(publication_date or ""))
+        if metadata_source in {"crossref", "arxiv", "arxiv api"} and complete_date:
+            metadata["release_date"] = complete_date
+            values_by_path["/release_date"] = complete_date
+            bibliographic_supports.append("/release_date")
     if "/access/level" not in values_by_path and default_access_level:
         metadata["access"]["level"] = default_access_level
         values_by_path["/access/level"] = default_access_level
@@ -657,6 +675,12 @@ def _build_new_benchmark(
     by_type: dict[str, list[Any]] = {}
     for claim in claims:
         by_type.setdefault(claim.claim_type, []).append(claim)
+    count_conflict_resolution = (
+        resolved_count_conflict
+        if resolved_count_conflict
+        and not resolved_count_conflict.get("creator_evaluation_only")
+        else None
+    )
     required = {"benchmark-metadata", "benchmark-count", "creator-source"}
     missing = sorted(required - set(by_type))
     resource_claims = [
@@ -702,6 +726,16 @@ def _build_new_benchmark(
         bibliographic_metadata=source.get("bibliographic_metadata"),
         default_access_level="partially-open" if resource_type == "dataset" else None,
     )
+    for field_name in ("tasks", "artifacts", "grader"):
+        access_value = (metadata.get("access") or {}).get(field_name)
+        if isinstance(access_value, list) and access_value and all(
+            isinstance(item, str) and item.strip() for item in access_value
+        ):
+            metadata["access"][field_name] = "; ".join(item.strip() for item in access_value)
+        elif not isinstance(access_value, str) or not access_value.strip():
+            raise GenerationBlocked(
+                f"{benchmark_id}: access.{field_name} must be verified text or a non-empty string list"
+            )
     version_claim = next(iter(by_type.get("benchmark-version", [])), None)
     version_label = (
         str(_claim_value(version_claim)) if version_claim is not None else "initial-release"
@@ -785,7 +819,8 @@ def _build_new_benchmark(
             "notes": None,
         })
     root_total_conflicted = bool(
-        resolved_count_conflict and resolved_count_conflict.get("root_total_conflicted")
+        count_conflict_resolution
+        and count_conflict_resolution.get("root_total_conflicted")
     )
     task_counts = {
         "total": total,
@@ -804,10 +839,14 @@ def _build_new_benchmark(
     bibliography = source.get("bibliographic_metadata") or {}
     bibliographic_source = str(bibliography.get("metadata_source") or "bibliographic")
     bibliographic_date = str(bibliography.get("publication_date") or "")
+    metadata_evidence_ids = {
+        metadata_claim.claim_id: f"{benchmark_id}-automated-metadata-{index}-evidence"
+        for index, (metadata_claim, _supports) in enumerate(metadata_evidence_claims, 1)
+    }
     evidence = [
         *[
             {
-                "id": f"{benchmark_id}-automated-metadata-{index}-evidence",
+                "id": metadata_evidence_ids[metadata_claim.claim_id],
                 "source_type": "work", "source_id": work_id, "accessed_date": verified_on,
                 "locator": _source_locator(verdicts[metadata_claim.claim_id]),
                 "supports": supports,
@@ -849,7 +888,7 @@ def _build_new_benchmark(
             "supports": [
                 "/task_counts/subsets", "/versions/0/task_counts/subsets",
             ],
-        }] if not subset_evidence_claims and not resolved_count_conflict else []),
+        }] if not subset_evidence_claims and not count_conflict_resolution else []),
         *[
             {
                 "id": f"{benchmark_id}-automated-subset-{index + 1}-evidence",
@@ -888,7 +927,28 @@ def _build_new_benchmark(
         },
     ]
     field_status: list[dict[str, Any]] = []
-    if not subset_evidence_claims and not resolved_count_conflict:
+    provisional_kind_claim_id = (
+        resolved_count_conflict.get("provisional_kind_claim_id")
+        if resolved_count_conflict else None
+    )
+    if provisional_kind_claim_id:
+        evidence_id = metadata_evidence_ids.get(provisional_kind_claim_id)
+        if evidence_id is None:
+            raise GenerationBlocked(
+                f"{benchmark_id}: provisional kind claim has no generated metadata evidence"
+            )
+        field_status.append({
+            "path": "/kind",
+            "status": "provisional",
+            "confidence": "medium",
+            "reason": (
+                "The creator source and independent verifier support the Registry suite mapping, "
+                "but the extractor assigned medium confidence because the source describes a "
+                "benchmarking analysis and workflow rather than using the controlled word suite."
+            ),
+            "evidence_ids": [evidence_id],
+        })
+    if not subset_evidence_claims and not count_conflict_resolution:
         field_status.append({
             "path": "/task_counts/subsets",
             "status": "provisional",
@@ -912,12 +972,12 @@ def _build_new_benchmark(
             ),
             "evidence_ids": [f"{benchmark_id}-automated-resource-evidence"],
         })
-    if resolved_count_conflict:
-        conflict_claim = resolved_count_conflict["conflict_claim"]
+    if count_conflict_resolution:
+        conflict_claim = count_conflict_resolution["conflict_claim"]
         conflict_evidence_id = f"{benchmark_id}-automated-count-conflict-evidence"
         conflict_paths = (
             ["/task_counts/basis", "/task_counts/subsets"]
-            if resolved_count_conflict.get("root_total_conflicted") else
+            if count_conflict_resolution.get("root_total_conflicted") else
             ["/task_counts/subsets"]
         )
         evidence.append({
@@ -937,11 +997,11 @@ def _build_new_benchmark(
                     "The owner approved the explicit root-total value after the extractor reported "
                     "it and the verifier independently located it at high confidence; the detailed "
                     "uniqueness basis remains conflicted and all subcounts are excluded from publication."
-                    if resolved_count_conflict.get("root_total_conflicted") else
+                    if count_conflict_resolution.get("root_total_conflicted") else
                     "The verifier reported a count/inventory-only blocking conflict without "
                     "binding it to a claim-level conflicted verdict; the owner approved the "
                     "independently supported root total and excluded every other count."
-                    if resolved_count_conflict.get("unanchored_count_conflict") else
+                    if count_conflict_resolution.get("unanchored_count_conflict") else
                     "The owner approved the independently supported root total while all "
                     "conflicted inventory subcounts were excluded from publication."
                 ),
@@ -1059,7 +1119,7 @@ def _build_new_benchmark(
             "notes": (
                 "Root total retained after owner review; conflicted appendix inventory "
                 "subcounts are intentionally omitted."
-                if resolved_count_conflict else None
+                if count_conflict_resolution else None
             ) or (
                 "Atlas snapshot label for the creator-paper release; the source does not "
                 "report a formal benchmark version."
@@ -1082,7 +1142,7 @@ def _build_new_benchmark(
                 "Automated double-pass extraction plus deterministic official-resource pin. "
                 "Owner review preserved the corroborated root total and excluded conflicted "
                 "appendix inventory subcounts."
-                if resolved_count_conflict else
+                if count_conflict_resolution else
                 "Automated double-pass extraction plus deterministic official-resource pin; the "
                 "benchmark license remains unverified and is published as null."
                 if license_unverified else
@@ -1096,7 +1156,7 @@ def _build_new_benchmark(
                              "New family admitted with an explicit count-inventory caveat after "
                              "creator source, official resource, double-pass verification, and "
                              "owner conflict resolution."
-                             if resolved_count_conflict else
+                             if count_conflict_resolution else
                              "New family admitted after creator source and official resource "
                              "verification; the unresolved benchmark license is visibly flagged."
                              if license_unverified else
@@ -1146,6 +1206,206 @@ _EMBEDDED_CREATOR_EVALUATION_CLAIM_TYPES = {
 }
 
 
+def _apply_owner_not_reported_creator_evaluation_resolution(
+    draft: PaperEvidenceDraft,
+    verification: PaperEvidenceVerification,
+    accepted: list[Any],
+    resolution: dict[str, Any],
+) -> tuple[list[Any], dict[str, Any]]:
+    """Omit a conflicted creator evaluation while preserving a verified null total.
+
+    This policy is intentionally narrower than the numeric count override. It is
+    available only when a scenario-matrix, simulator, or rolling benchmark has a
+    high-confidence root-total claim whose value is explicitly not reported. The
+    owner decision is an omission instruction, never evidence: creation identity,
+    metadata, version, creator/resource provenance, root total, and relation claims
+    remain non-overridable.
+    """
+
+    if resolution.get("exclude") != "creator-evaluation":
+        raise GenerationBlocked(
+            "not-reported conflict resolution has an unsupported exclusion policy"
+        )
+    if resolution.get("benchmark_total") is not None:
+        raise GenerationBlocked(
+            "not-reported creator-evaluation resolution cannot carry a numeric total"
+        )
+
+    creation_mentions = {
+        mention.mention_id
+        for mention in draft.benchmark_mentions
+        if mention.is_new_benchmark
+        and mention.relation_type == "benchmark-creation"
+        and not mention.background_only
+    }
+    if len(creation_mentions) != 1:
+        raise GenerationBlocked(
+            "not-reported creator-evaluation resolution requires exactly one newly created benchmark"
+        )
+    creation_mention_id = next(iter(creation_mentions))
+    creation_mention = next(
+        mention
+        for mention in draft.benchmark_mentions
+        if mention.mention_id == creation_mention_id
+    )
+    creator_evaluation_mentions = {
+        mention.mention_id
+        for mention in draft.benchmark_mentions
+        if mention.relation_type == "evaluation"
+        and not mention.background_only
+        and slugify(mention.benchmark_name) == slugify(creation_mention.benchmark_name)
+    }
+    if not creator_evaluation_mentions:
+        raise GenerationBlocked(
+            "not-reported creator-evaluation resolution found no matching evaluation relationship"
+        )
+
+    provisional_kind_claim = None
+    provisional_kind = resolution.get("provisional_benchmark_kind")
+    if provisional_kind is not None:
+        if (
+            provisional_kind != "suite"
+            or resolution.get("provisional_kind_status") != "provisional"
+        ):
+            raise GenerationBlocked(
+                "owner provisional benchmark-kind resolution is unsupported"
+            )
+        kind_claims = [
+            claim
+            for claim in draft.claims
+            if claim.mention_id == creation_mention_id
+            and claim.claim_type == "benchmark-metadata"
+            and claim.field_path == f"{_ATOMIC_METADATA_PREFIX}/kind"
+        ]
+        kind_claim_ids = {claim.claim_id for claim in kind_claims}
+        accepted_kind_claims = [
+            claim for claim in accepted if claim.claim_id in kind_claim_ids
+        ]
+        if accepted_kind_claims:
+            if len(accepted_kind_claims) != 1 or _claim_value(accepted_kind_claims[0]) != provisional_kind:
+                raise GenerationBlocked(
+                    "owner provisional benchmark-kind value conflicts with an accepted kind claim"
+                )
+            provisional_kind_claim = accepted_kind_claims[0]
+        else:
+            verdicts = {item.claim_id: item for item in verification.claims}
+            provisional_candidates = []
+            for claim in kind_claims:
+                verdict = verdicts.get(claim.claim_id)
+                if (
+                    _claim_value(claim) == provisional_kind
+                    and claim.confidence == "medium"
+                    and verdict is not None
+                    and verdict.verdict == "supported"
+                    and verdict.confidence == "high"
+                    and locator_is_resolved(verdict.locator)
+                ):
+                    provisional_candidates.append(claim)
+            if len(provisional_candidates) != 1:
+                raise GenerationBlocked(
+                    "owner provisional benchmark-kind approval requires exactly one source-located "
+                    "medium/high suite claim"
+                )
+            provisional_kind_claim = provisional_candidates[0]
+            accepted = [*accepted, provisional_kind_claim]
+
+    root_totals = []
+    for claim in accepted:
+        payload = _claim_value(claim)
+        if (
+            claim.mention_id == creation_mention_id
+            and claim.claim_type == "benchmark-count"
+            and isinstance(payload, dict)
+            and payload.get("subset_id") is None
+            and payload.get("count") is None
+            and payload.get("reporting_status") == "not_reported"
+        ):
+            root_totals.append(claim)
+    if len(root_totals) != 1:
+        raise GenerationBlocked(
+            "not-reported creator-evaluation resolution requires exactly one independently "
+            "supported null root-total claim"
+        )
+
+    draft_by_id = {claim.claim_id: claim for claim in draft.claims}
+    conflicted_claims = [
+        draft_by_id[item.claim_id]
+        for item in verification.claims
+        if item.verdict == "conflicted" and item.claim_id in draft_by_id
+    ]
+    disallowed_claims = []
+    for claim in conflicted_claims:
+        if (
+            claim.mention_id in creator_evaluation_mentions
+            and claim.claim_type not in {"relation", "benchmark-identity"}
+        ):
+            continue
+        if (
+            claim.mention_id == creation_mention_id
+            and claim.claim_type in _EMBEDDED_CREATOR_EVALUATION_CLAIM_TYPES
+        ):
+            continue
+        disallowed_claims.append(claim)
+    if disallowed_claims:
+        disallowed = sorted({
+            f"{claim.claim_type}@{claim.mention_id or 'paper'}"
+            for claim in disallowed_claims
+        })
+        raise GenerationBlocked(
+            "not-reported creator-evaluation resolution cannot override conflicted claim types: "
+            + ", ".join(disallowed)
+        )
+
+    unsafe_unanchored_terms = (
+        "benchmark identity",
+        "creation identity",
+        "creator source",
+        "official repository",
+        "official resource",
+        "license conflict",
+        "relation conflict",
+        "paper identity",
+        "paper title",
+        " doi ",
+        " arxiv ",
+        "root total",
+        "root-total",
+    )
+    padded_conflicts = [f" {message.casefold()} " for message in verification.blocking_conflicts]
+    if any(
+        term in message
+        for message in padded_conflicts
+        for term in unsafe_unanchored_terms
+    ):
+        raise GenerationBlocked(
+            "not-reported creator-evaluation resolution cannot override an identity, provenance, "
+            "license, relation, or root-total conflict: "
+            + "; ".join(verification.blocking_conflicts)
+        )
+
+    filtered = []
+    for claim in accepted:
+        if claim.mention_id in creator_evaluation_mentions:
+            if claim.claim_type not in {"relation", "benchmark-identity", "model"}:
+                continue
+        if (
+            claim.mention_id == creation_mention_id
+            and claim.claim_type in _EMBEDDED_CREATOR_EVALUATION_CLAIM_TYPES
+        ):
+            continue
+        filtered.append(claim)
+    return filtered, {
+        "benchmark_total": None,
+        "creator_evaluation_only": True,
+        "approved_by": resolution.get("approved_by"),
+        "approved_at": resolution.get("approved_at"),
+        "creator_evaluation_mentions": sorted(creator_evaluation_mentions),
+        "provisional_kind_claim_id": (
+            provisional_kind_claim.claim_id if provisional_kind_claim else None
+        ),
+    }
+
+
 def _apply_owner_count_conflict_resolution(
     draft: PaperEvidenceDraft,
     verification: PaperEvidenceVerification,
@@ -1167,6 +1427,16 @@ def _apply_owner_count_conflict_resolution(
     if not resolution:
         raise GenerationBlocked(
             "blocking source conflicts: " + "; ".join(verification.blocking_conflicts)
+        )
+    if (
+        resolution.get("benchmark_total") is None
+        and resolution.get("exclude") == "creator-evaluation"
+    ):
+        return _apply_owner_not_reported_creator_evaluation_resolution(
+            draft,
+            verification,
+            accepted,
+            resolution,
         )
     if resolution.get("exclude") not in {
         "benchmark-subcounts",
@@ -1625,7 +1895,13 @@ def build_records(
     duplicates = duplicate_work_candidates(identity, entities["work"])
     existing_work = next((item for item in entities["work"] if duplicates and item["id"] == duplicates[0]["work_id"]), None)
     work_id = existing_work["id"] if existing_work else stable_work_id(draft.paper.title, identity["doi"], existing_work_ids)
-    publication_date = draft.paper.publication_date or verified_on
+    publication_date = _complete_publication_date(
+        draft.paper.publication_date,
+        (source.get("bibliographic_metadata") or {}).get("publication_date"),
+        verified_on,
+    )
+    if publication_date is None:
+        raise GenerationBlocked("paper publication date is not a complete ISO calendar date")
     version_suffix = slugify(draft.paper.version_label or publication_date, maximum=24)
     work_version_id = existing_work["current_version_id"] if existing_work else f"{work_id}-{version_suffix}"
 

@@ -1,7 +1,0 @@
----
-import BenchmarkDetail from '../../../../../components/nucleic/BenchmarkDetail.astro';
-import { nucleicCatalog, text } from '../../../../../lib/nucleicAcids';
-export function getStaticPaths() { return nucleicCatalog.benchmarks.map((benchmark) => ({ params: { id: text(benchmark, 'benchmark_id') }, props: { benchmark } })); }
-const { benchmark } = Astro.props;
----
-<BenchmarkDetail benchmark={benchmark} lang="en" />

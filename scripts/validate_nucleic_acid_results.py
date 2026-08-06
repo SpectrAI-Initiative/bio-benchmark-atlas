@@ -7,18 +7,18 @@ from pathlib import Path
 from typing import Any
 
 from nucleic_acid_results import (
+    AVAILABLE_SNAPSHOTS,
     CROSSWALK_PATH,
-    EXPECTED_COUNTS,
+    EXPECTED_COUNTS_BY_SNAPSHOT,
     SCHEMA_VERSION,
     SNAPSHOT_DATE,
-    SOURCE_ARCHIVE,
-    SOURCE_MANIFEST,
-    SOURCE_TABLES,
     NucleicAcidResultsError,
     assert_safe_public_value,
     index_unique,
     load_source_tables,
     sha256_bytes,
+    source_paths_for,
+    source_tables_for,
     split_ids,
 )
 from registry_io import load_entities, load_taxonomies
@@ -43,23 +43,25 @@ def _require_fk(value: str, target: dict[str, Any], location: str, *, allow_nr: 
         raise NucleicAcidResultsError(f"{location}: missing foreign key {value!r}")
 
 
-def _validate_source_manifest(raw_files: dict[str, bytes]) -> dict[str, Any]:
+def _validate_source_manifest(raw_files: dict[str, bytes], snapshot_date: str) -> dict[str, Any]:
+    source_archive, source_manifest = source_paths_for(snapshot_date)
+    source_tables = source_tables_for(snapshot_date)
     try:
-        manifest = json.loads(SOURCE_MANIFEST.read_text(encoding="utf-8"))
+        manifest = json.loads(source_manifest.read_text(encoding="utf-8"))
     except (FileNotFoundError, json.JSONDecodeError) as exc:
-        raise NucleicAcidResultsError(f"invalid source manifest: {SOURCE_MANIFEST}") from exc
+        raise NucleicAcidResultsError(f"invalid source manifest: {source_manifest}") from exc
     if manifest.get("schema_version") != SCHEMA_VERSION:
         raise NucleicAcidResultsError("source manifest schema_version mismatch")
-    if manifest.get("snapshot_date") != SNAPSHOT_DATE or manifest.get("literature_cutoff") != SNAPSHOT_DATE:
+    if manifest.get("snapshot_date") != snapshot_date or manifest.get("literature_cutoff") != snapshot_date:
         raise NucleicAcidResultsError("source manifest snapshot/cutoff mismatch")
     archive = manifest.get("archive", {})
-    archive_bytes = SOURCE_ARCHIVE.read_bytes()
-    if archive.get("path") != SOURCE_ARCHIVE.name:
+    archive_bytes = source_archive.read_bytes()
+    if archive.get("path") != source_archive.name:
         raise NucleicAcidResultsError("source manifest archive path mismatch")
     if archive.get("sha256") != sha256_bytes(archive_bytes) or archive.get("bytes") != len(archive_bytes):
         raise NucleicAcidResultsError("source archive hash/size mismatch")
     files = manifest.get("files", {})
-    if set(files) != set(SOURCE_TABLES):
+    if set(files) != set(source_tables):
         raise NucleicAcidResultsError("source manifest file inventory mismatch")
     for filename, data in raw_files.items():
         entry = files[filename]
@@ -116,9 +118,9 @@ def _validate_crosswalks(
     return crosswalks
 
 
-def validate() -> tuple[dict[str, list[dict[str, str]]], dict[str, Any], dict[str, Any]]:
-    tables, raw_files = load_source_tables()
-    source_manifest = _validate_source_manifest(raw_files)
+def validate(snapshot_date: str = SNAPSHOT_DATE) -> tuple[dict[str, list[dict[str, str]]], dict[str, Any], dict[str, Any]]:
+    tables, raw_files = load_source_tables(snapshot_date=snapshot_date)
+    source_manifest = _validate_source_manifest(raw_files, snapshot_date)
     for filename, rows in tables.items():
         assert_safe_public_value(rows, filename)
         manifest_entry = source_manifest["files"][filename]
@@ -158,9 +160,12 @@ def validate() -> tuple[dict[str, list[dict[str, str]]], dict[str, Any], dict[st
         "coverage": len(coverage_rows),
         "result_sources": len(result_source_rows),
     }
-    if observed_counts != EXPECTED_COUNTS:
+    if "track_result_coverage.csv" in tables:
+        observed_counts["track_coverage"] = len(tables["track_result_coverage.csv"])
+    expected_counts = EXPECTED_COUNTS_BY_SNAPSHOT[snapshot_date]
+    if observed_counts != expected_counts:
         raise NucleicAcidResultsError(
-            f"snapshot count mismatch: observed={observed_counts}, expected={EXPECTED_COUNTS}"
+            f"snapshot count mismatch: observed={observed_counts}, expected={expected_counts}"
         )
 
     benchmarks = index_unique(benchmark_rows, "benchmark_id", "benchmarks.csv")
@@ -182,6 +187,14 @@ def validate() -> tuple[dict[str, list[dict[str, str]]], dict[str, Any], dict[st
     coverage_ids = [row["benchmark_id"] for row in coverage_rows]
     if len(coverage_ids) != len(set(coverage_ids)) or set(coverage_ids) != set(benchmarks):
         raise NucleicAcidResultsError("coverage must contain each benchmark exactly once")
+    if "track_result_coverage.csv" in tables:
+        track_coverage = index_unique(
+            tables["track_result_coverage.csv"], "track_id", "track_result_coverage.csv"
+        )
+        if set(track_coverage) != set(tracks):
+            raise NucleicAcidResultsError("track coverage must contain each track exactly once")
+        if any(not row.get("source_screening_status", "").startswith("closed_") for row in track_coverage.values()):
+            raise NucleicAcidResultsError("every track coverage row must have a closed conclusion")
 
     for row in track_rows:
         _require_fk(row["benchmark_id"], benchmarks, f"track {row['track_id']}.benchmark_id")
@@ -335,7 +348,7 @@ def validate() -> tuple[dict[str, list[dict[str, str]]], dict[str, Any], dict[st
     ]
     if strict_leaders or strict_summary_ids:
         raise NucleicAcidResultsError(
-            "2026-08-05 snapshot must not claim a strict cross-work SOTA"
+            f"{snapshot_date} snapshot must not claim a strict cross-work SOTA"
         )
 
     for row in source_registry_rows:
@@ -350,20 +363,22 @@ def validate() -> tuple[dict[str, list[dict[str, str]]], dict[str, Any], dict[st
 
 
 def main() -> None:
-    tables, source_manifest, _ = validate()
-    output = {
-        "status": "valid",
-        "snapshot_date": SNAPSHOT_DATE,
-        "source_archive_sha256": source_manifest["archive"]["sha256"],
-        "counts": {
-            "benchmarks": len(tables["benchmarks.csv"]),
-            "tasks": len(tables["tasks.csv"]),
-            "protocols": len(tables["evaluation_protocols.csv"]),
-            "results": len(tables["benchmark_results.csv"]),
-            "summaries": len(tables["baseline_sota_summary.csv"]),
-            "leaders": len(tables["protocol_leaders.csv"]),
-        },
-    }
+    snapshots = []
+    for snapshot_date in AVAILABLE_SNAPSHOTS:
+        tables, source_manifest, _ = validate(snapshot_date)
+        snapshots.append({
+            "snapshot_date": snapshot_date,
+            "source_archive_sha256": source_manifest["archive"]["sha256"],
+            "counts": {
+                "benchmarks": len(tables["benchmarks.csv"]),
+                "tasks": len(tables["tasks.csv"]),
+                "protocols": len(tables["evaluation_protocols.csv"]),
+                "results": len(tables["benchmark_results.csv"]),
+                "summaries": len(tables["baseline_sota_summary.csv"]),
+                "leaders": len(tables["protocol_leaders.csv"]),
+            },
+        })
+    output = {"status": "valid", "latest_snapshot": SNAPSHOT_DATE, "snapshots": snapshots}
     print(json.dumps(output, indent=2, sort_keys=True))
 
 

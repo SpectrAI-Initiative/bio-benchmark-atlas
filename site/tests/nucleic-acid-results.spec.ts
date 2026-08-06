@@ -4,8 +4,9 @@ import { expect, test } from '@playwright/test';
 
 
 const base = '/bio-benchmark-atlas';
-const snapshot = `${base}/nucleic-acids/snapshots/2026-08-05`;
-const zhSnapshot = `${base}/zh/nucleic-acids/snapshots/2026-08-05`;
+const snapshot = `${base}/nucleic-acids/snapshots/2026-08-06`;
+const oldSnapshot = `${base}/nucleic-acids/snapshots/2026-08-05`;
+const zhSnapshot = `${base}/zh/nucleic-acids/snapshots/2026-08-06`;
 const gueProtocol = 'PROT-B01-28-DATASET-AGGREGATE-OFFICIAL-TRAIN-0DD5CD98-5E300CAE';
 const largeProtocol = 'PROT-B27-OLIGOGYM-F88A0FA5C042F1EF';
 
@@ -17,6 +18,7 @@ test('English and Chinese nucleic-acid route families render permanent snapshot 
     [`${base}/nucleic-acids/`, 'Read the protocol. Then the score.'],
     [`${snapshot}/benchmarks/`, '47 benchmarks, with the protocol attached.'],
     [`${snapshot}/benchmarks/B01/`, 'Genome Understanding Evaluation (GUE)'],
+    [`${oldSnapshot}/benchmarks/B01/`, 'Genome Understanding Evaluation (GUE)'],
     [`${snapshot}/tasks/`, '58 nucleic-acid tasks, all connected to a benchmark.'],
     [`${snapshot}/tasks/T01/`, 'Genomic element classification'],
     [`${snapshot}/protocols/${gueProtocol}/`, '28-dataset aggregate'],
@@ -48,11 +50,11 @@ test('overview and detail pages preserve counts, gaps, and claim semantics', asy
   await expect(overview).toBeVisible();
   await expect(overview.getByText('47', { exact: true }).first()).toBeVisible();
   await expect(overview.getByText('58', { exact: true }).first()).toBeVisible();
-  await expect(overview.getByText('334', { exact: true }).first()).toBeVisible();
-  await expect(overview.getByText('55,989', { exact: true }).first()).toBeVisible();
+  await expect(overview.getByText('345', { exact: true }).first()).toBeVisible();
+  await expect(overview.getByText('56,014', { exact: true }).first()).toBeVisible();
   await expect(overview).toContainText('0 strict cross-work SOTA claims');
-  await expect(overview).toContainText('18 benchmarks with public numeric results');
-  await expect(overview).toContainText('The other 29 benchmarks keep auditable gap pages');
+  await expect(overview).toContainText('22 benchmarks with public numeric results');
+  await expect(overview).toContainText('The other 25 benchmarks keep auditable gap pages');
 
   await page.goto(`${snapshot}/benchmarks/B01/`);
   await expect(page.getByRole('heading', { name: /10 result rows across 1 protocols/ })).toBeVisible();
@@ -67,6 +69,10 @@ test('overview and detail pages preserve counts, gaps, and claim semantics', asy
   await expect(page.getByRole('heading', { name: 'Genomic element classification', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Genome Understanding Evaluation (GUE)', exact: true }).first()).toBeVisible();
   await expect(page.locator('[data-protocol-id]').first()).toBeVisible();
+
+  await page.goto(`${snapshot}/benchmarks/B07/`);
+  await expect(page.getByRole('heading', { name: /result rows across/ })).toBeVisible();
+  await expect(page.locator('table')).toContainText('closed_with_numeric_evidence');
 
   await page.goto(`${snapshot}/participants/PART-DNABERT-3-MER/`);
   await expect(page.locator('[data-participant-id="PART-DNABERT-3-MER"]')).toBeVisible();
@@ -84,10 +90,10 @@ test('overview and detail pages preserve counts, gaps, and claim semantics', asy
     'href', `${base}/data/nucleic-acids/latest.json`,
   );
   await expect(page.getByRole('link', { name: /manifest\.json/ })).toHaveAttribute(
-    'href', `${base}/data/nucleic-acids/2026-08-05/manifest.json`,
+    'href', `${base}/data/nucleic-acids/2026-08-06/manifest.json`,
   );
-  await expect(page.getByRole('link', { name: /nucleic-acid-results-2026-08-05/ })).toHaveAttribute(
-    'href', 'https://github.com/SpectrAI-Initiative/bio-benchmark-atlas/releases/tag/nucleic-acid-results-2026-08-05',
+  await expect(page.getByRole('link', { name: /nucleic-acid-results-2026-08-06/ })).toHaveAttribute(
+    'href', 'https://github.com/SpectrAI-Initiative/bio-benchmark-atlas/releases/tag/nucleic-acid-results-2026-08-06',
   );
 });
 
@@ -200,7 +206,7 @@ test('protocol explorer gates comparison by fingerprint, paginates, restores fil
 
 test('public shard budgets keep large evidence and unrelated protocols off the initial interaction path', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'Network budgets only need one browser profile.');
-  const manifestUrl = `${base}/data/nucleic-acids/2026-08-05/manifest.json`;
+  const manifestUrl = `${base}/data/nucleic-acids/2026-08-06/manifest.json`;
   const manifestResponse = await page.request.get(manifestUrl);
   expect(manifestResponse.ok()).toBe(true);
   const manifestText = await manifestResponse.text();
@@ -209,7 +215,7 @@ test('public shard budgets keep large evidence and unrelated protocols off the i
     assets: Record<string, { compressedBytes: number; path: string }>;
     protocolChunks: Record<string, { compressedBytes: number; path: string }>;
   };
-  expect(manifest.counts).toMatchObject({ benchmarks: 47, tasks: 58, protocols: 334, results: 55_989 });
+  expect(manifest.counts).toMatchObject({ benchmarks: 47, tasks: 58, protocols: 345, results: 56_014 });
   expect(new TextEncoder().encode(manifestText).byteLength).toBeLessThanOrEqual(150_000);
   expect(manifest.assets.catalog.compressedBytes).toBeLessThanOrEqual(200_000);
   expect(Math.max(...Object.values(manifest.protocolChunks).map((chunk) => chunk.compressedBytes)))
@@ -218,7 +224,7 @@ test('public shard budgets keep large evidence and unrelated protocols off the i
   const loadedAssets: string[] = [];
   page.on('response', (response) => {
     const url = response.url();
-    if (url.includes('/data/nucleic-acids/2026-08-05/')) loadedAssets.push(url);
+    if (url.includes('/data/nucleic-acids/2026-08-06/')) loadedAssets.push(url);
   });
   await page.goto(`${snapshot}/protocols/${largeProtocol}/`);
   await page.locator('#metric').selectOption('M-OLIGOGYM-R2');

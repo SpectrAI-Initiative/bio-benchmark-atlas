@@ -1,0 +1,7 @@
+---
+import TaskDetail from '../../../../../components/nucleic/TaskDetail.astro';
+import { NUCLEIC_SNAPSHOTS, nucleicDataFor, text } from '../../../../../lib/nucleicAcids';
+export function getStaticPaths() { return NUCLEIC_SNAPSHOTS.flatMap((snapshot) => nucleicDataFor(snapshot).catalog.tasks.map((task) => ({ params: { snapshot, id: text(task, 'task_id') }, props: { task, snapshot } }))); }
+const { task, snapshot } = Astro.props;
+---
+<TaskDetail task={task} lang="en" snapshot={snapshot} />

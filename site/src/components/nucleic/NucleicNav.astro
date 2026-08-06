@@ -1,18 +1,19 @@
 ---
-import { NUCLEIC_SNAPSHOT, nucleicRoot, snapshotRoot } from '../../lib/nucleicAcids';
+import { NUCLEIC_SNAPSHOT, NUCLEIC_SNAPSHOTS, nucleicRoot, snapshotRoot } from '../../lib/nucleicAcids';
 import { t, type NucleicLanguage } from '../../lib/nucleicLocale';
 import { withBase } from '../../lib/data';
 
 interface Props {
   lang?: NucleicLanguage;
   active?: 'overview' | 'benchmarks' | 'tasks' | 'methodology' | 'downloads';
+  snapshot?: string;
 }
 
-const { lang = 'en', active } = Astro.props;
+const { lang = 'en', active, snapshot: selectedSnapshot = NUCLEIC_SNAPSHOT } = Astro.props;
 const zh = lang === 'zh';
 const strings = t(lang);
 const root = nucleicRoot(zh);
-const snapshot = snapshotRoot(zh);
+const snapshot = snapshotRoot(zh, selectedSnapshot);
 const links = [
   { id: 'overview', href: `${root}/`, label: strings.overview },
   { id: 'benchmarks', href: `${snapshot}/benchmarks/`, label: strings.benchmarks },
@@ -31,6 +32,17 @@ const links = [
     <nav class="na-context-nav" aria-label={zh ? '核酸结果导航' : 'Nucleic-acid results navigation'}>
       {links.map((link) => <a href={withBase(link.href)} aria-current={active === link.id ? 'page' : undefined}>{link.label}</a>)}
     </nav>
-    <label class="na-snapshot-picker"><span>{strings.snapshot}</span><select aria-label={zh ? '结果快照' : 'Results snapshot'} data-na-snapshot-select><option value={NUCLEIC_SNAPSHOT}>{NUCLEIC_SNAPSHOT}</option></select></label>
+    <label class="na-snapshot-picker"><span>{strings.snapshot}</span><select aria-label={zh ? '结果快照' : 'Results snapshot'} data-na-snapshot-select>{NUCLEIC_SNAPSHOTS.map((value) => <option value={value} selected={value === selectedSnapshot}>{value}</option>)}</select></label>
   </div>
 </div>
+
+<script>
+  document.querySelectorAll<HTMLSelectElement>('[data-na-snapshot-select]').forEach((select) => {
+    select.addEventListener('change', () => {
+      const next = select.value;
+      const current = window.location.pathname;
+      const replaced = current.replace(/\/snapshots\/\d{4}-\d{2}-\d{2}\//, `/snapshots/${next}/`);
+      window.location.assign(replaced === current ? `${current.replace(/\/$/, '')}/snapshots/${next}/benchmarks/` : replaced);
+    });
+  });
+</script>

@@ -2,22 +2,23 @@
 import Layout from '../Layout.astro';
 import NucleicNav from './NucleicNav.astro';
 import CoverageBadge from './CoverageBadge.astro';
-import { benchmarkById, coverageForBenchmark, integer, nucleicCatalog, protocolsForTask, snapshotRoot, taskBenchmarkIds, text, type NucleicRow } from '../../lib/nucleicAcids';
+import { NUCLEIC_SNAPSHOT, benchmarkById, coverageForBenchmark, integer, nucleicDataFor, protocolsForTask, snapshotRoot, taskBenchmarkIds, text, type NucleicRow } from '../../lib/nucleicAcids';
 import { withBase } from '../../lib/data';
 import type { NucleicLanguage } from '../../lib/nucleicLocale';
 
-interface Props { task: NucleicRow; lang?: NucleicLanguage; }
-const { task, lang = 'en' } = Astro.props;
+interface Props { task: NucleicRow; lang?: NucleicLanguage; snapshot?: string; }
+const { task, lang = 'en', snapshot = NUCLEIC_SNAPSHOT } = Astro.props;
 const zh = lang === 'zh';
-const root = snapshotRoot(zh);
+const root = snapshotRoot(zh, snapshot);
+const nucleicCatalog = nucleicDataFor(snapshot).catalog;
 const id = text(task, 'task_id');
-const benchmarkIds = taskBenchmarkIds(id);
-const protocols = protocolsForTask(id);
+const benchmarkIds = taskBenchmarkIds(id, snapshot);
+const protocols = protocolsForTask(id, snapshot);
 const mappings = nucleicCatalog.task_benchmark.filter((row) => text(row, 'task_id') === id);
 const crosswalks = nucleicCatalog.task_crosswalk.filter((row) => text(row, 'nucleic_acid_task_id', text(row, 'nucleic_task_id', text(row, 'task_id'))) === id);
 ---
 <Layout title={text(task, zh ? 'name_zh' : 'name_en')} description={text(task, 'definition')} canonicalPath={`${root}/tasks/${id}/`} alternatePath={`${zh ? '' : '/zh'}${root.replace(/^\/zh/, '')}/tasks/${id}/`} lang={zh ? 'zh-CN' : 'en'}>
-  <NucleicNav lang={lang} active="tasks" />
+  <NucleicNav lang={lang} active="tasks" snapshot={snapshot} />
   <header class="page-head page-head--compact shell">
     <div class="breadcrumbs"><a href={withBase(`${root}/tasks/`)}>{zh ? '任务' : 'Tasks'}</a><span>/</span><span>{id}</span></div>
     <p class="eyebrow">{text(task, 'domain_id')} · {text(task, zh ? 'domain_zh' : 'domain_en')}</p>
@@ -40,7 +41,7 @@ const crosswalks = nucleicCatalog.task_crosswalk.filter((row) => text(row, 'nucl
       </section>
       <section class="section-tight">
         <p class="eyebrow">Benchmark coverage</p><h2>{benchmarkIds.length} {zh ? '个 benchmark 覆盖该任务' : 'benchmarks cover this task'}</h2>
-        <div class="grid two">{benchmarkIds.map((benchmarkId) => { const benchmark = benchmarkById(benchmarkId); const coverage = coverageForBenchmark(benchmarkId); const status = text(coverage, 'baseline_sota_status', text(coverage, 'status')); return <article class="card" data-benchmark-id={benchmarkId}><div class="meta"><code>{benchmarkId}</code><CoverageBadge status={status} zh={zh} /></div><h3><a class="stretched" href={withBase(`${root}/benchmarks/${benchmarkId}/`)}>{text(benchmark, 'benchmark_name')}</a></h3><p>{text(benchmark, 'notes')}</p><span class="small muted">{integer(coverage, 'protocol_count')} {zh ? '个 benchmark 数值协议' : 'benchmark-wide protocols'} · {integer(coverage, 'result_count').toLocaleString('en-US')} {zh ? '条 benchmark 全局结果（非 task 小计）' : 'benchmark-wide rows (not a task subtotal)'}</span></article>; })}</div>
+        <div class="grid two">{benchmarkIds.map((benchmarkId) => { const benchmark = benchmarkById(benchmarkId, snapshot); const coverage = coverageForBenchmark(benchmarkId, snapshot); const status = text(coverage, 'baseline_sota_status', text(coverage, 'status')); return <article class="card" data-benchmark-id={benchmarkId}><div class="meta"><code>{benchmarkId}</code><CoverageBadge status={status} zh={zh} /></div><h3><a class="stretched" href={withBase(`${root}/benchmarks/${benchmarkId}/`)}>{text(benchmark, 'benchmark_name')}</a></h3><p>{text(benchmark, 'notes')}</p><span class="small muted">{integer(coverage, 'protocol_count')} {zh ? '个 benchmark 数值协议' : 'benchmark-wide protocols'} · {integer(coverage, 'result_count').toLocaleString('en-US')} {zh ? '条 benchmark 全局结果（非 task 小计）' : 'benchmark-wide rows (not a task subtotal)'}</span></article>; })}</div>
       </section>
       <section class="section-tight">
         <p class="eyebrow">{zh ? '评测协议' : 'Evaluation protocols'}</p><h2>{protocols.length} {zh ? '个口径单元' : 'protocol units'}</h2>

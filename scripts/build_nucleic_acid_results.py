@@ -10,7 +10,8 @@ from typing import Any
 from jsonschema import Draft202012Validator, FormatChecker
 
 from nucleic_acid_results import (
-    EXPECTED_COUNTS,
+    AVAILABLE_SNAPSHOTS,
+    EXPECTED_COUNTS_BY_SNAPSHOT,
     ROOT,
     SCHEMA_PATH,
     SCHEMA_VERSION,
@@ -77,7 +78,7 @@ def _write_gzip_asset(
 
 
 def _build_usage_index(
-    protocols: list[dict[str, str]], results: list[dict[str, str]]
+    protocols: list[dict[str, str]], results: list[dict[str, str]], snapshot_date: str
 ) -> dict[str, Any]:
     benchmark_protocols: defaultdict[str, list[str]] = defaultdict(list)
     task_protocols: defaultdict[str, list[str]] = defaultdict(list)
@@ -107,7 +108,7 @@ def _build_usage_index(
 
     return {
         "schema_version": SCHEMA_VERSION,
-        "snapshot_date": SNAPSHOT_DATE,
+        "snapshot_date": snapshot_date,
         "benchmark_protocols": sorted_mapping(benchmark_protocols),
         "task_protocols": sorted_mapping(task_protocols),
         "track_protocols": sorted_mapping(track_protocols),
@@ -120,19 +121,20 @@ def _build_usage_index(
     }
 
 
-def build(public_root: Path, generated_root: Path) -> dict[str, Any]:
-    tables, _, crosswalks = validate()
+def build_snapshot(public_root: Path, generated_root: Path, snapshot_date: str) -> dict[str, Any]:
+    tables, _, crosswalks = validate(snapshot_date)
+    expected_counts = EXPECTED_COUNTS_BY_SNAPSHOT[snapshot_date]
     schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
 
-    version_root = public_root / "data" / "nucleic-acids" / SNAPSHOT_DATE
-    generated_version_root = generated_root / "nucleic-acid-results" / SNAPSHOT_DATE
+    version_root = public_root / "data" / "nucleic-acids" / snapshot_date
+    generated_version_root = generated_root / "nucleic-acid-results" / snapshot_date
     version_root.mkdir(parents=True, exist_ok=True)
     generated_version_root.mkdir(parents=True, exist_ok=True)
 
     catalog = {
         "schema_version": SCHEMA_VERSION,
-        "snapshot_date": SNAPSHOT_DATE,
-        "literature_cutoff": SNAPSHOT_DATE,
+        "snapshot_date": snapshot_date,
+        "literature_cutoff": snapshot_date,
         "benchmarks": tables["benchmarks.csv"],
         "tasks": tables["tasks.csv"],
         "tracks": tables["benchmark_tracks.csv"],
@@ -145,27 +147,27 @@ def build(public_root: Path, generated_root: Path) -> dict[str, Any]:
         "benchmark_crosswalk": crosswalks["benchmark_crosswalk"],
         "task_crosswalk": crosswalks["task_crosswalk"],
     }
+    if "track_result_coverage.csv" in tables:
+        catalog["track_coverage"] = tables["track_result_coverage.csv"]
     entities = {
         "schema_version": SCHEMA_VERSION,
-        "snapshot_date": SNAPSHOT_DATE,
+        "snapshot_date": snapshot_date,
         "participants": tables["participants.csv"],
         "configurations": tables["configurations.csv"],
         "works": tables["works.csv"],
     }
     evidence = {
         "schema_version": SCHEMA_VERSION,
-        "snapshot_date": SNAPSHOT_DATE,
+        "snapshot_date": snapshot_date,
         "sources": tables["source_registry.csv"],
         "result_sources": tables["result_sources.csv"],
         "leaderboard_snapshots": tables["leaderboard_snapshots.csv"],
     }
     usage_index = _build_usage_index(
-        tables["evaluation_protocols.csv"], tables["benchmark_results.csv"]
+        tables["evaluation_protocols.csv"], tables["benchmark_results.csv"], snapshot_date
     )
 
-    catalog_rows = sum(
-        len(catalog[key])
-        for key in (
+    catalog_row_keys = [
             "benchmarks",
             "tasks",
             "tracks",
@@ -177,8 +179,10 @@ def build(public_root: Path, generated_root: Path) -> dict[str, Any]:
             "leaders",
             "benchmark_crosswalk",
             "task_crosswalk",
-        )
-    )
+    ]
+    if "track_coverage" in catalog:
+        catalog_row_keys.append("track_coverage")
+    catalog_rows = sum(len(catalog[key]) for key in catalog_row_keys)
     entity_rows = len(entities["participants"]) + len(entities["configurations"]) + len(entities["works"])
     evidence_rows = len(evidence["sources"]) + len(evidence["result_sources"]) + len(evidence["leaderboard_snapshots"])
     usage_rows = sum(
@@ -218,7 +222,7 @@ def build(public_root: Path, generated_root: Path) -> dict[str, Any]:
         enriched: dict[str, Any] = dict(result)
         enriched["sources"] = sources_by_result[result_id]
         results_by_protocol[result["protocol_id"]].append(enriched)
-    if len(assigned_result_ids) != EXPECTED_COUNTS["results"]:
+    if len(assigned_result_ids) != expected_counts["results"]:
         raise ValueError("not every result was assigned to one protocol chunk")
 
     protocol_chunks: dict[str, dict[str, Any]] = {}
@@ -226,7 +230,7 @@ def build(public_root: Path, generated_root: Path) -> dict[str, Any]:
         protocol = protocol_by_id[protocol_id]
         chunk = {
             "schema_version": SCHEMA_VERSION,
-            "snapshot_date": SNAPSHOT_DATE,
+            "snapshot_date": snapshot_date,
             "protocol_id": protocol_id,
             "protocol_fingerprint": protocol["protocol_fingerprint"],
             "benchmark_id": protocol["benchmark_id"],
@@ -248,7 +252,7 @@ def build(public_root: Path, generated_root: Path) -> dict[str, Any]:
             )
         protocol_chunks[protocol_id] = descriptor
 
-    counts = dict(EXPECTED_COUNTS)
+    counts = dict(expected_counts)
     counts.update(
         {
             "numeric_benchmarks": sum(
@@ -265,8 +269,8 @@ def build(public_root: Path, generated_root: Path) -> dict[str, Any]:
     )
     manifest = {
         "schema_version": SCHEMA_VERSION,
-        "snapshot_date": SNAPSHOT_DATE,
-        "literature_cutoff": SNAPSHOT_DATE,
+        "snapshot_date": snapshot_date,
+        "literature_cutoff": snapshot_date,
         "counts": counts,
         "assets": {
             "catalog": catalog_descriptor,
@@ -280,18 +284,6 @@ def build(public_root: Path, generated_root: Path) -> dict[str, Any]:
     _validate_json(schema, manifest, "manifest")
     manifest_bytes = canonical_json_bytes(manifest, pretty=True)
     _atomic_write(version_root / "manifest.json", manifest_bytes)
-
-    latest = {
-        "schema_version": SCHEMA_VERSION,
-        "snapshot_date": SNAPSHOT_DATE,
-        "manifest_path": f"{SNAPSHOT_DATE}/manifest.json",
-        "available_snapshots": [SNAPSHOT_DATE],
-    }
-    assert_safe_public_value(latest, "latest")
-    _validate_json(schema, latest, "latest")
-    latest_bytes = canonical_json_bytes(latest, pretty=True)
-    latest_path = public_root / "data" / "nucleic-acids" / "latest.json"
-    _atomic_write(latest_path, latest_bytes)
 
     public_schema = public_root / "schema" / SCHEMA_PATH.name
     _atomic_write(public_schema, SCHEMA_PATH.read_bytes())
@@ -307,11 +299,8 @@ def build(public_root: Path, generated_root: Path) -> dict[str, Any]:
         canonical_json_bytes(usage_index, pretty=True)
     )
     _atomic_write(generated_version_root / "manifest.json", manifest_bytes)
-    generated_latest = generated_root / "nucleic-acid-results" / "latest.json"
-    _atomic_write(generated_latest, latest_bytes)
-
     return {
-        "snapshot_date": SNAPSHOT_DATE,
+        "snapshot_date": snapshot_date,
         "manifest": str(version_root / "manifest.json"),
         "catalog_gzip_bytes": catalog_descriptor["compressedBytes"],
         "largest_protocol_gzip_bytes": max(
@@ -322,6 +311,23 @@ def build(public_root: Path, generated_root: Path) -> dict[str, Any]:
         "catalog_sha256": catalog_descriptor["sha256"],
         "catalog_uncompressed_bytes": len(catalog_raw),
     }
+
+
+def build(public_root: Path, generated_root: Path) -> dict[str, Any]:
+    receipts = [build_snapshot(public_root, generated_root, date) for date in AVAILABLE_SNAPSHOTS]
+    schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
+    latest = {
+        "schema_version": SCHEMA_VERSION,
+        "snapshot_date": SNAPSHOT_DATE,
+        "manifest_path": f"{SNAPSHOT_DATE}/manifest.json",
+        "available_snapshots": list(AVAILABLE_SNAPSHOTS),
+    }
+    assert_safe_public_value(latest, "latest")
+    _validate_json(schema, latest, "latest")
+    latest_bytes = canonical_json_bytes(latest, pretty=True)
+    _atomic_write(public_root / "data" / "nucleic-acids" / "latest.json", latest_bytes)
+    _atomic_write(generated_root / "nucleic-acid-results" / "latest.json", latest_bytes)
+    return {"latest_snapshot": SNAPSHOT_DATE, "available_snapshots": list(AVAILABLE_SNAPSHOTS), "snapshots": receipts}
 
 
 def main() -> None:

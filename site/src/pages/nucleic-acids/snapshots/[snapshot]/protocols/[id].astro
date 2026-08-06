@@ -1,0 +1,7 @@
+---
+import ProtocolDetail from '../../../../../components/nucleic/ProtocolDetail.astro';
+import { NUCLEIC_SNAPSHOTS, nucleicDataFor, text } from '../../../../../lib/nucleicAcids';
+export function getStaticPaths() { return NUCLEIC_SNAPSHOTS.flatMap((snapshot) => nucleicDataFor(snapshot).catalog.protocols.map((protocol) => ({ params: { snapshot, id: text(protocol, 'protocol_id') }, props: { protocol, snapshot } }))); }
+const { protocol, snapshot } = Astro.props;
+---
+<ProtocolDetail protocol={protocol} lang="en" snapshot={snapshot} />

@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from registry_io import load_entities  # noqa: E402
-from local_paper_intake import ensure_issue_for_url  # noqa: E402
+from local_paper_intake import _validate_generated_output, ensure_issue_for_url  # noqa: E402
 from triage_paper import (  # noqa: E402
     benchmark_candidates,
     build_intake,
@@ -91,6 +91,24 @@ def test_local_paper_intake_skill_and_entrypoint_exist() -> None:
     assert "at most three active runs" in text
     assert "biobench-paper-intake" in agent
     assert (ROOT / "scripts" / "local_paper_intake.py").exists()
+
+
+def test_generated_output_validation_reconciles_dependencies_and_matches_ci_build_order() -> None:
+    commands: list[list[str]] = []
+
+    def runner(command: list[str], **_: Any) -> subprocess.CompletedProcess[str]:
+        commands.append(command)
+        return subprocess.CompletedProcess(command, 0, "", "")
+
+    _validate_generated_output(runner=runner)
+
+    assert commands == [
+        ["pnpm", "install", "--frozen-lockfile", "--prefer-offline"],
+        [sys.executable, "scripts/validate_registry.py"],
+        [sys.executable, "-m", "pytest"],
+        ["pnpm", "build"],
+        ["pnpm", "site:test"],
+    ]
 
 
 def test_url_entry_reuses_issue_by_doi_before_creating_another(

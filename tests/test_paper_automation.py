@@ -2840,6 +2840,58 @@ def test_owner_can_downgrade_creator_evaluation_with_not_reported_root_total() -
     } >= {"/kind", "/access/level"}
     assert records_without_repeated_conflict.runs == []
 
+    repeated_access_evidence = json.loads(json.dumps(payload))
+    repeated_tasks_claim = next(
+        item for item in repeated_access_evidence["draft"]["claims"]
+        if item["field_path"] == "/benchmark-metadata/access/tasks"
+    )
+    repeated_tasks_claim = {
+        **repeated_tasks_claim,
+        "claim_id": "claim-98",
+    }
+    repeated_access_evidence["draft"]["claims"].append(repeated_tasks_claim)
+    repeated_access_evidence["draft"]["benchmark_mentions"][0]["claim_ids"].append(
+        "claim-98"
+    )
+    original_tasks_verdict = next(
+        item for item in repeated_access_evidence["verification"]["claims"]
+        if item["claim_id"] == next(
+            item["claim_id"] for item in repeated_access_evidence["draft"]["claims"]
+            if item["field_path"] == "/benchmark-metadata/access/tasks"
+            and item["claim_id"] != "claim-98"
+        )
+    )
+    repeated_access_evidence["verification"]["claims"].append({
+        **original_tasks_verdict,
+        "claim_id": "claim-98",
+    })
+    records_with_repeated_access_evidence = build_records(
+        repeated_access_evidence,
+        source=source,
+        generated_at=SOURCE["retrieved_at"],
+        verified_on="2026-07-27",
+        owner_conflict_resolution=resolution,
+    )
+    repeated_access_status = next(
+        item for item in records_with_repeated_access_evidence.benchmarks[0]["field_status"]
+        if item["path"] == "/access/level"
+    )
+    assert len(repeated_access_status["evidence_ids"]) == 5
+
+    conflicting_repeated_access = json.loads(json.dumps(repeated_access_evidence))
+    next(
+        item for item in conflicting_repeated_access["draft"]["claims"]
+        if item["claim_id"] == "claim-98"
+    )["value_json"] = json.dumps("Only a different subset of scenarios is public.")
+    with pytest.raises(GenerationBlocked, match="conflicting accepted values for /access/tasks"):
+        build_records(
+            conflicting_repeated_access,
+            source=source,
+            generated_at=SOURCE["retrieved_at"],
+            verified_on="2026-07-27",
+            owner_conflict_resolution=resolution,
+        )
+
     conflicting_access = json.loads(json.dumps(payload))
     conflicting_access_claim = claim(
         "claim-99",

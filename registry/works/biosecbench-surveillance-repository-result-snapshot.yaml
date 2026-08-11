@@ -1,0 +1,45 @@
+entity_type: work
+id: biosecbench-surveillance-repository-result-snapshot
+title: BioSecBench-Surveillance repository result snapshot
+authors:
+- LatchBio
+organizations:
+- LatchBio
+work_type: official-release
+source_class: benchmark_creator
+publication_date: '2026-07-09'
+canonical_url: https://github.com/latchbio/biosecbench-surveillance/tree/8d53fd8517cc74202eb18b618e8b39b4ffaf0c87
+doi: null
+arxiv: null
+status: published
+source_versions:
+- id: biosecbench-surveillance-repository-result-snapshot-8d53fd8
+  label: Repository snapshot 8d53fd8
+  status: current
+  publication_date: '2026-07-09'
+  canonical_url: https://github.com/latchbio/biosecbench-surveillance/tree/8d53fd8517cc74202eb18b618e8b39b4ffaf0c87
+  doi: null
+  arxiv: null
+  source_access: open-url
+  content_sha256: 27ef42fc30608b4f73085cbcc355f6e631e4cc0d8bdf1195d9c5558a174fa8e6
+  content_type: text/plain
+  retrieved_at: '2026-08-11T09:29:54Z'
+current_version_id: biosecbench-surveillance-repository-result-snapshot-8d53fd8
+review_provenance:
+  method: local-codex-double-pass
+  execution_surface: local-codex-cli
+  pipeline_version: 1.4.0
+  prompt_version: paper-evidence-local-v17
+  source_version_id: biosecbench-surveillance-repository-result-snapshot-8d53fd8
+  extractor_model_requested: gpt-5.6-sol
+  extractor_model_resolved: null
+  verifier_model_requested: gpt-5.6-sol
+  verifier_model_resolved: null
+  model_resolution_status: not-reported
+  codex_cli_version: codex-cli 0.147.0-alpha.6.5
+  local_run_id: 71a96e8c-edfd-4bb0-a0f7-4197d05b5342
+  generated_at: '2026-08-11T09:29:54Z'
+verification:
+  status: verified
+  last_verified: '2026-08-11'
+  notes: Commit-pinned official result snapshot; all published claims passed independent local double-pass verification.

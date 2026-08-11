@@ -1,0 +1,268 @@
+entity_type: evaluation_run
+id: biosecbench-8d53fd8-pi
+work_id: biosecbench-surveillance-repository-result-snapshot
+work_version_id: biosecbench-surveillance-repository-result-snapshot-8d53fd8
+benchmark_id: biosecbench-surveillance
+benchmark_version: initial-release
+model_ids:
+- anthropic-opus-4-6
+- anthropic-opus-4-7
+- anthropic-opus-4-8
+- anthropic-sonnet-4-6
+- gemini-3-1-pro-preview
+- gemini-3-5-flash
+- gpt-5-4
+- gpt-5-5
+- grok-4-20-beta-0309-reasoning
+- grok-4-3
+scope:
+  type: full
+  n: 100
+  subset_id: null
+  filter: null
+  selection: null
+  reporting_status: reported
+protocol:
+  shots:
+    value: null
+    reporting_status: not_reported
+    notes: The official repository does not report a demonstration count.
+  turns:
+    value: null
+    reporting_status: not_reported
+    notes: The exact turn or step limit is not reported in the pinned repository snapshot.
+  system_prompt_public:
+    value: null
+    reporting_status: not_reported
+    notes: The exact system prompt and harness prompt configuration are not reported.
+  reasoning:
+    value: null
+    reporting_status: not_reported
+    notes: No model-specific reasoning-effort setting is reported.
+  tools:
+    browser:
+      value: null
+      reporting_status: not_reported
+      notes: Browser availability is not separately reported.
+    internet:
+      value: true
+      reporting_status: reported
+      notes: METHODS.md states that agents had internet access.
+    databases:
+      value:
+      - resistance databases
+      - virulence databases
+      reporting_status: reported
+      notes: METHODS.md reports access to resistance and virulence databases without exact database versions.
+    code_execution:
+      value: null
+      reporting_status: not_reported
+      notes: Code or shell execution availability is not stated as a separate setting.
+    container:
+      value: identical containerized sandbox
+      reporting_status: reported
+      notes: METHODS.md states that all configurations used the same containerized sandbox.
+    external_tools:
+      value:
+      - PI
+      - assemblers
+      - aligners
+      - taxonomic classifiers
+      - variant callers
+      reporting_status: reported
+      notes: METHODS.md identifies the PI harness and representative bioinformatics tools.
+  token_budget:
+    value: null
+    reporting_status: not_reported
+    notes: No token budget is reported.
+  time_budget:
+    value: null
+    reporting_status: not_reported
+    notes: No per-evaluation time budget is reported in the pinned repository snapshot.
+  temperature:
+    value: null
+    reporting_status: not_reported
+    notes: Temperature is not reported.
+  seed:
+    value: null
+    reporting_status: not_reported
+    notes: Random seeds are not reported.
+  repeats:
+    value: 3
+    reporting_status: reported
+    notes: Each model-by-harness configuration was run three times per evaluation.
+  grader:
+    type: deterministic typed-field checks
+    model: null
+    human_review: null
+    reporting_status: reported
+  statistical:
+    value: 95% Student-t confidence interval over evaluations
+    reporting_status: reported
+    notes: METHODS.md defines aggregation and the confidence interval.
+  contamination:
+    value: null
+    reporting_status: not_reported
+    notes: No contamination or decontamination analysis is reported for these results.
+metrics:
+- metric_id: endpoint-pass-rate
+  source_label: endpoint pass rate
+  unit: '%'
+  range: null
+  higher_is_better: true
+  aggregation: mean of per-evaluation pass rates; evaluations with no gradeable run are dropped
+  pass_threshold: null
+  tolerance: null
+  kind: absolute
+  baseline_model_id: null
+results:
+- model_id: anthropic-opus-4-8
+  metric_id: endpoint-pass-rate
+  value: 50.2
+  ci_low: 40.2
+  ci_high: 60.2
+  n: 83
+  notes: PI; n is the number of gradable evaluations after evaluations with no gradable run were dropped; the configured benchmark
+    scope was all 100 evaluations.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - biosecbench-8d53fd8-pi-results-evidence
+- model_id: gpt-5-5
+  metric_id: endpoint-pass-rate
+  value: 44.8
+  ci_low: 35.0
+  ci_high: 54.6
+  n: 77
+  notes: PI; n is the number of gradable evaluations after evaluations with no gradable run were dropped; the configured benchmark
+    scope was all 100 evaluations.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - biosecbench-8d53fd8-pi-results-evidence
+- model_id: anthropic-opus-4-7
+  metric_id: endpoint-pass-rate
+  value: 49.6
+  ci_low: 40.0
+  ci_high: 59.1
+  n: 78
+  notes: PI; n is the number of gradable evaluations after evaluations with no gradable run were dropped; the configured benchmark
+    scope was all 100 evaluations.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - biosecbench-8d53fd8-pi-results-evidence
+- model_id: anthropic-sonnet-4-6
+  metric_id: endpoint-pass-rate
+  value: 48.6
+  ci_low: 39.0
+  ci_high: 58.2
+  n: 83
+  notes: PI; n is the number of gradable evaluations after evaluations with no gradable run were dropped; the configured benchmark
+    scope was all 100 evaluations.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - biosecbench-8d53fd8-pi-results-evidence
+- model_id: gemini-3-5-flash
+  metric_id: endpoint-pass-rate
+  value: 47.1
+  ci_low: 37.5
+  ci_high: 56.7
+  n: 92
+  notes: PI; n is the number of gradable evaluations after evaluations with no gradable run were dropped; the configured benchmark
+    scope was all 100 evaluations.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - biosecbench-8d53fd8-pi-results-evidence
+- model_id: anthropic-opus-4-6
+  metric_id: endpoint-pass-rate
+  value: 45.7
+  ci_low: 35.9
+  ci_high: 55.4
+  n: 81
+  notes: PI; n is the number of gradable evaluations after evaluations with no gradable run were dropped; the configured benchmark
+    scope was all 100 evaluations.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - biosecbench-8d53fd8-pi-results-evidence
+- model_id: gemini-3-1-pro-preview
+  metric_id: endpoint-pass-rate
+  value: 45.3
+  ci_low: 36.7
+  ci_high: 53.8
+  n: 95
+  notes: PI; n is the number of gradable evaluations after evaluations with no gradable run were dropped; the configured benchmark
+    scope was all 100 evaluations.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - biosecbench-8d53fd8-pi-results-evidence
+- model_id: gpt-5-4
+  metric_id: endpoint-pass-rate
+  value: 38.5
+  ci_low: 29.3
+  ci_high: 47.6
+  n: 81
+  notes: PI; n is the number of gradable evaluations after evaluations with no gradable run were dropped; the configured benchmark
+    scope was all 100 evaluations.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - biosecbench-8d53fd8-pi-results-evidence
+- model_id: grok-4-3
+  metric_id: endpoint-pass-rate
+  value: 16.0
+  ci_low: 10.1
+  ci_high: 21.9
+  n: 100
+  notes: PI; n is the number of gradable evaluations after evaluations with no gradable run were dropped; the configured benchmark
+    scope was all 100 evaluations.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - biosecbench-8d53fd8-pi-results-evidence
+- model_id: grok-4-20-beta-0309-reasoning
+  metric_id: endpoint-pass-rate
+  value: 13.7
+  ci_low: 8.1
+  ci_high: 19.2
+  n: 100
+  notes: PI; n is the number of gradable evaluations after evaluations with no gradable run were dropped; the configured benchmark
+    scope was all 100 evaluations.
+  status: verified
+  confidence: high
+  evidence_ids:
+  - biosecbench-8d53fd8-pi-results-evidence
+comparability_group: biosecbench-8d53fd8-pi
+verification:
+  status: verified
+  last_verified: '2026-08-11'
+  notes: Full-scope protocol and exact machine-readable result rows passed independent high-confidence verification.
+evidence:
+- id: biosecbench-8d53fd8-pi-protocol-evidence
+  source_type: resource
+  source_id: biosecbench-surveillance-official-repository-resource
+  accessed_date: '2026-08-11'
+  locator:
+    type: repository-path
+    value: METHODS.md at commit 8d53fd8517cc74202eb18b618e8b39b4ffaf0c87
+    note: Full 100-evaluation scope, PI harness, tools, three repeats, deterministic grading, aggregation, and confidence
+      intervals.
+  supports:
+  - /benchmark_version
+  - /scope
+  - /protocol
+  - /metrics
+- id: biosecbench-8d53fd8-pi-results-evidence
+  source_type: resource
+  source_id: biosecbench-surveillance-official-repository-resource
+  accessed_date: '2026-08-11'
+  locator:
+    type: repository-path
+    value: results/config_results.csv; harness=pi at commit 8d53fd8517cc74202eb18b618e8b39b4ffaf0c87
+    note: Exact model labels, endpoint pass rates, 95% confidence intervals, and gradable evaluation counts.
+  supports:
+  - /results

@@ -1,3 +1,16 @@
+- date: '2026-08-11'
+  version: 1.4.0-dev
+  type: paper-intake
+  summary: Commit-pinned BioSecBench-Surveillance official results normalized with an independent local Codex double-pass;
+    the creator preprint and repository result snapshot remain separate source versions.
+  entity_ids:
+    - biosecbench-surveillance-repository-result-snapshot
+    - biosecbench-8d53fd8-pi-use
+    - biosecbench-8d53fd8-pi
+    - biosecbench-8d53fd8-claude-code-use
+    - biosecbench-8d53fd8-claude-code
+    - biosecbench-8d53fd8-openai-codex-use
+    - biosecbench-8d53fd8-openai-codex
 - date: '2026-08-06'
   version: 1.4.0-dev
   type: paper-intake

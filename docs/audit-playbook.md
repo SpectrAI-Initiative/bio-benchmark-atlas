@@ -62,3 +62,7 @@ pnpm --dir site test
 ```
 
 After merge, verify the canonical Pages record and JSON/CSV exports. The weekly source monitor reports moves, fingerprint drift, and three consecutive failures as issues; it never changes registry facts.
+
+## Readiness audits
+
+- [v1.4.0 normalized-readiness audit](./audits/v1.4.0-normalized-readiness/papers.md): checks whether the merged paper-intake records can satisfy the normalized `EvaluationRun` contract and records release-gate blockers without changing Registry claims.

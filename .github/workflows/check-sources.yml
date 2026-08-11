@@ -23,8 +23,22 @@ jobs:
           key: source-monitor-state-${{ github.run_id }}
           restore-keys: source-monitor-state-
       - run: python scripts/check_sources.py --output source-check-report.json
-      - run: python scripts/update_source_state.py --report source-check-report.json --state .source-monitor-state.json --issues source-issues.json
-      - name: Open issues for source failures or drift
+      - run: python scripts/update_source_state.py --report source-check-report.json --state .source-monitor-state.json --issues source-issues.json --drift-report source-drift-report.json
+      - name: Summarize source health
+        run: |
+          failures=$(jq 'length' source-issues.json)
+          observations=$(jq 'length' source-drift-report.json)
+          access_limited=$(jq '[.[] | select(.monitor_reasons | contains(["monitor-access-limited"]))] | length' source-drift-report.json)
+          {
+            echo "## Source monitor"
+            echo
+            echo "- Sources at the three-consecutive-failure threshold: ${failures}"
+            echo "- Informational observations (artifact only): ${observations}"
+            echo "- Monitor access limited by source (401/403/429): ${access_limited}"
+            echo
+            echo "Content drift and monitor access restrictions are informational and do not create individual Issues."
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Open issues for persistent source failures
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -35,9 +49,23 @@ jobs:
             status=$(jq -r '.status // "request failed"' <<<"$item")
             failures=$(jq -r '.consecutive_failures' <<<"$item")
             reasons=$(jq -r '.monitor_reasons | join(", ")' <<<"$item")
+            sources=$(jq -r '.related_sources | map(.source_type + ":" + .source_id) | join(", ")' <<<"$item")
             title="[Source stale] ${id}"
             if ! gh issue list --state open --search "${title} in:title" --json title --jq '.[].title' | grep -Fxq "$title"; then
-              gh issue create --title "$title" --label source-monitor --body "The weekly source monitor detected a failure or source drift.\n\n- Source: \`${type}:${id}\`\n- URL: ${url}\n- Latest status: ${status}\n- Consecutive failures: ${failures}\n- Reason(s): ${reasons}\n\nThis issue is informational. The registry was not modified automatically."
+              gh issue create --title "$title" --label source-monitor --body "The weekly source monitor detected a persistent source failure.\n\n- Primary source: \`${type}:${id}\`\n- Registry entries sharing this URL: ${sources}\n- URL: ${url}\n- Latest status: ${status}\n- Consecutive failures: ${failures}\n- Reason(s): ${reasons}\n\nThe Registry was not modified automatically. This Issue will close automatically after the source recovers."
+            fi
+          done
+      - name: Close resolved automated source issues
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          jq -r '.[].source_id | "[Source stale] " + .' source-issues.json > active-source-issues.txt
+          gh issue list --state open --label source-monitor --limit 1000 --json number,title \
+            --jq '.[] | select(.title | startswith("[Source stale] ")) | [.number, .title] | @tsv' |
+          while IFS=$'\t' read -r number title; do
+            if ! grep -Fxq "$title" active-source-issues.txt; then
+              gh issue comment "$number" --body "The latest weekly check no longer meets the three-consecutive-failure threshold. Closing this automated source-monitor Issue."
+              gh issue close "$number" --reason completed
             fi
           done
       - uses: actions/cache/save@v6
@@ -49,5 +77,7 @@ jobs:
         if: always()
         with:
           name: source-check-${{ github.run_id }}
-          path: source-check-report.json
+          path: |
+            source-check-report.json
+            source-drift-report.json
           retention-days: 30

@@ -1534,10 +1534,11 @@ def test_source_monitor_inventory_includes_works_and_resources() -> None:
     assert len({item["source_key"] for item in sources}) == len(sources)
 
 
-def test_source_monitor_opens_drift_issue_without_mutating_registry(tmp_path) -> None:
+def test_source_monitor_summarizes_drift_without_opening_issue(tmp_path) -> None:
     report = tmp_path / "report.json"
     state = tmp_path / "state.json"
     issues = tmp_path / "issues.json"
+    drift = tmp_path / "drift.json"
     source = {
         "source_key": "work:example", "source_type": "work", "source_id": "example",
         "url": "https://example.org/source", "ok": True, "status": 200,
@@ -1552,11 +1553,93 @@ def test_source_monitor_opens_drift_issue_without_mutating_registry(tmp_path) ->
     }
     subprocess.run([
         sys.executable, "scripts/update_source_state.py", "--report", str(report),
-        "--state", str(state), "--issues", str(issues),
+        "--state", str(state), "--issues", str(issues), "--drift-report", str(drift),
     ], cwd=ROOT, check=True)
     flagged = json.loads(issues.read_text(encoding="utf-8"))
-    assert flagged[0]["monitor_reasons"] == ["fingerprint-changed"]
+    changed = json.loads(drift.read_text(encoding="utf-8"))
+    assert flagged == []
+    assert changed[0]["monitor_reasons"] == ["fingerprint-changed"]
     assert before == {path: path.read_bytes() for path in ROOT.glob("registry/**/*.yaml")}
+
+
+def test_source_monitor_opens_issue_after_three_consecutive_failures(tmp_path) -> None:
+    report = tmp_path / "report.json"
+    state = tmp_path / "state.json"
+    issues = tmp_path / "issues.json"
+    drift = tmp_path / "drift.json"
+    source = {
+        "source_key": "work:example", "source_type": "work", "source_id": "example",
+        "url": "https://example.org/source", "ok": False, "status": 503,
+        "final_url": None, "sha256": None, "sha256_scope": None,
+        "etag": None, "last_modified": None, "checked_at": "2026-07-21T00:00:00+00:00",
+    }
+    report.write_text(json.dumps([source]), encoding="utf-8")
+    state.write_text(json.dumps({"work:example": {"consecutive_failures": 2}}), encoding="utf-8")
+    subprocess.run([
+        sys.executable, "scripts/update_source_state.py", "--report", str(report),
+        "--state", str(state), "--issues", str(issues), "--drift-report", str(drift),
+    ], cwd=ROOT, check=True)
+    flagged = json.loads(issues.read_text(encoding="utf-8"))
+    assert flagged[0]["consecutive_failures"] == 3
+    assert flagged[0]["monitor_reasons"] == ["three-consecutive-failures"]
+    assert flagged[0]["related_sources"] == [{
+        "source_type": "work", "source_id": "example",
+    }]
+    assert json.loads(drift.read_text(encoding="utf-8")) == []
+
+
+def test_source_monitor_reports_access_limited_without_counting_failure(tmp_path) -> None:
+    report = tmp_path / "report.json"
+    state = tmp_path / "state.json"
+    issues = tmp_path / "issues.json"
+    drift = tmp_path / "drift.json"
+    source = {
+        "source_key": "work:example", "source_type": "work", "source_id": "example",
+        "url": "https://doi.org/example", "ok": False, "status": 403,
+        "final_url": "https://doi.org/example", "sha256": None, "sha256_scope": None,
+        "etag": None, "last_modified": None, "checked_at": "2026-07-21T00:00:00+00:00",
+    }
+    report.write_text(json.dumps([source]), encoding="utf-8")
+    state.write_text(json.dumps({"work:example": {"consecutive_failures": 2}}), encoding="utf-8")
+    subprocess.run([
+        sys.executable, "scripts/update_source_state.py", "--report", str(report),
+        "--state", str(state), "--issues", str(issues), "--drift-report", str(drift),
+    ], cwd=ROOT, check=True)
+    assert json.loads(issues.read_text(encoding="utf-8")) == []
+    changed = json.loads(drift.read_text(encoding="utf-8"))
+    assert changed[0]["consecutive_failures"] == 0
+    assert changed[0]["monitor_reasons"] == ["monitor-access-limited"]
+
+
+def test_source_monitor_deduplicates_failures_by_url(tmp_path) -> None:
+    report = tmp_path / "report.json"
+    state = tmp_path / "state.json"
+    issues = tmp_path / "issues.json"
+    drift = tmp_path / "drift.json"
+    shared = {
+        "url": "https://example.org/source", "ok": False, "status": 503,
+        "final_url": None, "sha256": None, "sha256_scope": None,
+        "etag": None, "last_modified": None, "checked_at": "2026-07-21T00:00:00+00:00",
+    }
+    sources = [
+        {**shared, "source_key": "work:example", "source_type": "work", "source_id": "example"},
+        {**shared, "source_key": "resource:example", "source_type": "resource", "source_id": "example-resource"},
+    ]
+    report.write_text(json.dumps(sources), encoding="utf-8")
+    state.write_text(json.dumps({
+        "work:example": {"consecutive_failures": 2},
+        "resource:example": {"consecutive_failures": 2},
+    }), encoding="utf-8")
+    subprocess.run([
+        sys.executable, "scripts/update_source_state.py", "--report", str(report),
+        "--state", str(state), "--issues", str(issues), "--drift-report", str(drift),
+    ], cwd=ROOT, check=True)
+    flagged = json.loads(issues.read_text(encoding="utf-8"))
+    assert len(flagged) == 1
+    assert flagged[0]["related_sources"] == [
+        {"source_type": "work", "source_id": "example"},
+        {"source_type": "resource", "source_id": "example-resource"},
+    ]
 
 
 def test_all_primary_families_have_creator_evidence() -> None:

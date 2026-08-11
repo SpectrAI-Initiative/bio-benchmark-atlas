@@ -1,0 +1,47 @@
+entity_type: benchmark_use
+id: biosecbench-8d53fd8-openai-codex-use
+work_id: biosecbench-surveillance-repository-result-snapshot
+work_version_id: biosecbench-surveillance-repository-result-snapshot-8d53fd8
+benchmark_id: biosecbench-surveillance
+benchmark_version: initial-release
+relation_type: evaluation
+status: normalized
+model_ids:
+- gpt-5-4
+- gpt-5-5
+scope:
+  type: full
+  subset_kind: not-applicable
+  n: 100
+  subset_id: null
+  selection: null
+  selection_method: All 100 registered evaluations
+  reporting_status: reported
+metric_labels:
+- endpoint pass rate
+evaluation_run_ids:
+- biosecbench-8d53fd8-openai-codex
+reporting_gaps: []
+notes: Official commit-pinned OpenAI Codex evaluation result snapshot.
+verification:
+  status: verified
+  last_verified: '2026-08-11'
+  notes: Normalized relationship is limited to independently verified high-confidence claims.
+evidence:
+- id: biosecbench-8d53fd8-openai-codex-use-evidence
+  source_type: resource
+  source_id: biosecbench-surveillance-official-repository-resource
+  accessed_date: '2026-08-11'
+  locator:
+    type: repository-path
+    value: METHODS.md and results/config_results.csv at commit 8d53fd8517cc74202eb18b618e8b39b4ffaf0c87
+    note: Full-scope OpenAI Codex evaluation relation, models, metric, and linked run.
+  supports:
+  - /benchmark_version
+  - /relation_type
+  - /status
+  - /model_ids
+  - /scope
+  - /metric_labels
+  - /evaluation_run_ids
+  - /notes

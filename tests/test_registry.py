@@ -110,6 +110,60 @@ def test_spatialbench_versions_harnesses_and_external_summary_are_separate() -> 
     assert summary["scope"]["n"] == 146
 
 
+def test_biosecbench_repository_results_are_normalized_without_overwriting_the_preprint() -> None:
+    entities = load_entities()
+    work = next(
+        item for item in entities["work"]
+        if item["id"] == "biosecbench-surveillance-repository-result-snapshot"
+    )
+    assert work["work_type"] == "official-release"
+    assert work["source_class"] == "benchmark_creator"
+    assert work["canonical_url"].endswith("8d53fd8517cc74202eb18b618e8b39b4ffaf0c87")
+    assert work["review_provenance"]["method"] == "local-codex-double-pass"
+
+    runs = {
+        run["id"]: run for run in entities["evaluation_run"]
+        if run["work_id"] == work["id"]
+    }
+    assert set(runs) == {
+        "biosecbench-8d53fd8-pi",
+        "biosecbench-8d53fd8-claude-code",
+        "biosecbench-8d53fd8-openai-codex",
+    }
+    assert {run["benchmark_version"] for run in runs.values()} == {"initial-release"}
+    assert all(run["scope"]["type"] == "full" and run["scope"]["n"] == 100 for run in runs.values())
+    assert all(run["protocol"]["repeats"]["value"] == 3 for run in runs.values())
+    assert all(run["comparability_group"] == run["id"] for run in runs.values())
+    assert {run_id: len(run["results"]) for run_id, run in runs.items()} == {
+        "biosecbench-8d53fd8-pi": 10,
+        "biosecbench-8d53fd8-claude-code": 4,
+        "biosecbench-8d53fd8-openai-codex": 2,
+    }
+    assert sum(len(run["results"]) for run in runs.values()) == 16
+    assert all(
+        result["status"] == "verified" and result["confidence"] == "high" and result["n"] <= 100
+        for run in runs.values() for result in run["results"]
+    )
+    pi_results = {result["model_id"]: result for result in runs["biosecbench-8d53fd8-pi"]["results"]}
+    assert (pi_results["anthropic-opus-4-8"]["value"], pi_results["anthropic-opus-4-8"]["ci_low"], pi_results["anthropic-opus-4-8"]["ci_high"], pi_results["anthropic-opus-4-8"]["n"]) == (50.2, 40.2, 60.2, 83)
+    assert "gemini-3-1-pro-preview" in pi_results
+    assert "grok-4-20-beta-0309-reasoning" in pi_results
+
+    normalized_uses = [
+        use for use in entities["benchmark_use"]
+        if use["work_id"] == work["id"]
+    ]
+    assert len(normalized_uses) == 3
+    assert all(use["status"] == "normalized" and len(use["evaluation_run_ids"]) == 1 for use in normalized_uses)
+    preprint_uses = [
+        use for use in entities["benchmark_use"]
+        if use["work_id"] == "biosecbench-surveillance-a-verifiable-benchmark-for-ai"
+        and use["relation_type"] == "evaluation"
+    ]
+    assert len(preprint_uses) == 3
+    assert all(use["status"] == "partial" and use["evaluation_run_ids"] == [] for use in preprint_uses)
+
+
 def test_anthropic_internal_suite_preserves_only_labeled_deltas() -> None:
     entities = load_entities()
     benchmarks = {item["id"]: item for item in entities["benchmark"]}

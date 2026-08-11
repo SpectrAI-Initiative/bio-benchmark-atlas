@@ -13,16 +13,17 @@ from typing import Any, Iterable
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SNAPSHOT_DATE = "2026-08-05"
+AVAILABLE_SNAPSHOTS = ("2026-08-05", "2026-08-06")
+SNAPSHOT_DATE = AVAILABLE_SNAPSHOTS[-1]
 SCHEMA_VERSION = "nucleic-acid-results-v1"
-SOURCE_SNAPSHOT_ID = "nucleic_acid_benchmark_results_20260805"
+SOURCE_SNAPSHOT_ID = "nucleic_acid_benchmark_results_20260806"
 SOURCE_ROOT = ROOT / "data" / "nucleic-acid-results" / SNAPSHOT_DATE
 SOURCE_ARCHIVE = SOURCE_ROOT / "source-csvs.zip"
 SOURCE_MANIFEST = SOURCE_ROOT / "source-manifest.json"
 CROSSWALK_PATH = ROOT / "data" / "nucleic-acid-results" / "crosswalks.json"
 SCHEMA_PATH = ROOT / "schema" / "nucleic-acid-results.schema.json"
 
-SOURCE_TABLES = (
+BASE_SOURCE_TABLES = (
     "baseline_sota_summary.csv",
     "benchmark_result_coverage.csv",
     "benchmark_results.csv",
@@ -41,21 +42,50 @@ SOURCE_TABLES = (
     "works.csv",
 )
 
+SNAPSHOT_EXTRA_TABLES = {
+    "2026-08-05": (),
+    "2026-08-06": ("track_result_coverage.csv",),
+}
+
+SOURCE_TABLES = BASE_SOURCE_TABLES + SNAPSHOT_EXTRA_TABLES[SNAPSHOT_DATE]
+
 EXPECTED_COUNTS = {
     "benchmarks": 47,
     "tasks": 58,
     "tracks": 146,
-    "protocols": 334,
-    "metrics": 47,
-    "results": 55_989,
-    "summaries": 557,
-    "leaders": 670,
-    "participants": 398,
-    "configurations": 3_699,
-    "works": 25,
+    "protocols": 345,
+    "metrics": 52,
+    "results": 56_014,
+    "summaries": 556,
+    "leaders": 695,
+    "participants": 415,
+    "configurations": 3_719,
+    "works": 29,
     "coverage": 47,
-    "result_sources": 55_989,
+    "result_sources": 56_014,
+    "track_coverage": 146,
 }
+
+EXPECTED_COUNTS_BY_SNAPSHOT = {
+    "2026-08-05": {
+        "benchmarks": 47, "tasks": 58, "tracks": 146, "protocols": 334,
+        "metrics": 47, "results": 55_989, "summaries": 557, "leaders": 670,
+        "participants": 398, "configurations": 3_699, "works": 25,
+        "coverage": 47, "result_sources": 55_989,
+    },
+    "2026-08-06": EXPECTED_COUNTS,
+}
+
+
+def source_tables_for(snapshot_date: str) -> tuple[str, ...]:
+    if snapshot_date not in AVAILABLE_SNAPSHOTS:
+        raise NucleicAcidResultsError(f"unknown snapshot: {snapshot_date}")
+    return BASE_SOURCE_TABLES + SNAPSHOT_EXTRA_TABLES[snapshot_date]
+
+
+def source_paths_for(snapshot_date: str) -> tuple[Path, Path]:
+    root = ROOT / "data" / "nucleic-acid-results" / snapshot_date
+    return root / "source-csvs.zip", root / "source-manifest.json"
 
 LOCAL_OR_SECRET_PATTERN = re.compile(
     r"(?:/Users/|/home/|/mnt/|file://|"
@@ -102,8 +132,12 @@ def parse_csv(data: bytes, filename: str) -> list[dict[str, str]]:
 
 
 def load_source_tables(
-    archive_path: Path = SOURCE_ARCHIVE,
+    archive_path: Path | None = None,
+    snapshot_date: str = SNAPSHOT_DATE,
 ) -> tuple[dict[str, list[dict[str, str]]], dict[str, bytes]]:
+    if archive_path is None:
+        archive_path = source_paths_for(snapshot_date)[0]
+    source_tables = source_tables_for(snapshot_date)
     if not archive_path.exists():
         raise NucleicAcidResultsError(f"missing source archive: {archive_path}")
     tables: dict[str, list[dict[str, str]]] = {}
@@ -113,13 +147,13 @@ def load_source_tables(
             names = archive.namelist()
             if len(names) != len(set(names)):
                 raise NucleicAcidResultsError("source archive contains duplicate members")
-            if set(names) != set(SOURCE_TABLES):
-                missing = sorted(set(SOURCE_TABLES) - set(names))
-                extra = sorted(set(names) - set(SOURCE_TABLES))
+            if set(names) != set(source_tables):
+                missing = sorted(set(source_tables) - set(names))
+                extra = sorted(set(names) - set(source_tables))
                 raise NucleicAcidResultsError(
                     f"source archive member mismatch: missing={missing}, extra={extra}"
                 )
-            for filename in SOURCE_TABLES:
+            for filename in source_tables:
                 data = archive.read(filename)
                 raw_files[filename] = data
                 tables[filename] = parse_csv(data, filename)

@@ -2,27 +2,28 @@
 import Layout from '../Layout.astro';
 import NucleicNav from './NucleicNav.astro';
 import CoverageBadge from './CoverageBadge.astro';
-import { benchmarkTaskIds, coverageForBenchmark, integer, nucleicCatalog, snapshotRoot, statusLabel, taskById, text } from '../../lib/nucleicAcids';
+import { NUCLEIC_SNAPSHOT, benchmarkTaskIds, coverageForBenchmark, integer, nucleicDataFor, snapshotRoot, statusLabel, taskById, text } from '../../lib/nucleicAcids';
 import { withBase } from '../../lib/data';
 import type { NucleicLanguage } from '../../lib/nucleicLocale';
 
-interface Props { lang?: NucleicLanguage; }
-const { lang = 'en' } = Astro.props;
+interface Props { lang?: NucleicLanguage; snapshot?: string; }
+const { lang = 'en', snapshot = NUCLEIC_SNAPSHOT } = Astro.props;
 const zh = lang === 'zh';
-const root = snapshotRoot(zh);
+const root = snapshotRoot(zh, snapshot);
+const nucleicCatalog = nucleicDataFor(snapshot).catalog;
 const statuses = [...new Set(nucleicCatalog.coverage.map((row) => text(row, 'baseline_sota_status', text(row, 'status'))))].sort();
 const tiers = [...new Set(nucleicCatalog.benchmarks.map((row) => text(row, 'tier')).filter((value) => value !== 'NR'))].sort();
 const rows = nucleicCatalog.benchmarks.map((benchmark) => {
   const id = text(benchmark, 'benchmark_id');
-  const coverage = coverageForBenchmark(id);
-  const taskIds = benchmarkTaskIds(id);
-  const taskNames = taskIds.map((taskId) => text(taskById(taskId), zh ? 'name_zh' : 'name_en', taskId));
+  const coverage = coverageForBenchmark(id, snapshot);
+  const taskIds = benchmarkTaskIds(id, snapshot);
+  const taskNames = taskIds.map((taskId) => text(taskById(taskId, snapshot), zh ? 'name_zh' : 'name_en', taskId));
   const status = text(coverage, 'baseline_sota_status', text(coverage, 'status'));
   return { benchmark, coverage, id, taskIds, taskNames, status, search: `${id} ${text(benchmark, 'benchmark_name')} ${taskNames.join(' ')}`.toLowerCase() };
 });
 ---
 <Layout title={zh ? '核酸 Benchmark' : 'Nucleic-acid benchmarks'} canonicalPath={`${root}/benchmarks/`} alternatePath={`${zh ? '' : '/zh'}${root.replace(/^\/zh/, '')}/benchmarks/`} lang={zh ? 'zh-CN' : 'en'}>
-  <NucleicNav lang={lang} active="benchmarks" />
+  <NucleicNav lang={lang} active="benchmarks" snapshot={snapshot} />
   <header class="page-head page-head--compact shell">
     <div class="breadcrumbs"><a href={withBase(`${zh ? '/zh' : ''}/nucleic-acids/`)}>{zh ? '核酸结果' : 'Nucleic-acid results'}</a><span>/</span><span>Benchmarks</span></div>
     <p class="eyebrow">{zh ? `${nucleicCatalog.snapshot_date} 快照` : `${nucleicCatalog.snapshot_date} snapshot`}</p>

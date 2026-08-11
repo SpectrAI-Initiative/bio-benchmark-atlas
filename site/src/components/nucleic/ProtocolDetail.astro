@@ -1,25 +1,26 @@
 ---
 import Layout from '../Layout.astro';
 import NucleicNav from './NucleicNav.astro';
-import { benchmarkById, leadersForProtocol, metricById, nucleicCatalog, safeExternalUrl, snapshotRoot, summariesForProtocol, text, type NucleicRow } from '../../lib/nucleicAcids';
+import { NUCLEIC_SNAPSHOT, benchmarkById, leadersForProtocol, metricById, nucleicDataFor, safeExternalUrl, snapshotRoot, summariesForProtocol, text, type NucleicRow } from '../../lib/nucleicAcids';
 import { withBase } from '../../lib/data';
 import type { NucleicLanguage } from '../../lib/nucleicLocale';
 
-interface Props { protocol: NucleicRow; lang?: NucleicLanguage; }
-const { protocol, lang = 'en' } = Astro.props;
+interface Props { protocol: NucleicRow; lang?: NucleicLanguage; snapshot?: string; }
+const { protocol, lang = 'en', snapshot = NUCLEIC_SNAPSHOT } = Astro.props;
 const zh = lang === 'zh';
-const root = snapshotRoot(zh);
+const root = snapshotRoot(zh, snapshot);
+const nucleicCatalog = nucleicDataFor(snapshot).catalog;
 const protocolId = text(protocol, 'protocol_id');
-const benchmark = benchmarkById(text(protocol, 'benchmark_id'));
-const summaries = summariesForProtocol(protocolId);
-const leaders = leadersForProtocol(protocolId);
+const benchmark = benchmarkById(text(protocol, 'benchmark_id'), snapshot);
+const summaries = summariesForProtocol(protocolId, snapshot);
+const leaders = leadersForProtocol(protocolId, snapshot);
 const metricPairs = summaries.map((summary) => ({
   metricId: text(summary, 'metric_id'),
-  metricName: text(summary, 'metric_name', text(metricById(text(summary, 'metric_id')), 'metric_name')),
-  variant: text(summary, 'metric_variant', text(metricById(text(summary, 'metric_id')), 'metric_variant')),
+  metricName: text(summary, 'metric_name', text(metricById(text(summary, 'metric_id'), snapshot), 'metric_name')),
+  variant: text(summary, 'metric_variant', text(metricById(text(summary, 'metric_id'), snapshot), 'metric_variant')),
   fingerprint: text(summary, 'protocol_metric_fingerprint'),
-  direction: text(summary, 'direction', text(metricById(text(summary, 'metric_id')), 'direction')),
-  unit: text(summary, 'unit', text(metricById(text(summary, 'metric_id')), 'unit')),
+  direction: text(summary, 'direction', text(metricById(text(summary, 'metric_id'), snapshot), 'direction')),
+  unit: text(summary, 'unit', text(metricById(text(summary, 'metric_id'), snapshot), 'unit')),
 }));
 const claimsByResult = leaders.reduce<Record<string, string[]>>((map, leader) => {
   const resultId = text(leader, 'leader_result_id');
@@ -30,7 +31,7 @@ const claimsByResult = leaders.reduce<Record<string, string[]>>((map, leader) =>
 const protocolSource = safeExternalUrl(protocol.source_url);
 ---
 <Layout title={`${text(benchmark, 'benchmark_name')} · ${text(protocol, 'native_track')}`} description={zh ? '按指标与协议指纹浏览可追溯的评测结果。' : 'Browse traceable evaluation results gated by metric and protocol fingerprint.'} canonicalPath={`${root}/protocols/${protocolId}/`} alternatePath={`${zh ? '' : '/zh'}${root.replace(/^\/zh/, '')}/protocols/${protocolId}/`} lang={zh ? 'zh-CN' : 'en'}>
-  <NucleicNav lang={lang} />
+  <NucleicNav lang={lang} snapshot={snapshot} />
   <header class="page-head page-head--compact shell">
     <div class="breadcrumbs"><a href={withBase(`${root}/benchmarks/${text(protocol, 'benchmark_id')}/`)}>{text(benchmark, 'benchmark_name')}</a><span>/</span><span>Protocol</span></div>
     <p class="eyebrow">{text(protocol, 'track_id')} · {text(protocol, 'comparison_scope')}</p>

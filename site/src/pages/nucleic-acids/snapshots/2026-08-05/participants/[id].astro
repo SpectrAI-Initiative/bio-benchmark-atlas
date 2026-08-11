@@ -1,7 +1,0 @@
----
-import ParticipantDetail from '../../../../../components/nucleic/ParticipantDetail.astro';
-import { nucleicEntities, text } from '../../../../../lib/nucleicAcids';
-export function getStaticPaths() { return nucleicEntities.participants.map((participant) => ({ params: { id: text(participant, 'participant_id') }, props: { participant } })); }
-const { participant } = Astro.props;
----
-<ParticipantDetail participant={participant} lang="en" />

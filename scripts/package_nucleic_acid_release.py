@@ -410,7 +410,7 @@ def package_release(
 
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--source", type=Path, required=True, help="audited 2026-08-05 snapshot directory")
+    parser.add_argument("--source", type=Path, required=True, help="audited dated snapshot directory")
     parser.add_argument("--output-dir", type=Path, help="release staging directory")
     parser.add_argument("--csv-archive", type=Path, help="tracked deterministic source-csvs.zip")
     parser.add_argument("--source-manifest", type=Path, help="manifest paired with --csv-archive")

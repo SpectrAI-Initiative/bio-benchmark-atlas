@@ -9,6 +9,9 @@ model weights, papers, or training records.
 - `2026-08-05/source-csvs.zip` contains the 16 CSV tables needed by the web build.
 - `2026-08-05/source-manifest.json` pins every source member by byte count, row
   count, ordered columns, and SHA-256, and pins the deterministic ZIP itself.
+- `2026-08-06/` is the gap-closure snapshot. Its 17-table package adds
+  `track_result_coverage.csv`, preserves every 2026-08-05 result ID, and exposes
+  the reviewed B07/B08/B18/B23 numeric additions without changing the old package.
 - `crosswalks.json` is the reviewed bridge to the core BioBench Atlas Registry.
   Unreviewed similarities stay explicitly unmapped.
 
@@ -33,9 +36,11 @@ their compressed bytes.
 To reproduce the tracked source archive from an authoritative staging directory:
 
 ```bash
-python3 scripts/package_nucleic_acid_results.py --source /path/to/nucleic_acid_benchmark_results_20260805
+python3 scripts/package_nucleic_acid_results.py \
+  --snapshot-date 2026-08-06 \
+  --source /path/to/nucleic_acid_benchmark_results_20260806
 ```
 
-The source archive is only replaced after review. A later release uses a new date
-directory; an existing dated public manifest is not repurposed for a different
-snapshot.
+The source archive is only replaced after review. The build validates every date
+listed by the manifest-driven snapshot registry, emits both immutable route families,
+and updates only `latest.json` to select the newest date.

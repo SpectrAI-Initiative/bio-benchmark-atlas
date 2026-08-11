@@ -18,6 +18,7 @@ from build_nucleic_acid_results import (  # noqa: E402
     build,
 )
 from nucleic_acid_results import (  # noqa: E402
+    AVAILABLE_SNAPSHOTS,
     EXPECTED_COUNTS,
     LOCAL_OR_SECRET_PATTERN,
     SNAPSHOT_DATE,
@@ -66,7 +67,7 @@ def test_source_package_is_reproducible(tmp_path: Path) -> None:
         archive.extractall(source)
     rebuilt_archive = tmp_path / "source-csvs.zip"
     rebuilt_manifest = tmp_path / "source-manifest.json"
-    package(source, rebuilt_archive, rebuilt_manifest)
+    package(source, rebuilt_archive, rebuilt_manifest, SNAPSHOT_DATE)
     assert rebuilt_archive.read_bytes() == SOURCE_ARCHIVE.read_bytes()
     assert json.loads(rebuilt_manifest.read_text()) == json.loads(SOURCE_MANIFEST.read_text())
 
@@ -79,22 +80,23 @@ def test_manifest_and_catalog_have_expected_interface_and_limits(
     manifest = json.loads((version / "manifest.json").read_text())
     assert manifest["counts"]["benchmarks"] == 47
     assert manifest["counts"]["tasks"] == 58
-    assert manifest["counts"]["protocols"] == 334
-    assert manifest["counts"]["results"] == 55_989
-    assert manifest["counts"]["summaries"] == 557
-    assert manifest["counts"]["leaders"] == 670
+    assert manifest["counts"]["protocols"] == 345
+    assert manifest["counts"]["results"] == 56_014
+    assert manifest["counts"]["summaries"] == 556
+    assert manifest["counts"]["leaders"] == 695
     assert manifest["counts"]["strict_cross_work_sota"] == 0
-    assert len(manifest["protocolChunks"]) == 334
+    assert len(manifest["protocolChunks"]) == 345
     assert manifest["assets"]["catalog"]["compressedBytes"] < CATALOG_GZIP_LIMIT
-    assert receipt["largest_protocol_gzip_bytes"] < PROTOCOL_GZIP_LIMIT
+    assert receipt["snapshots"][-1]["largest_protocol_gzip_bytes"] < PROTOCOL_GZIP_LIMIT
 
     catalog_descriptor = manifest["assets"]["catalog"]
     catalog = _load_gzip_json(version / catalog_descriptor["path"])
     assert len(catalog["benchmarks"]) == 47
     assert len(catalog["tasks"]) == 58
-    assert len(catalog["protocols"]) == 334
-    assert len(catalog["summaries"]) == 557
-    assert len(catalog["leaders"]) == 670
+    assert len(catalog["protocols"]) == 345
+    assert len(catalog["summaries"]) == 556
+    assert len(catalog["leaders"]) == 695
+    assert len(catalog["track_coverage"]) == 146
     assert {row["claim_type"] for row in catalog["leaders"]} == {
         "official_baseline",
         "original_table_best",
@@ -106,6 +108,12 @@ def test_manifest_and_catalog_have_expected_interface_and_limits(
     assert (generated_version / "entities.json").is_file()
     assert (generated_version / "usage-index.json").is_file()
     assert json.loads((generated_version / "manifest.json").read_text()) == manifest
+    latest = json.loads((public / "data" / "nucleic-acids" / "latest.json").read_text())
+    assert latest["snapshot_date"] == SNAPSHOT_DATE
+    assert latest["available_snapshots"] == list(AVAILABLE_SNAPSHOTS)
+    old_manifest = json.loads((public / "data" / "nucleic-acids" / "2026-08-05" / "manifest.json").read_text())
+    assert old_manifest["counts"]["results"] == 55_989
+    assert old_manifest["counts"]["protocols"] == 334
 
 
 def test_every_result_appears_in_exactly_one_hashed_protocol_chunk(

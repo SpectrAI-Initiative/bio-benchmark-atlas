@@ -1,0 +1,12 @@
+entity_type: model
+id: openai-gpt-4o-2024-05-13
+name: gpt-4o-2024-05-13
+provider: OpenAI
+release_date: '2024-05-13'
+version_string: gpt-4o-2024-05-13
+version_status: reported
+aliases: []
+verification:
+  status: verified
+  last_verified: '2026-08-13'
+  notes: Exact API snapshot string in the pinned official SOAR configuration.

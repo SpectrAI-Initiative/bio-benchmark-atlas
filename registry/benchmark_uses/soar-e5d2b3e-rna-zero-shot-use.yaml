@@ -1,0 +1,57 @@
+entity_type: benchmark_use
+id: soar-e5d2b3e-rna-zero-shot-use
+work_id: single-cell-omics-arena-soar-repository-result-snapshot
+work_version_id: single-cell-omics-arena-soar-repository-result-snapshot-e5d2b3e
+benchmark_id: single-cell-omics-arena-soar
+benchmark_version: initial-release
+relation_type: evaluation
+status: normalized
+model_ids:
+- openai-gpt-4o-2024-05-13
+- openai-gpt-4o-mini-2024-07-18
+scope:
+  type: subset
+  subset_kind: formal-subset
+  n: 1191
+  subset_id: soar-rna
+  selection: formal-subset
+  selection_method: All 1,191 records in the pinned SOAR-RNA JSON artifact, iterated in repository order with shuffle disabled.
+  reporting_status: reported
+metric_labels: &metrics
+- R-1
+- R-2
+- R-L
+- MET.
+- B-1
+- B-2
+- BLEU
+evaluation_run_ids:
+- soar-e5d2b3e-rna-zero-shot
+reporting_gaps:
+- repeat count
+- confidence intervals
+- contamination or decontamination analysis
+notes: Official commit-pinned SOAR-RNA zero-shot result snapshot; the run covers the formal SOAR-RNA subset, not the full SOAR suite.
+verification:
+  status: verified
+  last_verified: '2026-08-13'
+  notes: Normalized relationship is limited to independently verified high-confidence claims.
+evidence:
+- id: soar-e5d2b3e-rna-zero-shot-use-evidence
+  source_type: resource
+  source_id: single-cell-omics-arena-soar-official-repository-resource
+  accessed_date: '2026-08-13'
+  locator:
+    type: repository-path
+    value: readme.md; soar_benchmark/configs/cell_type_annotation/experiment_soar_rna.py; soar_benchmark/datasets/soar_rna.json at commit e5d2b3e2619cb56fece5fba78fae989a67fd0c13
+    note: SOAR-RNA zero-shot relation, exact models, formal subset scope, metrics, and linked run.
+  supports:
+  - /benchmark_version
+  - /relation_type
+  - /status
+  - /model_ids
+  - /scope
+  - /metric_labels
+  - /evaluation_run_ids
+  - /reporting_gaps
+  - /notes

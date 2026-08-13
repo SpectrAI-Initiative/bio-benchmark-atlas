@@ -1,0 +1,74 @@
+entity_type: evaluation_run
+id: soar-e5d2b3e-rna-zero-shot
+work_id: single-cell-omics-arena-soar-repository-result-snapshot
+work_version_id: single-cell-omics-arena-soar-repository-result-snapshot-e5d2b3e
+benchmark_id: single-cell-omics-arena-soar
+benchmark_version: initial-release
+model_ids:
+- openai-gpt-4o-2024-05-13
+- openai-gpt-4o-mini-2024-07-18
+scope:
+  type: subset
+  n: 1191
+  subset_id: soar-rna
+  filter: All records in the pinned SOAR-RNA artifact, iterated in repository order with shuffle disabled.
+  selection: formal-subset
+  reporting_status: reported
+protocol:
+  shots: {value: 0, reporting_status: reported, notes: The official configuration selects the zero_shot prompt template.}
+  turns: {value: single-turn, reporting_status: reported, notes: One OpenAI chat completion is retained per SOAR-RNA entry.}
+  system_prompt_public: {value: true, reporting_status: reported, notes: The system and user prompt templates are published in the pinned repository.}
+  reasoning: {value: none, reporting_status: reported, notes: The zero-shot prompt requests a direct cell-type answer without a chain-of-thought stage.}
+  tools:
+    browser: &no-tools {value: false, reporting_status: reported, notes: The published ChatGPT pipeline passes only messages to the model and declares no tool interface.}
+    internet: *no-tools
+    databases: *no-tools
+    code_execution: *no-tools
+    container: *no-tools
+    external_tools: {value: [], reporting_status: reported, notes: No external model tools are declared by the published pipeline.}
+  token_budget: {value: 1024 maximum output tokens, reporting_status: reported, notes: GenerationConfig(max_new_tokens=1024) is forwarded as max_tokens.}
+  time_budget: &nr {value: null, reporting_status: not_reported, notes: The pinned repository does not report a per-example time budget.}
+  temperature: {value: 0, reporting_status: reported, notes: The OpenAI chat completion call explicitly sets temperature=0.}
+  seed: {value: null, reporting_status: not_reported, notes: "TaskConfig defines a local framework seed, but the OpenAI request passes no API seed."}
+  repeats: {value: null, reporting_status: not_reported, notes: "The published code traverses the artifact once, but the source does not label a formal evaluation repeat count."}
+  grader: {type: automatic evaluate-library text-overlap metrics, model: null, human_review: null, reporting_status: reported}
+  statistical: {value: metrics computed over all predictions and normalized references, reporting_status: reported, notes: No confidence interval or repeated-run aggregation is reported.}
+  contamination: {value: null, reporting_status: not_reported, notes: No contamination or decontamination analysis is reported.}
+metrics: &soar-metrics
+- {metric_id: rouge-1, source_label: R-1, unit: source-reported score, range: null, higher_is_better: true, aggregation: all predictions and normalized references, pass_threshold: null, tolerance: null, kind: absolute, baseline_model_id: null}
+- {metric_id: rouge-2, source_label: R-2, unit: source-reported score, range: null, higher_is_better: true, aggregation: all predictions and normalized references, pass_threshold: null, tolerance: null, kind: absolute, baseline_model_id: null}
+- {metric_id: rouge-l, source_label: R-L, unit: source-reported score, range: null, higher_is_better: true, aggregation: all predictions and normalized references, pass_threshold: null, tolerance: null, kind: absolute, baseline_model_id: null}
+- {metric_id: meteor, source_label: MET., unit: source-reported score, range: null, higher_is_better: true, aggregation: all predictions and normalized references, pass_threshold: null, tolerance: null, kind: absolute, baseline_model_id: null}
+- {metric_id: bleu-1, source_label: B-1, unit: source-reported score, range: null, higher_is_better: true, aggregation: all predictions and normalized references; maximum order two, pass_threshold: null, tolerance: null, kind: absolute, baseline_model_id: null}
+- {metric_id: bleu-2, source_label: B-2, unit: source-reported score, range: null, higher_is_better: true, aggregation: all predictions and normalized references; maximum order two, pass_threshold: null, tolerance: null, kind: absolute, baseline_model_id: null}
+- {metric_id: bleu, source_label: BLEU, unit: source-reported score, range: null, higher_is_better: true, aggregation: geometric average through order two over all predictions and normalized references, pass_threshold: null, tolerance: null, kind: absolute, baseline_model_id: null}
+results:
+- {model_id: openai-gpt-4o-mini-2024-07-18, metric_id: rouge-1, value: 52.63, ci_low: null, ci_high: null, n: 1191, notes: SOAR-RNA zero-shot README table., status: verified, confidence: high, evidence_ids: [soar-e5d2b3e-rna-zero-shot-results-evidence]}
+- {model_id: openai-gpt-4o-mini-2024-07-18, metric_id: rouge-2, value: 27.45, ci_low: null, ci_high: null, n: 1191, notes: SOAR-RNA zero-shot README table., status: verified, confidence: high, evidence_ids: [soar-e5d2b3e-rna-zero-shot-results-evidence]}
+- {model_id: openai-gpt-4o-mini-2024-07-18, metric_id: rouge-l, value: 52.26, ci_low: null, ci_high: null, n: 1191, notes: SOAR-RNA zero-shot README table., status: verified, confidence: high, evidence_ids: [soar-e5d2b3e-rna-zero-shot-results-evidence]}
+- {model_id: openai-gpt-4o-mini-2024-07-18, metric_id: meteor, value: 41.08, ci_low: null, ci_high: null, n: 1191, notes: SOAR-RNA zero-shot README table., status: verified, confidence: high, evidence_ids: [soar-e5d2b3e-rna-zero-shot-results-evidence]}
+- {model_id: openai-gpt-4o-mini-2024-07-18, metric_id: bleu-1, value: 45.74, ci_low: null, ci_high: null, n: 1191, notes: SOAR-RNA zero-shot README table., status: verified, confidence: high, evidence_ids: [soar-e5d2b3e-rna-zero-shot-results-evidence]}
+- {model_id: openai-gpt-4o-mini-2024-07-18, metric_id: bleu-2, value: 23.29, ci_low: null, ci_high: null, n: 1191, notes: SOAR-RNA zero-shot README table., status: verified, confidence: high, evidence_ids: [soar-e5d2b3e-rna-zero-shot-results-evidence]}
+- {model_id: openai-gpt-4o-mini-2024-07-18, metric_id: bleu, value: 32.64, ci_low: null, ci_high: null, n: 1191, notes: SOAR-RNA zero-shot README table., status: verified, confidence: high, evidence_ids: [soar-e5d2b3e-rna-zero-shot-results-evidence]}
+- {model_id: openai-gpt-4o-2024-05-13, metric_id: rouge-1, value: 58.45, ci_low: null, ci_high: null, n: 1191, notes: SOAR-RNA zero-shot README table., status: verified, confidence: high, evidence_ids: [soar-e5d2b3e-rna-zero-shot-results-evidence]}
+- {model_id: openai-gpt-4o-2024-05-13, metric_id: rouge-2, value: 32.07, ci_low: null, ci_high: null, n: 1191, notes: SOAR-RNA zero-shot README table., status: verified, confidence: high, evidence_ids: [soar-e5d2b3e-rna-zero-shot-results-evidence]}
+- {model_id: openai-gpt-4o-2024-05-13, metric_id: rouge-l, value: 58.12, ci_low: null, ci_high: null, n: 1191, notes: SOAR-RNA zero-shot README table., status: verified, confidence: high, evidence_ids: [soar-e5d2b3e-rna-zero-shot-results-evidence]}
+- {model_id: openai-gpt-4o-2024-05-13, metric_id: meteor, value: 45.39, ci_low: null, ci_high: null, n: 1191, notes: SOAR-RNA zero-shot README table., status: verified, confidence: high, evidence_ids: [soar-e5d2b3e-rna-zero-shot-results-evidence]}
+- {model_id: openai-gpt-4o-2024-05-13, metric_id: bleu-1, value: 62.85, ci_low: null, ci_high: null, n: 1191, notes: SOAR-RNA zero-shot README table., status: verified, confidence: high, evidence_ids: [soar-e5d2b3e-rna-zero-shot-results-evidence]}
+- {model_id: openai-gpt-4o-2024-05-13, metric_id: bleu-2, value: 42.68, ci_low: null, ci_high: null, n: 1191, notes: SOAR-RNA zero-shot README table., status: verified, confidence: high, evidence_ids: [soar-e5d2b3e-rna-zero-shot-results-evidence]}
+- {model_id: openai-gpt-4o-2024-05-13, metric_id: bleu, value: 51.79, ci_low: null, ci_high: null, n: 1191, notes: SOAR-RNA zero-shot README table., status: verified, confidence: high, evidence_ids: [soar-e5d2b3e-rna-zero-shot-results-evidence]}
+comparability_group: soar-e5d2b3e-rna-zero-shot
+verification: {status: verified, last_verified: '2026-08-13', notes: Formal-subset protocol and all 14 table values passed independent high-confidence verification.}
+evidence:
+- id: soar-e5d2b3e-rna-zero-shot-protocol-evidence
+  source_type: resource
+  source_id: single-cell-omics-arena-soar-official-repository-resource
+  accessed_date: '2026-08-13'
+  locator: {type: repository-path, value: 'soar_benchmark/datasets/soar_rna.json; soar_benchmark/configs/cell_type_annotation/experiment_soar_rna.py; soar_benchmark/task.py; soar_benchmark/pipeline.py; soar_benchmark/prompt_templates/factory.py; analysis/cell_type_annotation/eval_multiple.py at commit e5d2b3e2619cb56fece5fba78fae989a67fd0c13', note: 'Scope, exact models, zero-shot prompt, model call, budgets, tools, and automatic metric implementation.'}
+  supports: [/benchmark_version, /scope, /model_ids, /protocol, /metrics]
+- id: soar-e5d2b3e-rna-zero-shot-results-evidence
+  source_type: resource
+  source_id: single-cell-omics-arena-soar-official-repository-resource
+  accessed_date: '2026-08-13'
+  locator: {type: repository-path, value: 'readme.md, SOAR-RNA Benchmark, Zero-shot Cell Type Annotation table at commit e5d2b3e2619cb56fece5fba78fae989a67fd0c13', note: 'Exact GPT-4o and GPT-4o mini values for the seven printed metrics.'}
+  supports: [/results]

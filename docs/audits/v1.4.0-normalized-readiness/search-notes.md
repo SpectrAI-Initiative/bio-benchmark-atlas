@@ -1,6 +1,6 @@
 # Source notes for the v1.4.0 normalized-readiness audit
 
-Access date: 2026-08-11
+Access date: 2026-08-13
 
 ## Method
 
@@ -27,3 +27,11 @@ The review used DOI/PMCID/arXiv identity, paper text, labelled tables and figure
 - Machine-readable result files are preferred to plots.
 - Missing information remains `not_reported`; unresolved extraction or source conflict is not converted to `not_reported`.
 - No Registry data value was changed as part of this readiness audit.
+
+## Follow-up outcome
+
+The BioSecBench-Surveillance recommendation was completed in PR #363. The
+official repository snapshot is represented as a separate Work with three
+normalized protocol runs and 16 supported results. The original preprint uses
+remain partial because its own reporting gaps were not overwritten by the
+later machine-readable artifact.

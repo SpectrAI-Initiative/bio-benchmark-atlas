@@ -101,6 +101,7 @@ from registry_io import load_entities  # noqa: E402
 from run_paper_intake import (  # noqa: E402
     _focus_pdf_pages,
     _github_json_request,
+    official_artifact_context,
     resolve_resource_pins,
 )
 from triage_paper import resolve_crossref  # noqa: E402
@@ -4353,6 +4354,66 @@ def test_zenodo_official_dataset_resolves_to_immutable_version_pin(
             "license": "cc-by-4.0",
         }
     }
+
+
+def test_official_artifact_context_resolves_bounded_github_evidence(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    responses = {
+        "https://api.github.com/repos/sarahsirin/AB-Bind-Database": {
+            "full_name": "sarahsirin/AB-Bind-Database",
+            "description": "AB-Bind data",
+            "default_branch": "master",
+            "license": None,
+        },
+        "https://api.github.com/repos/sarahsirin/AB-Bind-Database/commits/master": {
+            "sha": "f5af13df80000ad9e438a6ccf1147bd5f9d55dba",
+        },
+        "https://api.github.com/repos/sarahsirin/AB-Bind-Database/git/trees/f5af13df80000ad9e438a6ccf1147bd5f9d55dba?recursive=1": {
+            "tree": [
+                {"path": "AB-Bind_experimental_data.csv", "type": "blob"},
+                {"path": "structures", "type": "tree"},
+            ],
+        },
+        "https://api.github.com/users/sarahsirin": {
+            "login": "sarahsirin",
+            "name": "Sarah Sirin",
+            "html_url": "https://github.com/sarahsirin",
+        },
+    }
+
+    monkeypatch.setattr(
+        "run_paper_intake._github_json_request",
+        lambda url, **_: responses[url],
+    )
+
+    packet = official_artifact_context(
+        "https://github.com/sarahsirin/AB-Bind-Database at a reviewed commit"
+    )
+    assert packet == [{
+        "evidence_scope": "official-resource-identity-and-pin-only",
+        "resource_type": "repository",
+        "url": "https://github.com/sarahsirin/AB-Bind-Database",
+        "api_url": "https://api.github.com/repos/sarahsirin/AB-Bind-Database",
+        "full_name": "sarahsirin/AB-Bind-Database",
+        "description": "AB-Bind data",
+        "owner_login": "sarahsirin",
+        "owner_display_name": "Sarah Sirin",
+        "owner_profile_url": "https://github.com/sarahsirin",
+        "default_branch": "master",
+        "head_commit": "f5af13df80000ad9e438a6ccf1147bd5f9d55dba",
+        "head_commit_url": (
+            "https://github.com/sarahsirin/AB-Bind-Database/commit/"
+            "f5af13df80000ad9e438a6ccf1147bd5f9d55dba"
+        ),
+        "license": None,
+        "file_paths": ["AB-Bind_experimental_data.csv"],
+    }]
+
+
+def test_official_artifact_context_rejects_non_github_urls() -> None:
+    with pytest.raises(GenerationBlocked, match="only public GitHub"):
+        official_artifact_context("https://example.com/private-dataset")
 
 
 def test_crossref_resolution_retries_transient_tls_errors(

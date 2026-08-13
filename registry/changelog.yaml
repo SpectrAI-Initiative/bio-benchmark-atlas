@@ -1,6 +1,18 @@
 - date: '2026-08-13'
   version: 1.4.0-dev
   type: paper-intake
+  summary: Commit-pinned SOAR official repository results normalized for the 1,191-entry SOAR-RNA formal subset with separate zero-shot and two-call chain-of-thought protocols.
+  entity_ids:
+  - single-cell-omics-arena-soar-repository-result-snapshot
+  - openai-gpt-4o-2024-05-13
+  - openai-gpt-4o-mini-2024-07-18
+  - soar-e5d2b3e-rna-zero-shot-use
+  - soar-e5d2b3e-rna-zero-shot
+  - soar-e5d2b3e-rna-zero-shot-cot-use
+  - soar-e5d2b3e-rna-zero-shot-cot
+- date: '2026-08-13'
+  version: 1.4.0-dev
+  type: paper-intake
   summary: AI-assisted double-pass paper intake (paper-intake:single-cell-omics-arena-evaluation-of-large-language-m); production
     inclusion required owner approval of the final head SHA.
   entity_ids:

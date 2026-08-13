@@ -164,6 +164,48 @@ def test_biosecbench_repository_results_are_normalized_without_overwriting_the_p
     assert all(use["status"] == "partial" and use["evaluation_run_ids"] == [] for use in preprint_uses)
 
 
+def test_soar_repository_results_are_normalized_only_for_the_released_rna_subset() -> None:
+    entities = load_entities()
+    work = next(
+        item for item in entities["work"]
+        if item["id"] == "single-cell-omics-arena-soar-repository-result-snapshot"
+    )
+    assert work["work_type"] == "official-release"
+    assert work["canonical_url"].endswith("e5d2b3e2619cb56fece5fba78fae989a67fd0c13")
+
+    runs = {
+        run["id"]: run for run in entities["evaluation_run"]
+        if run["work_id"] == work["id"]
+    }
+    assert set(runs) == {
+        "soar-e5d2b3e-rna-zero-shot",
+        "soar-e5d2b3e-rna-zero-shot-cot",
+    }
+    assert all(run["benchmark_version"] == "initial-release" for run in runs.values())
+    assert all(
+        run["scope"] == {
+            "type": "subset", "n": 1191, "subset_id": "soar-rna",
+            "filter": "All records in the pinned SOAR-RNA artifact, iterated in repository order with shuffle disabled.",
+            "selection": "formal-subset", "reporting_status": "reported",
+        }
+        for run in runs.values()
+    )
+    assert all(run["protocol"]["temperature"]["value"] == 0 for run in runs.values())
+    assert all(run["protocol"]["seed"]["value"] is None for run in runs.values())
+    assert all(run["protocol"]["repeats"]["value"] is None for run in runs.values())
+    assert runs["soar-e5d2b3e-rna-zero-shot"]["protocol"]["turns"]["value"] == "single-turn"
+    assert runs["soar-e5d2b3e-rna-zero-shot-cot"]["protocol"]["turns"]["value"] == "two model calls"
+    assert all(len(run["results"]) == 14 for run in runs.values())
+    assert {result["n"] for run in runs.values() for result in run["results"]} == {1191}
+    assert {run["comparability_group"] for run in runs.values()} == set(runs)
+    assert not any("multiomics" in run["id"] for run in runs.values())
+
+    uses = [use for use in entities["benchmark_use"] if use["work_id"] == work["id"]]
+    assert len(uses) == 2
+    assert all(use["status"] == "normalized" for use in uses)
+    assert all(use["scope"]["subset_id"] == "soar-rna" and use["scope"]["n"] == 1191 for use in uses)
+
+
 def test_anthropic_internal_suite_preserves_only_labeled_deltas() -> None:
     entities = load_entities()
     benchmarks = {item["id"]: item for item in entities["benchmark"]}

@@ -1,0 +1,45 @@
+entity_type: work
+id: single-cell-omics-arena-soar-repository-result-snapshot
+title: Single-cell Omics Arena repository result snapshot
+authors:
+- Junhao Liu
+organizations:
+- University of California, Irvine
+work_type: official-release
+source_class: benchmark_creator
+publication_date: '2025-08-03'
+canonical_url: https://github.com/aicb-ZhangLabs/SOAR/tree/e5d2b3e2619cb56fece5fba78fae989a67fd0c13
+doi: null
+arxiv: null
+status: published
+source_versions:
+- id: single-cell-omics-arena-soar-repository-result-snapshot-e5d2b3e
+  label: Repository snapshot e5d2b3e
+  status: current
+  publication_date: '2025-08-03'
+  canonical_url: https://github.com/aicb-ZhangLabs/SOAR/tree/e5d2b3e2619cb56fece5fba78fae989a67fd0c13
+  doi: null
+  arxiv: null
+  source_access: open-url
+  content_sha256: 3e2e46418c496797996f3a00ad6a525fa3606dac8908c062f6c4028d5d21e5ab
+  content_type: text/plain
+  retrieved_at: '2026-08-13T06:19:00Z'
+current_version_id: single-cell-omics-arena-soar-repository-result-snapshot-e5d2b3e
+review_provenance:
+  method: local-codex-double-pass
+  execution_surface: local-codex-cli
+  pipeline_version: 1.4.0
+  prompt_version: paper-evidence-local-v17
+  source_version_id: single-cell-omics-arena-soar-repository-result-snapshot-e5d2b3e
+  extractor_model_requested: gpt-5.6-sol
+  extractor_model_resolved: null
+  verifier_model_requested: gpt-5.6-sol
+  verifier_model_resolved: null
+  model_resolution_status: not-reported
+  codex_cli_version: codex-cli 0.147.0-alpha.6.5
+  local_run_id: 7ec178bf-2423-4937-9441-7f31f7f21f24
+  generated_at: '2026-08-13T06:19:00Z'
+verification:
+  status: verified
+  last_verified: '2026-08-13'
+  notes: Commit-pinned official result snapshot; result and protocol claims passed independent local double-pass verification.

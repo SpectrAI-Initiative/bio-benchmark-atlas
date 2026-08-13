@@ -162,9 +162,9 @@ def official_artifact_context(
     """Resolve bounded public GitHub evidence named by an owner-selected Issue.
 
     The returned packet is temporary input to both independent Codex passes. It
-    can establish only the identity and immutable pin of an official resource;
-    paper claims such as counts, protocols, and results must still come from the
-    target source itself.
+    can establish only the identity, immutable pin, public visibility, and file
+    inventory of an official resource. Paper claims such as counts, protocols,
+    and results must still come from the target source itself.
     """
 
     urls = _urls(value)
@@ -222,7 +222,7 @@ def official_artifact_context(
             )
         license_payload = repository_payload.get("license") or {}
         packet.append({
-            "evidence_scope": "official-resource-identity-and-pin-only",
+            "evidence_scope": "official-resource-identity-pin-and-public-files-only",
             "resource_type": "repository",
             "url": f"https://github.com/{owner}/{repository}",
             "api_url": f"https://api.github.com/repos/{owner}/{repository}",
@@ -234,6 +234,9 @@ def official_artifact_context(
             "default_branch": default_branch,
             "head_commit": commit,
             "head_commit_url": f"https://github.com/{owner}/{repository}/commit/{commit}",
+            "visibility": repository_payload.get("visibility"),
+            "private": repository_payload.get("private"),
+            "archived": repository_payload.get("archived"),
             "license": license_payload.get("spdx_id"),
             "file_paths": paths,
         })

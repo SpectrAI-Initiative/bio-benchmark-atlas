@@ -4364,6 +4364,9 @@ def test_official_artifact_context_resolves_bounded_github_evidence(
             "full_name": "sarahsirin/AB-Bind-Database",
             "description": "AB-Bind data",
             "default_branch": "master",
+            "visibility": "public",
+            "private": False,
+            "archived": False,
             "license": None,
         },
         "https://api.github.com/repos/sarahsirin/AB-Bind-Database/commits/master": {
@@ -4391,7 +4394,7 @@ def test_official_artifact_context_resolves_bounded_github_evidence(
         "https://github.com/sarahsirin/AB-Bind-Database at a reviewed commit"
     )
     assert packet == [{
-        "evidence_scope": "official-resource-identity-and-pin-only",
+        "evidence_scope": "official-resource-identity-pin-and-public-files-only",
         "resource_type": "repository",
         "url": "https://github.com/sarahsirin/AB-Bind-Database",
         "api_url": "https://api.github.com/repos/sarahsirin/AB-Bind-Database",
@@ -4406,6 +4409,9 @@ def test_official_artifact_context_resolves_bounded_github_evidence(
             "https://github.com/sarahsirin/AB-Bind-Database/commit/"
             "f5af13df80000ad9e438a6ccf1147bd5f9d55dba"
         ),
+        "visibility": "public",
+        "private": False,
+        "archived": False,
         "license": None,
         "file_paths": ["AB-Bind_experimental_data.csv"],
     }]

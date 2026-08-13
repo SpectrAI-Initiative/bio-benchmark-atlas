@@ -9,6 +9,7 @@ import os
 import re
 import time
 from pathlib import Path
+from typing import Any
 from urllib.parse import urlsplit, urlunsplit
 
 import requests
@@ -22,6 +23,8 @@ from triage_paper import build_intake, normalize_url, parse_issue_form
 
 
 GITHUB_API_ATTEMPTS = 3
+MAX_OFFICIAL_ARTIFACTS = 4
+MAX_REPOSITORY_TREE_PATHS = 500
 
 
 def _is_checked(value: str) -> bool:
@@ -41,6 +44,17 @@ def _first_url(value: str | None) -> str | None:
         return None
     match = re.search(r"https?://[^\s)>]+", value)
     return match.group(0).rstrip(".,") if match else None
+
+
+def _urls(value: str | None) -> list[str]:
+    if not value:
+        return []
+    result: list[str] = []
+    for match in re.finditer(r"https?://[^\s)>]+", value):
+        url = match.group(0).rstrip(".,")
+        if url not in result:
+            result.append(url)
+    return result
 
 
 def _focus_pdf_pages(value: str | None) -> list[int] | None:
@@ -138,6 +152,92 @@ def _github_json_request(
     """Backward-compatible wrapper retained for the existing retry contract."""
 
     return _json_request(url, headers=headers, timeout=timeout)
+
+
+def official_artifact_context(
+    value: str | None,
+    *,
+    timeout: float = 30,
+) -> list[dict[str, Any]]:
+    """Resolve bounded public GitHub evidence named by an owner-selected Issue.
+
+    The returned packet is temporary input to both independent Codex passes. It
+    can establish only the identity and immutable pin of an official resource;
+    paper claims such as counts, protocols, and results must still come from the
+    target source itself.
+    """
+
+    urls = _urls(value)
+    if len(urls) > MAX_OFFICIAL_ARTIFACTS:
+        raise GenerationBlocked(
+            f"Official artifact lists more than {MAX_OFFICIAL_ARTIFACTS} URLs"
+        )
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "User-Agent": "BioBench-Atlas/1.4",
+    }
+    token = os.environ.get("GITHUB_TOKEN")
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    packet: list[dict[str, Any]] = []
+    for raw_url in urls:
+        url = normalize_url(raw_url)
+        match = re.fullmatch(r"https://github\.com/([^/]+)/([^/]+)", url or "")
+        if not match:
+            raise GenerationBlocked(
+                "Official artifact currently accepts only public GitHub repository URLs"
+            )
+        owner, repository = match.groups()
+        repository = repository.removesuffix(".git")
+        repository_payload = _github_json_request(
+            f"https://api.github.com/repos/{owner}/{repository}",
+            headers=headers,
+            timeout=timeout,
+        )
+        default_branch = str(repository_payload["default_branch"])
+        commit_payload = _github_json_request(
+            f"https://api.github.com/repos/{owner}/{repository}/commits/{default_branch}",
+            headers=headers,
+            timeout=timeout,
+        )
+        commit = str(commit_payload["sha"])
+        tree_payload = _github_json_request(
+            f"https://api.github.com/repos/{owner}/{repository}/git/trees/{commit}?recursive=1",
+            headers=headers,
+            timeout=timeout,
+        )
+        owner_payload = _github_json_request(
+            f"https://api.github.com/users/{owner}",
+            headers=headers,
+            timeout=timeout,
+        )
+        paths = sorted(
+            str(item["path"])
+            for item in tree_payload.get("tree", [])
+            if isinstance(item, dict) and item.get("type") == "blob" and item.get("path")
+        )
+        if len(paths) > MAX_REPOSITORY_TREE_PATHS:
+            raise GenerationBlocked(
+                f"Official artifact repository exceeds {MAX_REPOSITORY_TREE_PATHS} files"
+            )
+        license_payload = repository_payload.get("license") or {}
+        packet.append({
+            "evidence_scope": "official-resource-identity-and-pin-only",
+            "resource_type": "repository",
+            "url": f"https://github.com/{owner}/{repository}",
+            "api_url": f"https://api.github.com/repos/{owner}/{repository}",
+            "full_name": repository_payload.get("full_name"),
+            "description": repository_payload.get("description"),
+            "owner_login": owner_payload.get("login"),
+            "owner_display_name": owner_payload.get("name"),
+            "owner_profile_url": owner_payload.get("html_url"),
+            "default_branch": default_branch,
+            "head_commit": commit,
+            "head_commit_url": f"https://github.com/{owner}/{repository}/commit/{commit}",
+            "license": license_payload.get("spdx_id"),
+            "file_paths": paths,
+        })
+    return packet
 
 
 def _zenodo_record_id(url: str) -> str | None:
@@ -241,6 +341,7 @@ def process_issue(
     source_url = _first_url(supplied_source) or _arxiv_pdf_url(paper_url)
     focus_locators = sections.get("Relevant tables, figures, or sections", "")
     preferred_pdf_pages = _focus_pdf_pages(focus_locators)
+    artifact_context = official_artifact_context(sections.get("Official artifact"))
     triage = build_intake(
         url=paper_url,
         doi=sections.get("DOI (optional)"),
@@ -279,6 +380,7 @@ def process_issue(
             local_run_id=local_run_id,
             review_focus=review_focus or None,
             preferred_pdf_pages=preferred_pdf_pages,
+            official_artifact_context=artifact_context or None,
         )
         records = build_records(
             result.as_dict(),

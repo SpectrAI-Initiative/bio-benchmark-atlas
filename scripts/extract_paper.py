@@ -1248,6 +1248,7 @@ def run_double_pass(
     heartbeat_label: str | None = None,
     review_focus: dict[str, str] | None = None,
     preferred_pdf_pages: list[int] | None = None,
+    official_artifact_context: list[dict[str, Any]] | None = None,
     binary: str | None = None,
     runner: CommandRunner = subprocess.run,
 ) -> DoublePassResult:
@@ -1320,6 +1321,28 @@ def run_double_pass(
                 "to actual life-science or chemistry benchmark uses and the indicated source "
                 "sections; ignore unrelated benchmark mentions elsewhere in the document."
             )
+        artifact_instruction = ""
+        if official_artifact_context:
+            artifact_path = session_dir / "official-artifact-context.json"
+            artifact_path.write_text(
+                json.dumps(
+                    official_artifact_context,
+                    ensure_ascii=False,
+                    indent=2,
+                    sort_keys=True,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            artifact_instruction = (
+                f" Read the independently retrieved official artifact metadata at {artifact_path}. "
+                "It is authoritative only for an official-repository claim and its repository "
+                "identity, ownership, license, file inventory, and immutable commit pin. It cannot "
+                "support paper identity, benchmark counts, scientific-task counts, evaluation "
+                "settings, metrics, or results. Cite it with a repository-path locator; verify that "
+                "the repository identity and owner are consistent with the creator source before "
+                "accepting the resource."
+            )
         draft_schema = session_dir / "paper-evidence-draft.schema.json"
         verification_schema = session_dir / "paper-evidence-verification.schema.json"
         draft_schema.write_text(
@@ -1355,7 +1378,7 @@ def run_double_pass(
                 prompt=(
                     f"{EXTRACTOR_PROMPT}\n\n"
                     f"{extractor_source_instruction}. Read the Registry context at {context_path}. "
-                    f"{focus_instruction} Return only the schema-conforming evidence draft."
+                    f"{focus_instruction}{artifact_instruction} Return only the schema-conforming evidence draft."
                 ),
                 output_type=PaperEvidenceDraft,
                 schema_path=draft_schema,
@@ -1413,7 +1436,7 @@ def run_double_pass(
                 prompt=(
                     f"{VERIFIER_PROMPT}\n\n"
                     f"{verifier_source_instruction}. Read the Registry context at {context_path} and the claims "
-                    f"at {draft_output}.{focus_instruction} Return only the schema-conforming verification."
+                    f"at {draft_output}.{focus_instruction}{artifact_instruction} Return only the schema-conforming verification."
                 ),
                 output_type=PaperEvidenceVerification,
                 schema_path=verification_schema,

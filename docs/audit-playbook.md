@@ -66,3 +66,10 @@ After merge, verify the canonical Pages record and JSON/CSV exports. The weekly 
 ## Readiness audits
 
 - [v1.4.0 normalized-readiness audit](./audits/v1.4.0-normalized-readiness/papers.md): checks whether the merged paper-intake records can satisfy the normalized `EvaluationRun` contract and records release-gate blockers without changing Registry claims.
+
+For v1.4.0, the adopted content gate is at least ten target papers with actual
+benchmark use and at least six target paper or benchmark-family entries backed
+by normalized runs. Evidence-supported partial relationships have no numeric
+cap, remain visibly partial, and never enter comparability charts. A versioned
+official result Work may support normalization for its associated target paper,
+but related-work citations and inferred settings do not count.

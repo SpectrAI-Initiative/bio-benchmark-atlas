@@ -1,0 +1,19 @@
+classifications:
+  single-cell-omics-arena-soar:
+    status: partial
+    benchmark_version: initial-release
+    as_of: null
+    notes: Only high-confidence Scientific Tasks explicitly supported by the creator source are mapped.
+    entries:
+    - task_type_id: cell-type-annotation
+      coverage: explicitly-in-scope
+      mapping_method: official-taxonomy
+      confidence: high
+      count: 1226
+      count_unit: tasks
+      count_basis: Benchmark-wide cell-type annotation task total reported by the creator paper.
+      count_ref: null
+      reporting_status: reported
+      evidence_ids:
+      - single-cell-omics-arena-soar-automated-task-1-evidence
+      notes: null

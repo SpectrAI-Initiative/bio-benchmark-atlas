@@ -1,0 +1,389 @@
+entity_type: benchmark
+id: single-cell-omics-arena-soar
+name: Single-cell Omics Arena
+aliases:
+- SOAR
+summary: A benchmark for evaluating LLM cell-type annotation across scRNA-seq and single-cell multiomics data.
+kind: suite
+parent_id: null
+organizations:
+- University of California, Irvine
+release_date: '2025-11-24'
+latest_version: initial-release
+domains:
+- transcriptomics
+- single-cell
+- multiomics
+- epigenomics
+capabilities:
+- classification
+- scientific-reasoning
+modalities:
+- text
+- raw-omics
+task_formats:
+- unclassified
+task_counts: &id001
+  total: 1226
+  basis: Benchmark-wide cell-type annotation task total reported in the abstract.
+  reporting_status: reported
+  subsets:
+  - id: soar-rna
+    label: SOAR-RNA cell-type annotation tasks after preprocessing
+    count: 1191
+    basis: SOAR-RNA benchmark entries are reported by their annotated cell types after preprocessing.
+    exclusive: true
+    exhaustive: false
+    partition_group: soar-components
+    reporting_status: reported
+    notes: null
+coverage_notes: []
+access:
+  level: partially-open
+  tasks: The creator paper states that the SOAR benchmark datasets are publicly available, while the pinned official repository
+    snapshot exposes the 1,191-entry SOAR-RNA artifact but no corresponding SOAR-MultiOmics benchmark artifact.
+  artifacts: Source code and the SOAR-RNA benchmark artifact are available through the pinned official repository; the
+    SOAR-MultiOmics benchmark artifact was not located in that snapshot.
+  grader: Not established by the independently verified metadata claims.
+  license: null
+  biosafety_notes: null
+resources:
+- id: single-cell-omics-arena-soar-creator-paper-resource
+  type: paper
+  url: https://doi.org/10.1093/bib/bbaf622
+  license: null
+  access_notes: Versioned creator source; full text is not mirrored.
+  last_checked: '2026-08-13'
+  pin: null
+- id: single-cell-omics-arena-soar-official-repository-resource
+  type: repository
+  url: https://github.com/aicb-ZhangLabs/SOAR
+  license: null
+  access_notes: Official resource pinned immutably during intake.
+  last_checked: '2026-08-13'
+  pin:
+    kind: commit
+    value: e5d2b3e2619cb56fece5fba78fae989a67fd0c13
+    url: https://github.com/aicb-ZhangLabs/SOAR/commit/e5d2b3e2619cb56fece5fba78fae989a67fd0c13
+implementations:
+- framework: official repository
+  status: official
+  url: https://github.com/aicb-ZhangLabs/SOAR
+  commit: e5d2b3e2619cb56fece5fba78fae989a67fd0c13
+  notes: Commit resolved deterministically during paper intake.
+versions:
+- id: single-cell-omics-arena-soar-initial-release-version
+  label: initial-release
+  status: current
+  release_date: '2025-11-24'
+  as_of: null
+  task_counts: *id001
+  formal_tracks: []
+  notes: Atlas snapshot label for the creator-paper release; the source does not report a formal benchmark version.
+  evidence_ids:
+  - single-cell-omics-arena-soar-automated-count-evidence
+  - single-cell-omics-arena-soar-automated-subset-1-evidence
+  - single-cell-omics-arena-soar-automated-version-evidence
+audit:
+  status: audited-with-caveats
+  audited_date: '2026-08-13'
+  unresolved_fields: 4
+  notes: Automated double-pass extraction plus deterministic official-resource pin; benchmark-wide artifact access is conflicted
+    between the creator paper's availability statement and the pinned repository contents, the benchmark license remains
+    unverified, and the benchmark date uses the version-of-record publication date as a visible provisional proxy.
+field_status:
+- path: /release_date
+  status: provisional
+  confidence: medium
+  reason: The creator source does not report a separate benchmark release date. The machine-readable value uses the
+    version-of-record publication date as a proxy and must not be interpreted as an independently verified artifact release date.
+  evidence_ids:
+  - single-cell-omics-arena-soar-automated-bibliographic-evidence
+- path: /versions/0/release_date
+  status: provisional
+  confidence: medium
+  reason: The initial-release snapshot is an Atlas label and its date uses the creator paper's version-of-record publication
+    date because no formal benchmark version date is reported.
+  evidence_ids:
+  - single-cell-omics-arena-soar-automated-bibliographic-evidence
+- path: /access/level
+  status: conflicted
+  confidence: high
+  reason: The creator paper states that the benchmark datasets are publicly available, but the pinned official repository
+    snapshot contains the SOAR-RNA artifact and no SOAR-MultiOmics benchmark artifact. The conservative Atlas value is
+    partially-open pending a versioned MultiOmics release.
+  evidence_ids:
+  - single-cell-omics-arena-soar-automated-metadata-2-evidence
+  - single-cell-omics-arena-soar-pinned-repository-access-evidence
+- path: /access/license
+  status: provisional
+  confidence: high
+  reason: The double-pass review verified the official resource identity but did not establish a redistributable benchmark
+    license; the value remains null pending source-level license verification.
+  evidence_ids:
+  - single-cell-omics-arena-soar-automated-resource-evidence
+verification:
+  status: verified
+  last_verified: '2026-08-13'
+  notes: New family admitted after creator source and official resource verification; the provisional date, access conflict,
+    and unresolved benchmark license are visibly flagged.
+evidence:
+- id: single-cell-omics-arena-soar-automated-metadata-1-evidence
+  source_type: work
+  source_id: single-cell-omics-arena-evaluation-of-large-language-m
+  accessed_date: '2026-08-13'
+  locator:
+    type: section
+    value: Data availability
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: c70e5d9fcefa8afbb221eaef7d2e93705d1c6ca2ff364e3534246e7bc5016d4e
+  supports:
+  - /access/artifacts
+- id: single-cell-omics-arena-soar-automated-metadata-2-evidence
+  source_type: work
+  source_id: single-cell-omics-arena-evaluation-of-large-language-m
+  accessed_date: '2026-08-13'
+  locator:
+    type: section
+    value: Data availability
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: c70e5d9fcefa8afbb221eaef7d2e93705d1c6ca2ff364e3534246e7bc5016d4e
+  supports:
+  - /access/level
+- id: single-cell-omics-arena-soar-automated-metadata-3-evidence
+  source_type: work
+  source_id: single-cell-omics-arena-evaluation-of-large-language-m
+  accessed_date: '2026-08-13'
+  locator:
+    type: section
+    value: Data availability
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: c70e5d9fcefa8afbb221eaef7d2e93705d1c6ca2ff364e3534246e7bc5016d4e
+  supports:
+  - /access/tasks
+- id: single-cell-omics-arena-soar-automated-metadata-4-evidence
+  source_type: work
+  source_id: single-cell-omics-arena-evaluation-of-large-language-m
+  accessed_date: '2026-08-13'
+  locator:
+    type: section
+    value: Introduction
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: de21b7974f6bda3420b720bda1208d180185b8bc19507455f040de4b70e79e40
+  supports:
+  - /aliases
+- id: single-cell-omics-arena-soar-automated-metadata-5-evidence
+  source_type: work
+  source_id: single-cell-omics-arena-evaluation-of-large-language-m
+  accessed_date: '2026-08-13'
+  locator:
+    type: section
+    value: Introduction
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: d24f132443b80aa6b02b5758e0cf552bb2a8dbbf9581e1641a10dda6fa2fdb5a
+  supports:
+  - /capabilities
+- id: single-cell-omics-arena-soar-automated-metadata-6-evidence
+  source_type: work
+  source_id: single-cell-omics-arena-evaluation-of-large-language-m
+  accessed_date: '2026-08-13'
+  locator:
+    type: section
+    value: Evaluation benchmarks of SOAR-RNA and SOAR-MultiOmics
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: a9e0633daae454df523eaf8ca61d45e201750686337ff29fa99435aeb5b46192
+  supports:
+  - /domains
+- id: single-cell-omics-arena-soar-automated-metadata-7-evidence
+  source_type: work
+  source_id: single-cell-omics-arena-evaluation-of-large-language-m
+  accessed_date: '2026-08-13'
+  locator:
+    type: section
+    value: Evaluation benchmarks of SOAR-RNA and SOAR-MultiOmics
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 7cd5783a825ad6b66111cbf8de662f25b3997421c7878bd390ed0a5306e05b9c
+  supports:
+  - /kind
+- id: single-cell-omics-arena-soar-automated-metadata-8-evidence
+  source_type: work
+  source_id: single-cell-omics-arena-evaluation-of-large-language-m
+  accessed_date: '2026-08-13'
+  locator:
+    type: section
+    value: Method — prompting strategies and benchmark notation
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 9edddca741c29d3c52f571e255c2edda603df94b1b7894b02bb8e13ba3ea24e2
+  supports:
+  - /modalities
+- id: single-cell-omics-arena-soar-automated-metadata-9-evidence
+  source_type: work
+  source_id: single-cell-omics-arena-evaluation-of-large-language-m
+  accessed_date: '2026-08-13'
+  locator:
+    type: section
+    value: Introduction
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: c486f5ce117bbce4d6dfa323e955163bd7178cebec1e41f40fcf0e339cedd912
+  supports:
+  - /name
+- id: single-cell-omics-arena-soar-automated-metadata-10-evidence
+  source_type: work
+  source_id: single-cell-omics-arena-evaluation-of-large-language-m
+  accessed_date: '2026-08-13'
+  locator:
+    type: other
+    value: Article metadata — author-affiliation mapping
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: b97505c0ba4a02b879186f245214349ca8ffe01cd57e8bb43b517eb749556cf6
+  supports:
+  - /organizations
+- id: single-cell-omics-arena-soar-automated-metadata-11-evidence
+  source_type: work
+  source_id: single-cell-omics-arena-evaluation-of-large-language-m
+  accessed_date: '2026-08-13'
+  locator:
+    type: section
+    value: Evaluation benchmarks of SOAR-RNA and SOAR-MultiOmics
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 7cda8fc140a516cc3601d22ee49001b2dc05869198fd33f439a596e5e4950f69
+  supports:
+  - /summary
+- id: single-cell-omics-arena-soar-automated-bibliographic-evidence
+  source_type: work
+  source_id: single-cell-omics-arena-evaluation-of-large-language-m
+  accessed_date: '2026-08-13'
+  locator:
+    type: other
+    value: Crossref bibliographic metadata
+    note: Resolved from the canonical paper identifier during intake.
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 1353e596ded212738db1fd3419dcab03b23fd1b6639746e5271fad3a5132f49a
+  supports:
+  - /release_date
+  - /versions/0/release_date
+- id: single-cell-omics-arena-soar-automated-count-evidence
+  source_type: work
+  source_id: single-cell-omics-arena-evaluation-of-large-language-m
+  accessed_date: '2026-08-13'
+  locator:
+    type: section
+    value: Introduction
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: e8e501253b5bfebcfa04e9b28b573d0283cefcd8f26d0ccdb60eea112c341b4a
+  supports:
+  - /task_counts/total
+  - /task_counts/basis
+  - /versions/0/task_counts/total
+  - /versions/0/task_counts/basis
+- id: single-cell-omics-arena-soar-automated-subset-1-evidence
+  source_type: work
+  source_id: single-cell-omics-arena-evaluation-of-large-language-m
+  accessed_date: '2026-08-13'
+  locator:
+    type: section
+    value: SOAR-RNA — Cell-type normalization
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 3b41c83ba886e786bd885abf2f26e9ecbd4f7962e4498d765b8823f670ab1dd8
+  supports:
+  - /task_counts/subsets
+  - /versions/0/task_counts/subsets
+  - /task_counts/subsets/0
+  - /versions/0/task_counts/subsets/0
+- id: single-cell-omics-arena-soar-automated-resource-evidence
+  source_type: work
+  source_id: single-cell-omics-arena-evaluation-of-large-language-m
+  accessed_date: '2026-08-13'
+  locator:
+    type: section
+    value: Data availability
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: c70e5d9fcefa8afbb221eaef7d2e93705d1c6ca2ff364e3534246e7bc5016d4e
+  supports:
+  - /resources
+  - /implementations
+  - /access/license
+- id: single-cell-omics-arena-soar-pinned-repository-access-evidence
+  source_type: resource
+  source_id: single-cell-omics-arena-soar-official-repository-resource
+  accessed_date: '2026-08-13'
+  locator:
+    type: other
+    value: Repository tree at commit e5d2b3e2619cb56fece5fba78fae989a67fd0c13
+    note: The pinned tree contains soar_benchmark/datasets/soar_rna.json and no SOAR-MultiOmics benchmark artifact.
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: null
+  supports:
+  - /access/level
+  - /access/tasks
+  - /access/artifacts
+- id: single-cell-omics-arena-soar-automated-creator-evidence
+  source_type: work
+  source_id: single-cell-omics-arena-evaluation-of-large-language-m
+  accessed_date: '2026-08-13'
+  locator:
+    type: other
+    value: Article metadata and Introduction
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 72c021e1c388147d0f2872db431ee6a818d0c750fbfc06e26be6ddd72667da7c
+  supports:
+  - /resources/0
+- id: single-cell-omics-arena-soar-automated-version-evidence
+  source_type: work
+  source_id: single-cell-omics-arena-evaluation-of-large-language-m
+  accessed_date: '2026-08-13'
+  locator:
+    type: other
+    value: Article metadata and Introduction
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 72c021e1c388147d0f2872db431ee6a818d0c750fbfc06e26be6ddd72667da7c
+  supports:
+  - /latest_version
+  - /versions/0
+- id: single-cell-omics-arena-soar-automated-task-1-evidence
+  source_type: work
+  source_id: single-cell-omics-arena-evaluation-of-large-language-m
+  accessed_date: '2026-08-13'
+  locator:
+    type: section
+    value: Introduction
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: b50abcb504e9ac27c88463d3efc947f74ad82163fa201bff4d00f6259e74130c
+  supports:
+  - /scientific_task_classification/entries/0

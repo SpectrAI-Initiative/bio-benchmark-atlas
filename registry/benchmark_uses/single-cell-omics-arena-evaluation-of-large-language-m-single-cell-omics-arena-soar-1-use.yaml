@@ -1,0 +1,45 @@
+entity_type: benchmark_use
+id: single-cell-omics-arena-evaluation-of-large-language-m-single-cell-omics-arena-soar-1-use
+work_id: single-cell-omics-arena-evaluation-of-large-language-m
+work_version_id: single-cell-omics-arena-evaluation-of-large-language-m-pmc-version-1
+benchmark_id: single-cell-omics-arena-soar
+benchmark_version: null
+relation_type: benchmark-creation
+status: non-evaluation
+model_ids: []
+scope:
+  type: unknown
+  subset_kind: not-applicable
+  n: null
+  subset_id: null
+  selection: null
+  selection_method: null
+  reporting_status: not_applicable
+metric_labels: []
+evaluation_run_ids: []
+reporting_gaps:
+- No benchmark version is reported.
+- The benchmark release date is not separately reported.
+- The official repository license is not reported.
+- A standalone SOAR-MultiOmics aggregate task count is not printed; PBMC and PFC counts are reported separately.
+- The source does not describe a separately released grader artifact.
+notes: AI-assisted double-pass extraction; values are limited to independently supported claims.
+verification:
+  status: verified
+  last_verified: '2026-08-13'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: single-cell-omics-arena-evaluation-of-large-language-m-single-cell-omics-arena-soar-1-use-evidence-1
+  source_type: work
+  source_id: single-cell-omics-arena-evaluation-of-large-language-m
+  accessed_date: '2026-08-13'
+  locator:
+    type: section
+    value: Introduction
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: ce4a54997a344e802633104f8bfc498e4a1c702af14244295aedf12660ffdc5e
+  supports:
+  - /relation_type
+  - /benchmark_id

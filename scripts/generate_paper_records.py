@@ -95,6 +95,34 @@ def stable_work_id(title: str, doi: str | None, existing_ids: set[str]) -> str:
     return f"{base}-{suffix}"
 
 
+def _existing_relation_suffixes(
+    entities: dict[str, list[dict[str, Any]]],
+    *,
+    work_id: str,
+    benchmark_id: str,
+) -> set[int]:
+    """Return numeric suffixes already used by a work/benchmark relationship."""
+
+    prefixes = {
+        "benchmark_use": (f"{work_id}-{benchmark_id}-", "-use"),
+        "evaluation_run": (f"{work_id}-{benchmark_id}-", ""),
+    }
+    suffixes: set[int] = set()
+    for entity_type, (prefix, ending) in prefixes.items():
+        for entity in entities[entity_type]:
+            entity_id = str(entity.get("id") or "")
+            if not entity_id.startswith(prefix):
+                continue
+            remainder = entity_id[len(prefix):]
+            if ending:
+                if not remainder.endswith(ending):
+                    continue
+                remainder = remainder[:-len(ending)]
+            if remainder.isdigit():
+                suffixes.add(int(remainder))
+    return suffixes
+
+
 def _official_system_card(
     paper: Any,
     *,
@@ -2186,6 +2214,7 @@ def build_records(
             new_benchmark_ids_by_name[slugify(str(alias))] = benchmark_id
     model_lookup = _model_lookup(entities)
     new_models: dict[str, dict[str, Any]] = {}
+    next_relation_suffix: dict[tuple[str, str], int] = {}
     for mention_index, mention in enumerate(draft.benchmark_mentions, 1):
         if mention.background_only or mention.relation_type == "background-citation":
             output.skipped_background_mentions.append(mention.benchmark_name)
@@ -2294,8 +2323,21 @@ def build_records(
             and delta_baselines_are_known
             and not provider_qualified_identity
         )
-        run_id = f"{work_id}-{benchmark_id}-{mention_index}"
-        use_id = f"{work_id}-{benchmark_id}-{mention_index}-use"
+        relation_key = (work_id, benchmark_id)
+        if relation_key not in next_relation_suffix:
+            occupied_suffixes = _existing_relation_suffixes(
+                entities,
+                work_id=work_id,
+                benchmark_id=benchmark_id,
+            )
+            next_relation_suffix[relation_key] = max(
+                mention_index,
+                max(occupied_suffixes, default=0) + 1,
+            )
+        relation_suffix = next_relation_suffix[relation_key]
+        next_relation_suffix[relation_key] = relation_suffix + 1
+        run_id = f"{work_id}-{benchmark_id}-{relation_suffix}"
+        use_id = f"{work_id}-{benchmark_id}-{relation_suffix}-use"
         if can_normalize:
             run_evidence_claims = [claim for claim in claims if claim.claim_type not in {
                 "relation", "benchmark-identity", "creator-source", "official-repository",

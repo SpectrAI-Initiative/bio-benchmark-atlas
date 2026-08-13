@@ -374,6 +374,47 @@ def test_generator_downgrades_incomplete_evaluation_to_partial_use() -> None:
     }]
 
 
+def test_generator_allocates_relation_id_after_existing_work_suffixes(monkeypatch: pytest.MonkeyPatch) -> None:
+    entities = load_entities()
+    entities["work"].append({
+        "entity_type": "work",
+        "id": "synthetic-benchmark-evaluation-paper",
+        "title": "Synthetic benchmark evaluation paper",
+        "publication_date": "2026-07-01",
+        "canonical_url": "https://doi.org/10.9999/synthetic.1",
+        "doi": "10.9999/synthetic.1",
+        "arxiv": None,
+        "current_version_id": "synthetic-benchmark-evaluation-paper-version-of-record",
+        "source_versions": [],
+    })
+    for suffix in (1, 4):
+        entities["benchmark_use"].append({
+            "entity_type": "benchmark_use",
+            "id": f"synthetic-benchmark-evaluation-paper-lifescibench-{suffix}-use",
+        })
+    monkeypatch.setattr("generate_paper_records.load_entities", lambda: entities)
+
+    claims = [
+        claim("claim-1", "paper-identity", {"title": "Synthetic benchmark evaluation paper"}, mention_id=None),
+        claim("claim-2", "relation", "evaluation"),
+        claim("claim-3", "benchmark-identity", "lifescibench"),
+    ]
+    mention = {
+        "mention_id": "mention-1", "benchmark_name": "LifeSciBench",
+        "registry_benchmark_id": "lifescibench", "relation_type": "evaluation",
+        "is_new_benchmark": False, "background_only": False,
+        "claim_ids": ["claim-2", "claim-3"],
+        "reporting_gaps": ["benchmark version", "realized n", "metric", "numeric result"],
+    }
+    records = build_records(
+        verified_result(claims, mention), source=SOURCE,
+        generated_at=SOURCE["retrieved_at"], verified_on="2026-08-13",
+    )
+
+    assert records.work is None
+    assert records.uses[0]["id"] == "synthetic-benchmark-evaluation-paper-lifescibench-5-use"
+
+
 def test_generator_rejects_extractor_error_claim_without_blocking_partial_use() -> None:
     claims = [
         claim("claim-1", "paper-identity", {"title": "Synthetic benchmark evaluation paper"}, mention_id=None),

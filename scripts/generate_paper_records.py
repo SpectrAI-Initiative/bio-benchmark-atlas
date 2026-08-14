@@ -2095,9 +2095,12 @@ def build_records(
     duplicates = duplicate_work_candidates(identity, entities["work"])
     existing_work = next((item for item in entities["work"] if duplicates and item["id"] == duplicates[0]["work_id"]), None)
     work_id = existing_work["id"] if existing_work else stable_work_id(draft.paper.title, identity["doi"], existing_work_ids)
+    # The bibliographic resolver is deterministic and follows the repository's
+    # version-of-record date policy. Prefer it over a model-extracted date, which
+    # may otherwise confuse a received/accepted/deposit date for publication.
     publication_date = _complete_publication_date(
-        draft.paper.publication_date,
         (source.get("bibliographic_metadata") or {}).get("publication_date"),
+        draft.paper.publication_date,
         verified_on,
     )
     if publication_date is None:

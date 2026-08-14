@@ -991,6 +991,38 @@ def test_new_scenario_matrix_benchmark_accepts_verified_unreported_root_total() 
     assert records.work["source_versions"][0]["publication_date"] == "2025-09-11"
 
 
+def test_generator_prefers_resolved_bibliographic_date_over_model_date() -> None:
+    claims = [
+        claim("claim-1", "paper-identity", {"title": "Synthetic benchmark evaluation paper"}, mention_id=None),
+        claim("claim-2", "relation", "evaluation"),
+        claim("claim-3", "benchmark-identity", "LifeSciBench"),
+    ]
+    mention = {
+        "mention_id": "mention-1", "benchmark_name": "LifeSciBench",
+        "registry_benchmark_id": "lifescibench", "relation_type": "evaluation",
+        "is_new_benchmark": False, "background_only": False,
+        "claim_ids": ["claim-2", "claim-3"],
+        "reporting_gaps": ["benchmark version", "realized n", "metric"],
+    }
+    source = {**SOURCE, "bibliographic_metadata": {
+        "metadata_source": "Crossref",
+        "publication_date": "2015-11-06",
+    }}
+    result = verified_result(claims, mention)
+    result["draft"]["paper"]["publication_date"] = "2015-10-16"
+    result["draft"]["paper"]["version_label"] = None
+
+    records = build_records(
+        result, source=source,
+        generated_at=SOURCE["retrieved_at"], verified_on="2026-08-14",
+    )
+
+    assert records.blocked_reasons == []
+    assert records.work["publication_date"] == "2015-11-06"
+    assert records.work["source_versions"][0]["publication_date"] == "2015-11-06"
+    assert records.work["current_version_id"].endswith("-2015-11-06")
+
+
 def test_extractor_requires_explicit_consistent_benchmark_count_roles() -> None:
     from extract_paper import _validate_draft_structure
 

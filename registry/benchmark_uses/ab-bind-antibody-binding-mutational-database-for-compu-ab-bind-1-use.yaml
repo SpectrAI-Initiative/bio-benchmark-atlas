@@ -1,0 +1,55 @@
+entity_type: benchmark_use
+id: ab-bind-antibody-binding-mutational-database-for-compu-ab-bind-1-use
+work_id: ab-bind-antibody-binding-mutational-database-for-compu
+work_version_id: ab-bind-antibody-binding-mutational-database-for-compu-2015-10-16
+benchmark_id: ab-bind
+benchmark_version: null
+relation_type: benchmark-creation
+status: non-evaluation
+model_ids: []
+scope:
+  type: unknown
+  subset_kind: not-applicable
+  n: null
+  subset_id: null
+  selection: null
+  selection_method: null
+  reporting_status: not_applicable
+metric_labels: []
+evaluation_run_ids: []
+reporting_gaps:
+- No explicit benchmark version label is reported.
+- The official repository reports no license.
+- No automated grader is described.
+notes: AI-assisted double-pass extraction; values are limited to independently supported claims.
+verification:
+  status: verified
+  last_verified: '2026-08-14'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: ab-bind-antibody-binding-mutational-database-for-compu-ab-bind-1-use-evidence-1
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: section
+    value: Results > AB-Bind database
+    note: null
+    document_page: 3
+    printed_page: '395'
+    source_fragment_sha256: a3c2839d137459b70e0645780efbba9010ebb5c32cf4d45ce7bb001ec62cea5a
+  supports:
+  - /relation_type
+- id: ab-bind-antibody-binding-mutational-database-for-compu-ab-bind-1-use-evidence-2
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: section
+    value: Abstract
+    note: null
+    document_page: 1
+    printed_page: '393'
+    source_fragment_sha256: 0e52f3bb4e18db75becf1843828c7b3e099b093245addb11ad745f17fe416e30
+  supports:
+  - /benchmark_id

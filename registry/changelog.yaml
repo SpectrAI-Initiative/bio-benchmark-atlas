@@ -1,3 +1,12 @@
+- date: '2026-08-14'
+  version: 1.4.0-dev
+  type: paper-intake
+  summary: AI-assisted double-pass paper intake (paper-intake:ab-bind-antibody-binding-mutational-database-for-compu); production
+    inclusion required owner approval of the final head SHA.
+  entity_ids:
+  - ab-bind-antibody-binding-mutational-database-for-compu
+  - ab-bind
+  - ab-bind-antibody-binding-mutational-database-for-compu-ab-bind-1-use
 - date: '2026-08-13'
   version: 1.4.0-dev
   type: paper-intake

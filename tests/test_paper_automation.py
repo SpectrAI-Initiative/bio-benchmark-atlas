@@ -2582,8 +2582,24 @@ def test_owner_can_downgrade_conflicted_creator_evaluation_to_partial_use() -> N
         "claim_ids": [item["claim_id"] for item in evaluation_claims],
         "reporting_gaps": [],
     }
+    repeated_evaluation_claims = [
+        claim("claim-21", "relation", "evaluation", mention_id="mention-3"),
+        claim("claim-22", "benchmark-identity", "ConservativeBench", mention_id="mention-3"),
+    ]
+    repeated_evaluation_mention = {
+        "mention_id": "mention-3", "benchmark_name": "ConservativeBench",
+        "registry_benchmark_id": None, "relation_type": "evaluation",
+        "is_new_benchmark": False, "background_only": False,
+        "claim_ids": ["claim-21", "claim-22"],
+        "reporting_gaps": ["A second source analysis omits its realized sample size."],
+    }
+    claims.extend(repeated_evaluation_claims)
     payload = verified_result(claims, creation_mention)
-    payload["draft"]["benchmark_mentions"] = [creation_mention, evaluation_mention]
+    payload["draft"]["benchmark_mentions"] = [
+        creation_mention,
+        evaluation_mention,
+        repeated_evaluation_mention,
+    ]
     payload["verification"]["blocking_conflicts"] = [
         "Appendix counts and creator-evaluation settings disagree."
     ]
@@ -2624,6 +2640,10 @@ def test_owner_can_downgrade_conflicted_creator_evaluation_to_partial_use() -> N
     assert benchmark["task_counts"]["total"] == 394
     assert benchmark["task_counts"]["subsets"] == []
     evaluation_use = next(item for item in records.uses if item["relation_type"] == "evaluation")
+    assert [item["relation_type"] for item in records.uses] == [
+        "benchmark-creation",
+        "evaluation",
+    ]
     assert evaluation_use["status"] == "partial"
     assert evaluation_use["benchmark_version"] is None
     assert evaluation_use["scope"]["type"] == "unknown"
@@ -2632,6 +2652,7 @@ def test_owner_can_downgrade_conflicted_creator_evaluation_to_partial_use() -> N
     assert evaluation_use["metric_labels"] == []
     assert evaluation_use["evaluation_run_ids"] == []
     assert records.runs == []
+    assert "A second source analysis omits its realized sample size." in evaluation_use["reporting_gaps"]
     for gap in (
         "benchmark version", "realized n/scope", "metric", "numeric result",
         "prompt and tools", "grader and repeats",

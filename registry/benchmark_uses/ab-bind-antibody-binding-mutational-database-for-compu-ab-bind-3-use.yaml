@@ -1,0 +1,80 @@
+entity_type: benchmark_use
+id: ab-bind-antibody-binding-mutational-database-for-compu-ab-bind-3-use
+work_id: ab-bind-antibody-binding-mutational-database-for-compu
+work_version_id: ab-bind-antibody-binding-mutational-database-for-compu-2015-11-06
+benchmark_id: ab-bind
+benchmark_version: null
+relation_type: fine-tuning
+status: non-evaluation
+model_ids:
+- not-reported-foldx
+scope:
+  type: unknown
+  subset_kind: not-applicable
+  n: null
+  subset_id: null
+  selection: null
+  selection_method: null
+  reporting_status: not_applicable
+metric_labels: []
+evaluation_run_ids: []
+reporting_gaps:
+- The fitting split, realized n, regression specification, and numeric results are not reported; the paper says data not shown.
+notes: AI-assisted double-pass extraction; values are limited to independently supported claims.
+verification:
+  status: verified
+  last_verified: '2026-08-14'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: ab-bind-antibody-binding-mutational-database-for-compu-ab-bind-3-use-evidence-1
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: section
+    value: Discussion
+    note: null
+    document_page: 12
+    printed_page: '404'
+    source_fragment_sha256: 171d105dc19a41066fec6c3ee837a750406a5bd28672df8b4a71fa04212db046
+  supports:
+  - /relation_type
+- id: ab-bind-antibody-binding-mutational-database-for-compu-ab-bind-3-use-evidence-2
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: section
+    value: Discussion
+    note: null
+    document_page: 12
+    printed_page: '404'
+    source_fragment_sha256: b3f167b27c1a1aa86b49ed81f1b82ef4eb1ef653aaaeba0502e3c1896ab3d7ef
+  supports:
+  - /benchmark_id
+- id: ab-bind-antibody-binding-mutational-database-for-compu-ab-bind-3-use-evidence-3
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: other
+    value: Document pages 12–13, Discussion and Structure generation
+    note: null
+    document_page: 12
+    printed_page: 404–405
+    source_fragment_sha256: c8ac1aae88e92450624d0a2a7191079a283456243adf455444842fef1940a108
+  supports:
+  - /model_ids
+- id: ab-bind-antibody-binding-mutational-database-for-compu-ab-bind-3-use-evidence-4
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: section
+    value: Discussion
+    note: null
+    document_page: 12
+    printed_page: '404'
+    source_fragment_sha256: 5f197115563ae90270229515efc08610afc5b789c4bd0158a6ffc009c1bdeb1c
+  supports:
+  - /scope

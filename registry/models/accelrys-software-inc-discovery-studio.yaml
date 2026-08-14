@@ -1,0 +1,12 @@
+entity_type: model
+id: accelrys-software-inc-discovery-studio
+name: Discovery Studio
+provider: Accelrys Software Inc.
+release_date: null
+version_string: release 4.0
+version_status: reported
+aliases: []
+verification:
+  status: verified
+  last_verified: '2026-08-14'
+  notes: Exact model identity accepted by the automated double-pass paper review and pending owner PR approval.

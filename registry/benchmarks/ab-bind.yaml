@@ -1,0 +1,345 @@
+entity_type: benchmark
+id: ab-bind
+name: AB-Bind
+aliases:
+- Antibody-Bind
+summary: Antibody-focused mutational binding data with accompanying structures for computational affinity prediction.
+kind: dataset
+parent_id: null
+organizations:
+- Massachusetts Institute of Technology
+- Pfizer Inc.
+release_date: '2015-11-06'
+latest_version: initial-release
+domains:
+- protein-protein-binding
+- antibody-antigen
+capabilities:
+- prediction
+- classification
+- regression
+- optimization
+modalities:
+- table
+- structure-3d
+- wet-lab-output
+task_formats:
+- Predict mutation-induced binding free-energy changes
+- Classify mutants as improved or weakened binders
+- Rank candidate mutations for improved affinity
+task_counts: &id001
+  total: 1101
+  basis: experimentally determined binding free-energy changes across the complete database
+  reporting_status: reported
+  subsets: []
+coverage_notes: []
+access:
+  level: fully-open
+  tasks: Experimental binding free-energy changes and related PDB identifiers are provided.
+  artifacts: Public repository containing experimental data, computational data, parent structures, and documentation.
+  grader: Not established by the independently verified metadata claims.
+  license: null
+  biosafety_notes: null
+resources:
+- id: ab-bind-creator-paper-resource
+  type: paper
+  url: https://doi.org/10.1002/pro.2829
+  license: null
+  access_notes: Versioned creator source; full text is not mirrored.
+  last_checked: '2026-08-14'
+  pin: null
+- id: ab-bind-official-repository-resource
+  type: repository
+  url: https://github.com/sarahsirin/AB-Bind-Database
+  license: null
+  access_notes: Official resource pinned immutably during intake.
+  last_checked: '2026-08-14'
+  pin:
+    kind: commit
+    value: f5af13df80000ad9e438a6ccf1147bd5f9d55dba
+    url: https://github.com/sarahsirin/AB-Bind-Database/commit/f5af13df80000ad9e438a6ccf1147bd5f9d55dba
+implementations:
+- framework: official repository
+  status: official
+  url: https://github.com/sarahsirin/AB-Bind-Database
+  commit: f5af13df80000ad9e438a6ccf1147bd5f9d55dba
+  notes: Commit resolved deterministically during paper intake.
+versions:
+- id: ab-bind-initial-release-version
+  label: initial-release
+  status: current
+  release_date: '2015-11-06'
+  as_of: null
+  task_counts: *id001
+  formal_tracks: []
+  notes: Root total retained after owner review; conflicted appendix inventory subcounts are intentionally omitted.
+  evidence_ids:
+  - ab-bind-automated-count-evidence
+  - ab-bind-automated-version-evidence
+audit:
+  status: audited-with-caveats
+  audited_date: '2026-08-14'
+  unresolved_fields: 2
+  notes: Automated double-pass extraction plus deterministic official-resource pin. Owner review preserved the corroborated
+    root total and excluded conflicted appendix inventory subcounts.
+field_status:
+- path: /access/license
+  status: provisional
+  confidence: high
+  reason: The double-pass review verified the official resource identity but did not establish a redistributable benchmark
+    license; the value remains null pending source-level license verification.
+  evidence_ids:
+  - ab-bind-automated-resource-evidence
+- path: /task_counts/subsets
+  status: conflicted
+  confidence: high
+  reason: The owner approved the independently supported root total while all conflicted inventory subcounts were excluded
+    from publication.
+  evidence_ids:
+  - ab-bind-automated-count-conflict-evidence
+verification:
+  status: verified
+  last_verified: '2026-08-14'
+  notes: New family admitted with an explicit count-inventory caveat after creator source, official resource, double-pass
+    verification, and owner conflict resolution.
+evidence:
+- id: ab-bind-automated-metadata-1-evidence
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: repository-path
+    value: sarahsirin/AB-Bind-Database@f5af13df80000ad9e438a6ccf1147bd5f9d55dba > file_paths
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 02b14c00e15db1358793aaa85439c19a5488bb3501a92899a3d93bf62edc36ec
+  supports:
+  - /access/artifacts
+- id: ab-bind-automated-metadata-2-evidence
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: repository-path
+    value: sarahsirin/AB-Bind-Database@f5af13df80000ad9e438a6ccf1147bd5f9d55dba
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: d38dfce4a26f6ef9d390ede33f2ab9c49cf39bbbfbaf7cac2b6dd78a59539929
+  supports:
+  - /access/level
+- id: ab-bind-automated-metadata-3-evidence
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: section
+    value: Materials and Methods > Datasets
+    note: null
+    document_page: 12
+    printed_page: '404'
+    source_fragment_sha256: 2f3c5171b0f6a4652b03644476bf4366e81b2447e1fb3e18861b80f34ad7dcb9
+  supports:
+  - /access/tasks
+- id: ab-bind-automated-metadata-4-evidence
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: section
+    value: Abstract
+    note: null
+    document_page: 1
+    printed_page: '393'
+    source_fragment_sha256: 5b9f01e36745fe232f491417c34fff66a53682268df5bbba73b580b0fbdac323
+  supports:
+  - /aliases
+- id: ab-bind-automated-metadata-5-evidence
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: section
+    value: Abstract and keywords
+    note: null
+    document_page: 1
+    printed_page: '393'
+    source_fragment_sha256: c3f04cf1bf4b9ee1946254b4b8ef8f8d63a76c450240738703eb412bd6d39300
+  supports:
+  - /capabilities
+- id: ab-bind-automated-metadata-6-evidence
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: section
+    value: Introduction
+    note: null
+    document_page: 3
+    printed_page: '395'
+    source_fragment_sha256: 063bb4888e5ffb17a428a7a53468f54be6c4ce96af6b6f36b7810ac041f52b1c
+  supports:
+  - /domains
+- id: ab-bind-automated-metadata-7-evidence
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: section
+    value: Discussion > Summary
+    note: null
+    document_page: 12
+    printed_page: '404'
+    source_fragment_sha256: acc944e8fcb9189a3b61b114d4e606a978006ab143a62c97f0ed09f377662c0d
+  supports:
+  - /kind
+- id: ab-bind-automated-metadata-8-evidence
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: section
+    value: Materials and Methods > Datasets
+    note: null
+    document_page: 12
+    printed_page: '404'
+    source_fragment_sha256: 2f3c5171b0f6a4652b03644476bf4366e81b2447e1fb3e18861b80f34ad7dcb9
+  supports:
+  - /modalities
+- id: ab-bind-automated-metadata-9-evidence
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: section
+    value: Abstract
+    note: null
+    document_page: 1
+    printed_page: '393'
+    source_fragment_sha256: 5b9f01e36745fe232f491417c34fff66a53682268df5bbba73b580b0fbdac323
+  supports:
+  - /name
+- id: ab-bind-automated-metadata-10-evidence
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: page
+    value: Author list and affiliations
+    note: null
+    document_page: 1
+    printed_page: '393'
+    source_fragment_sha256: 7c2d2b3b86c63b8fe103171062929b9044737cba65336f95f33aa693d7fa9785
+  supports:
+  - /organizations
+- id: ab-bind-automated-metadata-11-evidence
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: section
+    value: Abstract
+    note: null
+    document_page: 1
+    printed_page: '393'
+    source_fragment_sha256: 1a2ec1d8f87234dca45061bef2dc6cc298c6fd62e256fb71842e5970b1dae5bb
+  supports:
+  - /summary
+- id: ab-bind-automated-metadata-12-evidence
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: section
+    value: Abstract
+    note: null
+    document_page: 1
+    printed_page: '393'
+    source_fragment_sha256: b1980faf945719c862c810a4aa93417ccb026e611b4062b19b9cde16ce17f7ba
+  supports:
+  - /task_formats
+- id: ab-bind-automated-bibliographic-evidence
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: other
+    value: Crossref bibliographic metadata
+    note: Resolved from the canonical paper identifier during intake.
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: b7f8cdd66f73a2bb6203666680363607c0d0e6feb0485a208be90c1c297e3572
+  supports:
+  - /release_date
+- id: ab-bind-automated-count-evidence
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: section
+    value: Results > AB-Bind database
+    note: null
+    document_page: 3
+    printed_page: '395'
+    source_fragment_sha256: d4faef71f766ca870813d135356c73eb29d3bdb2affab9aa34502784dd9f4cee
+  supports:
+  - /task_counts/total
+  - /task_counts/basis
+  - /versions/0/task_counts/total
+  - /versions/0/task_counts/basis
+- id: ab-bind-automated-resource-evidence
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: repository-path
+    value: official-artifact-context.json > sarahsirin/AB-Bind-Database@f5af13df80000ad9e438a6ccf1147bd5f9d55dba
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 737d5906df968e61eff951e1a2d47ef374b030e79cc0f3989af2332019b41d90
+  supports:
+  - /resources
+  - /implementations
+  - /access/license
+- id: ab-bind-automated-creator-evidence
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: page
+    value: DOI
+    note: null
+    document_page: 1
+    printed_page: '393'
+    source_fragment_sha256: 4763dbad357fb621e4a95517085090016cf28b4ece9fd9b7af581d55e15bb9c5
+  supports:
+  - /resources/0
+- id: ab-bind-automated-version-evidence
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: page
+    value: DOI
+    note: null
+    document_page: 1
+    printed_page: '393'
+    source_fragment_sha256: 4763dbad357fb621e4a95517085090016cf28b4ece9fd9b7af581d55e15bb9c5
+  supports:
+  - /latest_version
+  - /versions/0
+- id: ab-bind-automated-count-conflict-evidence
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: section
+    value: Results > AB-Bind database
+    note: null
+    document_page: 5
+    printed_page: '397'
+    source_fragment_sha256: c58a23144c26546e29f2c21e58940c1d3b67da492178a6a11b3cd2160f5e1ff4
+  supports:
+  - /task_counts/subsets

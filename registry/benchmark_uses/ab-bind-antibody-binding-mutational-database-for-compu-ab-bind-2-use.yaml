@@ -1,0 +1,161 @@
+entity_type: benchmark_use
+id: ab-bind-antibody-binding-mutational-database-for-compu-ab-bind-2-use
+work_id: ab-bind-antibody-binding-mutational-database-for-compu
+work_version_id: ab-bind-antibody-binding-mutational-database-for-compu-2015-11-06
+benchmark_id: ab-bind
+benchmark_version: null
+relation_type: evaluation
+status: partial
+model_ids:
+- accelrys-software-inc-discovery-studio
+- not-reported-ddfire
+- not-reported-dfire
+- not-reported-foldx
+- not-reported-rosetta
+- not-reported-statium
+- sirin-et-al-basa
+scope:
+  type: unknown
+  subset_kind: not-reported
+  n: null
+  subset_id: null
+  selection: null
+  selection_method: null
+  reporting_status: not_reported
+metric_labels: []
+evaluation_run_ids: []
+reporting_gaps:
+- No random seed is reported.
+- Realized n is not printed for the low- and medium-confidence ROC subsets.
+- Several method-specific Pearson correlations and confidence intervals appear only in referenced Supporting Information.
+- Provider identities are not printed for several scoring methods.
+- benchmark version
+- realized n/scope
+- metric
+- numeric result
+- prompt and tools
+- grader and repeats
+notes: 'Owner-reviewed conservative publication: the creator evaluation is retained only as a partial relationship; conflicted
+  settings and outcomes are omitted pending manual reconciliation.'
+verification:
+  status: verified
+  last_verified: '2026-08-14'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: ab-bind-antibody-binding-mutational-database-for-compu-ab-bind-2-use-evidence-1
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: section
+    value: Results > Scoring potentials
+    note: null
+    document_page: 5
+    printed_page: '397'
+    source_fragment_sha256: 558295ad848528a58b40a39d0d8f870d2107ccd436ee67c3dbcd5f4521e533dd
+  supports:
+  - /relation_type
+- id: ab-bind-antibody-binding-mutational-database-for-compu-ab-bind-2-use-evidence-2
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: section
+    value: Discussion
+    note: null
+    document_page: 11
+    printed_page: '403'
+    source_fragment_sha256: 32c6ef7bcca83fa7959e9d7064c70c72f37cd83c82110c00ace00c42999309f8
+  supports:
+  - /benchmark_id
+- id: ab-bind-antibody-binding-mutational-database-for-compu-ab-bind-2-use-evidence-3
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: section
+    value: Results > Scoring potentials
+    note: null
+    document_page: 6
+    printed_page: '398'
+    source_fragment_sha256: 79cc7ad36b888e5de07956b008d814f88261f2b45bc7edb745d1d6862f422965
+  supports:
+  - /model_ids
+- id: ab-bind-antibody-binding-mutational-database-for-compu-ab-bind-2-use-evidence-4
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: section
+    value: Results > Scoring potentials
+    note: null
+    document_page: 6
+    printed_page: '398'
+    source_fragment_sha256: bfa222c4c53607fe4ccb5303ad7ee6d4022ef5696b390a76f77481fae3d9ffb6
+  supports:
+  - /model_ids
+- id: ab-bind-antibody-binding-mutational-database-for-compu-ab-bind-2-use-evidence-5
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: section
+    value: Results > Scoring potentials
+    note: null
+    document_page: 6
+    printed_page: '398'
+    source_fragment_sha256: a0a84b95fa938b84deb1efe3ea2ed2ed92bff6a37d275d59ae729ca5a942cacc
+  supports:
+  - /model_ids
+- id: ab-bind-antibody-binding-mutational-database-for-compu-ab-bind-2-use-evidence-6
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: section
+    value: Results > Scoring potentials
+    note: null
+    document_page: 6
+    printed_page: '398'
+    source_fragment_sha256: 3e316a493dff0ed6b8aed05f1d394da64e6ae1e56830db6e348ce773e2183c75
+  supports:
+  - /model_ids
+- id: ab-bind-antibody-binding-mutational-database-for-compu-ab-bind-2-use-evidence-7
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: section
+    value: Materials and Methods > Structure generation
+    note: null
+    document_page: 13
+    printed_page: '405'
+    source_fragment_sha256: c403840b84d795a30ac97d32042c2e10e7b02688cbec8414271a8b2a19acc89d
+  supports:
+  - /model_ids
+- id: ab-bind-antibody-binding-mutational-database-for-compu-ab-bind-2-use-evidence-8
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: section
+    value: Materials and Methods > Structure generation
+    note: null
+    document_page: 13
+    printed_page: '405'
+    source_fragment_sha256: b8f6fac0ded5a52515284a2b7e19a30d479cad383f6574207ff699a2ad2638c3
+  supports:
+  - /model_ids
+- id: ab-bind-antibody-binding-mutational-database-for-compu-ab-bind-2-use-evidence-9
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: other
+    value: Document pages 13 and 17, Structure generation and Reference 61
+    note: null
+    document_page: 13
+    printed_page: 405, 409
+    source_fragment_sha256: d8bf0ca041dae47e659160b961264171174223f20793e90bb5d54bac409f5234
+  supports:
+  - /model_ids

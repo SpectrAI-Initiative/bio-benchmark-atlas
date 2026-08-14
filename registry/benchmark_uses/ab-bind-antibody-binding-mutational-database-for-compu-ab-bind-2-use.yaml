@@ -1,0 +1,63 @@
+entity_type: benchmark_use
+id: ab-bind-antibody-binding-mutational-database-for-compu-ab-bind-2-use
+work_id: ab-bind-antibody-binding-mutational-database-for-compu
+work_version_id: ab-bind-antibody-binding-mutational-database-for-compu-2015-10-16
+benchmark_id: ab-bind
+benchmark_version: null
+relation_type: evaluation
+status: partial
+model_ids: []
+scope:
+  type: unknown
+  subset_kind: not-reported
+  n: null
+  subset_id: null
+  selection: null
+  selection_method: null
+  reporting_status: not_reported
+metric_labels: []
+evaluation_run_ids: []
+reporting_gaps:
+- Model providers are not reported; STATIUM's version is also not reported.
+- The bootstrap random seed is not reported.
+- No named AB-Bind benchmark version is reported.
+- benchmark version
+- realized n/scope
+- metric
+- numeric result
+- prompt and tools
+- grader and repeats
+- exact model
+notes: 'Owner-reviewed conservative publication: the creator evaluation is retained only as a partial relationship; conflicted
+  settings and outcomes are omitted pending manual reconciliation.'
+verification:
+  status: verified
+  last_verified: '2026-08-14'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: ab-bind-antibody-binding-mutational-database-for-compu-ab-bind-2-use-evidence-1
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: section
+    value: Abstract
+    note: null
+    document_page: 1
+    printed_page: '393'
+    source_fragment_sha256: d54e4840ed72bdbf8153476bb7f037dac2735dbd5f84a1db52b122f880cc5ab1
+  supports:
+  - /relation_type
+- id: ab-bind-antibody-binding-mutational-database-for-compu-ab-bind-2-use-evidence-2
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: section
+    value: Abstract
+    note: null
+    document_page: 1
+    printed_page: '393'
+    source_fragment_sha256: 5aae0290261687ffe5bebf70cf8b1e7323d92a68d5e2eca5fad9756325512488
+  supports:
+  - /benchmark_id

@@ -1,0 +1,49 @@
+entity_type: work
+id: ab-bind-antibody-binding-mutational-database-for-compu
+title: 'AB-Bind: Antibody binding mutational database for computational affinity predictions'
+authors:
+- Sarah Sirin
+- James R. Apgar
+- Eric M. Bennett
+- Amy E. Keating
+organizations:
+- Massachusetts Institute of Technology
+- Pfizer Inc
+work_type: paper
+source_class: benchmark_creator
+publication_date: '2015-10-16'
+canonical_url: https://doi.org/10.1002/pro.2829
+doi: 10.1002/pro.2829
+arxiv: null
+status: published
+source_versions:
+- id: ab-bind-antibody-binding-mutational-database-for-compu-2015-10-16
+  label: Reviewed source
+  status: version-of-record
+  publication_date: '2015-10-16'
+  canonical_url: https://doi.org/10.1002/pro.2829
+  doi: 10.1002/pro.2829
+  arxiv: null
+  source_access: submitted-pdf
+  content_sha256: 8f17a3c32d5a5afeb66bfe2cf2f1311252145a5f0e284aebd35dc1f5e45b6355
+  content_type: application/pdf
+  retrieved_at: '2026-08-14T03:20:39+00:00'
+current_version_id: ab-bind-antibody-binding-mutational-database-for-compu-2015-10-16
+review_provenance:
+  method: local-codex-double-pass
+  pipeline_version: 1.4.0
+  prompt_version: paper-evidence-local-v17
+  source_version_id: ab-bind-antibody-binding-mutational-database-for-compu-2015-10-16
+  extractor_model_requested: gpt-5.6-sol
+  extractor_model_resolved: null
+  verifier_model_requested: gpt-5.6-sol
+  verifier_model_resolved: null
+  generated_at: '2026-08-14T03:20:39+00:00'
+  execution_surface: local-codex-cli
+  model_resolution_status: not-reported
+  codex_cli_version: codex-cli 0.147.0-alpha.6.5
+  local_run_id: e5a2d7cb-ee57-4dd7-8ff7-5dff309c5369
+verification:
+  status: verified
+  last_verified: '2026-08-14'
+  notes: AI-assisted double-pass extraction; production inclusion still requires the owner SHA-comment gate.

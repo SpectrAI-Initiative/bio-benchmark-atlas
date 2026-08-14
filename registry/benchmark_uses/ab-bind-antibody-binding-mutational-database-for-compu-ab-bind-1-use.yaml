@@ -1,0 +1,57 @@
+entity_type: benchmark_use
+id: ab-bind-antibody-binding-mutational-database-for-compu-ab-bind-1-use
+work_id: ab-bind-antibody-binding-mutational-database-for-compu
+work_version_id: ab-bind-antibody-binding-mutational-database-for-compu-2015-10-16
+benchmark_id: ab-bind
+benchmark_version: null
+relation_type: benchmark-creation
+status: non-evaluation
+model_ids: []
+scope:
+  type: unknown
+  subset_kind: not-applicable
+  n: null
+  subset_id: null
+  selection: null
+  selection_method: null
+  reporting_status: not_applicable
+metric_labels: []
+evaluation_run_ids: []
+reporting_gaps:
+- No explicit AB-Bind version identifier is reported.
+- The dataset release date is not distinguished from the paper publication date.
+- The official repository reports no license.
+- No standalone executable grader is identified.
+- The SPM/non-SPM partition and improved-affinity subset contain source-internal count conflicts.
+notes: AI-assisted double-pass extraction; values are limited to independently supported claims.
+verification:
+  status: verified
+  last_verified: '2026-08-14'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: ab-bind-antibody-binding-mutational-database-for-compu-ab-bind-1-use-evidence-1
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: section
+    value: Results > AB-Bind database
+    note: null
+    document_page: 3
+    printed_page: '395'
+    source_fragment_sha256: e195071444e4f03a8498e946a107e0fb97df6273fb033da970affe6a8bc48a4f
+  supports:
+  - /relation_type
+- id: ab-bind-antibody-binding-mutational-database-for-compu-ab-bind-1-use-evidence-2
+  source_type: work
+  source_id: ab-bind-antibody-binding-mutational-database-for-compu
+  accessed_date: '2026-08-14'
+  locator:
+    type: section
+    value: Abstract
+    note: null
+    document_page: 1
+    printed_page: '393'
+    source_fragment_sha256: d9fec6648d4e8b76c73dc02718d7c0e0f377e7b0c9a6a242f223960b8956f5f5
+  supports:
+  - /benchmark_id

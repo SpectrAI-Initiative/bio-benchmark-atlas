@@ -2072,6 +2072,17 @@ def build_records(
     downgraded_creator_evaluations = set(
         (resolved_count_conflict or {}).get("creator_evaluation_mentions", [])
     )
+    downgraded_creator_primary: dict[str, str] = {}
+    downgraded_creator_gaps: dict[str, list[str]] = {}
+    for mention in draft.benchmark_mentions:
+        if mention.mention_id not in downgraded_creator_evaluations:
+            continue
+        key = slugify(mention.benchmark_name)
+        downgraded_creator_primary.setdefault(key, mention.mention_id)
+        merged_gaps = downgraded_creator_gaps.setdefault(key, [])
+        for gap in mention.reporting_gaps:
+            if gap not in merged_gaps:
+                merged_gaps.append(gap)
 
     entities = load_entities()
     existing_work_ids = {item["id"] for item in entities["work"]}
@@ -2218,6 +2229,12 @@ def build_records(
     for mention_index, mention in enumerate(draft.benchmark_mentions, 1):
         if mention.background_only or mention.relation_type == "background-citation":
             output.skipped_background_mentions.append(mention.benchmark_name)
+            continue
+        downgraded_key = slugify(mention.benchmark_name)
+        if (
+            mention.mention_id in downgraded_creator_evaluations
+            and downgraded_creator_primary.get(downgraded_key) != mention.mention_id
+        ):
             continue
         claims = accepted_by_mention.get(mention.mention_id, [])
         if not claims or not any(item.claim_type == "relation" for item in claims):
@@ -2397,6 +2414,10 @@ def build_records(
             continue
         gaps = list(dict.fromkeys(mention.reporting_gaps))
         if mention.mention_id in downgraded_creator_evaluations:
+            gaps = list(dict.fromkeys([
+                *gaps,
+                *downgraded_creator_gaps.get(downgraded_key, []),
+            ]))
             gaps.extend([
                 "benchmark version",
                 "realized n/scope",

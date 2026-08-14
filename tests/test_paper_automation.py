@@ -1080,7 +1080,7 @@ def test_new_benchmark_accepts_versioned_official_dataset_and_maps_alias_use() -
     evaluation = {
         "mention_id": "mention-2", "benchmark_name": "Synthetic guide benchmark",
         "registry_benchmark_id": None, "relation_type": "evaluation",
-        "is_new_benchmark": True, "background_only": False,
+        "is_new_benchmark": False, "background_only": False,
         "claim_ids": [item["claim_id"] for item in claims if item["mention_id"] == "mention-2"],
         "reporting_gaps": ["benchmark version", "realized n", "model", "metric"],
     }

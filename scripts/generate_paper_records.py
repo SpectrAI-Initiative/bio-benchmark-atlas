@@ -2227,9 +2227,20 @@ def build_records(
         if _claim_value(relation_claim) != mention.relation_type:
             output.blocked_reasons.append(f"{mention.benchmark_name}: relation claim conflicts with the mention")
             continue
+        matching_new_benchmark_id = new_benchmark_ids_by_name.get(
+            slugify(mention.benchmark_name)
+        )
+        resolved_to_new_benchmark = bool(
+            matching_new_benchmark_id
+            and (
+                mention.is_new_benchmark
+                or mention.registry_benchmark_id is None
+            )
+        )
         benchmark_id = (
-            new_benchmark_ids_by_name.get(slugify(mention.benchmark_name))
-            if mention.is_new_benchmark else mention.registry_benchmark_id
+            matching_new_benchmark_id
+            if resolved_to_new_benchmark
+            else mention.registry_benchmark_id
         )
         if benchmark_id not in benchmarks:
             if not mention.is_new_benchmark:
@@ -2256,17 +2267,18 @@ def build_records(
         normalized_identity_value = slugify(str(identity_value))
         identity_matches = normalized_identity_value in registered_identity_labels
         provider_qualified_identity = False
-        if not identity_matches and not mention.is_new_benchmark:
+        if not identity_matches and not resolved_to_new_benchmark:
             provider_qualified_identity = any(
                 normalized_identity_value.startswith(f"{label}-")
                 for label in registered_identity_labels
                 if label
             )
             identity_matches = provider_qualified_identity
-        if mention.is_new_benchmark:
+        if resolved_to_new_benchmark:
             identity_matches = normalized_identity_value in {
                 slugify(mention.benchmark_name),
                 slugify(benchmarks[benchmark_id]["name"]),
+                *(slugify(str(alias)) for alias in benchmarks[benchmark_id].get("aliases", [])),
             }
         if identity_claim is None or not identity_matches:
             output.blocked_reasons.append(f"{mention.benchmark_name}: benchmark identity was not independently verified")

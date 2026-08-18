@@ -13,13 +13,13 @@
   "dependencies": {
     "@astrojs/check": "^0.9.10",
     "@observablehq/plot": "^0.6.17",
-    "astro": "^7.2.0",
+    "astro": "^7.2.2",
     "fflate": "^0.8.3",
     "typescript": "5.9.3"
   },
   "devDependencies": {
     "@types/node": "^26.2.0",
-    "@axe-core/playwright": "^4.10.2",
+    "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.62.1"
   }
 }

@@ -2053,13 +2053,40 @@ def test_owner_can_preserve_supported_root_total_but_not_conflicted_subcounts() 
         root_basis_benchmark["field_status"][0]["reason"]
     )
 
+    medium_extractor_root = json.loads(json.dumps(root_basis_conflicted))
+    next(
+        item for item in medium_extractor_root["draft"]["claims"]
+        if item["claim_id"] == "claim-6"
+    )["confidence"] = "medium"
+    medium_root_records = build_records(
+        medium_extractor_root,
+        source=source,
+        generated_at=SOURCE["retrieved_at"],
+        verified_on="2026-07-25",
+        owner_conflict_resolution={
+            "benchmark_total": 394,
+            "exclude": "benchmark-subcounts",
+            "approved_by": "wang422003",
+            "approved_at": "2026-07-25T01:00:00Z",
+        },
+    )
+    medium_root_benchmark = medium_root_records.benchmarks[0]
+    assert medium_root_benchmark["task_counts"]["total"] == 394
+    medium_root_status = next(
+        item for item in medium_root_benchmark["field_status"]
+        if item["path"] == "/task_counts/total"
+    )
+    assert medium_root_status["status"] == "conflicted"
+    assert medium_root_status["confidence"] == "medium"
+    assert "cannot support full scope" in medium_root_status["reason"]
+
     insufficient_root_confidence = json.loads(json.dumps(root_basis_conflicted))
     for item in insufficient_root_confidence["verification"]["claims"]:
         if item["claim_id"] == "claim-6":
             item["confidence"] = "medium"
     with pytest.raises(
         GenerationBlocked,
-        match="root total is not independently supported at high confidence",
+        match="root total lacks a medium-or-high extractor claim",
     ):
         build_records(
             insufficient_root_confidence,
@@ -2101,7 +2128,7 @@ def test_owner_can_preserve_supported_root_total_but_not_conflicted_subcounts() 
             item["locator"] = None
     with pytest.raises(
         GenerationBlocked,
-        match="root total is not independently supported at high confidence",
+        match="root total lacks a medium-or-high extractor claim",
     ):
         build_records(
             unresolved_root_locator,

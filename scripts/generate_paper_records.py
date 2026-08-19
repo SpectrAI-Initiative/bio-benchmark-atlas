@@ -1068,7 +1068,13 @@ def _build_new_benchmark(
     if count_conflict_resolution:
         conflict_claim = count_conflict_resolution["conflict_claim"]
         conflict_evidence_id = f"{benchmark_id}-automated-count-conflict-evidence"
+        root_total_confidence = count_conflict_resolution.get(
+            "root_total_confidence", "high"
+        )
         conflict_paths = (
+            ["/task_counts/total", "/task_counts/basis", "/task_counts/subsets"]
+            if count_conflict_resolution.get("root_total_conflicted")
+            and root_total_confidence == "medium" else
             ["/task_counts/basis", "/task_counts/subsets"]
             if count_conflict_resolution.get("root_total_conflicted") else
             ["/task_counts/subsets"]
@@ -1085,8 +1091,17 @@ def _build_new_benchmark(
             field_status.append({
                 "path": conflict_path,
                 "status": "conflicted",
-                "confidence": "high",
+                "confidence": (
+                    root_total_confidence
+                    if count_conflict_resolution.get("root_total_conflicted") else "high"
+                ),
                 "reason": (
+                    "The owner approved the explicit root-total value after the extractor reported "
+                    "it with medium confidence and the verifier independently located the conflicting "
+                    "claim at high confidence; the total is retained as conflicted, cannot support full "
+                    "scope, and all subcounts are excluded from publication."
+                    if count_conflict_resolution.get("root_total_conflicted")
+                    and root_total_confidence == "medium" else
                     "The owner approved the explicit root-total value after the extractor reported "
                     "it and the verifier independently located it at high confidence; the detailed "
                     "uniqueness basis remains conflicted and all subcounts are excluded from publication."
@@ -1770,18 +1785,23 @@ def _apply_owner_count_conflict_resolution(
             verdict = verdicts.get(claim.claim_id)
             if (
                 is_expected_root_total(claim)
-                and claim.confidence == "high"
+                and claim.confidence in {"medium", "high"}
                 and verdict is not None
                 and verdict.confidence == "high"
                 and locator_is_resolved(verdict.locator)
             ):
                 conflicted_root_totals.append(claim)
-        if len(conflicted_root_totals) != 1:
+        if not conflicted_root_totals:
             raise GenerationBlocked(
-                "owner-approved root total is not independently supported at high confidence"
+                "owner-approved root total lacks a medium-or-high extractor claim "
+                "with high-confidence independent verification and a resolved locator"
             )
-        root_totals = conflicted_root_totals
-        accepted = [*accepted, conflicted_root_totals[0]]
+        selected_root_total = sorted(
+            conflicted_root_totals,
+            key=lambda claim: (claim.confidence != "high", claim.claim_id),
+        )[0]
+        root_totals = [selected_root_total]
+        accepted = [*accepted, selected_root_total]
         root_total_conflicted = True
 
     conflict_claim = root_totals[0] if root_total_conflicted else next(
@@ -1851,6 +1871,7 @@ def _apply_owner_count_conflict_resolution(
         "approved_at": resolution.get("approved_at"),
         "unanchored_count_conflict": unanchored_count_conflict,
         "root_total_conflicted": root_total_conflicted,
+        "root_total_confidence": root_totals[0].confidence,
         "creator_evaluation_mentions": sorted(creator_evaluation_mentions)
         if exclude_creator_evaluation else [],
     }

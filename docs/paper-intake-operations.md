@@ -192,6 +192,22 @@ and excluded from unqualified kind summaries. A different extracted kind, a low
 confidence claim, a non-high verifier result, or an unresolved locator still
 stops intake.
 
+If the only missing field is the Atlas-controlled access label, the owner may
+add this exact comment:
+
+```text
+/resolve-paper-metadata benchmark-access=fully-open status=provisional
+```
+
+This access-only resolution may accompany either the `not-reported` creator
+evaluation policy or a verified positive root total whose conflict policy is
+`exclude=benchmark-subcounts,creator-evaluation`. It never changes the root
+total or restores excluded evaluation claims. Generation still requires the two
+local passes to independently support source-located public task, artifact, and
+grader/resource facts, and it rejects any extracted access value other than
+`fully-open`. The resulting `/access/level` is machine-readable as provisional,
+shown with a warning, and excluded from unqualified fully-open summaries.
+
 Sources, short excerpts, transcripts, and structured drafts live only under the ignored `.paper-intake-tmp/` directory and are deleted in cleanup. They must never appear in Git diff, Actions artifacts, Pages, or a Release.
 
 ## 4. Local golden gate

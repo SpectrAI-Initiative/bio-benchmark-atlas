@@ -99,7 +99,8 @@ output.
   This does not resolve those claims: it removes all evaluation settings and
   outcomes and publishes only the independently verified relation (plus exact
   model identities, when supported) as a partial `BenchmarkUse`. Creation
-  identity/version and relation conflicts remain blocking.
+  identity/version and relation conflicts remain blocking. Match creator
+  evaluations by extracted benchmark identity, not free-form mention labels.
 - When the independently verified root-total claim is correctly `Not reported`
   for a reusable scenario matrix, simulator, or rolling benchmark, and the only
   conflicts are inside the creator-paper evaluation, the owner may post

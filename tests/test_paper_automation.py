@@ -2661,7 +2661,7 @@ def test_owner_can_downgrade_conflicted_creator_evaluation_to_partial_use() -> N
         "reporting_gaps": ["appendix inventory conflicts with the supported root total"],
     }
     evaluation_mention = {
-        "mention_id": "mention-2", "benchmark_name": "ConservativeBench",
+        "mention_id": "mention-2", "benchmark_name": "ConservativeBench assay evaluation",
         "registry_benchmark_id": None, "relation_type": "evaluation",
         "is_new_benchmark": True, "background_only": False,
         "claim_ids": [item["claim_id"] for item in evaluation_claims],

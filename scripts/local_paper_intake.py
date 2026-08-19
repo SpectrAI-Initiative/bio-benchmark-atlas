@@ -347,18 +347,23 @@ def _owner_conflict_resolution(issue: dict[str, Any]) -> dict[str, Any] | None:
             raise LocalIntakeError(
                 "provisional benchmark metadata approval requires a conflict-resolution command"
             )
+    if kind_metadata_resolutions:
         if (
             resolution.get("benchmark_total") is not None
             or resolution.get("exclude") != "creator-evaluation"
         ):
             raise LocalIntakeError(
-                "provisional benchmark metadata approval requires the not-reported "
+                "provisional benchmark-kind approval requires the not-reported "
                 "creator-evaluation conflict policy"
             )
-        if kind_metadata_resolutions:
-            resolution.update(kind_metadata_resolutions[-1])
-        if access_metadata_resolutions:
-            resolution.update(access_metadata_resolutions[-1])
+        resolution.update(kind_metadata_resolutions[-1])
+    if access_metadata_resolutions:
+        if not resolution.get("exclude_creator_evaluation"):
+            raise LocalIntakeError(
+                "provisional benchmark-access approval requires a conflict policy "
+                "that excludes creator-evaluation"
+            )
+        resolution.update(access_metadata_resolutions[-1])
     return resolution
 
 

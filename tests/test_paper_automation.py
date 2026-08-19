@@ -1772,7 +1772,7 @@ def test_owner_conflict_resolution_requires_exact_owner_command() -> None:
             "createdAt": "2026-07-25T05:00:00Z",
         }]})
 
-    with pytest.raises(LocalIntakeError, match="requires the not-reported"):
+    with pytest.raises(LocalIntakeError, match="excludes creator-evaluation"):
         _owner_conflict_resolution({"comments": [
             {
                 "author": {"login": "wang422003"},
@@ -1785,6 +1785,32 @@ def test_owner_conflict_resolution_requires_exact_owner_command() -> None:
                 "createdAt": "2026-07-25T07:00:00Z",
             },
         ]})
+
+    verified_total_with_access = _owner_conflict_resolution({"comments": [
+        {
+            "author": {"login": "wang422003"},
+            "body": (
+                "/resolve-paper-conflict benchmark-total=184500 "
+                "exclude=benchmark-subcounts,creator-evaluation"
+            ),
+            "createdAt": "2026-07-25T08:00:00Z",
+        },
+        {
+            "author": {"login": "wang422003"},
+            "body": "/resolve-paper-metadata benchmark-access=fully-open status=provisional",
+            "createdAt": "2026-07-25T09:00:00Z",
+        },
+    ]})
+    assert verified_total_with_access == {
+        "benchmark_total": 184500,
+        "exclude": "benchmark-subcounts,creator-evaluation",
+        "exclude_creator_evaluation": True,
+        "approved_by": "wang422003",
+        "approved_at": "2026-07-25T08:00:00Z",
+        "provisional_access_level": "fully-open",
+        "provisional_access_status": "provisional",
+        "provisional_access_approved_at": "2026-07-25T09:00:00Z",
+    }
 
 
 def test_existing_pr_dedup_only_queries_open_pull_requests() -> None:

@@ -117,8 +117,10 @@ output.
 - If the source instead leaves only the Atlas-controlled access label unstated,
   the owner may additionally post
   `/resolve-paper-metadata benchmark-access=fully-open status=provisional`.
-  This command is valid only with the same accepted conflict-resolution command
-  and exactly one verified official resource plus independent high/high,
+  This command is valid with either the `not-reported` creator-evaluation policy
+  or a verified positive root total whose conflict policy excludes both
+  benchmark subcounts and the creator evaluation. It also requires exactly one
+  verified official resource plus independent high/high,
   source-located descriptions of the public tasks, artifacts, and grader. It
   cannot override a different extracted access value. The generated
   `/access/level` carries a machine-readable provisional warning, appears with a

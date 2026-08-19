@@ -29,6 +29,11 @@ body:
   - type: textarea
     id: locators
     attributes: {label: Relevant tables, figures, or sections, description: Point reviewers to evaluation settings or result tables.}
+  - type: textarea
+    id: official_artifact
+    attributes:
+      label: Official artifact
+      description: Optional creator-controlled GitHub repository or Hugging Face dataset URL. Local intake resolves a bounded public inventory and immutable revision; this is not a substitute for paper evidence.
   - type: dropdown
     id: new_benchmark
     attributes:

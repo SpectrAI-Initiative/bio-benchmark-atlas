@@ -225,6 +225,13 @@ The gate checks:
 - distinct SpatialBench 146 and 159 versions;
 - Anthropic × BixBench as a partial relationship without an invented score.
 
+For a new benchmark, put creator-controlled GitHub repositories and Hugging Face
+datasets in the Issue Form's `Official artifact` field. Local intake reads only
+bounded public API metadata: identity, immutable revision, visibility/gating,
+license, and up to 500 file paths. It does not treat an artifact inventory as
+paper evidence for counts, protocols, or results. Unsupported hosts remain a
+hard stop.
+
 The receipt is stored at `~/.codex/biobench-atlas/golden.json`. It contains only
 the date, prompt/schema/source-input-protocol hash, requested model, Codex CLI
 version, and pass/fail results. Production requires a successful receipt no older

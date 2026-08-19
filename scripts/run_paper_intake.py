@@ -25,6 +25,7 @@ from triage_paper import build_intake, normalize_url, parse_issue_form
 GITHUB_API_ATTEMPTS = 3
 MAX_OFFICIAL_ARTIFACTS = 4
 MAX_REPOSITORY_TREE_PATHS = 500
+MAX_DATASET_FILE_PATHS = 500
 
 
 def _is_checked(value: str) -> bool:
@@ -154,6 +155,21 @@ def _github_json_request(
     return _json_request(url, headers=headers, timeout=timeout)
 
 
+def _huggingface_dataset(url: str) -> tuple[str, str] | None:
+    """Return a canonical public Hugging Face dataset URL and repository ID."""
+
+    parsed = urlsplit(url)
+    if parsed.hostname != "huggingface.co":
+        return None
+    parts = [part for part in parsed.path.split("/") if part]
+    if len(parts) < 3 or parts[0] != "datasets":
+        return None
+    if len(parts) > 3 and not (len(parts) == 5 and parts[3] == "tree"):
+        return None
+    repository_id = f"{parts[1]}/{parts[2]}"
+    return f"https://huggingface.co/datasets/{repository_id}", repository_id
+
+
 def official_artifact_context(
     value: str | None,
     *,
@@ -183,63 +199,101 @@ def official_artifact_context(
     for raw_url in urls:
         url = normalize_url(raw_url)
         match = re.fullmatch(r"https://github\.com/([^/]+)/([^/]+)", url or "")
-        if not match:
-            raise GenerationBlocked(
-                "Official artifact currently accepts only public GitHub repository URLs"
+        if match:
+            owner, repository = match.groups()
+            repository = repository.removesuffix(".git")
+            repository_payload = _github_json_request(
+                f"https://api.github.com/repos/{owner}/{repository}",
+                headers=headers,
+                timeout=timeout,
             )
-        owner, repository = match.groups()
-        repository = repository.removesuffix(".git")
-        repository_payload = _github_json_request(
-            f"https://api.github.com/repos/{owner}/{repository}",
-            headers=headers,
-            timeout=timeout,
-        )
-        default_branch = str(repository_payload["default_branch"])
-        commit_payload = _github_json_request(
-            f"https://api.github.com/repos/{owner}/{repository}/commits/{default_branch}",
-            headers=headers,
-            timeout=timeout,
-        )
-        commit = str(commit_payload["sha"])
-        tree_payload = _github_json_request(
-            f"https://api.github.com/repos/{owner}/{repository}/git/trees/{commit}?recursive=1",
-            headers=headers,
-            timeout=timeout,
-        )
-        owner_payload = _github_json_request(
-            f"https://api.github.com/users/{owner}",
-            headers=headers,
-            timeout=timeout,
-        )
-        paths = sorted(
-            str(item["path"])
-            for item in tree_payload.get("tree", [])
-            if isinstance(item, dict) and item.get("type") == "blob" and item.get("path")
-        )
-        if len(paths) > MAX_REPOSITORY_TREE_PATHS:
-            raise GenerationBlocked(
-                f"Official artifact repository exceeds {MAX_REPOSITORY_TREE_PATHS} files"
+            default_branch = str(repository_payload["default_branch"])
+            commit_payload = _github_json_request(
+                f"https://api.github.com/repos/{owner}/{repository}/commits/{default_branch}",
+                headers=headers,
+                timeout=timeout,
             )
-        license_payload = repository_payload.get("license") or {}
-        packet.append({
-            "evidence_scope": "official-resource-identity-pin-and-public-files-only",
-            "resource_type": "repository",
-            "url": f"https://github.com/{owner}/{repository}",
-            "api_url": f"https://api.github.com/repos/{owner}/{repository}",
-            "full_name": repository_payload.get("full_name"),
-            "description": repository_payload.get("description"),
-            "owner_login": owner_payload.get("login"),
-            "owner_display_name": owner_payload.get("name"),
-            "owner_profile_url": owner_payload.get("html_url"),
-            "default_branch": default_branch,
-            "head_commit": commit,
-            "head_commit_url": f"https://github.com/{owner}/{repository}/commit/{commit}",
-            "visibility": repository_payload.get("visibility"),
-            "private": repository_payload.get("private"),
-            "archived": repository_payload.get("archived"),
-            "license": license_payload.get("spdx_id"),
-            "file_paths": paths,
-        })
+            commit = str(commit_payload["sha"])
+            tree_payload = _github_json_request(
+                f"https://api.github.com/repos/{owner}/{repository}/git/trees/{commit}?recursive=1",
+                headers=headers,
+                timeout=timeout,
+            )
+            owner_payload = _github_json_request(
+                f"https://api.github.com/users/{owner}",
+                headers=headers,
+                timeout=timeout,
+            )
+            paths = sorted(
+                str(item["path"])
+                for item in tree_payload.get("tree", [])
+                if isinstance(item, dict) and item.get("type") == "blob" and item.get("path")
+            )
+            if len(paths) > MAX_REPOSITORY_TREE_PATHS:
+                raise GenerationBlocked(
+                    f"Official artifact repository exceeds {MAX_REPOSITORY_TREE_PATHS} files"
+                )
+            license_payload = repository_payload.get("license") or {}
+            packet.append({
+                "evidence_scope": "official-resource-identity-pin-and-public-files-only",
+                "resource_type": "repository",
+                "url": f"https://github.com/{owner}/{repository}",
+                "api_url": f"https://api.github.com/repos/{owner}/{repository}",
+                "full_name": repository_payload.get("full_name"),
+                "description": repository_payload.get("description"),
+                "owner_login": owner_payload.get("login"),
+                "owner_display_name": owner_payload.get("name"),
+                "owner_profile_url": owner_payload.get("html_url"),
+                "default_branch": default_branch,
+                "head_commit": commit,
+                "head_commit_url": f"https://github.com/{owner}/{repository}/commit/{commit}",
+                "visibility": repository_payload.get("visibility"),
+                "private": repository_payload.get("private"),
+                "archived": repository_payload.get("archived"),
+                "license": license_payload.get("spdx_id"),
+                "file_paths": paths,
+            })
+            continue
+        huggingface = _huggingface_dataset(url or "")
+        if huggingface:
+            canonical_url, repository_id = huggingface
+            api_url = f"https://huggingface.co/api/datasets/{repository_id}"
+            dataset_payload = _json_request(
+                api_url,
+                headers={"Accept": "application/json", "User-Agent": "BioBench-Atlas/1.4"},
+                timeout=timeout,
+            )
+            commit = str(dataset_payload.get("sha") or "")
+            paths = sorted(
+                str(item["rfilename"])
+                for item in dataset_payload.get("siblings", [])
+                if isinstance(item, dict) and item.get("rfilename")
+            )
+            if not commit:
+                raise GenerationBlocked("Official Hugging Face dataset has no immutable revision")
+            if len(paths) > MAX_DATASET_FILE_PATHS:
+                raise GenerationBlocked(
+                    f"Official artifact dataset exceeds {MAX_DATASET_FILE_PATHS} files"
+                )
+            card_data = dataset_payload.get("cardData") or {}
+            packet.append({
+                "evidence_scope": "official-resource-identity-pin-and-public-files-only",
+                "resource_type": "dataset",
+                "url": canonical_url,
+                "api_url": api_url,
+                "full_name": dataset_payload.get("id") or repository_id,
+                "head_commit": commit,
+                "head_commit_url": f"{canonical_url}/tree/{commit}",
+                "visibility": "private" if dataset_payload.get("private") else "public",
+                "private": dataset_payload.get("private"),
+                "gated": dataset_payload.get("gated"),
+                "license": card_data.get("license") if isinstance(card_data, dict) else None,
+                "file_paths": paths,
+            })
+            continue
+        raise GenerationBlocked(
+            "Official artifact accepts only public GitHub repositories or Hugging Face datasets"
+        )
     return packet
 
 
@@ -286,6 +340,29 @@ def resolve_resource_pins(result: object) -> dict[str, dict[str, str]]:
                 "url": f"https://github.com/{owner}/{repository}/commit/{commit}",
                 "resolved_url": f"https://github.com/{owner}/{repository}",
                 "license": payload.get("license"),
+            }
+            continue
+        huggingface = _huggingface_dataset(url)
+        if huggingface and payload.get("resource_type") == "dataset":
+            canonical_url, repository_id = huggingface
+            dataset_payload = _json_request(
+                f"https://huggingface.co/api/datasets/{repository_id}",
+                headers={"Accept": "application/json", "User-Agent": "BioBench-Atlas/1.4"},
+                timeout=30,
+            )
+            commit = str(dataset_payload.get("sha") or "")
+            card_data = dataset_payload.get("cardData") or {}
+            if not commit:
+                continue
+            pins[url] = {
+                "resource_type": "dataset",
+                "kind": "commit",
+                "value": commit,
+                "url": f"{canonical_url}/tree/{commit}",
+                "resolved_url": canonical_url,
+                "license": payload.get("license") or (
+                    card_data.get("license") if isinstance(card_data, dict) else None
+                ),
             }
             continue
         zenodo_id = _zenodo_record_id(url)

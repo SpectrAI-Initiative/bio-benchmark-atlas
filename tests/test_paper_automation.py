@@ -4435,6 +4435,53 @@ def test_zenodo_official_dataset_resolves_to_immutable_version_pin(
     }
 
 
+def test_huggingface_official_dataset_resolves_to_immutable_commit_pin(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    claims = [
+        claim("claim-1", "paper-identity", {"title": "Synthetic benchmark paper"}, mention_id=None),
+        claim("claim-2", "relation", "benchmark-creation"),
+        claim("claim-3", "benchmark-identity", "SyntheticHFBench"),
+        claim("claim-4", "official-resource", {
+            "url": "https://huggingface.co/datasets/example/SyntheticHFBench",
+            "resource_type": "dataset", "license": None, "version": None,
+        }),
+    ]
+    mention = {
+        "mention_id": "mention-1", "benchmark_name": "SyntheticHFBench",
+        "registry_benchmark_id": None, "relation_type": "benchmark-creation",
+        "is_new_benchmark": True, "background_only": False,
+        "claim_ids": ["claim-2", "claim-3", "claim-4"], "reporting_gaps": [],
+    }
+    payload = verified_result(claims, mention)
+    result = SimpleNamespace(
+        draft=PaperEvidenceDraft.model_validate(payload["draft"]),
+        verification=PaperEvidenceVerification.model_validate(payload["verification"]),
+    )
+    revision = "5" * 40
+    monkeypatch.setattr(
+        "run_paper_intake._json_request",
+        lambda url, **_: {
+            "id": "example/SyntheticHFBench",
+            "sha": revision,
+            "private": False,
+            "gated": False,
+            "cardData": {"license": "cc-by-4.0"},
+            "siblings": [{"rfilename": "data/test.csv"}],
+        },
+    )
+    assert resolve_resource_pins(result) == {
+        "https://huggingface.co/datasets/example/SyntheticHFBench": {
+            "resource_type": "dataset", "kind": "commit", "value": revision,
+            "url": (
+                "https://huggingface.co/datasets/example/SyntheticHFBench/tree/" + revision
+            ),
+            "resolved_url": "https://huggingface.co/datasets/example/SyntheticHFBench",
+            "license": "cc-by-4.0",
+        }
+    }
+
+
 def test_official_artifact_context_resolves_bounded_github_evidence(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -4496,8 +4543,51 @@ def test_official_artifact_context_resolves_bounded_github_evidence(
     }]
 
 
-def test_official_artifact_context_rejects_non_github_urls() -> None:
-    with pytest.raises(GenerationBlocked, match="only public GitHub"):
+def test_official_artifact_context_resolves_bounded_huggingface_evidence(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    revision = "5" * 40
+    monkeypatch.setattr(
+        "run_paper_intake._json_request",
+        lambda url, **_: {
+            "id": "AbBibench/Antibody_Binding_Benchmark_Dataset",
+            "sha": revision,
+            "private": False,
+            "gated": False,
+            "cardData": {"license": "cc-by-4.0"},
+            "siblings": [
+                {"rfilename": "metadata.json"},
+                {"rfilename": "binding_affinity/1mhp.csv"},
+            ],
+        },
+    )
+    packet = official_artifact_context(
+        "https://huggingface.co/datasets/AbBibench/Antibody_Binding_Benchmark_Dataset"
+    )
+    assert packet == [{
+        "evidence_scope": "official-resource-identity-pin-and-public-files-only",
+        "resource_type": "dataset",
+        "url": "https://huggingface.co/datasets/AbBibench/Antibody_Binding_Benchmark_Dataset",
+        "api_url": (
+            "https://huggingface.co/api/datasets/"
+            "AbBibench/Antibody_Binding_Benchmark_Dataset"
+        ),
+        "full_name": "AbBibench/Antibody_Binding_Benchmark_Dataset",
+        "head_commit": revision,
+        "head_commit_url": (
+            "https://huggingface.co/datasets/AbBibench/"
+            "Antibody_Binding_Benchmark_Dataset/tree/" + revision
+        ),
+        "visibility": "public",
+        "private": False,
+        "gated": False,
+        "license": "cc-by-4.0",
+        "file_paths": ["binding_affinity/1mhp.csv", "metadata.json"],
+    }]
+
+
+def test_official_artifact_context_rejects_unsupported_urls() -> None:
+    with pytest.raises(GenerationBlocked, match="GitHub repositories or Hugging Face"):
         official_artifact_context("https://example.com/private-dataset")
 
 

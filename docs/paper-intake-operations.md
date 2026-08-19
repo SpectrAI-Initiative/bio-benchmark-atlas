@@ -133,9 +133,13 @@ on a supposedly exhaustive subcount inventory, intake first stops with
 ```
 
 Only a comment authored by `wang422003` is accepted. The command does not turn
-the owner's preference into evidence: both local passes must still support that
-root total with high confidence, and a verifier-located count conflict must
-exist. The generator then:
+the owner's preference into evidence. A verified root total still requires both
+local passes to support it with high confidence. If the root-total claim itself
+is conflicted, the extractor must locate the exact value with at least medium
+confidence and the independent verifier must return high confidence with a
+resolved locator. A medium extractor claim is retained only as machine-readable
+`conflicted`, never as verified, and cannot support `scope: full`. The generator
+then:
 
 - retains the independently supported root total;
 - omits all conflicted benchmark and scientific-task subcounts;

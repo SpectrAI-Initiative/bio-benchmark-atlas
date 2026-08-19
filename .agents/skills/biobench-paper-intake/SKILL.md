@@ -85,8 +85,10 @@ output.
 - Stop with `needs-human-review` for genuine source conflicts, ambiguous benchmark identity/version/count, missing creator evidence, unparseable sources, refusals, or invalid structured output.
 - A count conflict may continue only after `wang422003` posts the exact Issue comment
   `/resolve-paper-conflict benchmark-total=<N> exclude=benchmark-subcounts`.
-  The approved root total must still be independently supported with high
-  confidence in both passes. The generator omits all conflicted benchmark and
+  A verified root total still requires high confidence in both passes. If the
+  root-total claim itself is conflicted, extractor confidence may be medium only
+  when the verifier is high with a resolved locator; the retained total is then
+  marked `conflicted` and cannot support full scope. The generator omits all conflicted benchmark and
   scientific-task subcounts, records a machine-readable conflicted
   `field_status`, and marks the benchmark `audited-with-caveats`. This command
   cannot override benchmark identity/version, model, protocol, metric, or result

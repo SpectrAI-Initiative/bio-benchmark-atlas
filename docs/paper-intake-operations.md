@@ -163,6 +163,10 @@ benchmark-creation record, omits conflicted subcounts, and reduces the creator
 evaluation to a partial `BenchmarkUse`. Benchmark version, scope and realized
 `n`, protocol, metrics, and numeric results are all withheld for later manual
 reconciliation. Independently supported exact model identities may remain.
+Creator-evaluation mentions are linked by their extracted benchmark-identity
+claims rather than free-form display labels, so assay- or track-qualified labels
+for the same benchmark are omitted without affecting evaluations of other
+benchmarks in the paper.
 Creation identity/version conflicts and relation conflicts always stop intake.
 
 For a reusable scenario matrix, simulator, or rolling benchmark whose single

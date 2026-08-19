@@ -1314,6 +1314,50 @@ _EMBEDDED_CREATOR_EVALUATION_CLAIM_TYPES = {
 }
 
 
+def _extracted_mention_identity_keys(draft: PaperEvidenceDraft, mention: Any) -> set[str]:
+    """Return normalized registry and structured-claim identities for a mention."""
+
+    keys: set[str] = set()
+    if mention.registry_benchmark_id:
+        keys.add(slugify(mention.registry_benchmark_id))
+    for claim in draft.claims:
+        if claim.mention_id != mention.mention_id or claim.claim_type != "benchmark-identity":
+            continue
+        value = _claim_value(claim)
+        if isinstance(value, str) and value.strip():
+            keys.add(slugify(value))
+    return {key for key in keys if key}
+
+
+def _mention_identity_keys(draft: PaperEvidenceDraft, mention: Any) -> set[str]:
+    keys = _extracted_mention_identity_keys(draft, mention)
+    display_key = slugify(mention.benchmark_name)
+    return {*keys, *({display_key} if display_key else set())}
+
+
+def _primary_mention_identity_key(draft: PaperEvidenceDraft, mention: Any) -> str:
+    keys = _extracted_mention_identity_keys(draft, mention)
+    if not keys:
+        keys = _mention_identity_keys(draft, mention)
+    return min(keys, key=lambda key: (len(key), key)) if keys else ""
+
+
+def _creator_evaluation_mentions(
+    draft: PaperEvidenceDraft,
+    creation_mention: Any,
+) -> set[str]:
+    """Match creator evaluations by extracted benchmark identity, not display label."""
+
+    creation_keys = _extracted_mention_identity_keys(draft, creation_mention)
+    return {
+        mention.mention_id
+        for mention in draft.benchmark_mentions
+        if mention.relation_type == "evaluation"
+        and not mention.background_only
+        and creation_keys.intersection(_extracted_mention_identity_keys(draft, mention))
+    }
+
+
 def _apply_owner_not_reported_creator_evaluation_resolution(
     draft: PaperEvidenceDraft,
     verification: PaperEvidenceVerification,
@@ -1356,13 +1400,9 @@ def _apply_owner_not_reported_creator_evaluation_resolution(
         for mention in draft.benchmark_mentions
         if mention.mention_id == creation_mention_id
     )
-    creator_evaluation_mentions = {
-        mention.mention_id
-        for mention in draft.benchmark_mentions
-        if mention.relation_type == "evaluation"
-        and not mention.background_only
-        and slugify(mention.benchmark_name) == slugify(creation_mention.benchmark_name)
-    }
+    creator_evaluation_mentions = _creator_evaluation_mentions(
+        draft, creation_mention
+    )
     if not creator_evaluation_mentions:
         raise GenerationBlocked(
             "not-reported creator-evaluation resolution found no matching evaluation relationship"
@@ -1695,13 +1735,9 @@ def _apply_owner_count_conflict_resolution(
         mention for mention in draft.benchmark_mentions if mention.mention_id == mention_id
     )
     exclude_creator_evaluation = bool(resolution.get("exclude_creator_evaluation"))
-    creator_evaluation_mentions = {
-        mention.mention_id
-        for mention in draft.benchmark_mentions
-        if mention.relation_type == "evaluation"
-        and not mention.background_only
-        and slugify(mention.benchmark_name) == slugify(creation_mention.benchmark_name)
-    }
+    creator_evaluation_mentions = _creator_evaluation_mentions(
+        draft, creation_mention
+    )
 
     disallowed_claims = []
     for claim in conflicted:
@@ -2098,7 +2134,7 @@ def build_records(
     for mention in draft.benchmark_mentions:
         if mention.mention_id not in downgraded_creator_evaluations:
             continue
-        key = slugify(mention.benchmark_name)
+        key = _primary_mention_identity_key(draft, mention)
         downgraded_creator_primary.setdefault(key, mention.mention_id)
         merged_gaps = downgraded_creator_gaps.setdefault(key, [])
         for gap in mention.reporting_gaps:
@@ -2247,6 +2283,8 @@ def build_records(
         new_benchmark_ids_by_name[slugify(benchmark["name"])] = benchmark_id
         for alias in benchmark.get("aliases", []):
             new_benchmark_ids_by_name[slugify(str(alias))] = benchmark_id
+        for identity_key in _mention_identity_keys(draft, mention):
+            new_benchmark_ids_by_name[identity_key] = benchmark_id
     model_lookup = _model_lookup(entities)
     new_models: dict[str, dict[str, Any]] = {}
     next_relation_suffix: dict[tuple[str, str], int] = {}
@@ -2254,7 +2292,7 @@ def build_records(
         if mention.background_only or mention.relation_type == "background-citation":
             output.skipped_background_mentions.append(mention.benchmark_name)
             continue
-        downgraded_key = slugify(mention.benchmark_name)
+        downgraded_key = _primary_mention_identity_key(draft, mention)
         if (
             mention.mention_id in downgraded_creator_evaluations
             and downgraded_creator_primary.get(downgraded_key) != mention.mention_id
@@ -2268,8 +2306,14 @@ def build_records(
         if _claim_value(relation_claim) != mention.relation_type:
             output.blocked_reasons.append(f"{mention.benchmark_name}: relation claim conflicts with the mention")
             continue
-        matching_new_benchmark_id = new_benchmark_ids_by_name.get(
-            slugify(mention.benchmark_name)
+        matching_new_benchmark_ids = {
+            new_benchmark_ids_by_name[key]
+            for key in _mention_identity_keys(draft, mention)
+            if key in new_benchmark_ids_by_name
+        }
+        matching_new_benchmark_id = (
+            next(iter(matching_new_benchmark_ids))
+            if len(matching_new_benchmark_ids) == 1 else None
         )
         resolved_to_new_benchmark = bool(
             matching_new_benchmark_id

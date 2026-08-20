@@ -1,0 +1,12 @@
+entity_type: model
+id: not-reported-esm3
+name: ESM3
+provider: Not reported
+release_date: null
+version_string: ESM3
+version_status: reported
+aliases: []
+verification:
+  status: verified
+  last_verified: '2026-08-20'
+  notes: Exact model identity accepted by the automated double-pass paper review and pending owner PR approval.

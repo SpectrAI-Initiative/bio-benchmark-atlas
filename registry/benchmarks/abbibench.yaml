@@ -1,0 +1,346 @@
+entity_type: benchmark
+id: abbibench
+name: AbBiBench
+aliases:
+- Antibody Binding Benchmarking
+summary: A framework using antibody–antigen complexes to evaluate affinity prediction and antibody redesign.
+kind: suite
+parent_id: null
+organizations:
+- McWilliams School of Biomedical Informatics, UTHealth Houston
+- Department of Industrial and Systems Engineering, Korea Advanced Institute of Science and Technology
+- Texas Therapeutics Institute, Brown Foundation Institute of Molecular Medicine, UTHealth Houston
+release_date: '2025-05-23'
+latest_version: initial-release
+domains:
+- life-science
+- protein-science
+- protein-design
+- protein-protein-binding
+- antibody-antigen
+capabilities:
+- prediction
+- design
+- generation
+- optimization
+modalities:
+- protein-sequence
+- structure-3d
+- wet-lab-output
+task_formats:
+- unclassified
+task_counts: &id001
+  total: 184500
+  basis: Standardized benchmark data compiling 184,500 mutated antibodies.
+  reporting_status: reported
+  subsets: []
+coverage_notes: []
+access:
+  level: fully-open
+  tasks: zero-shot affinity prediction; antibody generation
+  artifacts: benchmarking dataset; code repository; leaderboard
+  grader: Not established by the independently verified metadata claims.
+  license: cc-by-4.0
+  biosafety_notes: null
+resources:
+- id: abbibench-creator-paper-resource
+  type: paper
+  url: https://arxiv.org/abs/2506.04235
+  license: null
+  access_notes: Versioned creator source; full text is not mirrored.
+  last_checked: '2026-08-20'
+  pin: null
+- id: abbibench-official-dataset-resource
+  type: dataset
+  url: https://huggingface.co/datasets/AbBibench/Antibody_Binding_Benchmark_Dataset
+  license: cc-by-4.0
+  access_notes: Official resource pinned immutably during intake.
+  last_checked: '2026-08-20'
+  pin:
+    kind: commit
+    value: 556fd6913aa231c0d342a8658818be8f963fd582
+    url: https://huggingface.co/datasets/AbBibench/Antibody_Binding_Benchmark_Dataset/tree/556fd6913aa231c0d342a8658818be8f963fd582
+implementations: []
+versions:
+- id: abbibench-initial-release-version
+  label: initial-release
+  status: current
+  release_date: '2025-05-23'
+  as_of: null
+  task_counts: *id001
+  formal_tracks: []
+  notes: Root total retained after owner review; conflicted appendix inventory subcounts are intentionally omitted.
+  evidence_ids:
+  - abbibench-automated-count-evidence
+  - abbibench-automated-version-evidence
+audit:
+  status: audited-with-caveats
+  audited_date: '2026-08-20'
+  unresolved_fields: 2
+  notes: Automated double-pass extraction plus deterministic official-resource pin. Owner review preserved the corroborated
+    root total and excluded conflicted appendix inventory subcounts.
+field_status:
+- path: /access/level
+  status: provisional
+  confidence: medium
+  reason: The official resource and source-located access descriptions are public, but fully-open is an Atlas-controlled classification
+    rather than a label stated verbatim by the creator source.
+  evidence_ids:
+  - abbibench-automated-metadata-2-evidence
+  - abbibench-automated-metadata-4-evidence
+  - abbibench-automated-metadata-1-evidence
+  - abbibench-automated-resource-evidence
+- path: /task_counts/subsets
+  status: conflicted
+  confidence: high
+  reason: The owner approved the independently supported root total while all conflicted inventory subcounts were excluded
+    from publication.
+  evidence_ids:
+  - abbibench-automated-count-conflict-evidence
+verification:
+  status: verified
+  last_verified: '2026-08-20'
+  notes: New family admitted with an explicit count-inventory caveat after creator source, official resource, double-pass
+    verification, and owner conflict resolution.
+evidence:
+- id: abbibench-automated-metadata-1-evidence
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: section
+    value: Supplement 1
+    note: null
+    document_page: 16
+    printed_page: '16'
+    source_fragment_sha256: 30ca84a92b5c172c90ffbbe390d968c77bda7a900606d96eacbecbb9447ce770
+  supports:
+  - /access/artifacts
+  - /access/level
+- id: abbibench-automated-metadata-2-evidence
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: repository-path
+    value: 'official-artifact-context.json: AbBibench/Antibody_Binding_Benchmark_Dataset'
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: b529210a78e6f88303da50d14be400a61d6c31f38f6251b9f000805b28600ba2
+  supports:
+  - /access/level
+- id: abbibench-automated-metadata-3-evidence
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: repository-path
+    value: 'official-artifact-context.json: AbBibench/Antibody_Binding_Benchmark_Dataset'
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: b2d5a89a3fc1b48f18dcfe388bc5416d9add392fa8152ea3af8e3ab3c23e07e5
+  supports:
+  - /access/license
+- id: abbibench-automated-metadata-4-evidence
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: section
+    value: Section 3.3
+    note: null
+    document_page: 6
+    printed_page: '6'
+    source_fragment_sha256: 138697f40c2416076e667d36f76b2738f59caf3691c2dce686abfe1e5556802c
+  supports:
+  - /access/tasks
+  - /access/level
+- id: abbibench-automated-metadata-5-evidence
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: section
+    value: Introduction
+    note: null
+    document_page: 2
+    printed_page: '2'
+    source_fragment_sha256: 36a3d1f338dd0e75fec2389f7758e1a91cf11c7b47b019d87ddbf9e46286bfd7
+  supports:
+  - /aliases
+- id: abbibench-automated-metadata-6-evidence
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: section
+    value: Section 3
+    note: null
+    document_page: 4
+    printed_page: '4'
+    source_fragment_sha256: d028a1c48d1133fa841562a8cd5a757639aa28e1f7792719ffee67c58f0af9e1
+  supports:
+  - /capabilities
+- id: abbibench-automated-metadata-7-evidence
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: section
+    value: Introduction
+    note: null
+    document_page: 2
+    printed_page: '2'
+    source_fragment_sha256: 16bc2f3a41c982f7173878c4c2d1d444e4ff2202fbacedb32ce760ced6474525
+  supports:
+  - /domains
+- id: abbibench-automated-metadata-8-evidence
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: section
+    value: Section 3.3
+    note: null
+    document_page: 6
+    printed_page: '6'
+    source_fragment_sha256: 22ca3e60dad14a808aa87ace6344293593d3a62904269be708d101a8b8205018
+  supports:
+  - /kind
+- id: abbibench-automated-metadata-9-evidence
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: figure
+    value: Figure 2
+    note: null
+    document_page: 3
+    printed_page: '3'
+    source_fragment_sha256: 4226f3a447c642cd3d60919746dd6279010fa0ed915375787bc8be84142270ad
+  supports:
+  - /modalities
+- id: abbibench-automated-metadata-10-evidence
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: section
+    value: Section 3
+    note: null
+    document_page: 4
+    printed_page: '4'
+    source_fragment_sha256: d1573386c2a0faf47499547abd1f1cdc536bdf4e1def5ee290be9efef753057e
+  supports:
+  - /name
+- id: abbibench-automated-metadata-11-evidence
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: page
+    value: Author affiliations
+    note: null
+    document_page: 1
+    printed_page: '1'
+    source_fragment_sha256: fdd02f8929f9228cf62367f6651e12a7dd42b53111a90d6319c5dee9157a08c0
+  supports:
+  - /organizations
+- id: abbibench-automated-metadata-12-evidence
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: figure
+    value: Figure 2
+    note: null
+    document_page: 3
+    printed_page: '3'
+    source_fragment_sha256: 877577a60dd92924b8ec2368bd97107230076f2a53b46ff7c50c68c335a003b4
+  supports:
+  - /summary
+- id: abbibench-automated-bibliographic-evidence
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: other
+    value: arXiv API bibliographic metadata
+    note: Resolved from the canonical paper identifier during intake.
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 64c951cfd89a613e66a17f725b5a05fa461f67e238fec61c584a9448e08e523c
+  supports:
+  - /release_date
+- id: abbibench-automated-count-evidence
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: section
+    value: Introduction
+    note: null
+    document_page: 2
+    printed_page: '2'
+    source_fragment_sha256: 9715e3201460351edf1d4a4787ef97179c042b178fcf1e9a7e6ef52f538d9936
+  supports:
+  - /task_counts/total
+  - /task_counts/basis
+  - /versions/0/task_counts/total
+  - /versions/0/task_counts/basis
+- id: abbibench-automated-resource-evidence
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: repository-path
+    value: 'official-artifact-context.json: AbBibench/Antibody_Binding_Benchmark_Dataset'
+    note: null
+    document_page: null
+    printed_page: null
+    source_fragment_sha256: 4120b08c51fd49fcb99a8e68faf07eae24c7bbd5bd085d0e19c38a721cdf490b
+  supports:
+  - /resources
+  - /access/level
+- id: abbibench-automated-creator-evidence
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: page
+    value: arXiv footer
+    note: null
+    document_page: 1
+    printed_page: '1'
+    source_fragment_sha256: 86eda8ad8e4a1e6bef9c9c2ff5be1fe89b63b493f05e27e3102d5502addcba44
+  supports:
+  - /resources/0
+- id: abbibench-automated-version-evidence
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: page
+    value: arXiv footer
+    note: null
+    document_page: 1
+    printed_page: '1'
+    source_fragment_sha256: 86eda8ad8e4a1e6bef9c9c2ff5be1fe89b63b493f05e27e3102d5502addcba44
+  supports:
+  - /latest_version
+  - /versions/0
+- id: abbibench-automated-count-conflict-evidence
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: table
+    value: Table 1
+    note: null
+    document_page: 5
+    printed_page: '5'
+    source_fragment_sha256: c13059cacfdc15232f358ec2813f65ffc2c449cf566c42198e5d67ca3307db68
+  supports:
+  - /task_counts/subsets

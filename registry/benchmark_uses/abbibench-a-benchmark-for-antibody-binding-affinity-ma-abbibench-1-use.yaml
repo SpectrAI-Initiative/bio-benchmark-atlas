@@ -1,0 +1,54 @@
+entity_type: benchmark_use
+id: abbibench-a-benchmark-for-antibody-binding-affinity-ma-abbibench-1-use
+work_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+work_version_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma-arxiv-v2
+benchmark_id: abbibench
+benchmark_version: null
+relation_type: benchmark-creation
+status: non-evaluation
+model_ids: []
+scope:
+  type: unknown
+  subset_kind: not-applicable
+  n: null
+  subset_id: null
+  selection: null
+  selection_method: null
+  reporting_status: not_applicable
+metric_labels: []
+evaluation_run_ids: []
+reporting_gaps:
+- A benchmark version and artifact release date are not reported.
+- The source conflicts on whether AbBiBench contains 14 or 16 binding-affinity assays.
+notes: AI-assisted double-pass extraction; values are limited to independently supported claims.
+verification:
+  status: verified
+  last_verified: '2026-08-20'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: abbibench-a-benchmark-for-antibody-binding-affinity-ma-abbibench-1-use-evidence-1
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: section
+    value: Introduction
+    note: null
+    document_page: 2
+    printed_page: '2'
+    source_fragment_sha256: 931e2050e009fce5b11bc5e5aa6267df865a4d4b091cf194c7168afdc43726da
+  supports:
+  - /relation_type
+- id: abbibench-a-benchmark-for-antibody-binding-affinity-ma-abbibench-1-use-evidence-2
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: section
+    value: Introduction
+    note: null
+    document_page: 2
+    printed_page: '2'
+    source_fragment_sha256: 0ff2f5f191531361894c3f085ffce52768505bb7e3e03511c24200db9c0f7d61
+  supports:
+  - /benchmark_id

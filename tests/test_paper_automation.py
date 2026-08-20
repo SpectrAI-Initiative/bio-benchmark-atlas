@@ -95,6 +95,7 @@ from paper_source import (  # noqa: E402
     MAX_SOURCE_BYTES,
     SourceAcquisitionError,
     is_automatic_source_allowed,
+    retrieve_local_pdf,
     retrieve_source,
 )
 from registry_io import load_entities  # noqa: E402
@@ -4422,6 +4423,53 @@ def test_source_rights_mime_size_pages_and_sha(monkeypatch: pytest.MonkeyPatch) 
             rights_confirmed=False,
             discovered=True,
             preferred_pdf_pages=[152],
+        )
+
+
+def test_local_pdf_source_is_copied_validated_and_keeps_canonical_url(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "paper_source.socket.getaddrinfo",
+        lambda *args, **kwargs: [(2, 1, 6, "", ("151.101.1.69", 443))],
+    )
+    supplied = tmp_path / "paper.pdf"
+    supplied.write_bytes(pdf_bytes(3))
+    source = retrieve_local_pdf(
+        supplied,
+        source_url="https://www.biorxiv.org/content/example.full.pdf",
+        rights_confirmed=True,
+        discovered=True,
+    )
+    try:
+        assert source.path != supplied
+        assert source.path.read_bytes() == supplied.read_bytes()
+        assert source.url == "https://www.biorxiv.org/content/example.full.pdf"
+        assert source.source_access == "open-url"
+        assert source.content_type == "application/pdf"
+        assert source.page_count == 3
+        assert len(source.content_sha256) == 64
+        assert supplied.exists()
+    finally:
+        source.path.unlink(missing_ok=True)
+
+
+def test_local_pdf_source_rejects_non_pdf(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "paper_source.socket.getaddrinfo",
+        lambda *args, **kwargs: [(2, 1, 6, "", ("151.101.1.69", 443))],
+    )
+    supplied = tmp_path / "paper.pdf"
+    supplied.write_text("not a PDF", encoding="utf-8")
+    with pytest.raises(SourceAcquisitionError, match="not a PDF"):
+        retrieve_local_pdf(
+            supplied,
+            source_url="https://publisher.example/paper.pdf",
+            rights_confirmed=True,
         )
 
 

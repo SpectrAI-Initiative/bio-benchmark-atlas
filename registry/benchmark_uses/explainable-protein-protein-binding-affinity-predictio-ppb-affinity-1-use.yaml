@@ -1,0 +1,121 @@
+entity_type: benchmark_use
+id: explainable-protein-protein-binding-affinity-predictio-ppb-affinity-1-use
+work_id: explainable-protein-protein-binding-affinity-predictio
+work_version_id: explainable-protein-protein-binding-affinity-predictio-biorxiv-version-posted-2
+benchmark_id: ppb-affinity
+benchmark_version: null
+relation_type: training
+status: non-evaluation
+model_ids:
+- not-reported-balm-ppi
+scope:
+  type: unknown
+  subset_kind: not-applicable
+  n: null
+  subset_id: null
+  selection: null
+  selection_method: null
+  reporting_status: not_applicable
+metric_labels: []
+evaluation_run_ids: []
+reporting_gaps:
+- Benchmark version is not reported.
+- Exact per-fold training sizes are not reported for cold and sequence-similarity splits.
+- BALM-PPI provider and version are not explicitly reported.
+notes: AI-assisted double-pass extraction; values are limited to independently supported claims.
+verification:
+  status: verified
+  last_verified: '2026-08-20'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: explainable-protein-protein-binding-affinity-predictio-ppb-affinity-1-use-evidence-1
+  source_type: work
+  source_id: explainable-protein-protein-binding-affinity-predictio
+  accessed_date: '2026-08-20'
+  locator:
+    type: section
+    value: '2.1'
+    note: null
+    document_page: 4
+    printed_page: '4'
+    source_fragment_sha256: 251e54038766301f859f943db8c223378dff2459f26182fff9c1572dc10117ff
+  supports:
+  - /relation_type
+- id: explainable-protein-protein-binding-affinity-predictio-ppb-affinity-1-use-evidence-2
+  source_type: work
+  source_id: explainable-protein-protein-binding-affinity-predictio
+  accessed_date: '2026-08-20'
+  locator:
+    type: section
+    value: '2.1'
+    note: null
+    document_page: 4
+    printed_page: '4'
+    source_fragment_sha256: 251e54038766301f859f943db8c223378dff2459f26182fff9c1572dc10117ff
+  supports:
+  - /benchmark_id
+- id: explainable-protein-protein-binding-affinity-predictio-ppb-affinity-1-use-evidence-3
+  source_type: work
+  source_id: explainable-protein-protein-binding-affinity-predictio
+  accessed_date: '2026-08-20'
+  locator:
+    type: section
+    value: 4.1 Dataset
+    note: null
+    document_page: 22
+    printed_page: '22'
+    source_fragment_sha256: 09679784e0eb08ac64c213a0c0f6854e62777f8d16f333a078eef52c0e9033e4
+  supports:
+  - /scope
+- id: explainable-protein-protein-binding-affinity-predictio-ppb-affinity-1-use-evidence-4
+  source_type: work
+  source_id: explainable-protein-protein-binding-affinity-predictio
+  accessed_date: '2026-08-20'
+  locator:
+    type: section
+    value: 4.1 Dataset
+    note: null
+    document_page: 22
+    printed_page: '22'
+    source_fragment_sha256: 09679784e0eb08ac64c213a0c0f6854e62777f8d16f333a078eef52c0e9033e4
+  supports:
+  - /scope
+- id: explainable-protein-protein-binding-affinity-predictio-ppb-affinity-1-use-evidence-5
+  source_type: work
+  source_id: explainable-protein-protein-binding-affinity-predictio
+  accessed_date: '2026-08-20'
+  locator:
+    type: table
+    value: Table S1
+    note: null
+    document_page: 37
+    printed_page: '37'
+    source_fragment_sha256: c0c2a93a6847dc0927379c788bfdee376d2145fd125ab528a0eab728b5c0ec6b
+  supports:
+  - /scope
+- id: explainable-protein-protein-binding-affinity-predictio-ppb-affinity-1-use-evidence-6
+  source_type: work
+  source_id: explainable-protein-protein-binding-affinity-predictio
+  accessed_date: '2026-08-20'
+  locator:
+    type: section
+    value: 4.1 Dataset
+    note: null
+    document_page: 22
+    printed_page: '22'
+    source_fragment_sha256: 09679784e0eb08ac64c213a0c0f6854e62777f8d16f333a078eef52c0e9033e4
+  supports:
+  - /scope
+- id: explainable-protein-protein-binding-affinity-predictio-ppb-affinity-1-use-evidence-7
+  source_type: work
+  source_id: explainable-protein-protein-binding-affinity-predictio
+  accessed_date: '2026-08-20'
+  locator:
+    type: section
+    value: '2.1'
+    note: null
+    document_page: 4
+    printed_page: '4'
+    source_fragment_sha256: 251e54038766301f859f943db8c223378dff2459f26182fff9c1572dc10117ff
+  supports:
+  - /model_ids

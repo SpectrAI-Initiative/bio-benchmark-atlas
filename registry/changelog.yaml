@@ -1,6 +1,28 @@
 - date: '2026-08-20'
   version: 1.4.0-dev
   type: paper-intake
+  summary: AI-assisted double-pass paper intake (paper-intake:explainable-protein-protein-binding-affinity-predictio); production
+    inclusion required owner approval of the final head SHA.
+  entity_ids:
+  - explainable-protein-protein-binding-affinity-predictio
+  - not-reported-balm-ppi
+  - not-reported-balm-ppi-without-peft
+  - not-reported-baseline
+  - explainable-protein-protein-binding-affinity-predictio-ppb-affinity-1-use
+  - explainable-protein-protein-binding-affinity-predictio-ppb-affinity-2-use
+  - explainable-protein-protein-binding-affinity-predictio-ppb-affinity-3-use
+  - explainable-protein-protein-binding-affinity-predictio-ppb-affinity-4-use
+  - explainable-protein-protein-binding-affinity-predictio-ab-bind-5-use
+  - explainable-protein-protein-binding-affinity-predictio-ab-bind-6-use
+  - explainable-protein-protein-binding-affinity-predictio-ab-bind-7-use
+  - explainable-protein-protein-binding-affinity-predictio-ab-bind-8-use
+  - explainable-protein-protein-binding-affinity-predictio-abbibench-9-use
+  - explainable-protein-protein-binding-affinity-predictio-abbibench-10-use
+  - explainable-protein-protein-binding-affinity-predictio-abbibench-11-use
+  - explainable-protein-protein-binding-affinity-predictio-abbibench-12-use
+- date: '2026-08-20'
+  version: 1.4.0-dev
+  type: paper-intake
   summary: AI-assisted double-pass paper intake (paper-intake:abbibench-a-benchmark-for-antibody-binding-affinity-ma); production
     inclusion required owner approval of the final head SHA.
   entity_ids:

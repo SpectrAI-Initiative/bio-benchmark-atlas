@@ -1,0 +1,138 @@
+entity_type: benchmark_use
+id: explainable-protein-protein-binding-affinity-predictio-ppb-affinity-4-use
+work_id: explainable-protein-protein-binding-affinity-predictio
+work_version_id: explainable-protein-protein-binding-affinity-predictio-biorxiv-version-posted-2
+benchmark_id: ppb-affinity
+benchmark_version: null
+relation_type: evaluation
+status: partial
+model_ids:
+- not-reported-balm-ppi
+- not-reported-balm-ppi-without-peft
+- not-reported-baseline
+scope:
+  type: subset
+  subset_kind: formal-subset
+  n: null
+  subset_id: null
+  selection: null
+  selection_method: K-mer Jaccard clustering with K=3, 30% similarity threshold, and pair exclusion
+  reporting_status: not_reported
+metric_labels:
+- RMSE
+evaluation_run_ids: []
+reporting_gaps:
+- Benchmark version and exact realized test n are not reported.
+- Model providers and versions are not explicitly reported.
+- benchmark version
+- realized n/scope
+notes: AI-assisted double-pass extraction; values are limited to independently supported claims.
+verification:
+  status: verified
+  last_verified: '2026-08-20'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: explainable-protein-protein-binding-affinity-predictio-ppb-affinity-4-use-evidence-1
+  source_type: work
+  source_id: explainable-protein-protein-binding-affinity-predictio
+  accessed_date: '2026-08-20'
+  locator:
+    type: table
+    value: Table S2
+    note: null
+    document_page: 37
+    printed_page: '37'
+    source_fragment_sha256: 486e03dd8eed8ae7b5509e21ba3a10cf94caed78674d36f6ad64d8cdb4be9502
+  supports:
+  - /relation_type
+- id: explainable-protein-protein-binding-affinity-predictio-ppb-affinity-4-use-evidence-2
+  source_type: work
+  source_id: explainable-protein-protein-binding-affinity-predictio
+  accessed_date: '2026-08-20'
+  locator:
+    type: section
+    value: '2.1'
+    note: null
+    document_page: 4
+    printed_page: '4'
+    source_fragment_sha256: 251e54038766301f859f943db8c223378dff2459f26182fff9c1572dc10117ff
+  supports:
+  - /benchmark_id
+- id: explainable-protein-protein-binding-affinity-predictio-ppb-affinity-4-use-evidence-3
+  source_type: work
+  source_id: explainable-protein-protein-binding-affinity-predictio
+  accessed_date: '2026-08-20'
+  locator:
+    type: section
+    value: '4.2'
+    note: null
+    document_page: 23
+    printed_page: '23'
+    source_fragment_sha256: 4d83687f90a7c51d2ed5a4bd405db004735f39c6ab7a2f06585cdb8dd25d893e
+  supports:
+  - /scope
+- id: explainable-protein-protein-binding-affinity-predictio-ppb-affinity-4-use-evidence-4
+  source_type: work
+  source_id: explainable-protein-protein-binding-affinity-predictio
+  accessed_date: '2026-08-20'
+  locator:
+    type: section
+    value: '4.2'
+    note: null
+    document_page: 23
+    printed_page: '23'
+    source_fragment_sha256: 0664c3752b5c66de570426996f9a9699b31d2fd73f15ef917b8bd6d5c9f76978
+  supports:
+  - /scope
+- id: explainable-protein-protein-binding-affinity-predictio-ppb-affinity-4-use-evidence-5
+  source_type: work
+  source_id: explainable-protein-protein-binding-affinity-predictio
+  accessed_date: '2026-08-20'
+  locator:
+    type: table
+    value: Table S2
+    note: null
+    document_page: 37
+    printed_page: '37'
+    source_fragment_sha256: e7d5a5fdec8b5fc61d5ef430f13131a1d742a7fee617e3395a37c9b5776c24d5
+  supports:
+  - /model_ids
+- id: explainable-protein-protein-binding-affinity-predictio-ppb-affinity-4-use-evidence-6
+  source_type: work
+  source_id: explainable-protein-protein-binding-affinity-predictio
+  accessed_date: '2026-08-20'
+  locator:
+    type: table
+    value: Table S2
+    note: null
+    document_page: 37
+    printed_page: '37'
+    source_fragment_sha256: a9aef44f54490ab20c126f04d83bf7bbd618402d311636ab363693eb2c03f679
+  supports:
+  - /model_ids
+- id: explainable-protein-protein-binding-affinity-predictio-ppb-affinity-4-use-evidence-7
+  source_type: work
+  source_id: explainable-protein-protein-binding-affinity-predictio
+  accessed_date: '2026-08-20'
+  locator:
+    type: table
+    value: Table S2
+    note: null
+    document_page: 37
+    printed_page: '37'
+    source_fragment_sha256: 0626e11e2b459dc79394a1dd067766daaf3a58b9e070e1c017329af14fd77175
+  supports:
+  - /model_ids
+- id: explainable-protein-protein-binding-affinity-predictio-ppb-affinity-4-use-evidence-8
+  source_type: work
+  source_id: explainable-protein-protein-binding-affinity-predictio
+  accessed_date: '2026-08-20'
+  locator:
+    type: table
+    value: Table S2
+    note: null
+    document_page: 37
+    printed_page: '37'
+    source_fragment_sha256: f7edea70ddad8dde391ebf1ecc1d74e801567f4d29419fd41372103e6062c800
+  supports:
+  - /metric_labels

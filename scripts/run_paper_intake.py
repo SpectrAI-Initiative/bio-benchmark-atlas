@@ -16,7 +16,7 @@ import requests
 
 from extract_paper import DEFAULT_MODEL, run_double_pass
 from generate_paper_records import GenerationBlocked, build_records, chinese_summary, write_records
-from paper_source import RetrievedSource, retrieve_source
+from paper_source import RetrievedSource, retrieve_local_pdf, retrieve_source
 from paper_models import accepted_claims
 from registry_io import load_entities, load_taxonomies
 from triage_paper import build_intake, normalize_url, parse_issue_form
@@ -407,6 +407,7 @@ def process_issue(
     write: bool,
     local_run_id: str | None = None,
     owner_conflict_resolution: dict[str, object] | None = None,
+    source_file: str | Path | None = None,
 ) -> tuple[object, RetrievedSource, object]:
     sections = parse_issue_form(body)
     paper_url = sections.get("Paper or preprint URL")
@@ -436,11 +437,21 @@ def process_issue(
         # Existing Work is allowed: the paper may have no BenchmarkUse yet. The
         # generator resolves the duplicate deterministically and adds only missing uses.
         pass
-    source = retrieve_source(
-        source_url,
-        rights_confirmed=rights_confirmed,
-        discovered=discovered,
-        preferred_pdf_pages=preferred_pdf_pages,
+    source = (
+        retrieve_local_pdf(
+            source_file,
+            source_url=source_url,
+            rights_confirmed=rights_confirmed,
+            discovered=discovered,
+            preferred_pdf_pages=preferred_pdf_pages,
+        )
+        if source_file is not None
+        else retrieve_source(
+            source_url,
+            rights_confirmed=rights_confirmed,
+            discovered=discovered,
+            preferred_pdf_pages=preferred_pdf_pages,
+        )
     )
     try:
         benchmark_hints = sections.get("Possible benchmarks", "")

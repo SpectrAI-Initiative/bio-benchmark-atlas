@@ -182,3 +182,83 @@ def retrieve_source(
     except Exception:
         Path(temporary.name).unlink(missing_ok=True)
         raise
+
+
+def retrieve_local_pdf(
+    path: str | Path,
+    *,
+    source_url: str,
+    rights_confirmed: bool,
+    discovered: bool = False,
+    preferred_pdf_pages: list[int] | None = None,
+) -> RetrievedSource:
+    """Copy an owner-supplied local PDF into the normal temporary source boundary.
+
+    The canonical public URL remains the provenance source. The caller-provided file
+    is never modified or returned directly, so the existing finally-cleanup behavior
+    cannot delete the owner's original download.
+    """
+
+    if not is_automatic_source_allowed(
+        source_url,
+        rights_confirmed=rights_confirmed,
+        discovered=discovered,
+    ):
+        raise SourceAcquisitionError(
+            "source use was not confirmed and the canonical URL is not a recognized open source"
+        )
+    supplied = Path(path).expanduser().resolve()
+    if not supplied.is_file():
+        raise SourceAcquisitionError("local source file does not exist or is not a regular file")
+    if supplied.stat().st_size > MAX_SOURCE_BYTES:
+        raise SourceAcquisitionError("source exceeds the 45 MiB download limit")
+    with supplied.open("rb") as signature_handle:
+        signature = signature_handle.read(5)
+    if signature != b"%PDF-":
+        raise SourceAcquisitionError("local source file is not a PDF")
+
+    temporary = tempfile.NamedTemporaryFile(
+        prefix="biobench-paper-",
+        suffix=".pdf",
+        delete=False,
+    )
+    digest = hashlib.sha256()
+    size = 0
+    try:
+        with supplied.open("rb") as source_handle, temporary:
+            while chunk := source_handle.read(1024 * 1024):
+                size += len(chunk)
+                if size > MAX_SOURCE_BYTES:
+                    raise SourceAcquisitionError("source exceeds the 45 MiB download limit")
+                digest.update(chunk)
+                temporary.write(chunk)
+        temporary_path = Path(temporary.name)
+        try:
+            page_count = len(PdfReader(temporary_path).pages)
+        except Exception as error:
+            raise SourceAcquisitionError(f"PDF could not be parsed: {error}") from error
+        if page_count > MAX_PDF_PAGES:
+            focused_pages = sorted(set(preferred_pdf_pages or []))
+            if not focused_pages:
+                raise SourceAcquisitionError("PDF exceeds the 150-page extraction limit")
+            if len(focused_pages) > MAX_FOCUSED_PDF_PAGES:
+                raise SourceAcquisitionError(
+                    "focused review exceeds the 40-page long-PDF limit"
+                )
+            invalid = [page for page in focused_pages if page < 1 or page > page_count]
+            if invalid:
+                raise SourceAcquisitionError(
+                    f"focused review contains out-of-range PDF pages: {invalid}"
+                )
+        return RetrievedSource(
+            url=source_url,
+            path=temporary_path,
+            source_access="open-url" if discovered else "submitted-pdf",
+            content_sha256=digest.hexdigest(),
+            content_type="application/pdf",
+            retrieved_at=datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+            page_count=page_count,
+        )
+    except Exception:
+        Path(temporary.name).unlink(missing_ok=True)
+        raise

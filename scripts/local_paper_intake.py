@@ -36,7 +36,7 @@ from extract_paper import (
 )
 from generate_paper_records import GenerationBlocked, chinese_summary, stable_work_id
 from paper_extraction_eval import golden_input_hash, run_golden
-from paper_source import SourceAcquisitionError, retrieve_source
+from paper_source import SourceAcquisitionError, retrieve_local_pdf, retrieve_source
 from registry_io import load_entities
 from run_paper_intake import (
     _arxiv_pdf_url,
@@ -720,6 +720,7 @@ def preflight_issue(
     *,
     runner: CommandRunner = subprocess.run,
     require_clean_main: bool = True,
+    source_file: str | Path | None = None,
 ) -> Preflight:
     version = check_local_tools(runner=runner)
     base_sha = (
@@ -733,12 +734,24 @@ def preflight_issue(
     preferred_pdf_pages = _focus_pdf_pages(
         sections.get("Relevant tables, figures, or sections", "")
     )
-    source = retrieve_source(
-        source_url,
-        rights_confirmed=rights_confirmed,
-        discovered=discovered,
-        preferred_pdf_pages=preferred_pdf_pages,
-    )
+    if source_file is not None:
+        local_path = Path(source_file).expanduser().resolve()
+        if local_path == ROOT or ROOT in local_path.parents:
+            raise LocalIntakeError("local paper source must remain outside the Git repository")
+        source = retrieve_local_pdf(
+            local_path,
+            source_url=source_url,
+            rights_confirmed=rights_confirmed,
+            discovered=discovered,
+            preferred_pdf_pages=preferred_pdf_pages,
+        )
+    else:
+        source = retrieve_source(
+            source_url,
+            rights_confirmed=rights_confirmed,
+            discovered=discovered,
+            preferred_pdf_pages=preferred_pdf_pages,
+        )
     try:
         if source.content_type == "application/pdf" and shutil.which("pdftoppm") is None:
             raise LocalIntakeError(
@@ -1056,12 +1069,14 @@ def run_issue(
     run_id: str | None = None,
     prepared_worktree: bool = False,
     runner: CommandRunner = subprocess.run,
+    source_file: str | Path | None = None,
 ) -> str:
     selected_run_id = run_id or str(uuid.uuid4())
     preflight = preflight_issue(
         issue_number,
         runner=runner,
         require_clean_main=not prepared_worktree,
+        source_file=source_file,
     )
     if preflight.existing_pr_url:
         raise LocalIntakeError(f"an intake PR already exists: {preflight.existing_pr_url}")
@@ -1091,6 +1106,7 @@ def run_issue(
             write=True,
             local_run_id=selected_run_id,
             owner_conflict_resolution=conflict_resolution,
+            source_file=source_file,
         )
         _update_state(
             selected_run_id,
@@ -1183,6 +1199,10 @@ def main() -> int:
         source = command.add_mutually_exclusive_group(required=True)
         source.add_argument("--issue", type=int)
         source.add_argument("--url")
+        command.add_argument(
+            "--source-file",
+            help="owner-authorized local PDF outside the repository; canonical URL remains the Issue source",
+        )
         if name == "run":
             command.add_argument("--run-id", help=argparse.SUPPRESS)
             command.add_argument(
@@ -1194,6 +1214,7 @@ def main() -> int:
     batch.add_argument("--issue", type=int, action="append", required=True)
     resume = subparsers.add_parser("resume")
     resume.add_argument("--run-id", required=True)
+    resume.add_argument("--source-file")
     subparsers.add_parser("golden")
     status = subparsers.add_parser("status")
     status.add_argument("--run-id")
@@ -1225,17 +1246,23 @@ def main() -> int:
             if state.get("status") == "pr-open" and state.get("pr_url"):
                 print(state["pr_url"])
                 return 0
-            print(run_issue(issue_number, run_id=args.run_id))
+            print(run_issue(issue_number, run_id=args.run_id, source_file=args.source_file))
             return 0
         issue_number = _resolve_issue_argument(args, runner=subprocess.run)
         if args.command == "preflight":
-            print(json.dumps(asdict(preflight_issue(issue_number)), ensure_ascii=False, indent=2, sort_keys=True))
+            print(json.dumps(
+                asdict(preflight_issue(issue_number, source_file=args.source_file)),
+                ensure_ascii=False,
+                indent=2,
+                sort_keys=True,
+            ))
             return 0
         selected_run_id = args.run_id or str(uuid.uuid4())
         print(run_issue(
             issue_number,
             run_id=selected_run_id,
             prepared_worktree=args.prepared_worktree,
+            source_file=args.source_file,
         ))
         return 0
     except Exception as error:

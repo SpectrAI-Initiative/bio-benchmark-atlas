@@ -1,0 +1,124 @@
+entity_type: benchmark_use
+id: explainable-protein-protein-binding-affinity-predictio-ab-bind-5-use
+work_id: explainable-protein-protein-binding-affinity-predictio
+work_version_id: explainable-protein-protein-binding-affinity-predictio-biorxiv-version-posted-2
+benchmark_id: ab-bind
+benchmark_version: null
+relation_type: evaluation
+status: partial
+model_ids:
+- not-reported-balm-ppi
+scope:
+  type: subset
+  subset_kind: paper-specific
+  n: 272
+  subset_id: ppb-affinity-decontaminated-ab-bind
+  selection: filtered
+  selection_method: Removed parent-PDB overlap or identical antigen-antibody sequence-pair overlap with PPB-Affinity training
+    data
+  reporting_status: reported
+metric_labels: []
+evaluation_run_ids: []
+reporting_gaps:
+- Benchmark version is not reported.
+- BALM-PPI provider and version are not explicitly reported.
+- benchmark version
+- metric
+- numeric result
+notes: AI-assisted double-pass extraction; values are limited to independently supported claims.
+verification:
+  status: verified
+  last_verified: '2026-08-20'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: explainable-protein-protein-binding-affinity-predictio-ab-bind-5-use-evidence-1
+  source_type: work
+  source_id: explainable-protein-protein-binding-affinity-predictio
+  accessed_date: '2026-08-20'
+  locator:
+    type: section
+    value: '2.3'
+    note: null
+    document_page: 9
+    printed_page: '9'
+    source_fragment_sha256: dc44c98e93c8c3d67efeb41b1dbdce831c1b8b028ceddcb26568283cd41be29d
+  supports:
+  - /relation_type
+- id: explainable-protein-protein-binding-affinity-predictio-ab-bind-5-use-evidence-2
+  source_type: work
+  source_id: explainable-protein-protein-binding-affinity-predictio
+  accessed_date: '2026-08-20'
+  locator:
+    type: section
+    value: '2.3'
+    note: null
+    document_page: 9
+    printed_page: '9'
+    source_fragment_sha256: f9b2c4f98ae525af2278b1f95e7f3d336312a87e1cfb0906bff4f6ee3c9badb5
+  supports:
+  - /benchmark_id
+- id: explainable-protein-protein-binding-affinity-predictio-ab-bind-5-use-evidence-3
+  source_type: work
+  source_id: explainable-protein-protein-binding-affinity-predictio
+  accessed_date: '2026-08-20'
+  locator:
+    type: section
+    value: '2.3'
+    note: null
+    document_page: 9
+    printed_page: '9'
+    source_fragment_sha256: ff076448cdbf882041ddebbcf05239028ae82fec4667f21b8b6a81a9a1e55480
+  supports:
+  - /scope
+- id: explainable-protein-protein-binding-affinity-predictio-ab-bind-5-use-evidence-4
+  source_type: work
+  source_id: explainable-protein-protein-binding-affinity-predictio
+  accessed_date: '2026-08-20'
+  locator:
+    type: section
+    value: '2.3'
+    note: null
+    document_page: 9
+    printed_page: '9'
+    source_fragment_sha256: 237c15e0c4897fd4a1934eb9f4f79941ed3655b0b9161b7f8d8097cfbcb544c6
+  supports:
+  - /scope
+- id: explainable-protein-protein-binding-affinity-predictio-ab-bind-5-use-evidence-5
+  source_type: work
+  source_id: explainable-protein-protein-binding-affinity-predictio
+  accessed_date: '2026-08-20'
+  locator:
+    type: table
+    value: Table 1
+    note: null
+    document_page: 10
+    printed_page: '10'
+    source_fragment_sha256: 77f8990bd246ac794e676ea8630c0611d9ef4b6c32039e704ec0868e538e0a3b
+  supports:
+  - /scope
+- id: explainable-protein-protein-binding-affinity-predictio-ab-bind-5-use-evidence-6
+  source_type: work
+  source_id: explainable-protein-protein-binding-affinity-predictio
+  accessed_date: '2026-08-20'
+  locator:
+    type: section
+    value: '2.3'
+    note: null
+    document_page: 9
+    printed_page: '9'
+    source_fragment_sha256: 933d231cd432285faacc31ed1351cebd2a676f1687d17d3080be25a4a7a3682f
+  supports:
+  - /scope
+- id: explainable-protein-protein-binding-affinity-predictio-ab-bind-5-use-evidence-7
+  source_type: work
+  source_id: explainable-protein-protein-binding-affinity-predictio
+  accessed_date: '2026-08-20'
+  locator:
+    type: table
+    value: Table 1
+    note: null
+    document_page: 10
+    printed_page: '10'
+    source_fragment_sha256: 77f8990bd246ac794e676ea8630c0611d9ef4b6c32039e704ec0868e538e0a3b
+  supports:
+  - /model_ids

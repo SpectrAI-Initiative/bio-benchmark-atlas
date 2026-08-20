@@ -1,0 +1,51 @@
+entity_type: work
+id: explainable-protein-protein-binding-affinity-predictio
+title: Explainable protein-protein binding affinity prediction via fine-tuning protein language models
+authors:
+- Harshit Singh
+- Rajeev Kumar Singh
+- Satya Pratik Srivastava
+- Suryavedha Pradhan
+- Rohan Gorantla
+organizations:
+- Department of Computer Science and Engineering, Shiv Nadar University, Delhi-NCR
+- School of Informatics, University of Edinburgh
+- EaStCHEM School of Chemistry, University of Edinburgh
+work_type: preprint
+source_class: independent_reproduction
+publication_date: '2026-04-01'
+canonical_url: https://doi.org/10.64898/2026.03.30.715237
+doi: 10.64898/2026.03.30.715237
+arxiv: null
+status: preprint
+source_versions:
+- id: explainable-protein-protein-binding-affinity-predictio-biorxiv-version-posted-2
+  label: bioRxiv version posted 2026-06-11
+  status: current
+  publication_date: '2026-06-11'
+  canonical_url: https://doi.org/10.64898/2026.03.30.715237
+  doi: 10.64898/2026.03.30.715237
+  arxiv: null
+  source_access: open-url
+  content_sha256: a31273b2bdb98962327ea25dbf2e5a322fcbf1ba9edecebe87ceee7e20b0c1a7
+  content_type: application/pdf
+  retrieved_at: '2026-08-20T09:42:05+00:00'
+current_version_id: explainable-protein-protein-binding-affinity-predictio-biorxiv-version-posted-2
+review_provenance:
+  method: local-codex-double-pass
+  pipeline_version: 1.4.0
+  prompt_version: paper-evidence-local-v17
+  source_version_id: explainable-protein-protein-binding-affinity-predictio-biorxiv-version-posted-2
+  extractor_model_requested: gpt-5.6-sol
+  extractor_model_resolved: null
+  verifier_model_requested: gpt-5.6-sol
+  verifier_model_resolved: null
+  generated_at: '2026-08-20T09:42:05+00:00'
+  execution_surface: local-codex-cli
+  model_resolution_status: not-reported
+  codex_cli_version: codex-cli 0.148.0-alpha.9
+  local_run_id: 7aeadf4b-237c-4f01-b146-81fb3a885211
+verification:
+  status: verified
+  last_verified: '2026-08-20'
+  notes: AI-assisted double-pass extraction; production inclusion still requires the owner SHA-comment gate.

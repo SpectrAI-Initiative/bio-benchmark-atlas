@@ -2628,6 +2628,66 @@ def test_owner_can_downgrade_conflicted_creator_evaluation_to_partial_use() -> N
             "container": True,
             "external_tools": [],
         }),
+        claim(
+            "claim-30", "benchmark-metadata", "fully-open",
+            field_path="/benchmark-metadata/access/level",
+        ),
+        claim(
+            "claim-31", "benchmark-metadata", "All benchmark tasks are public.",
+            field_path="/benchmark-metadata/access/tasks",
+        ),
+        claim(
+            "claim-32", "benchmark-metadata", "The official repository releases the artifacts.",
+            field_path="/benchmark-metadata/access/artifacts",
+        ),
+        claim(
+            "claim-33", "benchmark-metadata", "A deterministic grader is public.",
+            field_path="/benchmark-metadata/access/grader",
+        ),
+        claim(
+            "claim-34", "benchmark-metadata", "ConservativeBench",
+            field_path="/benchmark-metadata/name",
+        ),
+        claim(
+            "claim-35", "benchmark-metadata", [],
+            field_path="/benchmark-metadata/aliases",
+        ),
+        claim(
+            "claim-36", "benchmark-metadata", metadata["summary"],
+            field_path="/benchmark-metadata/summary",
+        ),
+        claim(
+            "claim-37", "benchmark-metadata", metadata["kind"],
+            field_path="/benchmark-metadata/kind",
+        ),
+        claim(
+            "claim-38", "benchmark-metadata", metadata["organizations"],
+            field_path="/benchmark-metadata/organizations",
+        ),
+        claim(
+            "claim-39", "benchmark-metadata", metadata["release_date"],
+            field_path="/benchmark-metadata/release_date",
+        ),
+        claim(
+            "claim-40", "benchmark-metadata", metadata["domains"],
+            field_path="/benchmark-metadata/domains",
+        ),
+        claim(
+            "claim-41", "benchmark-metadata", metadata["capabilities"],
+            field_path="/benchmark-metadata/capabilities",
+        ),
+        claim(
+            "claim-42", "benchmark-metadata", metadata["modalities"],
+            field_path="/benchmark-metadata/modalities",
+        ),
+        claim(
+            "claim-43", "benchmark-metadata", metadata["task_formats"],
+            field_path="/benchmark-metadata/task_formats",
+        ),
+        claim(
+            "claim-44", "benchmark-metadata", metadata["access"]["license"],
+            field_path="/benchmark-metadata/access/license",
+        ),
     ]
     evaluation_claims = [
         claim("claim-11", "relation", "evaluation", mention_id="mention-2"),
@@ -2719,11 +2779,20 @@ def test_owner_can_downgrade_conflicted_creator_evaluation_to_partial_use() -> N
             **count_only,
             "exclude": "benchmark-subcounts,creator-evaluation",
             "exclude_creator_evaluation": True,
+            "provisional_access_level": "fully-open",
+            "provisional_access_status": "provisional",
+            "provisional_access_approved_at": "2026-07-27T01:01:00Z",
         },
     )
     benchmark = records.benchmarks[0]
     assert benchmark["task_counts"]["total"] == 394
     assert benchmark["task_counts"]["subsets"] == []
+    access_status = next(
+        item for item in benchmark["field_status"] if item["path"] == "/access/level"
+    )
+    assert access_status["status"] == "provisional"
+    assert access_status["confidence"] == "medium"
+    assert benchmark["access"]["level"] == "fully-open"
     evaluation_use = next(item for item in records.uses if item["relation_type"] == "evaluation")
     assert [item["relation_type"] for item in records.uses] == [
         "benchmark-creation",

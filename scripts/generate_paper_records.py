@@ -1358,6 +1358,106 @@ def _creator_evaluation_mentions(
     }
 
 
+def _resolve_provisional_access(
+    draft: PaperEvidenceDraft,
+    *,
+    creation_mention_id: str,
+    accepted: list[Any],
+    verdicts: dict[str, Any],
+    resolution: dict[str, Any],
+) -> tuple[str | None, list[str]]:
+    """Validate an owner-approved Atlas access classification and its evidence."""
+
+    provisional_access_level = resolution.get("provisional_access_level")
+    if provisional_access_level is None:
+        return None, []
+    if (
+        provisional_access_level != "fully-open"
+        or resolution.get("provisional_access_status") != "provisional"
+    ):
+        raise GenerationBlocked(
+            "owner provisional benchmark-access resolution is unsupported"
+        )
+    access_level_claims = [
+        claim
+        for claim in draft.claims
+        if claim.mention_id == creation_mention_id
+        and claim.claim_type == "benchmark-metadata"
+        and claim.field_path == f"{_ATOMIC_METADATA_PREFIX}/access/level"
+    ]
+    if any(_claim_value(claim) != provisional_access_level for claim in access_level_claims):
+        raise GenerationBlocked(
+            "owner provisional benchmark-access value conflicts with an extracted access claim"
+        )
+    accepted_ids = {claim.claim_id for claim in accepted}
+    accepted_access_level_claims = [
+        claim for claim in access_level_claims if claim.claim_id in accepted_ids
+    ]
+    if len(accepted_access_level_claims) > 1:
+        raise GenerationBlocked(
+            "owner provisional benchmark-access resolution found multiple accepted access claims"
+        )
+    required_access_claims = []
+    for field_path in ("/access/tasks", "/access/artifacts", "/access/grader"):
+        candidates = [
+            claim
+            for claim in accepted
+            if claim.mention_id == creation_mention_id
+            and claim.claim_type == "benchmark-metadata"
+            and claim.field_path == f"{_ATOMIC_METADATA_PREFIX}{field_path}"
+        ]
+        if not candidates:
+            continue
+        canonical_values = {
+            json.dumps(_claim_value(claim), sort_keys=True, ensure_ascii=False)
+            for claim in candidates
+        }
+        if len(canonical_values) != 1:
+            raise GenerationBlocked(
+                "owner provisional benchmark-access approval found conflicting accepted "
+                f"values for {field_path}"
+            )
+        required_access_claims.extend(candidates)
+    if not required_access_claims:
+        raise GenerationBlocked(
+            "owner provisional benchmark-access approval requires at least one "
+            "high-confidence source claim for an access facet"
+        )
+    accepted_resource_claims = [
+        claim
+        for claim in accepted
+        if claim.mention_id == creation_mention_id
+        and claim.claim_type in {"official-repository", "official-resource"}
+    ]
+    if len(accepted_resource_claims) != 1:
+        raise GenerationBlocked(
+            "owner provisional benchmark-access approval requires exactly one verified "
+            "official resource"
+        )
+    support_claims = [
+        *accepted_access_level_claims,
+        *required_access_claims,
+        *accepted_resource_claims,
+    ]
+    for claim in support_claims:
+        verdict = verdicts.get(claim.claim_id)
+        if (
+            claim.confidence != "high"
+            or verdict is None
+            or verdict.verdict != "supported"
+            or verdict.confidence != "high"
+            or not locator_is_resolved(verdict.locator)
+        ):
+            raise GenerationBlocked(
+                "owner provisional benchmark-access approval requires high/high "
+                "source-located access and resource evidence"
+            )
+    return provisional_access_level, [
+        claim.claim_id
+        for claim in [*accepted_access_level_claims, *required_access_claims]
+    ]
+
+
 def _apply_owner_not_reported_creator_evaluation_resolution(
     draft: PaperEvidenceDraft,
     verification: PaperEvidenceVerification,
@@ -1457,98 +1557,15 @@ def _apply_owner_not_reported_creator_evaluation_resolution(
             provisional_kind_claim = provisional_candidates[0]
             accepted = [*accepted, provisional_kind_claim]
 
-    provisional_access_level = resolution.get("provisional_access_level")
-    provisional_access_support_claim_ids: list[str] = []
-    if provisional_access_level is not None:
-        if (
-            provisional_access_level != "fully-open"
-            or resolution.get("provisional_access_status") != "provisional"
-        ):
-            raise GenerationBlocked(
-                "owner provisional benchmark-access resolution is unsupported"
-            )
-        access_level_claims = [
-            claim
-            for claim in draft.claims
-            if claim.mention_id == creation_mention_id
-            and claim.claim_type == "benchmark-metadata"
-            and claim.field_path == f"{_ATOMIC_METADATA_PREFIX}/access/level"
-        ]
-        if any(_claim_value(claim) != provisional_access_level for claim in access_level_claims):
-            raise GenerationBlocked(
-                "owner provisional benchmark-access value conflicts with an extracted access claim"
-            )
-        accepted_ids = {claim.claim_id for claim in accepted}
-        accepted_access_level_claims = [
-            claim for claim in access_level_claims if claim.claim_id in accepted_ids
-        ]
-        if len(accepted_access_level_claims) > 1:
-            raise GenerationBlocked(
-                "owner provisional benchmark-access resolution found multiple accepted access claims"
-            )
-        required_access_claims = []
-        for field_path in ("/access/tasks", "/access/artifacts", "/access/grader"):
-            candidates = [
-                claim
-                for claim in accepted
-                if claim.mention_id == creation_mention_id
-                and claim.claim_type == "benchmark-metadata"
-                and claim.field_path == f"{_ATOMIC_METADATA_PREFIX}{field_path}"
-            ]
-            if not candidates:
-                # A provisional Atlas-level access classification may be approved
-                # when the creator source does not separately describe every
-                # access facet. Keep the facet's conservative generated text and
-                # do not fabricate claim-level support for the missing path.
-                continue
-            canonical_values = {
-                json.dumps(_claim_value(claim), sort_keys=True, ensure_ascii=False)
-                for claim in candidates
-            }
-            if len(canonical_values) != 1:
-                raise GenerationBlocked(
-                    "owner provisional benchmark-access approval found conflicting accepted "
-                    f"values for {field_path}"
-                )
-            required_access_claims.extend(candidates)
-        if not required_access_claims:
-            raise GenerationBlocked(
-                "owner provisional benchmark-access approval requires at least one "
-                "high-confidence source claim for an access facet"
-            )
-        accepted_resource_claims = [
-            claim
-            for claim in accepted
-            if claim.mention_id == creation_mention_id
-            and claim.claim_type in {"official-repository", "official-resource"}
-        ]
-        if len(accepted_resource_claims) != 1:
-            raise GenerationBlocked(
-                "owner provisional benchmark-access approval requires exactly one verified "
-                "official resource"
-            )
-        support_claims = [
-            *accepted_access_level_claims,
-            *required_access_claims,
-            *accepted_resource_claims,
-        ]
-        for claim in support_claims:
-            verdict = verdicts.get(claim.claim_id)
-            if (
-                claim.confidence != "high"
-                or verdict is None
-                or verdict.verdict != "supported"
-                or verdict.confidence != "high"
-                or not locator_is_resolved(verdict.locator)
-            ):
-                raise GenerationBlocked(
-                    "owner provisional benchmark-access approval requires high/high "
-                    "source-located access and resource evidence"
-                )
-        provisional_access_support_claim_ids = [
-            claim.claim_id
-            for claim in [*accepted_access_level_claims, *required_access_claims]
-        ]
+    provisional_access_level, provisional_access_support_claim_ids = (
+        _resolve_provisional_access(
+            draft,
+            creation_mention_id=creation_mention_id,
+            accepted=accepted,
+            verdicts=verdicts,
+            resolution=resolution,
+        )
+    )
 
     root_totals = []
     for claim in accepted:
@@ -1876,6 +1893,16 @@ def _apply_owner_count_conflict_resolution(
             "owner count resolution lacks a conflicted benchmark-count locator"
         )
 
+    provisional_access_level, provisional_access_support_claim_ids = (
+        _resolve_provisional_access(
+            draft,
+            creation_mention_id=mention_id,
+            accepted=accepted,
+            verdicts=verdicts,
+            resolution=resolution,
+        )
+    )
+
     filtered: list[Any] = []
     for claim in accepted:
         if exclude_creator_evaluation and claim.mention_id in creator_evaluation_mentions:
@@ -1910,6 +1937,8 @@ def _apply_owner_count_conflict_resolution(
         "root_total_confidence": root_totals[0].confidence,
         "creator_evaluation_mentions": sorted(creator_evaluation_mentions)
         if exclude_creator_evaluation else [],
+        "provisional_access_level": provisional_access_level,
+        "provisional_access_support_claim_ids": provisional_access_support_claim_ids,
     }
 
 

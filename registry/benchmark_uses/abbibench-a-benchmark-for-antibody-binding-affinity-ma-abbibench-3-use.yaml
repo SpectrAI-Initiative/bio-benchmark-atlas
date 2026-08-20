@@ -1,0 +1,138 @@
+entity_type: benchmark_use
+id: abbibench-a-benchmark-for-antibody-binding-affinity-ma-abbibench-3-use
+work_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+work_version_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma-arxiv-v2
+benchmark_id: abbibench
+benchmark_version: null
+relation_type: validation
+status: non-evaluation
+model_ids:
+- not-reported-esm-if
+- not-reported-mean
+- not-reported-saprot
+scope:
+  type: unknown
+  subset_kind: not-applicable
+  n: null
+  subset_id: null
+  selection: null
+  selection_method: null
+  reporting_status: not_applicable
+metric_labels:
+- ELISA OD450 signal
+evaluation_run_ids: []
+reporting_gaps:
+- No benchmark version is reported.
+- Per-mutant ELISA OD450 values are shown only in an unlabeled plot and are not extracted.
+- The numeric detection threshold and the number of mutants contributed by each model are not reported.
+- The source conflicts between 18 and 21 Pareto-optimal computational candidates.
+notes: AI-assisted double-pass extraction; values are limited to independently supported claims.
+verification:
+  status: verified
+  last_verified: '2026-08-20'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: abbibench-a-benchmark-for-antibody-binding-affinity-ma-abbibench-3-use-evidence-1
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: section
+    value: In vitro experiments and conclusion
+    note: null
+    document_page: 10
+    printed_page: '10'
+    source_fragment_sha256: 0900e1d5dea55bcc50a8fd6dd76c12c0552d31a4733bc7ae16390c33436d3a52
+  supports:
+  - /relation_type
+- id: abbibench-a-benchmark-for-antibody-binding-affinity-ma-abbibench-3-use-evidence-2
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: section
+    value: Conclusion
+    note: null
+    document_page: 10
+    printed_page: '10'
+    source_fragment_sha256: 46132f469530972ced7e068cb359c0afe68e8ea7589582adc3741507b524b841
+  supports:
+  - /benchmark_id
+- id: abbibench-a-benchmark-for-antibody-binding-affinity-ma-abbibench-3-use-evidence-3
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: section
+    value: In vitro experiments
+    note: null
+    document_page: 10
+    printed_page: '10'
+    source_fragment_sha256: e143541e80e840fe6653569b0baed58d444f994fbe4f40a004c1f289d5032aec
+  supports:
+  - /scope
+- id: abbibench-a-benchmark-for-antibody-binding-affinity-ma-abbibench-3-use-evidence-4
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: section
+    value: In vitro experiments
+    note: null
+    document_page: 10
+    printed_page: '10'
+    source_fragment_sha256: 04a0140cd97849a3de84f59e1611abd49fb95fc34ce45058b6819371efe0b3e4
+  supports:
+  - /scope
+- id: abbibench-a-benchmark-for-antibody-binding-affinity-ma-abbibench-3-use-evidence-5
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: figure
+    value: Figure 6
+    note: null
+    document_page: 9
+    printed_page: '9'
+    source_fragment_sha256: 339f9b86775ea49fbd32d5260f617351b149e2945c119b3d1410b35b7caf970c
+  supports:
+  - /model_ids
+- id: abbibench-a-benchmark-for-antibody-binding-affinity-ma-abbibench-3-use-evidence-6
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: figure
+    value: Figure 6
+    note: null
+    document_page: 9
+    printed_page: '9'
+    source_fragment_sha256: 6a50ae719f116f0547f51e408fa58bc2c9e7c66150dc7ebfd2beee2ecf94e894
+  supports:
+  - /model_ids
+- id: abbibench-a-benchmark-for-antibody-binding-affinity-ma-abbibench-3-use-evidence-7
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: figure
+    value: Figure 6
+    note: null
+    document_page: 9
+    printed_page: '9'
+    source_fragment_sha256: 0b4981cac40f2e7196bf9ee08768925a56cfeee958f7c68012ffe9903ac40f97
+  supports:
+  - /model_ids
+- id: abbibench-a-benchmark-for-antibody-binding-affinity-ma-abbibench-3-use-evidence-8
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: figure
+    value: Figure 6
+    note: null
+    document_page: 9
+    printed_page: '9'
+    source_fragment_sha256: 93d000e0771d39c571383f86102962a777a3aed64997c12937ad3df1b97672fa
+  supports:
+  - /metric_labels

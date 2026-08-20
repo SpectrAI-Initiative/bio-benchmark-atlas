@@ -1,0 +1,305 @@
+entity_type: benchmark_use
+id: abbibench-a-benchmark-for-antibody-binding-affinity-ma-abbibench-2-use
+work_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+work_version_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma-arxiv-v2
+benchmark_id: abbibench
+benchmark_version: null
+relation_type: evaluation
+status: partial
+model_ids:
+- esm-if1
+- not-reported-antiberty
+- not-reported-antifold
+- not-reported-currab
+- not-reported-diffab
+- not-reported-diffab-fixbb
+- not-reported-dymean
+- not-reported-dymean-fixbb
+- not-reported-esm2
+- not-reported-esm3
+- not-reported-mean
+- not-reported-mean-fixbb
+- not-reported-progen2-large
+- not-reported-prosst
+- not-reported-saprot
+- proteinmpnn
+- protgpt2
+scope:
+  type: unknown
+  subset_kind: not-reported
+  n: null
+  subset_id: null
+  selection: null
+  selection_method: null
+  reporting_status: not_reported
+metric_labels: []
+evaluation_run_ids: []
+reporting_gaps:
+- No benchmark version is reported.
+- Model implementation versions, seeds, repeats, and uncertainty intervals are not reported.
+- Most absolute results are printed only as heatmap cells; only selected headline averages are extracted.
+- Per-dataset precision values are printed in a heatmap but no aggregate absolute precision is reported.
+- Exact random seeds are not reported.
+- Uncertainty intervals are not reported.
+- The source conflicts between 18 and 21 final Pareto-optimal variants.
+- Uncertainty intervals and exact AlphaFold 3 version are not reported.
+- benchmark version
+- realized n/scope
+- metric
+- numeric result
+- prompt and tools
+- grader and repeats
+notes: 'Owner-reviewed conservative publication: the creator evaluation is retained only as a partial relationship; conflicted
+  settings and outcomes are omitted pending manual reconciliation.'
+verification:
+  status: verified
+  last_verified: '2026-08-20'
+  notes: Ready for production only after owner approval of this paper-intake PR's exact head SHA.
+evidence:
+- id: abbibench-a-benchmark-for-antibody-binding-affinity-ma-abbibench-2-use-evidence-1
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: section
+    value: Section 3
+    note: null
+    document_page: 4
+    printed_page: '4'
+    source_fragment_sha256: 7316194f4d55eae8dd38b8913d7f5275a898cec4c3ae7207f9770776164acb9a
+  supports:
+  - /relation_type
+- id: abbibench-a-benchmark-for-antibody-binding-affinity-ma-abbibench-2-use-evidence-2
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: section
+    value: Section 3
+    note: null
+    document_page: 4
+    printed_page: '4'
+    source_fragment_sha256: 506213c997e4401b3ed26d6629d976840238a9e017d57931e1a649ecd49e0f74
+  supports:
+  - /benchmark_id
+- id: abbibench-a-benchmark-for-antibody-binding-affinity-ma-abbibench-2-use-evidence-3
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: table
+    value: Table S2
+    note: null
+    document_page: 19
+    printed_page: '19'
+    source_fragment_sha256: b27202a6724364d69b14179d96ff4659f5ac74cd7835d1c4bbd0f9509772bafa
+  supports:
+  - /model_ids
+- id: abbibench-a-benchmark-for-antibody-binding-affinity-ma-abbibench-2-use-evidence-4
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: table
+    value: Table S2
+    note: null
+    document_page: 19
+    printed_page: '19'
+    source_fragment_sha256: 1fe8c7e0c16974ce497b31acf3e910c7d029f096be7ecde4f97d629ab64964d1
+  supports:
+  - /model_ids
+- id: abbibench-a-benchmark-for-antibody-binding-affinity-ma-abbibench-2-use-evidence-5
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: table
+    value: Table S2
+    note: null
+    document_page: 19
+    printed_page: '19'
+    source_fragment_sha256: 3adce02ebb5c529d800421e254607be985be0284b426a236f36e008f47f3946e
+  supports:
+  - /model_ids
+- id: abbibench-a-benchmark-for-antibody-binding-affinity-ma-abbibench-2-use-evidence-6
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: table
+    value: Table S2
+    note: null
+    document_page: 19
+    printed_page: '19'
+    source_fragment_sha256: fb29ee18a32ae13ad52e9e72167963a6f7475e36c86fc3fe1bfc72f0f5503c42
+  supports:
+  - /model_ids
+- id: abbibench-a-benchmark-for-antibody-binding-affinity-ma-abbibench-2-use-evidence-7
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: table
+    value: Table S2
+    note: null
+    document_page: 19
+    printed_page: '19'
+    source_fragment_sha256: 1d7a87559569800a265c3e3152ee9138851411ad2e00a3609725b3e139dbc775
+  supports:
+  - /model_ids
+- id: abbibench-a-benchmark-for-antibody-binding-affinity-ma-abbibench-2-use-evidence-8
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: table
+    value: Table S2
+    note: null
+    document_page: 19
+    printed_page: '19'
+    source_fragment_sha256: dbb140934cd5ab60eb9dbde164678bb4616f01c9b68048c9bf3f756355b96f11
+  supports:
+  - /model_ids
+- id: abbibench-a-benchmark-for-antibody-binding-affinity-ma-abbibench-2-use-evidence-9
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: figure
+    value: Figure 3
+    note: null
+    document_page: 8
+    printed_page: '8'
+    source_fragment_sha256: 7be05879862e007d879a03c02c7dde351d3d608f1a3c7401ad0cd6c291e10dbd
+  supports:
+  - /model_ids
+- id: abbibench-a-benchmark-for-antibody-binding-affinity-ma-abbibench-2-use-evidence-10
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: table
+    value: Table S2
+    note: null
+    document_page: 19
+    printed_page: '19'
+    source_fragment_sha256: efedfc695a866dbae7586760e6cb336f73122787a19e94b9b0e30667fe6f8df3
+  supports:
+  - /model_ids
+- id: abbibench-a-benchmark-for-antibody-binding-affinity-ma-abbibench-2-use-evidence-11
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: table
+    value: Table S2
+    note: null
+    document_page: 19
+    printed_page: '19'
+    source_fragment_sha256: 12a96da06b5012442a792cd80d2f38d0f55b2b4dfbb74cfdc1c122963d02d879
+  supports:
+  - /model_ids
+- id: abbibench-a-benchmark-for-antibody-binding-affinity-ma-abbibench-2-use-evidence-12
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: figure
+    value: Figure 3
+    note: null
+    document_page: 8
+    printed_page: '8'
+    source_fragment_sha256: 6f8d8be81c23aaa9e5d6cada0d8f43dc601c5f7b2a26dc8726d6eb4b21d35352
+  supports:
+  - /model_ids
+- id: abbibench-a-benchmark-for-antibody-binding-affinity-ma-abbibench-2-use-evidence-13
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: table
+    value: Table S2
+    note: null
+    document_page: 19
+    printed_page: '19'
+    source_fragment_sha256: f4b1f237f2ac5fda9f8e785214bdd6004173938f80bb1ee5caafbd85b35844c9
+  supports:
+  - /model_ids
+- id: abbibench-a-benchmark-for-antibody-binding-affinity-ma-abbibench-2-use-evidence-14
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: table
+    value: Table S2
+    note: null
+    document_page: 19
+    printed_page: '19'
+    source_fragment_sha256: 79382e299cfe05dc607e212bdd0bb645f1cf5f8142e1fe57d3c2f36d98d8b016
+  supports:
+  - /model_ids
+- id: abbibench-a-benchmark-for-antibody-binding-affinity-ma-abbibench-2-use-evidence-15
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: table
+    value: Table S2
+    note: null
+    document_page: 19
+    printed_page: '19'
+    source_fragment_sha256: df65a7eb59d87ef72f21508332a89eb1a167027d1127bdcc8537d2bc486df4de
+  supports:
+  - /model_ids
+- id: abbibench-a-benchmark-for-antibody-binding-affinity-ma-abbibench-2-use-evidence-16
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: table
+    value: Table S2
+    note: null
+    document_page: 19
+    printed_page: '19'
+    source_fragment_sha256: e712036404f9220b6624e068c2a6b7181cd1328b63cf21635f0465a7b90a5731
+  supports:
+  - /model_ids
+- id: abbibench-a-benchmark-for-antibody-binding-affinity-ma-abbibench-2-use-evidence-17
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: table
+    value: Table S2
+    note: null
+    document_page: 19
+    printed_page: '19'
+    source_fragment_sha256: abf32d01dc065ea6b4d9ac53e1bcc3ba50068bb69122ad73bd301ccb612b4bc7
+  supports:
+  - /model_ids
+- id: abbibench-a-benchmark-for-antibody-binding-affinity-ma-abbibench-2-use-evidence-18
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: table
+    value: Table S2
+    note: null
+    document_page: 19
+    printed_page: '19'
+    source_fragment_sha256: 9ca7259485934060581bd1a9f96d8e6c67db636b9e32c716c76334641d18eb0c
+  supports:
+  - /model_ids
+- id: abbibench-a-benchmark-for-antibody-binding-affinity-ma-abbibench-2-use-evidence-19
+  source_type: work
+  source_id: abbibench-a-benchmark-for-antibody-binding-affinity-ma
+  accessed_date: '2026-08-20'
+  locator:
+    type: table
+    value: Table S2
+    note: null
+    document_page: 19
+    printed_page: '19'
+    source_fragment_sha256: b99a784a971376e2b406e33d241145927df3df74f6e27ff7e80a775e95130d6d
+  supports:
+  - /model_ids

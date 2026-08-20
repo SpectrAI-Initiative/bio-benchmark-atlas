@@ -24,7 +24,7 @@ reporting_gaps:
 - The source reports assay inventories, but not an exact realized evaluation n for every assay.
 - BALM-PPI provider and version are not explicitly reported.
 - benchmark version
-notes: AI-assisted double-pass extraction; values are limited to independently supported claims.
+notes: AI-assisted double-pass extraction; n=9 counts selected assay tracks, not individual examples. Values are limited to independently supported claims.
 verification:
   status: verified
   last_verified: '2026-08-20'

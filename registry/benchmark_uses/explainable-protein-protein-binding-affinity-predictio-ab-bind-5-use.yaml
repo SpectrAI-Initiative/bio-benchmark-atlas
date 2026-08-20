@@ -9,14 +9,14 @@ status: partial
 model_ids:
 - not-reported-balm-ppi
 scope:
-  type: unknown
-  subset_kind: not-reported
+  type: subset
+  subset_kind: paper-specific
   n: 272
-  subset_id: null
-  selection: null
+  subset_id: ppb-affinity-decontaminated-ab-bind
+  selection: filtered
   selection_method: Removed parent-PDB overlap or identical antigen-antibody sequence-pair overlap with PPB-Affinity training
     data
-  reporting_status: not_reported
+  reporting_status: reported
 metric_labels: []
 evaluation_run_ids: []
 reporting_gaps:

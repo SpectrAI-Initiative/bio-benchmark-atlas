@@ -7,7 +7,7 @@
   - explainable-protein-protein-binding-affinity-predictio
   - not-reported-balm-ppi
   - not-reported-balm-ppi-without-peft
-  - not-reported-baseline
+  - not-reported-balm-ppi-standard-regression-baseline
   - explainable-protein-protein-binding-affinity-predictio-ppb-affinity-1-use
   - explainable-protein-protein-binding-affinity-predictio-ppb-affinity-2-use
   - explainable-protein-protein-binding-affinity-predictio-ppb-affinity-3-use

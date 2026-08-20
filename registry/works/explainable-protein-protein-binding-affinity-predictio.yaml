@@ -11,18 +11,18 @@ organizations:
 - Department of Computer Science and Engineering, Shiv Nadar University, Delhi-NCR
 - School of Informatics, University of Edinburgh
 - EaStCHEM School of Chemistry, University of Edinburgh
-work_type: paper
+work_type: preprint
 source_class: independent_reproduction
 publication_date: '2026-04-01'
 canonical_url: https://doi.org/10.64898/2026.03.30.715237
 doi: 10.64898/2026.03.30.715237
 arxiv: null
-status: published
+status: preprint
 source_versions:
 - id: explainable-protein-protein-binding-affinity-predictio-biorxiv-version-posted-2
   label: bioRxiv version posted 2026-06-11
-  status: version-of-record
-  publication_date: '2026-04-01'
+  status: current
+  publication_date: '2026-06-11'
   canonical_url: https://doi.org/10.64898/2026.03.30.715237
   doi: 10.64898/2026.03.30.715237
   arxiv: null

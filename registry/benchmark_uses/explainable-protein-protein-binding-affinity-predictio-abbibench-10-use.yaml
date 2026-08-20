@@ -14,7 +14,7 @@ scope:
   n: null
   subset_id: null
   selection: null
-  selection_method: null
+  selection_method: Few-Shot 10%
   reporting_status: not_applicable
 metric_labels:
 - RMSE

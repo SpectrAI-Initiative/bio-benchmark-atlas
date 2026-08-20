@@ -9,7 +9,7 @@ status: partial
 model_ids:
 - not-reported-balm-ppi
 - not-reported-balm-ppi-without-peft
-- not-reported-baseline
+- not-reported-balm-ppi-standard-regression-baseline
 scope:
   type: subset
   subset_kind: formal-subset

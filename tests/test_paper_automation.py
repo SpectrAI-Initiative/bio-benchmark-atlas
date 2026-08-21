@@ -4695,6 +4695,7 @@ def test_official_artifact_context_resolves_bounded_huggingface_evidence(
         "run_paper_intake._json_request",
         lambda url, **_: {
             "id": "AbBibench/Antibody_Binding_Benchmark_Dataset",
+            "createdAt": "2025-03-18T21:45:53.000Z",
             "sha": revision,
             "private": False,
             "gated": False,
@@ -4717,6 +4718,7 @@ def test_official_artifact_context_resolves_bounded_huggingface_evidence(
             "AbBibench/Antibody_Binding_Benchmark_Dataset"
         ),
         "full_name": "AbBibench/Antibody_Binding_Benchmark_Dataset",
+        "created_at": "2025-03-18T21:45:53.000Z",
         "head_commit": revision,
         "head_commit_url": (
             "https://huggingface.co/datasets/AbBibench/"

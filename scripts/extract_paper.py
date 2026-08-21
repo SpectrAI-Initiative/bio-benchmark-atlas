@@ -1336,14 +1336,17 @@ def run_double_pass(
             )
             artifact_instruction = (
                 f" Read the independently retrieved official artifact metadata at {artifact_path}. "
-                "It is authoritative only for an official-repository claim and its repository "
-                "identity, ownership, license, public visibility, file inventory, and immutable "
-                "commit pin. When combined with creator-source descriptions of the benchmark "
+                "It is authoritative only for official-repository or official-resource claims and "
+                "their identity, ownership, license, public visibility, file inventory, and "
+                "immutable commit pin. For a Hugging Face dataset, its API-provided created_at may "
+                "also support /benchmark-metadata/release_date after normalizing the date component, "
+                "but only when the creator source identifies that same dataset as the benchmark "
+                "artifact. When combined with creator-source descriptions of the benchmark "
                 "materials, it may support access tasks/artifacts text and the controlled "
                 "/benchmark-metadata/access/level classification. It cannot support paper identity, "
                 "benchmark counts, scientific-task counts, evaluation settings, metrics, grader "
                 "availability, or results. Cite it with a repository-path locator; verify that the "
-                "repository identity and owner are consistent with the creator source before "
+                "artifact identity and owner are consistent with the creator source before "
                 "accepting the resource."
             )
         draft_schema = session_dir / "paper-evidence-draft.schema.json"

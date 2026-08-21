@@ -282,6 +282,7 @@ def official_artifact_context(
                 "url": canonical_url,
                 "api_url": api_url,
                 "full_name": dataset_payload.get("id") or repository_id,
+                "created_at": dataset_payload.get("createdAt"),
                 "head_commit": commit,
                 "head_commit_url": f"{canonical_url}/tree/{commit}",
                 "visibility": "private" if dataset_payload.get("private") else "public",
